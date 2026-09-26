@@ -74,11 +74,12 @@ def test_unknown_link_and_report_element(clean_content_root: Path):
     }
 
 
-def test_missing_source_file(clean_content_root: Path):
+def test_missing_source_file_is_a_warning_and_element_stays(clean_content_root: Path):
     (clean_content_root / "lessons/001/sources/picture.jpg").unlink()
-    assert error_paths(load_content(clean_content_root)) == {
-        "lessons/001/exercises/ex-picturea.yaml"
-    }
+    content = load_content(clean_content_root)
+    assert error_paths(content) == {"lessons/001/exercises/ex-picturea.yaml"}
+    assert content.errors[0].warning is True
+    assert "ex-picturea" in content.elements  # spec, Edge Cases: элемент показывается
 
 
 def test_duplicate_exercise_number_in_same_part(clean_content_root: Path):

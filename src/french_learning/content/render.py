@@ -18,9 +18,7 @@ _ALLOWED_ATTRIBUTES = {
     "a": {"href", "title"},
     "th": {"align"},
     "td": {"align"},
-    "h1": {"id"},
-    "h2": {"id"},
-    "h3": {"id"},
+    **{f"h{level}": {"id"} for level in range(1, 7)},
 }
 
 _md = MarkdownIt("commonmark", {"html": False}).enable("table").enable("strikethrough")
@@ -36,9 +34,24 @@ def _image_url(src: str, image_base: str) -> str | None:
     return f"/sources/{path.as_posix()}"
 
 
-def render_markdown(text: str, image_base: str) -> str:
+def headings(text: str) -> list[tuple[int, str]]:
+    """Заголовки Markdown по порядку: (уровень, текст) — для оглавления."""
     tokens = _md.parse(text)
+    return [
+        (int(token.tag[1]), tokens[i + 1].content)
+        for i, token in enumerate(tokens)
+        if token.type == "heading_open"
+    ]
+
+
+def render_markdown(text: str, image_base: str, heading_prefix: str | None = None) -> str:
+    """Markdown → безопасный HTML. С heading_prefix заголовки получают id «prefix-N» (N с 1)."""
+    tokens = _md.parse(text)
+    heading_number = 0
     for token in tokens:
+        if heading_prefix and token.type == "heading_open":
+            heading_number += 1
+            token.attrSet("id", f"{heading_prefix}-{heading_number}")
         for child in token.children or []:
             if child.type == "image":
                 url = _image_url(child.attrGet("src") or "", image_base)

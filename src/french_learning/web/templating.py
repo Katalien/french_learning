@@ -8,7 +8,7 @@ from pathlib import Path
 from fastapi.templating import Jinja2Templates
 from markupsafe import Markup, escape
 
-from french_learning.content.render import render_markdown
+from french_learning.content.render import headings, render_markdown
 from french_learning.content.schema import EXERCISE_TYPE_NAMES, GAP_RE
 
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
@@ -43,8 +43,14 @@ def element_image_base(path: str | None) -> str:
     return "/".join(parts[:2]) if parts[0] == "lessons" else parts[0]
 
 
-def markdown(text: str | None, path: str | None = None) -> Markup:
-    return Markup(render_markdown(text or "", element_image_base(path)))
+def markdown(text: str | None, path: str | None = None, anchors: str | None = None) -> Markup:
+    return Markup(render_markdown(text or "", element_image_base(path), heading_prefix=anchors))
+
+
+def toc(text: str | None) -> list[tuple[int, str]]:
+    """Оглавление теории: только если заголовков 3 и больше (spec, Edge Cases)."""
+    found = headings(text or "")
+    return found if len(found) >= 3 else []
 
 
 def gaps(text: str) -> Markup:
@@ -70,7 +76,7 @@ def plural(n: int, one: str, few: str, many: str) -> str:
 
 
 env = templates.env
-env.filters.update(ru_date=ru_date, markdown=markdown, gaps=gaps)
+env.filters.update(ru_date=ru_date, markdown=markdown, gaps=gaps, toc=toc)
 env.globals.update(
     PART_NAMES=PART_NAMES,
     STATUS_NAMES=STATUS_NAMES,

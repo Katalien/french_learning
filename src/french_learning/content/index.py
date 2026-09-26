@@ -103,7 +103,7 @@ class ContentIndex:
 
     def lesson_errors(self, lesson: int) -> list[LoadError]:
         prefix = f"lessons/{lesson:03d}/"
-        return [e for e in self.content.errors if e.path.startswith(prefix)]
+        return [e for e in self.content.errors if e.path.startswith(prefix) and not e.warning]
 
     def lesson_topics(self, lesson: int) -> list[schema.Topic]:
         ids = {t for e in self.elements(lesson) for t in e.topics}

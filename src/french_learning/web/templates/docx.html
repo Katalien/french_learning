@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}{{ name }}{% endblock %}
+{% block content %}
+<p class="muted">Оригинал: <code>{{ name }}</code> (документ Word, показан как веб-страница — оформление может немного отличаться)</p>
+<article class="docx">{{ html | safe }}</article>
+{% endblock %}

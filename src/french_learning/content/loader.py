@@ -25,6 +25,9 @@ class LoadError:
     path: str
     message: str
     element_id: str | None = None
+    # Предупреждение: элемент загружен и показывается, но файл надо поправить
+    # (например, нет исходника для «открыть оригинал» — spec, Edge Cases).
+    warning: bool = False
 
 
 @dataclass
@@ -237,9 +240,9 @@ def _check_elements(content: Content, candidates: dict[str, tuple[Any, str]]) ->
             problems.append(f"неизвестные темы: {', '.join(missing_topics)}")
         if element.lesson is not None and element.lesson not in content.lessons:
             problems.append(f"урок {element.lesson} не найден")
-        for source in element.sources:
-            if source.file and not _inside(content.root, source.file):
-                problems.append(f"исходный файл не найден: {source.file}")
+        missing_sources = [
+            s.file for s in element.sources if s.file and not _inside(content.root, s.file)
+        ]
         if element.kind == "exercise":
             problems += _check_links(element, candidates)
             if numbers[(element.lesson, element.part, element.number)] > 1:
@@ -248,9 +251,12 @@ def _check_elements(content: Content, candidates: dict[str, tuple[Any, str]]) ->
                 )
         if problems:
             content.errors.append(LoadError(rel, "; ".join(problems), element_id))
-        else:
-            content.elements[element_id] = element
-            content.element_paths[element_id] = rel
+            continue
+        content.elements[element_id] = element
+        content.element_paths[element_id] = rel
+        if missing_sources:
+            message = f"исходный файл не найден: {', '.join(missing_sources)}"
+            content.errors.append(LoadError(rel, message, element_id, warning=True))
 
 
 def _check_links(exercise: Any, candidates: dict[str, tuple[Any, str]]) -> list[str]:

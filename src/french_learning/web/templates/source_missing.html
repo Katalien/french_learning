@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Оригинал недоступен{% endblock %}
+{% block content %}
+<article>
+  <header><h1>Оригинал недоступен</h1></header>
+  <p>Файл исходника не найден в хранилище. Сам материал при этом доступен в приложении.</p>
+  <p class="muted">Ожидался файл: <code>{{ relative }}</code></p>
+</article>
+{% endblock %}

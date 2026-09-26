@@ -130,14 +130,14 @@ PDF; лексика разделена; «Тексты» → текст со с�
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T036 [P] [US2] Интеграционные тесты в `tests/integration/test_theory_texts.py`: `GET /lessons/1/theory` — таблица и картинка из теории, лексика с артиклем (`la maison`), разделение «новые» / «на повторение» по FR-039; `GET /lessons/1/texts` — текст отдельным элементом со ссылками на упражнения; страница упражнения к тексту содержит ссылку на текст, а упражнения, связанного с теорией, — ссылку на теорию; страница теории содержит ссылки на связанные упражнения (FR-027, обе связи); у элемента теории с 3 и более заголовками есть оглавление со ссылками на заголовки (Edge Cases)
-- [ ] T037 [P] [US2] Тесты отдачи исходников в `tests/integration/test_sources.py`: jpg и pdf отдаются с верным типом; docx отдаётся как HTML; путь с `..` или вне хранилища → 404; отсутствующий файл → сообщение «оригинал недоступен», элемент при этом открывается
+- [X] T036 [P] [US2] Интеграционные тесты в `tests/integration/test_theory_texts.py`: `GET /lessons/1/theory` — таблица и картинка из теории, лексика с артиклем (`la maison`), разделение «новые» / «на повторение» по FR-039; `GET /lessons/1/texts` — текст отдельным элементом со ссылками на упражнения; страница упражнения к тексту содержит ссылку на текст, а упражнения, связанного с теорией, — ссылку на теорию; страница теории содержит ссылки на связанные упражнения (FR-027, обе связи); у элемента теории с 3 и более заголовками есть оглавление со ссылками на заголовки (Edge Cases)
+- [X] T037 [P] [US2] Тесты отдачи исходников в `tests/integration/test_sources.py`: jpg и pdf отдаются с верным типом; docx отдаётся как HTML; путь с `..` или вне хранилища → 404; отсутствующий файл → сообщение «оригинал недоступен», элемент при этом открывается
 
 ### Implementation for User Story 2
 
-- [ ] T038 [US2] Маршруты `/lessons/{number}/theory` и `/texts` в `src/french_learning/web/routes/lessons.py` + шаблоны `templates/theory.html` (с оглавлением для теории с 3+ заголовками и ссылками на связанные упражнения), `templates/texts.html`, `templates/partials/vocab_list.html`
-- [ ] T039 [US2] Маршрут `GET /sources/{path}` в `src/french_learning/web/routes/sources.py` (проверка пути внутри `CONTENT_DIR`, docx → HTML через render.py) и кнопка «Открыть оригинал» у каждого элемента в `templates/partials/element_actions.html`
-- [ ] T040 [US2] Проверка по независимому тесту US2 — тесты T036, T037 проходят
+- [X] T038 [US2] Маршруты `/lessons/{number}/theory` и `/texts` в `src/french_learning/web/routes/lessons.py` + шаблоны `templates/theory.html` (с оглавлением для теории с 3+ заголовками и ссылками на связанные упражнения), `templates/texts.html`, `templates/partials/vocab_list.html`
+- [X] T039 [US2] Маршрут `GET /sources/{path}` в `src/french_learning/web/routes/sources.py` (проверка пути внутри `CONTENT_DIR`, docx → HTML через render.py) и кнопка «Открыть оригинал» у каждого элемента в `templates/partials/element_actions.html`
+- [X] T040 [US2] Проверка по независимому тесту US2 — тесты T036, T037 проходят
 
 **Checkpoint**: US1 + US2 работают
 

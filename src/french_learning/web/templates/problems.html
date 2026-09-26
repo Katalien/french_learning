@@ -5,13 +5,13 @@
 {% if not index.errors %}
   <p class="empty">Ошибок нет — весь контент загружен.</p>
 {% else %}
-  <p>Эти файлы не удалось загрузить. Остальной контент работает. Исправить их можно, попросив агента
+  <p>В этих файлах есть проблемы. Остальной контент работает. Исправить их можно, попросив агента
     («проверь хранилище и исправь ошибки») или вручную.</p>
   <table>
-    <thead><tr><th>Файл</th><th>Причина</th></tr></thead>
+    <thead><tr><th>Файл</th><th>Вид</th><th>Причина</th></tr></thead>
     <tbody>
       {% for err in index.errors %}
-        <tr><td><code>{{ err.path }}</code></td><td>{{ err.message }}</td></tr>
+        <tr><td><code>{{ err.path }}</code></td><td>{{ "предупреждение: элемент показывается" if err.warning else "ошибка: элемент не показывается" }}</td><td>{{ err.message }}</td></tr>
       {% endfor %}
     </tbody>
   </table>
