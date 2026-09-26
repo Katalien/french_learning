@@ -23,3 +23,6 @@ Thumbs.db
 *.tmp
 .vscode/
 .idea/
+
+# Локальные настройки запуска в Claude Code (содержат пути этого компьютера)
+.claude/launch.json

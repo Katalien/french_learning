@@ -43,7 +43,7 @@ table { display: block; overflow-x: auto; }
 .review-count { color: var(--review-color); }
 .error-count, .error-count a { color: var(--error-color); }
 
-.sections { display: flex; gap: 0.5rem; margin: 1rem 0; flex-wrap: wrap; }
+.sections { display: flex; gap: 0.5rem; margin: 1rem 0; flex-wrap: wrap; justify-content: flex-start; }
 .sections a { padding: 0.4rem 0.9rem; border-radius: 0.5rem; border: 1px solid var(--pico-muted-border-color); text-decoration: none; }
 .sections a[aria-current="page"] { background: var(--pico-primary-background); color: var(--pico-primary-inverse); }
 
