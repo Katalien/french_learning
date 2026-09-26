@@ -1,0 +1,16 @@
+id: ex-openansw
+type: open
+kind: exercise
+lesson: 1
+origin: material
+answers_origin: ai
+sources:
+  - {file: lessons/001/sources/sheet.jpg, original: sheet.jpg}
+part: homework
+number: 6
+topics: [top-nourritu]
+description_ru: Рассказать о своём завтраке
+instruction: {ru: Напишите 3 предложения о своём завтраке., original: Décrivez votre petit-déjeuner., original_lang: fr, origin: ai}
+status: reserve
+items:
+  - {id: 1, prompt: Mon petit-déjeuner}

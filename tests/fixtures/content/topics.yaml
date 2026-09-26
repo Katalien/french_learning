@@ -1,0 +1,10 @@
+sections:
+  - {id: grammar, name: Грамматика}
+  - {id: vocabulary, name: Лексика}
+  - {id: pronunciation, name: Произношение}
+topics:
+  - {id: top-articles, name: Артикли, section: grammar}
+  - {id: top-etreverb, name: Глагол être, section: grammar}
+  - {id: top-nourritu, name: Еда, section: vocabulary}
+  - {id: top-maisonxx, name: Дом, section: vocabulary}
+  - {id: top-nasalson, name: Носовые звуки, section: pronunciation}

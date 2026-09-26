@@ -1,0 +1,14 @@
+id: voc-maisonaa
+kind: vocab
+entry_type: word
+text: maison
+article: la
+gender: f
+pos: nom
+translations:
+  - {text: дом, lesson: 1, origin: material}
+lessons: [1]
+topics: [top-maisonxx]
+origin: material
+sources:
+  - {file: lessons/001/sources/sheet.jpg, original: sheet.jpg}

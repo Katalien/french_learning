@@ -1,0 +1,17 @@
+id: ex-revision
+type: gap_choice
+kind: exercise
+lesson: 2
+part: class
+number: 1
+topics: [top-articles]
+description_ru: Повторение артиклей
+instruction: {ru: Вставьте артикль., original: Complétez avec l'article., original_lang: fr, origin: ai}
+status: main
+origin: material
+answers_origin: ai
+sources:
+  - {file: lessons/002/sources/etre.docx, original: etre.docx}
+options: [le, la]
+items:
+  - {id: 1, text: "{{1}} pain est bon.", answers: {1: [le]}}

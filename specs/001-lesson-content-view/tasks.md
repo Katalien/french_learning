@@ -53,32 +53,32 @@ contracts/content-format.md, contracts/ui-routes.md, quickstart.md
 
 ### Синтетический контент-образец
 
-- [ ] T010 Создать придуманный образец (НЕ материалы преподавателя) в `tests/fixtures/content/` по contracts/content-format.md: `format.yaml`, `topics.yaml` (3 раздела, 5 тем), `lessons/001/`, `lessons/002/` и `lessons/004/` (пропуск номера 3) с `lesson.yaml` (у урока 2 без даты и с одним медиафайлом `video`; в уроке 4 все упражнения домашки со статусом `reserve`, теории нет), теорией с таблицей и встроенной картинкой, текстом с двумя упражнениями к нему, упражнениями всех 10 типов (`gap_choice`, `gap_input`, `multi_gap`, `transform`, `true_false`, `choice`, `two_forms`, `grouping`, `picture`, `open`) в частях `class` и `homework`, статусами `main` / `optional` / `reserve`, справкой, пунктом с `needs_review`, упражнением на повторение темы урока 1 внутри урока 2; `vocabulary/` (слово новое в уроке 1 и повторяющееся в уроке 2; слово, встреченное в упражнении урока 1, но впервые в лексике урока 2); `extra/` с элементом без урока; `reports/` с одним открытым сообщением; `sources/` с маленькими сгенерированными jpg, pdf, docx; один намеренно повреждённый файл упражнения `lessons/002/exercises/ex-broken00.yaml`
+- [X] T010 Создать придуманный образец (НЕ материалы преподавателя) в `tests/fixtures/content/` по contracts/content-format.md: `format.yaml`, `topics.yaml` (3 раздела, 5 тем), `lessons/001/`, `lessons/002/` и `lessons/004/` (пропуск номера 3) с `lesson.yaml` (у урока 2 без даты и с одним медиафайлом `video`; в уроке 4 все упражнения домашки со статусом `reserve`, теории нет), теорией с таблицей и встроенной картинкой, текстом с двумя упражнениями к нему, упражнениями всех 10 типов (`gap_choice`, `gap_input`, `multi_gap`, `transform`, `true_false`, `choice`, `two_forms`, `grouping`, `picture`, `open`) в частях `class` и `homework`, статусами `main` / `optional` / `reserve`, справкой, пунктом с `needs_review`, упражнением на повторение темы урока 1 внутри урока 2; `vocabulary/` (слово новое в уроке 1 и повторяющееся в уроке 2; слово, встреченное в упражнении урока 1, но впервые в лексике урока 2); `extra/` с элементом без урока; `reports/` с одним открытым сообщением; `sources/` с маленькими сгенерированными jpg, pdf, docx; один намеренно повреждённый файл упражнения `lessons/002/exercises/ex-broken00.yaml`
 
 ### Схема формата (TDD)
 
-- [ ] T011 [P] Тесты схемы в `tests/unit/test_schema.py`: `Id` соответствует `^(les|th|tx|ex|voc|top|rep)-[a-z2-7]{8}$`; `Part` ∈ {class, homework}; `Origin` ∈ {material, external, user, ai, service}; `Status` ∈ {main, optional, reserve}; `needs_review.note` обязателен при `flag: true`; `part` обязателен при наличии `lesson` (кроме vocab); `topics` ≥ 1, кроме `needs_review.flag = true`; `sources` ≥ 1, кроме `origin = user`; для упражнений: число `{{N}}` в тексте совпадает с ключами `answers`, ответы `gap_choice` ∈ `options`, `multi_gap` ≥ 2 пропуска, индексы `choice` в пределах вариантов, `picture` → `show_source: true`, `open` — без ответов, `number` ≥ 1
-- [ ] T012 Реализовать модели формата версии 1 в `src/french_learning/content/schema.py` (`FORMAT_VERSION = 1`; Lesson, Media, Theory, Text, Exercise с пунктами по типам, VocabEntry со всеми полями data-model.md, Topic, Section, Report) — тесты T011 проходят
+- [X] T011 [P] Тесты схемы в `tests/unit/test_schema.py`: `Id` соответствует `^(les|th|tx|ex|voc|top|rep)-[a-z2-7]{8}$`; `Part` ∈ {class, homework}; `Origin` ∈ {material, external, user, ai, service}; `Status` ∈ {main, optional, reserve}; `needs_review.note` обязателен при `flag: true`; `part` обязателен при наличии `lesson` (кроме vocab); `topics` ≥ 1, кроме `needs_review.flag = true`; `sources` ≥ 1, кроме `origin = user`; для упражнений: число `{{N}}` в тексте совпадает с ключами `answers`, ответы `gap_choice` ∈ `options`, `multi_gap` ≥ 2 пропуска, индексы `choice` в пределах вариантов, `picture` → `show_source: true`, `open` — без ответов, `number` ≥ 1
+- [X] T012 Реализовать модели формата версии 1 в `src/french_learning/content/schema.py` (`FORMAT_VERSION = 1`; Lesson, Media, Theory, Text, Exercise с пунктами по типам, VocabEntry со всеми полями data-model.md, Topic, Section, Report) — тесты T011 проходят
 
 ### Настройки (TDD)
 
-- [ ] T013 [P] Тесты настроек в `tests/unit/test_config.py`: значения по умолчанию `HOST=127.0.0.1`, `PORT=8000`; `CONTENT_DIR` читается из окружения и `.env`; отсутствие `CONTENT_DIR` не падает, а даёт признак «не настроено»
-- [ ] T014 Реализовать `src/french_learning/config.py` (pydantic-settings) — тесты T013 проходят
+- [X] T013 [P] Тесты настроек в `tests/unit/test_config.py`: значения по умолчанию `HOST=127.0.0.1`, `PORT=8000`; `CONTENT_DIR` читается из окружения и `.env`; отсутствие `CONTENT_DIR` не падает, а даёт признак «не настроено»
+- [X] T014 Реализовать `src/french_learning/config.py` (pydantic-settings) — тесты T013 проходят
 
 ### Загрузчик (TDD)
 
-- [ ] T015 [P] Тесты загрузчика в `tests/unit/test_loader.py`: образец T010 загружается; повреждённый файл даёт `LoadError(path, message)`, остальные элементы загружены; дубли id, ссылки на несуществующие темы / тексты / теорию / элементы в сообщениях, отсутствующие `sources[].file`, повтор `number` в паре (урок, часть), повтор номера урока, неподдерживаемая `format_version` — дают ошибки загрузки; файлы вне описанной структуры игнорируются
-- [ ] T016 Реализовать `src/french_learning/content/loader.py` (обход дерева, YAML и Markdown с шапкой, валидация, изоляция ошибок, правила 1–8 из contracts/content-format.md) — тесты T015 проходят
+- [X] T015 [P] Тесты загрузчика в `tests/unit/test_loader.py`: образец T010 загружается; повреждённый файл даёт `LoadError(path, message)`, остальные элементы загружены; дубли id, ссылки на несуществующие темы / тексты / теорию / элементы в сообщениях, отсутствующие `sources[].file`, повтор `number` в паре (урок, часть), повтор номера урока, неподдерживаемая `format_version` — дают ошибки загрузки; файлы вне описанной структуры игнорируются
+- [X] T016 Реализовать `src/french_learning/content/loader.py` (обход дерева, YAML и Markdown с шапкой, валидация, изоляция ошибок, правила 1–8 из contracts/content-format.md) — тесты T015 проходят
 
 ### Индекс (TDD)
 
-- [ ] T017 [P] Тесты индекса в `tests/unit/test_index.py`: уроки по номеру (новые сверху); элементы по (урок, часть, вид); темы урока = объединение тем элементов (включая упражнение на повторение); тема → элементы из всех уроков и `extra/`; обратные связи текст / теория → упражнения; список `needs_review` (элементы и пункты); правило новых слов FR-039 (`min(lessons) == L` → новое; встреча в упражнении не учитывается); перестройка индекса при изменении отпечатка дерева файлов
-- [ ] T018 Реализовать `src/french_learning/content/index.py` (индекс в памяти + отпечаток по времени изменения файлов, research R7) — тесты T017 проходят
+- [X] T017 [P] Тесты индекса в `tests/unit/test_index.py`: уроки по номеру (новые сверху); элементы по (урок, часть, вид); темы урока = объединение тем элементов (включая упражнение на повторение); тема → элементы из всех уроков и `extra/`; обратные связи текст / теория → упражнения; список `needs_review` (элементы и пункты); правило новых слов FR-039 (`min(lessons) == L` → новое; встреча в упражнении не учитывается); перестройка индекса при изменении отпечатка дерева файлов
+- [X] T018 Реализовать `src/french_learning/content/index.py` (индекс в памяти + отпечаток по времени изменения файлов, research R7) — тесты T017 проходят
 
 ### Отрисовка (TDD)
 
-- [ ] T019 [P] Тесты отрисовки в `tests/unit/test_render.py`: Markdown с таблицей → HTML-таблица; `<script>` и обработчики событий удаляются; относительный путь картинки `sources/x.jpg` превращается в `/sources/lessons/NNN/sources/x.jpg`; docx из образца → HTML с текстом
-- [ ] T020 Реализовать `src/french_learning/content/render.py` (markdown-it-py + таблицы, nh3, mammoth) — тесты T019 проходят
+- [X] T019 [P] Тесты отрисовки в `tests/unit/test_render.py`: Markdown с таблицей → HTML-таблица; `<script>` и обработчики событий удаляются; относительный путь картинки `sources/x.jpg` превращается в `/sources/lessons/NNN/sources/x.jpg`; docx из образца → HTML с текстом
+- [X] T020 Реализовать `src/french_learning/content/render.py` (markdown-it-py + таблицы, nh3, mammoth) — тесты T019 проходят
 
 ### Каркас веб-приложения и команды (TDD)
 
@@ -88,7 +88,7 @@ contracts/content-format.md, contracts/ui-routes.md, quickstart.md
 - [ ] T024 Базовый шаблон `src/french_learning/web/templates/base.html` (русский язык, подключение vendor-файлов, мобильная вёрстка) и стили `src/french_learning/web/static/css/app.css` (ширина от 375 px без горизонтальной прокрутки, цвета пометок)
 - [ ] T025 Страница ошибок загрузки `src/french_learning/web/routes/problems.py` и шаблон `templates/problems.html` (FR-005)
 - [ ] T026 Реализовать `src/french_learning/cli.py`: `serve` (uvicorn на `HOST`/`PORT`), `validate-content` (формат вывода: файл, поле, сообщение; коды 0/1) — тесты T021, T022 проходят
-- [ ] T027 [P] Интерфейс прогресса `src/french_learning/content/progress.py`: `homework_done(lesson) -> int` возвращает 0 (заменится в 004) + тест в `tests/unit/test_progress.py`
+- [X] T027 [P] Интерфейс прогресса `src/french_learning/content/progress.py`: `homework_done(lesson) -> int` возвращает 0 (заменится в 004) + тест в `tests/unit/test_progress.py`
 
 **Checkpoint**: формат, загрузка, индекс, отрисовка и каркас готовы; `validate-content` работает
 

@@ -1,0 +1,17 @@
+id: ex-choicecf
+type: choice
+kind: exercise
+lesson: 1
+origin: material
+answers_origin: ai
+sources:
+  - {file: lessons/001/sources/sheet.jpg, original: sheet.jpg}
+part: class
+number: 4
+topics: [top-nourritu]
+description_ru: Выбрать ответ по тексту
+instruction: {ru: Выберите правильный ответ., original: Choisissez la bonne réponse., original_lang: fr, origin: ai}
+status: main
+links: {text: tx-aucafeaa}
+items:
+  - {id: 1, question: "Où entre Paul ?", options: [dans un café, dans une boulangerie, à la maison], answer: [0]}

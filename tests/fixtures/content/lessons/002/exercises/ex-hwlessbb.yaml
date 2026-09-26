@@ -1,0 +1,16 @@
+id: ex-hwlessbb
+type: gap_input
+kind: exercise
+lesson: 2
+part: homework
+number: 1
+topics: [top-etreverb]
+description_ru: Спрягать être
+instruction: {ru: Поставьте être в нужную форму., original: Conjuguez être., original_lang: fr, origin: ai}
+status: main
+origin: material
+answers_origin: ai
+sources:
+  - {file: lessons/002/sources/etre.docx, original: etre.docx}
+items:
+  - {id: 1, text: "Tu {{1}} ici.", answers: {1: [es]}}

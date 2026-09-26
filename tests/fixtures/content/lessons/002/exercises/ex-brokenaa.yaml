@@ -1,0 +1,17 @@
+# Намеренно повреждённый файл: пропуск {{1}} есть, а ответа к нему нет.
+id: ex-brokenaa
+type: gap_input
+kind: exercise
+lesson: 2
+part: homework
+number: 2
+topics: [top-etreverb]
+description_ru: Повреждённое упражнение (демо)
+instruction: {ru: Демо., original: Démo., original_lang: fr, origin: ai}
+status: main
+origin: material
+answers_origin: ai
+sources:
+  - {file: lessons/002/sources/etre.docx, original: etre.docx}
+items:
+  - {id: 1, text: "Il {{1}} là.", answers: {}}

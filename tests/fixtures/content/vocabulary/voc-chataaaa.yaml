@@ -1,0 +1,11 @@
+# Добавлено пользователем вручную, без урока.
+id: voc-chataaaa
+kind: vocab
+entry_type: word
+text: chat
+article: le
+gender: m
+translations:
+  - {text: кот, origin: user}
+topics: [top-maisonxx]
+origin: user

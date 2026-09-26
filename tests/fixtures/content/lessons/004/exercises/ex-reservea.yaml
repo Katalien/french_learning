@@ -1,0 +1,16 @@
+id: ex-reservea
+type: gap_input
+kind: exercise
+lesson: 4
+part: homework
+number: 1
+topics: [top-nasalson]
+description_ru: Отложенное упражнение
+instruction: {ru: Вставьте слово., original: Complétez., original_lang: fr, origin: ai}
+status: reserve
+origin: material
+answers_origin: ai
+sources:
+  - {file: lessons/004/sources/sheet4.jpg, original: sheet4.jpg}
+items:
+  - {id: 1, text: "C'est {{1}} bon pain.", answers: {1: [un]}}
