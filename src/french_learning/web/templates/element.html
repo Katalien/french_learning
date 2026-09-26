@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% set e = element %}
+{% block title %}{{ e.title if e.title is defined else e.description_ru }}{% endblock %}
+{% block content %}
+<p class="breadcrumbs">
+  <a href="/">Уроки</a> ›
+  {% if e.lesson %}
+    <a href="/lessons/{{ e.lesson }}">Урок {{ e.lesson }}</a> ›
+    {% if e.kind == "exercise" %}<a href="/lessons/{{ e.lesson }}/tasks?part={{ e.part }}">{{ PART_NAMES[e.part] }}</a>
+    {% elif e.kind == "theory" %}<a href="/lessons/{{ e.lesson }}/theory">Теория</a>
+    {% else %}<a href="/lessons/{{ e.lesson }}/texts">Тексты</a>{% endif %}
+  {% else %}
+    <a href="/extras">Дополнительные материалы</a>
+  {% endif %}
+</p>
+
+{% if e.kind == "exercise" %}
+  {% set topic = index.topic(e.topics[0]) if e.topics else none %}
+  <h1>{{ e.number }} — {{ topic.name if topic else "Без темы" }} — {{ e.description_ru }}</h1>
+  <p class="meta">
+    {{ PART_NAMES[e.part] if e.part else "Дополнительный материал" }}
+    {% if e.sheet_number %} · на листе: упр. {{ e.sheet_number }}{% endif %}
+    · {{ EXERCISE_TYPE_NAMES[e.type] }}
+    {% if e.status != "main" %}<mark class="badge">{{ STATUS_NAMES[e.status] }}</mark>{% endif %}
+  </p>
+  {% include "partials/exercise.html" %}
+{% else %}
+  <h1>{{ e.title }}</h1>
+  <article class="{{ e.kind }}" {% if e.kind == "text" %}lang="fr"{% endif %}>
+    {{ e.body | markdown(path) }}
+  </article>
+  {% if linked %}
+    <h2>Упражнения {{ "к тексту" if e.kind == "text" else "по этой теории" }}</h2>
+    <ul>{% for x in linked %}<li><a href="/elements/{{ x.id }}">{{ x.number }} — {{ x.description_ru }}</a></li>{% endfor %}</ul>
+  {% endif %}
+{% endif %}
+
+{% include "partials/element_actions.html" %}
+{% endblock %}

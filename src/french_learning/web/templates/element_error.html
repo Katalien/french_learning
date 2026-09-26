@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Ошибка в данных{% endblock %}
+{% block content %}
+<article class="data-error">
+  <header><h1>Ошибка в данных</h1></header>
+  <p>Этот элемент не удалось показать: в его файле есть ошибка. Остальной контент работает.</p>
+  <p class="muted">Файл: <code>{{ error.path }}</code></p>
+  <p><a href="/problems">Все ошибки в данных →</a></p>
+</article>
+{% endblock %}

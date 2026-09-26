@@ -1,0 +1,14 @@
+{% extends "lesson_base.html" %}
+{% block lesson_content %}
+<h2>Резерв</h2>
+<p class="muted">Эти упражнения отложены: они не показываются в заданиях и не учитываются в домашке.</p>
+{% if not exercises %}<p class="empty">Нет материалов.</p>{% endif %}
+<ol class="exercises">
+  {% for e in exercises %}
+    {% set topic = index.topic(e.topics[0]) if e.topics else none %}
+    <li>
+      <a href="/elements/{{ e.id }}">{{ PART_NAMES[e.part] }}, {{ e.number }} — {{ topic.name if topic else "Без темы" }} — {{ e.description_ru }}</a>
+    </li>
+  {% endfor %}
+</ol>
+{% endblock %}

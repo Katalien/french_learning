@@ -1,0 +1,14 @@
+{% extends "lesson_base.html" %}
+{% block lesson_content %}
+<div class="section-cards">
+  <a class="section-card" href="/lessons/{{ n }}/theory">
+    <strong>Теория</strong><span>правила, таблицы, лексика</span>
+  </a>
+  <a class="section-card" href="/lessons/{{ n }}/texts">
+    <strong>Тексты</strong><span>тексты для чтения</span>
+  </a>
+  <a class="section-card" href="/lessons/{{ n }}/tasks?part=class">
+    <strong>Задания</strong><span>в классе и домашка</span>
+  </a>
+</div>
+{% endblock %}

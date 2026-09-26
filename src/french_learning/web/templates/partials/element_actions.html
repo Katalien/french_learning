@@ -1,0 +1,10 @@
+{# Действия с элементом: открыть оригинал (FR-034) #}
+<footer class="element-actions">
+  {% for s in e.sources %}
+    {% if s.file %}
+      <a href="/sources/{{ s.file }}" target="_blank" rel="noopener" role="button" class="outline secondary small">Открыть оригинал{% if e.sources | length > 1 %} {{ loop.index }}{% endif %}</a>
+    {% elif s.url %}
+      <a href="{{ s.url }}" target="_blank" rel="noopener noreferrer" role="button" class="outline secondary small">Открыть источник</a>
+    {% endif %}
+  {% endfor %}
+</footer>

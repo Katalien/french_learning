@@ -1,0 +1,99 @@
+"""Главная, урок и его разделы (FR-030–FR-039, contracts/ui-routes.md)."""
+
+from typing import Literal
+
+from fastapi import APIRouter, Request
+
+from french_learning.content.index import ContentIndex
+from french_learning.web.deps import Index, not_found, show_origin
+from french_learning.web.templating import templates
+
+router = APIRouter()
+
+
+def _lesson_or_404(index: ContentIndex, number: int):
+    lesson = index.lesson(number)
+    if lesson is None:
+        raise not_found(f"Урок {number} не найден")
+    return lesson
+
+
+def _context(request: Request, index: ContentIndex, number: int, **extra) -> dict:
+    _lesson_or_404(index, number)
+    return {
+        "index": index,
+        "summary": index.lesson_summary(number, request.app.state.progress),
+        "show_origin": show_origin(request),
+        **extra,
+    }
+
+
+@router.get("/")
+def home(request: Request, index: Index):
+    progress = request.app.state.progress
+    summaries = [index.lesson_summary(lesson.number, progress) for lesson in index.lessons()]
+    return templates.TemplateResponse(
+        request, "home.html", {"index": index, "summaries": summaries}
+    )
+
+
+@router.get("/lessons/{number}")
+def lesson_page(request: Request, number: int, index: Index):
+    return templates.TemplateResponse(
+        request, "lesson.html", _context(request, index, number, section="overview")
+    )
+
+
+@router.get("/lessons/{number}/tasks")
+def lesson_tasks(
+    request: Request,
+    number: int,
+    index: Index,
+    part: Literal["class", "homework"] = "class",
+):
+    exercises = index.elements(number, part=part, kind="exercise")
+    visible = [e for e in exercises if e.status != "reserve"]
+    context = _context(
+        request,
+        index,
+        number,
+        section="tasks",
+        part=part,
+        exercises=visible,
+        has_reserve=len(visible) < len(exercises),
+    )
+    template = "partials/task_list.html" if request.headers.get("HX-Request") else "tasks.html"
+    return templates.TemplateResponse(request, template, context)
+
+
+@router.get("/lessons/{number}/reserve")
+def lesson_reserve(request: Request, number: int, index: Index):
+    reserve = [e for e in index.elements(number, kind="exercise") if e.status == "reserve"]
+    return templates.TemplateResponse(
+        request,
+        "reserve.html",
+        _context(request, index, number, section="tasks", exercises=reserve),
+    )
+
+
+@router.get("/lessons/{number}/theory")
+def lesson_theory(request: Request, number: int, index: Index):
+    new_words, repeat_words = index.lesson_vocabulary(number)
+    context = _context(
+        request,
+        index,
+        number,
+        section="theory",
+        theory=index.elements(number, kind="theory"),
+        new_words=new_words,
+        repeat_words=repeat_words,
+    )
+    return templates.TemplateResponse(request, "theory.html", context)
+
+
+@router.get("/lessons/{number}/texts")
+def lesson_texts(request: Request, number: int, index: Index):
+    context = _context(
+        request, index, number, section="texts", texts=index.elements(number, kind="text")
+    )
+    return templates.TemplateResponse(request, "texts.html", context)

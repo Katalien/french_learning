@@ -82,12 +82,12 @@ contracts/content-format.md, contracts/ui-routes.md, quickstart.md
 
 ### Каркас веб-приложения и команды (TDD)
 
-- [ ] T021 [P] Интеграционные тесты каркаса в `tests/integration/test_app.py`: без `CONTENT_DIR` любая страница показывает объяснение, где задать путь; с образцом `GET /` отвечает 200; `GET /problems` показывает повреждённый файл и причину; статические файлы vendor отдаются; ни один шаблон не подключает внешние скрипты, стили или шрифты по `http(s)://` (FR-052, работа без интернета)
-- [ ] T022 [P] Тесты команд в `tests/integration/test_cli.py`: `validate-content` на образце печатает одно нарушение (повреждённый файл) и завершается с кодом 1; на образце без повреждённого файла — «Нарушений нет» и код 0; `serve` по умолчанию использует хост `127.0.0.1`
-- [ ] T023 Реализовать фабрику приложения `src/french_learning/web/app.py` (FastAPI, Jinja2, статические файлы, загрузка индекса, проверка отпечатка перед запросом, страница «хранилище не настроено»)
-- [ ] T024 Базовый шаблон `src/french_learning/web/templates/base.html` (русский язык, подключение vendor-файлов, мобильная вёрстка) и стили `src/french_learning/web/static/css/app.css` (ширина от 375 px без горизонтальной прокрутки, цвета пометок)
-- [ ] T025 Страница ошибок загрузки `src/french_learning/web/routes/problems.py` и шаблон `templates/problems.html` (FR-005)
-- [ ] T026 Реализовать `src/french_learning/cli.py`: `serve` (uvicorn на `HOST`/`PORT`), `validate-content` (формат вывода: файл, поле, сообщение; коды 0/1) — тесты T021, T022 проходят
+- [X] T021 [P] Интеграционные тесты каркаса в `tests/integration/test_app.py`: без `CONTENT_DIR` любая страница показывает объяснение, где задать путь; с образцом `GET /` отвечает 200; `GET /problems` показывает повреждённый файл и причину; статические файлы vendor отдаются; ни один шаблон не подключает внешние скрипты, стили или шрифты по `http(s)://` (FR-052, работа без интернета)
+- [X] T022 [P] Тесты команд в `tests/integration/test_cli.py`: `validate-content` на образце печатает одно нарушение (повреждённый файл) и завершается с кодом 1; на образце без повреждённого файла — «Нарушений нет» и код 0; `serve` по умолчанию использует хост `127.0.0.1`
+- [X] T023 Реализовать фабрику приложения `src/french_learning/web/app.py` (FastAPI, Jinja2, статические файлы, загрузка индекса, проверка отпечатка перед запросом, страница «хранилище не настроено»)
+- [X] T024 Базовый шаблон `src/french_learning/web/templates/base.html` (русский язык, подключение vendor-файлов, мобильная вёрстка) и стили `src/french_learning/web/static/css/app.css` (ширина от 375 px без горизонтальной прокрутки, цвета пометок)
+- [X] T025 Страница ошибок загрузки `src/french_learning/web/routes/problems.py` и шаблон `templates/problems.html` (FR-005)
+- [X] T026 Реализовать `src/french_learning/cli.py`: `serve` (uvicorn на `HOST`/`PORT`), `validate-content` (формат вывода: файл, поле, сообщение; коды 0/1) — тесты T021, T022 проходят
 - [X] T027 [P] Интерфейс прогресса `src/french_learning/content/progress.py`: `homework_done(lesson) -> int` возвращает 0 (заменится в 004) + тест в `tests/unit/test_progress.py`
 
 **Checkpoint**: формат, загрузка, индекс, отрисовка и каркас готовы; `validate-content` работает
@@ -104,17 +104,17 @@ contracts/content-format.md, contracts/ui-routes.md, quickstart.md
 
 ### Tests for User Story 1 ⚠️ (пишутся первыми и должны упасть)
 
-- [ ] T028 [P] [US1] Тесты сводки урока в `tests/unit/test_lesson_summary.py`: номер, дата или «дата не указана», темы урока, число новых слов (FR-039), домашка «X из Y» — Y = только `main` упражнения `homework`, отдельный счётчик `optional`, `reserve` не учитывается (FR-031), число «требует проверки»
-- [ ] T029 [P] [US1] Интеграционные тесты страниц в `tests/integration/test_lessons_pages.py`: `GET /` — уроки 4, 2 и 1 (новые сверху, пропуск номера 3 без ошибок) со сводками и ссылками на темы и «Дополнительные материалы»; `GET /lessons/4/tasks?part=homework` — сообщение, что основных заданий нет, и ссылка на «Резерв»; `GET /lessons/4/theory` — сообщение «нет материалов»; `GET /lessons/2` — разделы «Теория», «Тексты», «Задания»; `GET /lessons/2/tasks?part=homework` — названия «номер — тема — описание» и «на листе: …», пометка «необязательное», упражнения `reserve` отсутствуют; `GET /lessons/2/reserve` — только резерв; урок без домашки — сообщение «нет материалов»
-- [ ] T030 [P] [US1] Интеграционные тесты упражнения в `tests/integration/test_exercise_view.py`: `GET /elements/{id}` для каждого из 10 типов показывает формулировку `instruction.ru` и пункты с пропусками; в ответе нет правильных ответов (FR-023); справка присутствует свёрнутой (FR-024); у `picture` показан исходный файл (FR-025); повреждённый элемент — карточка «ошибка в данных» со ссылкой на `/problems`
+- [X] T028 [P] [US1] Тесты сводки урока в `tests/unit/test_lesson_summary.py`: номер, дата или «дата не указана», темы урока, число новых слов (FR-039), домашка «X из Y» — Y = только `main` упражнения `homework`, отдельный счётчик `optional`, `reserve` не учитывается (FR-031), число «требует проверки»
+- [X] T029 [P] [US1] Интеграционные тесты страниц в `tests/integration/test_lessons_pages.py`: `GET /` — уроки 4, 2 и 1 (новые сверху, пропуск номера 3 без ошибок) со сводками и ссылками на темы и «Дополнительные материалы»; `GET /lessons/4/tasks?part=homework` — сообщение, что основных заданий нет, и ссылка на «Резерв»; `GET /lessons/4/theory` — сообщение «нет материалов»; `GET /lessons/2` — разделы «Теория», «Тексты», «Задания»; `GET /lessons/2/tasks?part=homework` — названия «номер — тема — описание» и «на листе: …», пометка «необязательное», упражнения `reserve` отсутствуют; `GET /lessons/2/reserve` — только резерв; урок без домашки — сообщение «нет материалов»
+- [X] T030 [P] [US1] Интеграционные тесты упражнения в `tests/integration/test_exercise_view.py`: `GET /elements/{id}` для каждого из 10 типов показывает формулировку `instruction.ru` и пункты с пропусками; в ответе нет правильных ответов (FR-023); справка присутствует свёрнутой (FR-024); у `picture` показан исходный файл (FR-025); повреждённый элемент — карточка «ошибка в данных» со ссылкой на `/problems`
 
 ### Implementation for User Story 1
 
-- [ ] T031 [US1] Подсчёт сводки урока в `src/french_learning/content/index.py` (функция `lesson_summary`) — тесты T028 проходят
-- [ ] T032 [US1] Маршруты `GET /`, `GET /lessons/{number}`, `/tasks`, `/reserve` в `src/french_learning/web/routes/lessons.py`
-- [ ] T033 [US1] Шаблоны `templates/home.html`, `templates/lesson.html`, `templates/partials/lesson_summary.html`, `templates/partials/task_list.html` (вкладки «В классе» / «Домашка» через HTMX)
-- [ ] T034 [US1] Маршрут `GET /elements/{id}` в `src/french_learning/web/routes/elements.py` и шаблоны отображения упражнений всех типов `templates/partials/exercise/*.html` (пропуски `{{N}}` — пустые места без ответов; справка — раскрываемый блок Alpine.js; `picture` — исходник рядом, на узком экране сверху)
-- [ ] T035 [US1] Проверка по независимому тесту US1 — тесты T029, T030 проходят
+- [X] T031 [US1] Подсчёт сводки урока в `src/french_learning/content/index.py` (функция `lesson_summary`) — тесты T028 проходят
+- [X] T032 [US1] Маршруты `GET /`, `GET /lessons/{number}`, `/tasks`, `/reserve` в `src/french_learning/web/routes/lessons.py`
+- [X] T033 [US1] Шаблоны `templates/home.html`, `templates/lesson.html`, `templates/partials/lesson_summary.html`, `templates/partials/task_list.html` (вкладки «В классе» / «Домашка» через HTMX)
+- [X] T034 [US1] Маршрут `GET /elements/{id}` в `src/french_learning/web/routes/elements.py` и шаблоны отображения упражнений всех типов `templates/partials/exercise/*.html` (пропуски `{{N}}` — пустые места без ответов; справка — раскрываемый блок Alpine.js; `picture` — исходник рядом, на узком экране сверху)
+- [X] T035 [US1] Проверка по независимому тесту US1 — тесты T029, T030 проходят
 
 **Checkpoint**: US1 работает сама по себе — можно показать пользователю
 

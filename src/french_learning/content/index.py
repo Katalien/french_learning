@@ -22,6 +22,26 @@ class ReviewItem:
 
 
 @dataclass
+class LessonSummary:
+    lesson: schema.Lesson
+    topics: list[schema.Topic]
+    new_words: int
+    homework_done: int
+    homework_total: int
+    homework_optional: int
+    needs_review: int
+    errors: int
+
+    @property
+    def number(self) -> int:
+        return self.lesson.number
+
+    @property
+    def date(self):
+        return self.lesson.date
+
+
+@dataclass
 class TopicCount:
     topic: schema.Topic
     count: int
@@ -103,6 +123,23 @@ class ContentIndex:
         new = [e for e in entries if min(e.lessons) == lesson]
         repeat = [e for e in entries if min(e.lessons) != lesson]
         return new, repeat
+
+    def lesson_summary(self, number: int, progress: Any) -> LessonSummary:
+        """Сводка урока (FR-031): домашка «X из Y» — только основные упражнения."""
+        lesson = self.content.lessons[number]
+        homework = self.elements(number, part="homework", kind="exercise")
+        main = [e for e in homework if e.status == "main"]
+        new_words, _repeat = self.lesson_vocabulary(number)
+        return LessonSummary(
+            lesson=lesson,
+            topics=self.lesson_topics(number),
+            new_words=len(new_words),
+            homework_done=sum(1 for e in main if progress.is_done(e.id)),
+            homework_total=len(main),
+            homework_optional=sum(1 for e in homework if e.status == "optional"),
+            needs_review=len(self.needs_review(lesson=number)),
+            errors=len(self.lesson_errors(number)),
+        )
 
     def linked_exercises(self, element_id: str) -> list[Any]:
         found = [

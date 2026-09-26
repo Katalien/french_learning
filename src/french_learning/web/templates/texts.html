@@ -1,0 +1,10 @@
+{% extends "lesson_base.html" %}
+{% block lesson_content %}
+{% if not texts %}<p class="empty">Нет материалов.</p>{% endif %}
+{% for t in texts %}
+  <article class="text" lang="fr">
+    <header><h2><a href="/elements/{{ t.id }}">{{ t.title }}</a></h2></header>
+    {{ t.body | markdown(index.element_path(t.id)) }}
+  </article>
+{% endfor %}
+{% endblock %}

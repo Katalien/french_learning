@@ -1,0 +1,20 @@
+{% extends "lesson_base.html" %}
+{% block lesson_content %}
+{% if not theory and not new_words and not repeat_words %}
+  <p class="empty">Нет материалов.</p>
+{% endif %}
+
+{% for t in theory %}
+  <article class="theory">
+    <header><h2><a href="/elements/{{ t.id }}">{{ t.title }}</a></h2></header>
+    {{ t.body | markdown(index.element_path(t.id)) }}
+  </article>
+{% endfor %}
+
+{% if new_words or repeat_words %}
+  <article class="vocab">
+    <header><h2>Лексика урока</h2></header>
+    {% include "partials/vocab_list.html" %}
+  </article>
+{% endif %}
+{% endblock %}

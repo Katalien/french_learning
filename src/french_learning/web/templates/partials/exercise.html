@@ -1,0 +1,53 @@
+{# Упражнение без правильных ответов (FR-023); справка скрыта (FR-024); исходник рядом (FR-025) #}
+{% set source = e.sources[0] if e.sources else none %}
+<div class="exercise{% if e.show_source %} with-source{% endif %}" x-data="{ reference: false }">
+  {% if e.show_source and source and source.file %}
+    <figure class="exercise-source">
+      <img src="/sources/{{ source.file }}" alt="Исходный лист упражнения">
+    </figure>
+  {% endif %}
+
+  <div class="exercise-body">
+    <p class="instruction">{{ e.instruction.ru }}</p>
+
+    {% if e.links.text %}<p><a href="/elements/{{ e.links.text }}">📖 Текст к упражнению</a></p>{% endif %}
+    {% if e.links.theory %}<p><a href="/elements/{{ e.links.theory }}">📘 Теория к упражнению</a></p>{% endif %}
+
+    {% if e.reference %}
+      <button type="button" class="outline secondary small" @click="reference = !reference"
+              x-text="reference ? 'Скрыть справку' : 'Справка'">Справка</button>
+      <div class="reference" x-show="reference" x-cloak>{{ e.reference | markdown }}</div>
+    {% endif %}
+
+    {% if e.type in ("gap_choice", "two_forms") and e.options is defined %}
+      <p class="options">Варианты: {% for o in e.options %}<span class="chip fr">{{ o }}</span>{% endfor %}</p>
+    {% endif %}
+    {% if e.type == "grouping" %}
+      <p class="options">Группы: {% for g in e.groups %}<span class="chip fr">{{ g }}</span>{% endfor %}</p>
+    {% endif %}
+
+    <ol class="items" lang="fr">
+      {% for item in e.items %}
+        <li>
+          {% if e.type in ("gap_choice", "gap_input", "multi_gap") %}
+            {{ item.text | gaps }}{% if item.hint %} <span class="hint">{{ item.hint }}</span>{% endif %}
+          {% elif e.type == "two_forms" %}
+            {{ item.text | gaps }} <span class="hint">({{ item.forms | join(" / ") }})</span>
+          {% elif e.type == "transform" %}
+            {{ item.prompt }} → <span class="gap wide">&nbsp;</span>
+          {% elif e.type == "true_false" %}
+            {{ item.statement }} <span class="hint" lang="ru">— верно / неверно</span>
+          {% elif e.type == "choice" %}
+            {{ item.question }}
+            <ol type="a">{% for o in item.options %}<li>{{ o }}</li>{% endfor %}</ol>
+          {% elif e.type == "grouping" %}
+            {{ item.word }}
+          {% elif e.type in ("picture", "open") %}
+            {{ item.prompt or "" }} <span class="gap wide">&nbsp;</span>
+          {% endif %}
+          {% if item.needs_review.flag %}<span class="review-mark" title="{{ item.needs_review.note }}">⚠</span>{% endif %}
+        </li>
+      {% endfor %}
+    </ol>
+  </div>
+</div>

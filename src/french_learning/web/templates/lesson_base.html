@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% set n = summary.number %}
+{% block title %}Урок {{ n }}{% endblock %}
+{% block content %}
+<p class="breadcrumbs"><a href="/">Уроки</a> › Урок {{ n }}</p>
+<h1>Урок {{ n }}</h1>
+{% with s = summary %}{% include "partials/lesson_summary.html" %}{% endwith %}
+
+<nav class="sections" aria-label="Разделы урока">
+  <a href="/lessons/{{ n }}/theory" {% if section == "theory" %}aria-current="page"{% endif %}>Теория</a>
+  <a href="/lessons/{{ n }}/texts" {% if section == "texts" %}aria-current="page"{% endif %}>Тексты</a>
+  <a href="/lessons/{{ n }}/tasks?part=class" {% if section == "tasks" %}aria-current="page"{% endif %}>Задания</a>
+</nav>
+
+{% block lesson_content %}{% endblock %}
+{% endblock %}
