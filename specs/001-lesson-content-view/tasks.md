@@ -39,7 +39,7 @@ contracts/content-format.md, contracts/ui-routes.md, quickstart.md
 - [ ] T006 [P] `.pre-commit-config.yaml`: ruff check и ruff format (стадия pre-commit), `scripts/check_no_content.py` (pre-commit), `uv run pytest` (стадия pre-push)
 - [ ] T007 [P] GitHub Actions `.github/workflows/ci.yml`: на push и pull_request — установка uv, `uv sync`, `ruff check .`, `ruff format --check .`, `python scripts/check_no_content.py`, `pytest`
 - [ ] T008 [P] Положить закреплённые версии htmx, Alpine.js, Pico CSS в `src/french_learning/web/static/vendor/` с файлами лицензий и `VERSIONS.md` (источник, версия)
-- [ ] T009 [P] Создать `README.md` (что это, требования, установка `uv sync`, настройка `.env`, запуск — заполняется в T063) и `CHANGELOG.md` (раздел «Unreleased»)
+- [ ] T009 [P] Создать `README.md` (что это, требования, установка `uv sync`, настройка `.env`, запуск — заполняется в T063) и `CHANGELOG.md` (раздел «Unreleased»); обновить статус функции 001 в `docs/roadmap.md`: 📝 → 🛠 (конституция, «Документация»)
 
 **Checkpoint**: `uv sync`, `ruff check .`, `pytest` (1 тест) и хуки работают; CI зелёный
 
@@ -53,7 +53,7 @@ contracts/content-format.md, contracts/ui-routes.md, quickstart.md
 
 ### Синтетический контент-образец
 
-- [ ] T010 Создать придуманный образец (НЕ материалы преподавателя) в `tests/fixtures/content/` по contracts/content-format.md: `format.yaml`, `topics.yaml` (3 раздела, 5 тем), `lessons/001/` и `lessons/002/` с `lesson.yaml` (у урока 2 без даты и с одним медиафайлом `video`), теорией с таблицей и встроенной картинкой, текстом с двумя упражнениями к нему, упражнениями всех 10 типов (`gap_choice`, `gap_input`, `multi_gap`, `transform`, `true_false`, `choice`, `two_forms`, `grouping`, `picture`, `open`) в частях `class` и `homework`, статусами `main` / `optional` / `reserve`, справкой, пунктом с `needs_review`, упражнением на повторение темы урока 1 внутри урока 2; `vocabulary/` (слово новое в уроке 1 и повторяющееся в уроке 2; слово, встреченное в упражнении урока 1, но впервые в лексике урока 2); `extra/` с элементом без урока; `reports/` с одним открытым сообщением; `sources/` с маленькими сгенерированными jpg, pdf, docx; один намеренно повреждённый файл упражнения `lessons/002/exercises/ex-broken00.yaml`
+- [ ] T010 Создать придуманный образец (НЕ материалы преподавателя) в `tests/fixtures/content/` по contracts/content-format.md: `format.yaml`, `topics.yaml` (3 раздела, 5 тем), `lessons/001/`, `lessons/002/` и `lessons/004/` (пропуск номера 3) с `lesson.yaml` (у урока 2 без даты и с одним медиафайлом `video`; в уроке 4 все упражнения домашки со статусом `reserve`, теории нет), теорией с таблицей и встроенной картинкой, текстом с двумя упражнениями к нему, упражнениями всех 10 типов (`gap_choice`, `gap_input`, `multi_gap`, `transform`, `true_false`, `choice`, `two_forms`, `grouping`, `picture`, `open`) в частях `class` и `homework`, статусами `main` / `optional` / `reserve`, справкой, пунктом с `needs_review`, упражнением на повторение темы урока 1 внутри урока 2; `vocabulary/` (слово новое в уроке 1 и повторяющееся в уроке 2; слово, встреченное в упражнении урока 1, но впервые в лексике урока 2); `extra/` с элементом без урока; `reports/` с одним открытым сообщением; `sources/` с маленькими сгенерированными jpg, pdf, docx; один намеренно повреждённый файл упражнения `lessons/002/exercises/ex-broken00.yaml`
 
 ### Схема формата (TDD)
 
@@ -82,7 +82,7 @@ contracts/content-format.md, contracts/ui-routes.md, quickstart.md
 
 ### Каркас веб-приложения и команды (TDD)
 
-- [ ] T021 [P] Интеграционные тесты каркаса в `tests/integration/test_app.py`: без `CONTENT_DIR` любая страница показывает объяснение, где задать путь; с образцом `GET /` отвечает 200; `GET /problems` показывает повреждённый файл и причину; статические файлы vendor отдаются
+- [ ] T021 [P] Интеграционные тесты каркаса в `tests/integration/test_app.py`: без `CONTENT_DIR` любая страница показывает объяснение, где задать путь; с образцом `GET /` отвечает 200; `GET /problems` показывает повреждённый файл и причину; статические файлы vendor отдаются; ни один шаблон не подключает внешние скрипты, стили или шрифты по `http(s)://` (FR-052, работа без интернета)
 - [ ] T022 [P] Тесты команд в `tests/integration/test_cli.py`: `validate-content` на образце печатает одно нарушение (повреждённый файл) и завершается с кодом 1; на образце без повреждённого файла — «Нарушений нет» и код 0; `serve` по умолчанию использует хост `127.0.0.1`
 - [ ] T023 Реализовать фабрику приложения `src/french_learning/web/app.py` (FastAPI, Jinja2, статические файлы, загрузка индекса, проверка отпечатка перед запросом, страница «хранилище не настроено»)
 - [ ] T024 Базовый шаблон `src/french_learning/web/templates/base.html` (русский язык, подключение vendor-файлов, мобильная вёрстка) и стили `src/french_learning/web/static/css/app.css` (ширина от 375 px без горизонтальной прокрутки, цвета пометок)
@@ -105,7 +105,7 @@ contracts/content-format.md, contracts/ui-routes.md, quickstart.md
 ### Tests for User Story 1 ⚠️ (пишутся первыми и должны упасть)
 
 - [ ] T028 [P] [US1] Тесты сводки урока в `tests/unit/test_lesson_summary.py`: номер, дата или «дата не указана», темы урока, число новых слов (FR-039), домашка «X из Y» — Y = только `main` упражнения `homework`, отдельный счётчик `optional`, `reserve` не учитывается (FR-031), число «требует проверки»
-- [ ] T029 [P] [US1] Интеграционные тесты страниц в `tests/integration/test_lessons_pages.py`: `GET /` — уроки 2 и 1 (новые сверху) со сводками и ссылками на темы и «Дополнительные материалы»; `GET /lessons/2` — разделы «Теория», «Тексты», «Задания»; `GET /lessons/2/tasks?part=homework` — названия «номер — тема — описание» и «на листе: …», пометка «необязательное», упражнения `reserve` отсутствуют; `GET /lessons/2/reserve` — только резерв; урок без домашки — сообщение «нет материалов»
+- [ ] T029 [P] [US1] Интеграционные тесты страниц в `tests/integration/test_lessons_pages.py`: `GET /` — уроки 4, 2 и 1 (новые сверху, пропуск номера 3 без ошибок) со сводками и ссылками на темы и «Дополнительные материалы»; `GET /lessons/4/tasks?part=homework` — сообщение, что основных заданий нет, и ссылка на «Резерв»; `GET /lessons/4/theory` — сообщение «нет материалов»; `GET /lessons/2` — разделы «Теория», «Тексты», «Задания»; `GET /lessons/2/tasks?part=homework` — названия «номер — тема — описание» и «на листе: …», пометка «необязательное», упражнения `reserve` отсутствуют; `GET /lessons/2/reserve` — только резерв; урок без домашки — сообщение «нет материалов»
 - [ ] T030 [P] [US1] Интеграционные тесты упражнения в `tests/integration/test_exercise_view.py`: `GET /elements/{id}` для каждого из 10 типов показывает формулировку `instruction.ru` и пункты с пропусками; в ответе нет правильных ответов (FR-023); справка присутствует свёрнутой (FR-024); у `picture` показан исходный файл (FR-025); повреждённый элемент — карточка «ошибка в данных» со ссылкой на `/problems`
 
 ### Implementation for User Story 1
@@ -130,12 +130,12 @@ PDF; лексика разделена; «Тексты» → текст со с�
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T036 [P] [US2] Интеграционные тесты в `tests/integration/test_theory_texts.py`: `GET /lessons/1/theory` — таблица и картинка из теории, лексика с артиклем (`la maison`), разделение «новые» / «на повторение» по FR-039; `GET /lessons/1/texts` — текст отдельным элементом со ссылками на упражнения; страница упражнения к тексту содержит ссылку на текст (FR-027)
+- [ ] T036 [P] [US2] Интеграционные тесты в `tests/integration/test_theory_texts.py`: `GET /lessons/1/theory` — таблица и картинка из теории, лексика с артиклем (`la maison`), разделение «новые» / «на повторение» по FR-039; `GET /lessons/1/texts` — текст отдельным элементом со ссылками на упражнения; страница упражнения к тексту содержит ссылку на текст, а упражнения, связанного с теорией, — ссылку на теорию; страница теории содержит ссылки на связанные упражнения (FR-027, обе связи); у элемента теории с 3 и более заголовками есть оглавление со ссылками на заголовки (Edge Cases)
 - [ ] T037 [P] [US2] Тесты отдачи исходников в `tests/integration/test_sources.py`: jpg и pdf отдаются с верным типом; docx отдаётся как HTML; путь с `..` или вне хранилища → 404; отсутствующий файл → сообщение «оригинал недоступен», элемент при этом открывается
 
 ### Implementation for User Story 2
 
-- [ ] T038 [US2] Маршруты `/lessons/{number}/theory` и `/texts` в `src/french_learning/web/routes/lessons.py` + шаблоны `templates/theory.html`, `templates/texts.html`, `templates/partials/vocab_list.html`
+- [ ] T038 [US2] Маршруты `/lessons/{number}/theory` и `/texts` в `src/french_learning/web/routes/lessons.py` + шаблоны `templates/theory.html` (с оглавлением для теории с 3+ заголовками и ссылками на связанные упражнения), `templates/texts.html`, `templates/partials/vocab_list.html`
 - [ ] T039 [US2] Маршрут `GET /sources/{path}` в `src/french_learning/web/routes/sources.py` (проверка пути внутри `CONTENT_DIR`, docx → HTML через render.py) и кнопка «Открыть оригинал» у каждого элемента в `templates/partials/element_actions.html`
 - [ ] T040 [US2] Проверка по независимому тесту US2 — тесты T036, T037 проходят
 
@@ -153,12 +153,12 @@ PDF; лексика разделена; «Тексты» → текст со с�
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T041 [P] [US3] Тесты записи в `tests/unit/test_writer.py` (на временной копии образца с `git init`): атомарная запись (при ошибке файл не повреждён); изменение даты урока; изменение тем элемента (выбор существующей и создание новой темы, имя уникально без учёта регистра); переименование темы меняет только `topics.yaml`; объединение A → B заменяет ссылки во всех элементах и удаляет A; каждая операция — один git-коммит с понятным сообщением; при отсутствии git-репозитория запись выполняется, а коммит пропускается с предупреждением
+- [ ] T041 [P] [US3] Тесты записи в `tests/unit/test_writer.py` (на временной копии образца с `git init`): атомарная запись (при ошибке файл не повреждён); изменение даты урока; изменение тем элемента (выбор существующей и создание новой темы, имя уникально без учёта регистра); переименование темы меняет только `topics.yaml`; объединение A → B заменяет ссылки во всех элементах и удаляет A; каждая операция — один git-коммит с понятным сообщением; после коммита выполняется попытка `git push` (резервная копия, конституция VI): при отсутствии удалённого репозитория или сети правка сохраняется, а пользователь видит предупреждение «копия не отправлена»; при отсутствии git-репозитория запись выполняется, а коммит пропускается с предупреждением
 - [ ] T042 [P] [US3] Интеграционные тесты в `tests/integration/test_topics_pages.py`: `GET /topics` — темы по разделам с числом элементов и «Без темы»; `GET /topics/{id}` — элементы обоих уроков с номером урока и элемент без урока с пометкой «дополнительный материал»; `GET /extras` — только элементы без урока; POST-действия rename / merge / date / topics меняют страницы сразу
 
 ### Implementation for User Story 3
 
-- [ ] T043 [US3] Реализовать `src/french_learning/content/writer.py` (атомарная запись YAML и шапки Markdown с сохранением остального содержимого; git-коммит через subprocess в `CONTENT_DIR`) — тесты T041 проходят
+- [ ] T043 [US3] Реализовать `src/french_learning/content/writer.py` (атомарная запись YAML и шапки Markdown с сохранением остального содержимого; git-коммит через subprocess в `CONTENT_DIR`; затем попытка `git push`, неудача не прерывает правку и показывается предупреждением) — тесты T041 проходят
 - [ ] T044 [US3] Маршруты `/topics`, `/topics/{id}`, `/topics/{id}/rename`, `/topics/{id}/merge` в `src/french_learning/web/routes/topics.py` + шаблоны `templates/topics.html`, `templates/topic.html`
 - [ ] T045 [US3] Маршрут `/extras` в `src/french_learning/web/routes/extras.py` + шаблон `templates/extras.html` (FR-038)
 - [ ] T046 [US3] Действия `/lessons/{number}/date` и `/elements/{id}/topics` + фрагменты форм `templates/partials/edit_date.html`, `templates/partials/edit_topics.html` (HTMX)
@@ -216,7 +216,7 @@ PDF; лексика разделена; «Тексты» → текст со с�
 - [ ] T061 Пройти quickstart.md на демо-хранилище `C:\Users\Kate\source\french_learning_demo` (создаётся T057) и исправить найденное
 - [ ] T062 [P] Обновить `CLAUDE.md`, раздел «Команды»: `uv sync`, `uv run french-learning serve`, `uv run french-learning validate-content`, `uv run pytest`, `uv run ruff check .`
 - [ ] T063 [P] Обновить `README.md` (установка, настройка `.env`, запуск, проверка контента, демо) и `CHANGELOG.md` (что появилось в 001)
-- [ ] T064 Обновить статус функции 001 в `docs/roadmap.md` (🛠 → ✅ после приёмки пользователем)
+- [ ] T064 После приёмки пользователем: статус функции 001 в `docs/roadmap.md` 🛠 → ✅; слить ветку `001-lesson-content-view` в `main` при проходящих тестах и отправить `main` на GitHub (конституция, «Контроль качества»: слияние только после приёмки)
 
 ---
 
