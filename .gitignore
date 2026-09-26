@@ -1,0 +1,25 @@
+# Локальные настройки и секреты
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+
+# Инструменты
+.pytest_cache/
+.ruff_cache/
+
+# Данные — никогда не в этом репозитории
+*.sqlite
+*.sqlite3
+
+# Системное
+.DS_Store
+Thumbs.db
+*.tmp
+.vscode/
+.idea/

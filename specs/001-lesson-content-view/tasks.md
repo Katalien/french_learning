@@ -31,15 +31,15 @@ contracts/content-format.md, contracts/ui-routes.md, quickstart.md
 
 **Purpose**: создать проект, инструменты качества и защиту от попадания контента в репозиторий
 
-- [ ] T001 Создать проект uv с раскладкой `src/`: `pyproject.toml` (Python 3.12, зависимости: fastapi, uvicorn, jinja2, pydantic, pydantic-settings, pyyaml, markdown-it-py, mdit-py-plugins, nh3, mammoth, python-multipart; dev: pytest, httpx, ruff, pre-commit, python-docx), точка входа `french-learning = "french_learning.cli:main"`, пустые `src/french_learning/__init__.py`, `uv.lock`
-- [ ] T002 [P] Настроить ruff (check + format, line-length 100) и pytest (`testpaths = ["tests"]`) в `pyproject.toml`
-- [ ] T003 [P] Дополнить `.gitignore`: `.env`, `.venv/`, `__pycache__/`, `*.sqlite`, `.pytest_cache/`, `.ruff_cache/`; создать `.env.example` с `CONTENT_DIR=`, `SOURCE_MATERIALS_DIR=`, `HOST=127.0.0.1`, `PORT=8000` (без реальных путей-секретов)
-- [ ] T004 [P] Тест защиты от контента в `tests/unit/test_no_content_guard.py`: скрипт находит запрещённые файлы (изображения, pdf, docx, audio/video, yaml контента) вне разрешённых путей `tests/fixtures/`, `src/french_learning/web/static/`
-- [ ] T005 Скрипт защиты `scripts/check_no_content.py` (выход 1 при нарушении) — после T004
-- [ ] T006 [P] `.pre-commit-config.yaml`: ruff check и ruff format (стадия pre-commit), `scripts/check_no_content.py` (pre-commit), `uv run pytest` (стадия pre-push)
-- [ ] T007 [P] GitHub Actions `.github/workflows/ci.yml`: на push и pull_request — установка uv, `uv sync`, `ruff check .`, `ruff format --check .`, `python scripts/check_no_content.py`, `pytest`
-- [ ] T008 [P] Положить закреплённые версии htmx, Alpine.js, Pico CSS в `src/french_learning/web/static/vendor/` с файлами лицензий и `VERSIONS.md` (источник, версия)
-- [ ] T009 [P] Создать `README.md` (что это, требования, установка `uv sync`, настройка `.env`, запуск — заполняется в T063) и `CHANGELOG.md` (раздел «Unreleased»); обновить статус функции 001 в `docs/roadmap.md`: 📝 → 🛠 (конституция, «Документация»)
+- [X] T001 Создать проект uv с раскладкой `src/`: `pyproject.toml` (Python 3.12, зависимости: fastapi, uvicorn, jinja2, pydantic, pydantic-settings, pyyaml, markdown-it-py, mdit-py-plugins, nh3, mammoth, python-multipart; dev: pytest, httpx, ruff, pre-commit, python-docx), точка входа `french-learning = "french_learning.cli:main"`, пустые `src/french_learning/__init__.py`, `uv.lock`
+- [X] T002 [P] Настроить ruff (check + format, line-length 100) и pytest (`testpaths = ["tests"]`) в `pyproject.toml`
+- [X] T003 [P] Дополнить `.gitignore`: `.env`, `.venv/`, `__pycache__/`, `*.sqlite`, `.pytest_cache/`, `.ruff_cache/`; создать `.env.example` с `CONTENT_DIR=`, `SOURCE_MATERIALS_DIR=`, `HOST=127.0.0.1`, `PORT=8000` (без реальных путей-секретов)
+- [X] T004 [P] Тест защиты от контента в `tests/unit/test_no_content_guard.py`: скрипт находит запрещённые файлы (изображения, pdf, docx, audio/video, yaml контента) вне разрешённых путей `tests/fixtures/`, `src/french_learning/web/static/`
+- [X] T005 Скрипт защиты `scripts/check_no_content.py` (выход 1 при нарушении) — после T004
+- [X] T006 [P] `.pre-commit-config.yaml`: ruff check и ruff format (стадия pre-commit), `scripts/check_no_content.py` (pre-commit), `uv run pytest` (стадия pre-push)
+- [X] T007 [P] GitHub Actions `.github/workflows/ci.yml`: на push и pull_request — установка uv, `uv sync`, `ruff check .`, `ruff format --check .`, `python scripts/check_no_content.py`, `pytest`
+- [X] T008 [P] Положить закреплённые версии htmx, Alpine.js, Pico CSS в `src/french_learning/web/static/vendor/` с файлами лицензий и `VERSIONS.md` (источник, версия)
+- [X] T009 [P] Создать `README.md` (что это, требования, установка `uv sync`, настройка `.env`, запуск — заполняется в T063) и `CHANGELOG.md` (раздел «Unreleased»); обновить статус функции 001 в `docs/roadmap.md`: 📝 → 🛠 (конституция, «Документация»)
 
 **Checkpoint**: `uv sync`, `ruff check .`, `pytest` (1 тест) и хуки работают; CI зелёный
 

@@ -1,0 +1,33 @@
+# Хуки git (конституция, «Контроль качества»): линтер и защита контента — на коммит,
+# тесты — на push. Все инструменты запускаются из окружения проекта через uv.
+default_install_hook_types: [pre-commit, pre-push]
+
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check
+        language: system
+        types: [python]
+        stages: [pre-commit]
+      - id: ruff-format
+        name: ruff format (проверка)
+        entry: uv run ruff format --check
+        language: system
+        types: [python]
+        stages: [pre-commit]
+      - id: no-content
+        name: нет учебных материалов в репозитории
+        entry: uv run python scripts/check_no_content.py
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+      - id: pytest
+        name: pytest
+        entry: uv run pytest
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
