@@ -22,7 +22,14 @@
 
 <section>
   <h2>Одно слово</h2>
-  <form method="post" action="/vocab/add">
+  <form method="post" action="/vocab/add" x-data="{ quick: '' }">
+    <label>Одной строкой
+      <input name="quick" x-model="quick" lang="fr" placeholder="la, pomme - яблоко" autofocus>
+      <small>Артикль, слово - перевод, перевод. Артикль можно неопределённый (un, une) — род
+        подставится по нему; если по артиклю род не понять (l', les), его дополнит агент
+        (<code>/complete-words</code>). Или заполните поля ниже по отдельности.</small>
+    </label>
+    <fieldset :disabled="quick.trim() !== ''">
     <div class="grid">
       <label>Артикль
         <select name="article"><option value="">—</option>{% for a in ("le", "la", "l'", "les") %}<option value="{{ a }}">{{ a }}</option>{% endfor %}</select>
@@ -30,6 +37,7 @@
       <label>Слово или фраза <input name="text" required lang="fr"></label>
     </div>
     <label>Переводы (через запятую) <input name="translations" required></label>
+    </fieldset>
     <div class="grid">
       <label>Вид <select name="entry_type">{% for key, name in kinds.items() %}<option value="{{ key }}">{{ name }}</option>{% endfor %}</select></label>
       <label>Род <select name="gender"><option value="">—</option><option value="m">m</option><option value="f">f</option><option value="both">оба</option></select></label>

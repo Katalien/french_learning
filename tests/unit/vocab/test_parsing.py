@@ -132,3 +132,23 @@ def test_realistic_list_at_least_95_percent():
     assert len(lines) == 51
     result = parse_word_list(REALISTIC_LIST)
     assert len(result.entries) / len(lines) >= 0.95
+
+
+@pytest.mark.parametrize(
+    ("line", "article", "gender", "text"),
+    [
+        ("le, chat - кот", "le", "m", "chat"),
+        ("la , maison — дом", "la", "f", "maison"),
+        ("l', eau - вода", "l'", None, "eau"),
+        ("un chat - кот", "le", "m", "chat"),
+        ("une, pomme - яблоко", "la", "f", "pomme"),
+        ("un arbre - дерево", "l'", "m", "arbre"),
+        ("une heure - час", None, "f", "heure"),
+        ("des pommes - яблоки", "les", None, "pommes"),
+    ],
+)
+def test_article_with_comma_and_indefinite(line, article, gender, text):
+    # быстрый ввод «артикль, слово - перевод»: род — по артиклю; «h» не угадываем (h aspiré)
+    entry = one(line)
+    assert (entry.article, entry.gender, entry.text) == (article, gender, text)
+    assert entry.pos == "nom" and entry.entry_type == "word"

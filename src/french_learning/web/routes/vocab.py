@@ -273,6 +273,7 @@ def vocab_list(
         known_ids=cards.known_ids(),
     )
     incomplete = len(vocab_entries.filter_entries(index, flag="incomplete"))
+    used_topics = {t for e in vocab_entries.vocab_entries(index) for t in e.topics}
     context = {
         "index": index,
         "items": items,
@@ -281,7 +282,7 @@ def vocab_list(
         "filters": VOCAB_FILTERS,
         "kinds": {"": "все виды", "word": "слова", "verb": "глаголы", "phrase": "фразы"},
         "lessons": index.lessons(),
-        "topics": index.all_topics(),
+        "topics": [t for t in index.all_topics() if t.id in used_topics],
         "incomplete": incomplete,
         "display_fr": vocab_entries.display_fr,
     }
@@ -323,20 +324,39 @@ def vocab_add(
     gender: Annotated[str, Form()] = "",
     entry_type: Annotated[str, Form()] = "word",
     lesson: Annotated[str, Form()] = "",
+    quick: Annotated[str, Form()] = "",
 ):
     from urllib.parse import urlencode
 
     from french_learning.content.writer import WriteError
     from french_learning.vocab.edits import VocabError
+    from french_learning.vocab.parsing import Unrecognized, parse_line
 
+    word = {
+        "text": text,
+        "translations": translations.replace(";", ",").split(","),
+        "article": article or None,
+        "gender": gender or None,
+        "entry_type": entry_type,
+        "pos": None,
+    }
+    if quick.strip():
+        # одной строкой «артикль, слово - перевод»; род, выбранный в форме, важнее угаданного
+        parsed = parse_line(1, quick)
+        if isinstance(parsed, Unrecognized):
+            return _redirect("/vocab/add?" + urlencode({"error": parsed.reason}))
+        word.update(
+            text=parsed.text,
+            translations=parsed.translations,
+            article=parsed.article,
+            gender=gender or parsed.gender,
+            entry_type=entry_type if entry_type != "word" else parsed.entry_type,
+            pos=parsed.pos,
+        )
     try:
         entry_id, merged = _editor(request).add_word(
-            text=text,
-            translations=translations.replace(";", ",").split(","),
+            **word,
             topics=[topic] if topic else [],
-            article=article or None,
-            gender=gender or None,
-            entry_type=entry_type,
             lesson=int(lesson) if lesson else None,
         )
     except (VocabError, WriteError) as exc:

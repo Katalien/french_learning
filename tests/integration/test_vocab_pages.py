@@ -57,3 +57,10 @@ def test_speech_button(client):
 
 def test_menu_links_to_dictionary(client):
     assert 'href="/vocab"' in client.get("/").text
+
+
+def test_filters_apply_on_change_and_list_only_topics_with_words(client):
+    html = client.get("/vocab").text
+    assert html.count('onchange="this.form.requestSubmit()"') == 4
+    assert 'value="top-maisonxx"' in html
+    assert 'value="top-nasalson"' not in html

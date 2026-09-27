@@ -1,9 +1,11 @@
 """Разбор списка слов в мягком формате (FR-021, FR-022; research R6).
 
 Строка: «французское — перевод[, перевод…]». Разделитель — первое « — », « – », « - »
-или табуляция. Необязательно: артикль le / la / l' / les, пометки (m) (f) (v) (adj) (phr)
-(nom) (adv) (prep) (pron). Фраза — если есть ? или !, строка начинается с заглавной буквы
-или в ней 4 слова и больше, либо пометка (phr). Пустые строки и строки с # пропускаются.
+или табуляция. Необязательно: артикль le / la / l' / les / un / une / des (можно через
+запятую: «la, pomme - яблоко»; неопределённый переводится в определённый), пометки (m) (f)
+(v) (adj) (phr) (nom) (adv) (prep) (pron). Фраза — если есть ? или !, строка начинается
+с заглавной буквы или в ней 4 слова и больше, либо пометка (phr).
+Пустые строки и строки с # пропускаются.
 """
 
 from __future__ import annotations
@@ -13,7 +15,9 @@ from dataclasses import dataclass, field
 
 SEPARATORS = (" — ", " – ", " - ", "\t")
 _MARKER = re.compile(r"\((m|f|v|adj|phr|nom|adv|prep|pron)\)", re.IGNORECASE)
-_ARTICLE = re.compile(r"^(le|la|les)\s+|^(l)['’]\s*", re.IGNORECASE)
+_ARTICLE = re.compile(r"^(les|le|la|une|un|des)(?:\s*,\s*|\s+)|^(l)['’]\s*,?\s*", re.IGNORECASE)
+_VOWELS = "aeiouyàâäéèêëîïôöùûüœæ"
+_GENDER = {"le": "m", "la": "f", "un": "m", "une": "f"}
 _POS = {"v": "verbe", "adj": "adj", "nom": "nom", "adv": "adv", "prep": "prep", "pron": "pron"}
 
 
@@ -55,6 +59,18 @@ def _is_phrase(text: str) -> bool:
     return bool(re.search(r"[?!]", text)) or text[:1].isupper() or len(text.split()) >= 4
 
 
+def _definite(article: str, text: str) -> str | None:
+    """Определённый артикль; перед «h» не угадываем (h muet или h aspiré) — дополнит агент."""
+    if article in ("un", "une"):
+        first = text[:1].lower()
+        if first == "h":
+            return None
+        if first in _VOWELS:
+            return "l'"
+        return "le" if article == "un" else "la"
+    return {"des": "les"}.get(article, article)
+
+
 def parse_line(line_no: int, raw: str) -> ParsedLine | Unrecognized:
     parts = _split(raw.strip())
     if parts is None:
@@ -80,9 +96,9 @@ def parse_line(line_no: int, raw: str) -> ParsedLine | Unrecognized:
     match = _ARTICLE.match(text)
     if match:
         article = (match.group(1) or "l'").lower()
-        entry.article = "l'" if article == "l" else article
         entry.text = text[match.end() :].strip()
-        entry.gender = {"le": "m", "la": "f"}.get(entry.article)
+        entry.gender = _GENDER.get(article)
+        entry.article = _definite(article, entry.text)
         entry.pos = "nom"
     if "m" in markers:
         entry.gender = "m"

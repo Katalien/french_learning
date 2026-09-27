@@ -51,3 +51,20 @@ def test_complete_page_shows_count_and_command(client):
     html = client.get("/vocab/complete").text
     assert "/complete-words" in html
     assert "Нужно дополнить: 1" in html
+
+
+def test_add_single_word_from_one_line(client, content_root):
+    response = client.post(
+        "/vocab/add", data={"quick": "une, pomme - яблоко, яблочко", "topic": "top-nourritu"}
+    )
+    assert "/vocab/voc-" in str(response.url)
+    assert "la pomme" in response.text
+    files = (content_root / "vocabulary").glob("*.yaml")
+    [path] = [p for p in files if "pomme" in p.read_text("utf-8")]
+    text = path.read_text("utf-8")
+    assert "article: la" in text and "gender: f" in text and "яблочко" in text
+
+
+def test_one_line_unrecognized_shows_error(client):
+    response = client.post("/vocab/add", data={"quick": "pomme яблоко", "topic": "top-nourritu"})
+    assert "Не сохранено" in response.text and "разделител" in response.text

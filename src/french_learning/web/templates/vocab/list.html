@@ -10,22 +10,23 @@
 </nav>
 
 <form method="get" action="/vocab" class="vocab-filters">
-  <select name="lesson" aria-label="Урок">
+  <select name="lesson" onchange="this.form.requestSubmit()" aria-label="Урок">
     <option value="">все уроки</option>
     {% for l in lessons %}<option value="{{ l.number }}" {% if selected.lesson == l.number | string %}selected{% endif %}>Урок {{ l.number }}</option>{% endfor %}
   </select>
-  <select name="topic" aria-label="Тема">
+  <select name="topic" onchange="this.form.requestSubmit()" aria-label="Тема">
     <option value="">все темы</option>
     {% for t in topics %}<option value="{{ t.id }}" {% if selected.topic == t.id %}selected{% endif %}>{{ t.name }}</option>{% endfor %}
   </select>
-  <select name="kind" aria-label="Вид">
+  <select name="kind" onchange="this.form.requestSubmit()" aria-label="Вид">
     {% for key, name in kinds.items() %}<option value="{{ key }}" {% if selected.kind == key %}selected{% endif %}>{{ name }}</option>{% endfor %}
   </select>
-  <select name="filter" aria-label="Список">
+  <select name="filter" onchange="this.form.requestSubmit()" aria-label="Список">
     {% for key, name in filters.items() %}<option value="{{ key }}" {% if selected.filter == key %}selected{% endif %}>{{ name }}</option>{% endfor %}
   </select>
   <input type="hidden" name="view" value="{{ view }}">
-  <button type="submit" class="small">Показать</button>
+  <noscript><button type="submit" class="small">Показать</button></noscript>
+  {% if selected.lesson or selected.topic or selected.kind or selected.filter %}<a href="/vocab?view={{ view }}" class="small">сбросить</a>{% endif %}
 </form>
 
 <p class="muted">
