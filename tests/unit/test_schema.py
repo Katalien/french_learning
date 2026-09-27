@@ -248,3 +248,21 @@ def test_report_resolved_optional():
         "resolved": "2026-09-28T09:00:00",
     }
     assert schema.Report.model_validate(report).resolved is not None
+
+
+def test_vocab_hidden_and_completed_by_ai():
+    entry = {
+        "id": "voc-abcdefgh",
+        "kind": "vocab",
+        "entry_type": "word",
+        "text": "chat",
+        "translations": [{"text": "кот", "origin": "user"}],
+        "topics": ["top-abcdefgh"],
+        "origin": "user",
+    }
+    plain = schema.VocabEntry.model_validate(entry)
+    assert plain.hidden is False and plain.completed_by_ai == []
+    extended = schema.VocabEntry.model_validate(
+        dict(entry, hidden=True, completed_by_ai=["gender", "article"])
+    )
+    assert extended.hidden and extended.completed_by_ai == ["gender", "article"]

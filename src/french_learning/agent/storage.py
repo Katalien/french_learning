@@ -66,10 +66,18 @@ def init_content(root: Path) -> None:
     (root / "topics.yaml").write_text(
         yaml.safe_dump({"sections": SECTIONS, "topics": []}, **dump), encoding="utf-8"
     )
-    (root / ".gitignore").write_text(".staging/\n", encoding="utf-8")
+    (root / ".gitignore").write_text(".staging/\n.progress/\n", encoding="utf-8")
     if not (root / ".git").exists():
         _git(root, "init", "-q")
     _git(root, "add", "-A")
     commit = _git(root, "commit", "-q", "-m", "Хранилище контента: начальная структура")
     if commit.returncode != 0:
         raise StorageError(f"не удалось создать первый коммит: {commit.stderr.strip()}")
+
+
+def ensure_progress_ignored(root: Path) -> None:
+    """Папка прогресса (SQLite) не должна попадать в git хранилища (функция 003)."""
+    path = root / ".gitignore"
+    lines = path.read_text(encoding="utf-8").splitlines() if path.exists() else []
+    if ".progress/" not in lines:
+        path.write_text("\n".join([*lines, ".progress/"]) + "\n", encoding="utf-8")

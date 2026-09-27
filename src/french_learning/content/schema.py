@@ -462,6 +462,8 @@ class VocabEntry(ElementBase):
     examples: list[Example] = []
     notes: str | None = None
     needs_completion: bool = False
+    hidden: bool = False
+    completed_by_ai: list[str] = []
 
     @model_validator(mode="after")
     def _no_lesson_part(self) -> VocabEntry:

@@ -67,3 +67,17 @@ def test_storage_without_own_git_is_refused(clean_content_root: Path):
 def test_missing_storage_is_refused(tmp_path: Path):
     with pytest.raises(StorageError):
         ensure_writable_storage(tmp_path / "none")
+
+
+def test_progress_folder_is_ignored_in_storage(store: Path):
+    from french_learning.agent.storage import ensure_progress_ignored
+
+    ensure_progress_ignored(store)
+    assert ".progress/" in (store / ".gitignore").read_text(encoding="utf-8")
+    ensure_progress_ignored(store)  # повторно — без дублей
+    assert (store / ".gitignore").read_text(encoding="utf-8").count(".progress/") == 1
+
+
+def test_new_storage_ignores_progress(tmp_path: Path):
+    init_content(tmp_path / "m")
+    assert ".progress/" in (tmp_path / "m" / ".gitignore").read_text(encoding="utf-8")

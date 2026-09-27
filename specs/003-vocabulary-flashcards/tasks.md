@@ -16,9 +16,9 @@ contracts/ui-routes.md, quickstart.md
 
 ## Phase 1: Setup
 
-- [ ] T001 Добавить зависимость `fsrs` в `pyproject.toml` (`uv add fsrs`), закрепить версию в `uv.lock` (research R2)
-- [ ] T002 [P] Дополнить формат: необязательные поля `hidden: bool` и `completed_by_ai: list[str]` у лексики — тесты в `tests/unit/test_schema.py`, модель в `src/french_learning/content/schema.py`, описание в `docs/content-format.md`
-- [ ] T003 [P] В `init-content` и для существующего хранилища: `.progress/` в `.gitignore` хранилища (`src/french_learning/agent/storage.py` + функция `ensure_progress_ignored`, вызывается при открытии БД прогресса); тест в `tests/unit/agent/test_storage.py`
+- [X] T001 Добавить зависимость `fsrs` в `pyproject.toml` (`uv add fsrs`), закрепить версию в `uv.lock` (research R2)
+- [X] T002 [P] Дополнить формат: необязательные поля `hidden: bool` и `completed_by_ai: list[str]` у лексики — тесты в `tests/unit/test_schema.py`, модель в `src/french_learning/content/schema.py`, описание в `docs/content-format.md`
+- [X] T003 [P] В `init-content` и для существующего хранилища: `.progress/` в `.gitignore` хранилища (`src/french_learning/agent/storage.py` + функция `ensure_progress_ignored`, вызывается при открытии БД прогресса); тест в `tests/unit/agent/test_storage.py`
 
 ---
 
@@ -26,23 +26,23 @@ contracts/ui-routes.md, quickstart.md
 
 ### База прогресса (TDD)
 
-- [ ] T004 [P] Тесты в `tests/unit/practice/test_db.py`: БД создаётся в `CONTENT_DIR/.progress/progress.sqlite` со схемой data-model (`meta`, `settings`, `cards`, `reviews`, `sessions`), `schema_version` = 1; повторное открытие не теряет данных; настройки по умолчанию `portion_size=20`, `directions=staged`
-- [ ] T005 Реализовать `src/french_learning/practice/db.py` (стандартный `sqlite3`, миграции по `schema_version`) — тесты T004 проходят
+- [X] T004 [P] Тесты в `tests/unit/practice/test_db.py`: БД создаётся в `CONTENT_DIR/.progress/progress.sqlite` со схемой data-model (`meta`, `settings`, `cards`, `reviews`, `sessions`), `schema_version` = 1; повторное открытие не теряет данных; настройки по умолчанию `portion_size=20`, `directions=staged`
+- [X] T005 Реализовать `src/french_learning/practice/db.py` (стандартный `sqlite3`, миграции по `schema_version`) — тесты T004 проходят
 
 ### Проверка ответа (TDD, общая с 004)
 
-- [ ] T006 [P] Тесты в `tests/unit/practice/test_checking.py`: апострофы `'` `’` `ʼ`, регистр, лишние и неразрывные пробелы, пробел перед `?` `!` `;` `:`, конечная точка — не ошибка; буква или диакритика — ошибка (`été` ≠ `ete` → результат «нужен выбор написания»); несколько допустимых ответов; варианты написания: правильный + до 3 подмен акцентов на тех же буквах (e ↔ é è ê ë, a ↔ à â, u ↔ ù û ü, i ↔ î ï, o ↔ ô, c ↔ ç, oe ↔ œ), без повторов, правильный среди них; русский ответ — без учёта регистра, «ё» = «е»
-- [ ] T007 Реализовать `src/french_learning/practice/checking.py` — тесты T006 проходят
+- [X] T006 [P] Тесты в `tests/unit/practice/test_checking.py`: апострофы `'` `’` `ʼ`, регистр, лишние и неразрывные пробелы, пробел перед `?` `!` `;` `:`, конечная точка — не ошибка; буква или диакритика — ошибка (`été` ≠ `ete` → результат «нужен выбор написания»); несколько допустимых ответов; варианты написания: правильный + до 3 подмен акцентов на тех же буквах (e ↔ é è ê ë, a ↔ à â, u ↔ ù û ü, i ↔ î ï, o ↔ ô, c ↔ ç, oe ↔ œ), без повторов, правильный среди них; русский ответ — без учёта регистра, «ё» = «е»
+- [X] T007 Реализовать `src/french_learning/practice/checking.py` — тесты T006 проходят
 
 ### Карточки и расписание (TDD)
 
-- [ ] T008 [P] Тесты в `tests/unit/vocab/test_cards.py`: синхронизация создаёт карточку `fr_ru` для каждой нескрытой записи; `ru_fr` — после первой «Помню» в `fr_ru` при `staged`, сразу при `both`; оценки again / hard / good меняют `due` через FSRS (good → позже, чем again); направления независимы (SC-002); оценка в любом режиме обновляет расписание, повтор раньше срока не «ломает» интервал — слово с «Помню» через урок не появляется завтра в «пора сегодня» (SC-002a); «Знаю» приостанавливает обе карточки, возврат — снимает, история цела (SC-005); «сложные» по последним 5 оценкам (research R10); каждая оценка пишется в `reviews` с `prev_fsrs`
-- [ ] T009 Реализовать `src/french_learning/vocab/cards.py` (обёртка над `fsrs`) — тесты T008 проходят
+- [X] T008 [P] Тесты в `tests/unit/vocab/test_cards.py`: синхронизация создаёт карточку `fr_ru` для каждой нескрытой записи; `ru_fr` — после первой «Помню» в `fr_ru` при `staged`, сразу при `both`; оценки again / hard / good меняют `due` через FSRS (good → позже, чем again); направления независимы (SC-002); оценка в любом режиме обновляет расписание, повтор раньше срока не «ломает» интервал — слово с «Помню» через урок не появляется завтра в «пора сегодня» (SC-002a); «Знаю» приостанавливает обе карточки, возврат — снимает, история цела (SC-005); «сложные» по последним 5 оценкам (research R10); каждая оценка пишется в `reviews` с `prev_fsrs`
+- [X] T009 Реализовать `src/french_learning/vocab/cards.py` (обёртка над `fsrs`) — тесты T008 проходят
 
 ### Вопрос и ответ карточки (TDD)
 
-- [ ] T010 [P] Тесты в `tests/unit/vocab/test_entries.py`: FR → RU — вопрос «la maison» / «l'eau» / «parler», ответ — все переводы; RU → FR — вопрос переводы + подсказка (часть речи, первый пример), ответ с артиклем у существительных; неопределённый артикль выводится из рода и признаков (un / une / des; `plural_only` → des; `both` → un / une); для RU → FR допустимы все записи с тем же переводом (spec, Edge Cases); фильтры словаря: все / урок / тема / вид / known / hidden / incomplete
-- [ ] T011 Реализовать `src/french_learning/vocab/entries.py` — тесты T010 проходят
+- [X] T010 [P] Тесты в `tests/unit/vocab/test_entries.py`: FR → RU — вопрос «la maison» / «l'eau» / «parler», ответ — все переводы; RU → FR — вопрос переводы + подсказка (часть речи, первый пример), ответ с артиклем у существительных; неопределённый артикль выводится из рода и признаков (un / une / des; `plural_only` → des; `both` → un / une); для RU → FR допустимы все записи с тем же переводом (spec, Edge Cases); фильтры словаря: все / урок / тема / вид / known / hidden / incomplete
+- [X] T011 Реализовать `src/french_learning/vocab/entries.py` — тесты T010 проходят
 
 **Checkpoint**: карточки, расписание и проверка работают без интерфейса
 
@@ -74,7 +74,7 @@ contracts/ui-routes.md, quickstart.md
 
 ## Phase 5: User Story 3 — Добавить свои слова (P3)
 
-- [ ] T019 [P] [US3] Тесты в `tests/unit/vocab/test_parsing.py`: разделители « — » « – » « - » и табуляция; переводы через `,` `;`; артикли le / la / l' / les; пометки `(m)` `(f)` `(v)` `(adj)` `(phr)`; `?` / `!` / многословное без артикля → фраза; пустые строки и `#` пропускаются; несколько тире — разбор по первому, при сомнении — строка «не распознана»; неуказанное → `needs_completion`
+- [ ] T019 [P] [US3] Тесты в `tests/unit/vocab/test_parsing.py`: разделители « — » « – » « - » и табуляция; переводы через `,` `;`; артикли le / la / l' / les; пометки `(m)` `(f)` `(v)` `(adj)` `(phr)`; `?` / `!` / многословное без артикля → фраза; пустые строки и `#` пропускаются; несколько тире — разбор по первому, при сомнении — строка «не распознана»; неуказанное → `needs_completion`; реалистичный список из 50 строк мягкого формата распознаётся без правки не меньше чем на 95% (SC-003)
 - [ ] T020 [P] [US3] Тесты в `tests/unit/vocab/test_edits.py`: добавление одного слова (текст + хотя бы один перевод, остальное необязательно, `origin: user`); импорт списка — новые записи, объединение с существующими по форме + части речи + роду (новый перевод добавляется), отчёт «добавлено / объединено / не распознано»; один коммит на операцию
 - [ ] T021 [US3] Реализовать `src/french_learning/vocab/parsing.py` и `src/french_learning/vocab/edits.py` — тесты T019, T020 проходят
 - [ ] T022 [US3] Страницы `/vocab/add`, `/vocab/import`, `/vocab/complete` (число «нужно дополнить» + команда) и шаблоны; интеграционный тест в `tests/integration/test_vocab_add.py`
