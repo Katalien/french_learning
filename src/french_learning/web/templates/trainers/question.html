@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{{ trainer.name }}{% endblock %}
+{% block content %}
+<p class="breadcrumbs"><a href="/trainers/{{ trainer.id }}">{{ trainer.name }}</a> · задание {{ answered + 1 }} из {{ total }}</p>
+
+<article class="trainer-task">
+  {% if q.instruction %}<p class="instruction">{{ q.instruction }}</p>{% endif %}
+  {% if q.mode == "gaps" %}
+    {% set gap_values = given if given is mapping else {} %}
+  {% else %}
+    <p class="trainer-prompt" lang="fr">{{ q.prompt }}</p>
+  {% endif %}
+  {% if q.hint %}<p class="muted hint">{{ q.hint }}</p>{% endif %}
+  {% if q.review_note %}<p class="muted">⚠ Агент не уверен в ответе: {{ q.review_note }}</p>{% endif %}
+
+  {% if choose and q.mode != "gaps" %}
+    <p><strong>Выберите правильное написание</strong> <span class="muted">(вы ввели: {{ given }})</span></p>
+    <form method="post" action="/trainers/s/{{ session_id }}/spelling" class="spelling-choice">
+      <input type="hidden" name="answer" value="{{ given }}">
+      <input type="hidden" name="key" value="{{ q.key }}">
+      {% for v in choose %}<button type="submit" name="choice" value="{{ v }}" class="outline" lang="fr">{{ v }}</button>{% endfor %}
+    </form>
+  {% elif q.mode == "buttons" %}
+    <form method="post" action="/trainers/s/{{ session_id }}/answer" class="trainer-buttons">
+      <input type="hidden" name="key" value="{{ q.key }}">
+      {% for o in q.options %}<button type="submit" name="answer" value="{{ o }}" class="outline" lang="fr">{{ o }}</button>{% endfor %}
+    </form>
+  {% elif q.mode == "order" %}
+    <form method="post" action="/trainers/s/{{ session_id }}/answer" class="trainer-order"
+          x-data='{ pool: {{ q.tokens | tojson }}, chosen: [] }'>
+      <input type="hidden" name="answer" :value="chosen.map(i => pool[i]).join(' ')">
+      <input type="hidden" name="key" value="{{ q.key }}">
+      <p class="order-answer" lang="fr" aria-label="Ваше предложение">
+        <template x-for="(i, n) in chosen" :key="n">
+          <button type="button" class="trainer-token" @click="chosen.splice(n, 1)" x-text="pool[i]"></button>
+        </template>
+        <span class="muted" x-show="!chosen.length">нажимайте на слова по порядку</span>
+      </p>
+      <p class="order-pool" lang="fr">
+        {% for token in q.tokens %}
+          <button type="button" class="trainer-token outline" x-show="!chosen.includes({{ loop.index0 }})"
+                  @click="chosen.push({{ loop.index0 }})">{{ token }}</button>
+        {% endfor %}
+      </p>
+      <button type="submit" :disabled="chosen.length !== pool.length">Проверить</button>
+    </form>
+  {% else %}
+    <form method="post" action="/trainers/s/{{ session_id }}/answer" class="answer-form">
+      <input type="hidden" name="key" value="{{ q.key }}">
+      {% if q.mode == "gaps" %}
+        <p class="trainer-prompt" lang="fr">
+          {% for part_kind, part in q.prompt | gap_parts %}
+            {% if part_kind == "text" %}{{ part }}{% else %}
+              <input name="g{{ part }}" class="answer-field" autocomplete="off" lang="fr" aria-label="пропуск {{ part }}"
+                     value="{{ gap_values.get('g' ~ part, '') }}">
+              {% if choose and choose.get(part) %}
+                <span class="spelling-choice">{% for v in choose[part] %}<label><input type="radio" name="g{{ part }}~choice" value="{{ v }}"> {{ v }}</label>{% endfor %}</span>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        </p>
+      {% else %}
+        <input name="answer" autocomplete="off" autocapitalize="off" spellcheck="false" autofocus lang="fr" placeholder="ответ по-французски">
+      {% endif %}
+      <div class="symbol-panel" aria-label="Французские символы">
+        {% for ch in symbols %}<button type="button" class="symbol" data-char="{{ ch }}" tabindex="-1">{{ ch }}</button>{% endfor %}
+      </div>
+      <button type="submit">Проверить</button>
+    </form>
+  {% endif %}
+
+  <form method="post" action="/trainers/s/{{ session_id }}/reveal" class="inline-form">
+    <input type="hidden" name="key" value="{{ q.key }}">
+    <button type="submit" class="outline secondary small">Показать ответ</button>
+  </form>
+</article>
+<p><a href="/trainers/{{ trainer.id }}">Закончить</a> <small class="muted">— ответы уже сохранены</small></p>
+{% endblock %}

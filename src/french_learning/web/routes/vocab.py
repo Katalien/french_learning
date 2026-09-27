@@ -490,6 +490,7 @@ def settings_page(request: Request, index: Index):
     context = {
         "index": index,
         "portion_size": db.get_setting("portion_size"),
+        "trainer_portion_size": db.get_setting("trainer_portion_size"),
         "directions": db.get_setting("directions"),
         "voice": db.get_setting("voice"),
         "voices": {key: name for key, (_code, name) in VOICES.items()},
@@ -503,6 +504,7 @@ def settings_save(
     request: Request,
     index: Index,
     portion_size: Annotated[str, Form()] = "20",
+    trainer_portion_size: Annotated[str, Form()] = "",
     directions: Annotated[str, Form()] = "staged",
     voice: Annotated[str, Form()] = DEFAULT_VOICE,
 ):
@@ -514,6 +516,10 @@ def settings_save(
     if voice not in VOICES:
         return _redirect("/settings?error=неизвестный голос озвучки")
     db.set_setting("voice", voice)
+    if trainer_portion_size:
+        if not trainer_portion_size.isdigit() or not 1 <= int(trainer_portion_size) <= 500:
+            return _redirect("/settings?error=порция тренажёров — число от 1 до 500")
+        db.set_setting("trainer_portion_size", str(int(trainer_portion_size)))
     db.set_setting("portion_size", str(int(portion_size)))
     db.set_setting("directions", directions)
     return _redirect("/settings?notice=Настройки сохранены.")

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ trainer.name }}{% endblock %}
+{% block content %}
+<p class="breadcrumbs"><a href="/trainers">Тренажёры</a> › {{ trainer.name }}</p>
+<h1>{{ trainer.name }}</h1>
+<p>{{ trainer.description }}</p>
+
+{% if trainer.source == "agent" %}
+  <p>Задания создаёт агент{% if trainer.builtin %} (источник этого встроенного тренажёра переключён на агента){% endif %}.
+    В пуле: <strong>{{ pool.in_pool }}</strong> · решено верно (архив): {{ pool.archived }}
+    · в «Ошибках»: {{ pool.mistakes }}</p>
+  <p class="trainer-links">
+    <a href="/trainers/{{ trainer.id }}/mistakes">Ошибки ({{ pool.mistakes }})</a> ·
+    <a href="/trainers/{{ trainer.id }}/stats">Статистика</a>
+  </p>
+  {% if not total %}
+    <article class="empty-pool">
+      <p><strong>Заданий нет.</strong> Попросите агента сгенерировать новую порцию — в Claude Code:</p>
+      <pre><code>/generate-tasks {{ trainer.id }} {{ portion }}</code></pre>
+    </article>
+  {% else %}
+    <form method="post" action="/trainers/{{ trainer.id }}/start">
+      <p class="muted">За один подход — до {{ portion }} заданий.</p>
+      <button type="submit">Начать</button>
+    </form>
+  {% endif %}
+{% elif not total %}
+  <article class="missing-data">
+    <p><strong>Не хватает данных.</strong> {{ trainer.missing }}</p>
+  </article>
+{% else %}
+  <p class="muted">Вопросов: {{ total }}{% if due %} · пора повторить: {{ due }}{% endif %}{% if hard %} · сложных: {{ hard }}{% endif %}.
+    За один подход — до {{ portion }}.</p>
+  <form method="post" action="/trainers/{{ trainer.id }}/start" x-data="{ scope: 'all' }" class="trainer-setup">
+    <fieldset>
+      <legend>Что тренировать</legend>
+      <label><input type="radio" name="scope" value="all" x-model="scope" checked> {{ "всё" if not trainer.uses_vocab else "весь словарь" }}</label>
+      {% if lessons %}
+        <label><input type="radio" name="scope" value="lesson" x-model="scope"> урок
+          <select name="lesson" aria-label="Урок" @focus="scope = 'lesson'">
+            {% for n in lessons %}<option value="{{ n }}">Урок {{ n }}</option>{% endfor %}
+          </select>
+        </label>
+      {% endif %}
+      {% if topics %}
+        <label><input type="radio" name="scope" value="topic" x-model="scope"> тема
+          <select name="topic" aria-label="Тема" @focus="scope = 'topic'">
+            {% for t in topics %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+          </select>
+        </label>
+      {% endif %}
+      {% if hard %}<label><input type="radio" name="scope" value="hard" x-model="scope"> сложные ({{ hard }})</label>{% endif %}
+    </fieldset>
+    <button type="submit">Начать</button>
+  </form>
+{% endif %}
+{% endblock %}

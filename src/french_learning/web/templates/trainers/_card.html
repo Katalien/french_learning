@@ -1,0 +1,14 @@
+{# Карточка тренажёра в каталоге. Переменные: t, row #}
+<a class="trainer-card" href="/trainers/{{ t.id }}">
+  <strong>{{ t.name }}</strong>
+  <small>{{ t.description }}</small>
+  <small class="muted">
+    {% if t.source == "agent" %}
+      в пуле: {{ row.total }}
+    {% elif row.total %}
+      вопросов: {{ row.total }}{% if row.due %} · пора повторить: {{ row.due }}{% endif %}
+    {% else %}
+      не хватает данных
+    {% endif %}
+  </small>
+</a>

@@ -82,26 +82,26 @@ contracts/ (ui-routes, cli, trainers-format), quickstart.md
 
 ### Каталог, расписание, сеансы (TDD)
 
-- [ ] T019 [P] [US4] Тесты `tests/unit/trainers/test_catalog.py`: 9 встроенных тренажёров; `trainers.yaml` добавляет свои и переопределяет `source` / `rules` встроенных (FR-060, FR-062)
-- [ ] T020 [US4] Реализовать `src/french_learning/trainers/catalog.py` и `questions.py` — тесты T019 проходят
-- [ ] T021 [P] [US4] Тесты `tests/unit/trainers/test_schedule.py` и `test_sessions.py`: верно → `good`, неверно или подсмотрено → `again`; ошибочный вопрос возвращается раньше верного (SC-006); порция N = `trainer_portion_size`, сначала «пора», затем новые; набор данных: весь словарь / урок / тема / «сложные»; итог порции «X из N», «Продолжить»; ответы пишутся в `trainer_answers` сразу
-- [ ] T022 [US4] Реализовать `src/french_learning/trainers/schedule.py` и `sessions.py` — тесты T021 проходят
+- [X] T019 [P] [US4] Тесты `tests/unit/trainers/test_catalog.py`: 9 встроенных тренажёров; `trainers.yaml` добавляет свои и переопределяет `source` / `rules` встроенных (FR-060, FR-062)
+- [X] T020 [US4] Реализовать `src/french_learning/trainers/catalog.py` и `questions.py` — тесты T019 проходят
+- [X] T021 [P] [US4] Тесты `tests/unit/trainers/test_schedule.py` и `test_sessions.py`: верно → `good`, неверно или подсмотрено → `again`; ошибочный вопрос возвращается раньше верного (SC-006); порция N = `trainer_portion_size`, сначала «пора», затем новые; набор данных: весь словарь / урок / тема / «сложные»; итог порции «X из N», «Продолжить»; ответы пишутся в `trainer_answers` сразу
+- [X] T022 [US4] Реализовать `src/french_learning/trainers/schedule.py` и `sessions.py` — тесты T021 проходят
 
 ### Генераторы (TDD; каждый — отдельная пара тест + код, [P] между собой)
 
-- [ ] T023 [P] [US4] Артикли — `tests/unit/trainers/test_articles.py` + `trainers/generators/articles.py`: контрольный набор SC-005 (элизия, h немое, h придыхательное `héros` → `le`, оба рода `élève`, `plural_only` → `les` / `des`), два ключа на слово, ответ кнопками и вводом (FR-042–FR-044)
-- [ ] T024 [P] [US4] Спряжение — `test_conjugation.py` + `generators/conjugation.py`: présent из `verb.conjugation`, время в ключе (FR-045)
-- [ ] T025 [P] [US4] Женский род и множественное число — `test_forms.py` + `generators/forms.py`
-- [ ] T026 [P] [US4] Притяжательные и указательные — `test_determiners.py` + `generators/determiners.py`: `mon amie`, `cet homme`, `ce héros`, `ces gens`
-- [ ] T027 [P] [US4] Согласование прилагательного — `test_agreement.py` + `generators/agreement.py`
-- [ ] T028 [P] [US4] Числа — `tests/unit/trainers/test_french_numbers.py` + `trainers/french_numbers.py` и `generators/numbers.py`: 0–1000, `quatre-vingt-dix-sept`, `vingt et un` и `vingt-et-un` оба верны, `quatre-vingts`, `deux cents`, `mille`
-- [ ] T029 [P] [US4] «Собери предложение» — `test_sentences.py` + `generators/sentences.py`: предложения из пунктов упражнений с подставленными ответами и из текстов уроков, 4–12 слов, допустимые порядки — варианты ответов (у текстов — исходный порядок)
-- [ ] T030 [US4] «Не хватает данных» для каждого генератора с подсказкой (FR-046) — тесты в `test_catalog.py`
+- [X] T023 [P] [US4] Артикли — `tests/unit/trainers/test_articles.py` + `trainers/generators/articles.py`: контрольный набор SC-005 (элизия, h немое, h придыхательное `héros` → `le`, оба рода `élève`, `plural_only` → `les` / `des`), два ключа на слово, ответ кнопками и вводом (FR-042–FR-044)
+- [X] T024 [P] [US4] Спряжение — `test_conjugation.py` + `generators/conjugation.py`: présent из `verb.conjugation`, время в ключе (FR-045)
+- [X] T025 [P] [US4] Женский род и множественное число — `test_forms.py` + `generators/forms.py`
+- [X] T026 [P] [US4] Притяжательные и указательные — `test_determiners.py` + `generators/determiners.py`: `mon amie`, `cet homme`, `ce héros`, `ces gens`
+- [X] T027 [P] [US4] Согласование прилагательного — `test_agreement.py` + `generators/agreement.py`
+- [X] T028 [P] [US4] Числа — `tests/unit/trainers/test_french_numbers.py` + `trainers/french_numbers.py` и `generators/numbers.py`: 0–1000, `quatre-vingt-dix-sept`, `vingt et un` и `vingt-et-un` оба верны, `quatre-vingts`, `deux cents`, `mille`
+- [X] T029 [P] [US4] «Собери предложение» — `test_sentences.py` + `generators/sentences.py`: предложения из пунктов упражнений с подставленными ответами и из текстов уроков, 4–12 слов, допустимые порядки — варианты ответов (у текстов — исходный порядок)
+- [X] T030 [US4] «Не хватает данных» для каждого генератора с подсказкой (FR-046) — тесты в `test_catalog.py`
 
 ### Интерфейс
 
-- [ ] T031 [P] [US4] Интеграционные тесты `tests/integration/test_trainers_builtin.py`: `/trainers`, `/trainers/{id}` (выбор набора), `start`, задание (кнопки / ввод / сборка), `answer`, `spelling`, `reveal`, итог порции, `continue`; настройка размера порции
-- [ ] T032 [US4] Маршруты `src/french_learning/web/routes/trainers.py`, шаблоны `web/templates/trainers/*.html` (сборка предложения — Alpine), вкладка «Тренажёры» в навигации, настройка в `/settings` — тесты T031 проходят
+- [X] T031 [P] [US4] Интеграционные тесты `tests/integration/test_trainers_builtin.py`: `/trainers`, `/trainers/{id}` (выбор набора), `start`, задание (кнопки / ввод / сборка), `answer`, `spelling`, `reveal`, итог порции, `continue`; настройка размера порции
+- [X] T032 [US4] Маршруты `src/french_learning/web/routes/trainers.py`, шаблоны `web/templates/trainers/*.html` (сборка предложения — Alpine), вкладка «Тренажёры» в навигации, настройка в `/settings` — тесты T031 проходят
 
 ---
 

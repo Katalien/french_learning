@@ -195,3 +195,21 @@ table { display: block; overflow-x: auto; }
 .mistakes .mistake { margin-bottom: 1rem; }
 .inline-form { display: inline; margin: 0; }
 .inline-form button { margin: 0.25rem 0 0; }
+
+/* Тренажёры (004) */
+.trainer-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); margin-bottom: 1.5rem; }
+.trainer-card { display: flex; flex-direction: column; gap: 0.3rem; padding: 0.9rem 1rem; border-radius: 0.6rem;
+  border: 1px solid var(--pico-muted-border-color); text-decoration: none; color: inherit; }
+.trainer-card:hover { border-color: var(--pico-primary); }
+.trainer-task { text-align: center; }
+.trainer-prompt { font-size: 1.6rem; font-weight: 700; margin: 0.5rem 0; }
+.trainer-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.trainer-buttons button { width: auto; flex: 0 0 auto; min-width: 4.5rem; margin: 0; font-size: 1.2rem; }
+.order-answer, .order-pool { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; min-height: 2.6rem; }
+.order-answer { border-bottom: 2px solid var(--pico-primary); padding-bottom: 0.4rem; }
+.trainer-token { margin: 0; padding: 0.3rem 0.7rem; width: auto; }
+.trainer-setup fieldset label { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.trainer-setup select { width: auto; margin: 0; }
+.trainer-score { font-size: 1.4rem; }
+.trainer-task .answer-form input[name="answer"] { max-width: 24rem; margin: 0 auto 0.75rem; display: block; }
+.trainer-task .symbol-panel { justify-content: center; }

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Тренажёры{% endblock %}
+{% block content %}
+<h1>Тренажёры</h1>
+<p class="muted">Встроенные тренажёры строят задания из вашего словаря и уроков и чаще спрашивают то,
+  в чём вы ошибаетесь. Задания для тренажёров с генерацией создаёт агент по вашей просьбе.</p>
+
+<h2>Встроенные</h2>
+<div class="trainer-grid">
+  {% for row in rows if row.trainer.builtin and row.trainer.source == "builtin" %}
+    {% with t = row.trainer %}{% include "trainers/_card.html" %}{% endwith %}
+  {% endfor %}
+</div>
+
+<h2>С заданиями от агента</h2>
+<div class="trainer-grid">
+  {% for row in rows if row.trainer.source == "agent" %}
+    {% with t = row.trainer %}{% include "trainers/_card.html" %}{% endwith %}
+  {% else %}
+    <p class="empty">Пока нет. Опишите агенту идею тренажёра командой <code>/add-trainer</code>.</p>
+  {% endfor %}
+</div>
+{% endblock %}
