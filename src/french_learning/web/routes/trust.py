@@ -4,7 +4,7 @@ from typing import Annotated
 from urllib.parse import urlencode
 
 from fastapi import APIRouter, Form, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 
 from french_learning.content.writer import WriteError
 from french_learning.web.deps import Index
@@ -45,6 +45,8 @@ def mark_verified(request: Request, element_id: str, item: Annotated[str, Form()
         result = writer(request).mark_verified(element_id, int(item) if item else None)
     except (WriteError, ValueError) as exc:
         return redirect_after_write(f"/elements/{element_id}", error=str(exc))
+    if request.headers.get("HX-Request"):  # кнопка внутри формы решения — обновить страницу
+        return Response(headers={"HX-Refresh": "true"})
     return redirect_after_write(f"/elements/{element_id}", result)
 
 

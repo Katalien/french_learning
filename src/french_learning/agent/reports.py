@@ -30,7 +30,8 @@ def reports_list(root: Path, status: str | None = "open") -> list[dict]:
                 "comment": report.comment,
                 "created": report.created.isoformat(),
                 "status": report.status,
-                "element_path": content.element_paths.get(report.element),
+                "element_path": content.element_paths.get(report.element)
+                or content.batch_paths.get(report.element),
                 "sources": [s.file for s in element.sources if s.file] if element else [],
             }
         )

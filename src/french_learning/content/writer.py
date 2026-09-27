@@ -245,6 +245,20 @@ class ContentWriter:
         files[relative] = self._render(relative, meta, body)
         return self._save(files, f"Темы элемента {element_id} изменены")
 
+    # --- статус упражнения (функция 004, FR-032) --------------------------------------------
+
+    def set_exercise_status(self, element_id: str, status: str) -> WriteResult:
+        if status not in schema.STATUS_VALUES:
+            raise WriteError(f"неизвестный статус {status}")
+        relative, meta, body, element = self._element(element_id)
+        if element.kind != "exercise":
+            raise WriteError("статус есть только у упражнений")
+        meta["status"] = status
+        return self._save(
+            {relative: self._render(relative, meta, body)},
+            f"Упражнение {element_id}: статус {status}",
+        )
+
     # --- используется функциями проверки и сообщений (US4) ----------------------------------
 
     def _element(self, element_id: str) -> tuple[str, dict, str | None, Any]:
@@ -275,7 +289,11 @@ class ContentWriter:
         """Сообщение об ошибке (FR-042); разбирает агент (функция 002)."""
         if not comment.strip():
             raise WriteError("опишите, что не так")
-        self._element(element_id)
+        if element_id.startswith("tb-"):
+            if element_id not in self._content().batches:
+                raise WriteError(f"пакет заданий {element_id} не найден")
+        else:
+            self._element(element_id)
         report = schema.Report(
             id=new_id("rep"),
             element=element_id,

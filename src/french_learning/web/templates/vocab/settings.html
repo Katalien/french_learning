@@ -6,6 +6,9 @@
   <label>Карточек за один подход (из словаря)
     <input type="number" name="portion_size" min="1" max="500" value="{{ portion_size }}">
   </label>
+  <label>Заданий за один подход в тренажёрах
+    <input type="number" name="trainer_portion_size" min="1" max="500" value="{{ trainer_portion_size }}">
+  </label>
   <fieldset>
     <legend>Новые слова</legend>
     <label><input type="radio" name="directions" value="staged" {% if directions == "staged" %}checked{% endif %}>

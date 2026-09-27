@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}История — {{ e.description_ru }}{% endblock %}
+{% block content %}
+<p class="breadcrumbs"><a href="/elements/{{ e.id }}">← {{ e.number }} — {{ e.description_ru }}</a></p>
+<h1>История попыток</h1>
+{% if not attempts %}<p class="empty">Проверенных попыток пока нет.</p>{% endif %}
+{% for a in attempts %}
+  {% set score = a.score %}
+  <article class="attempt">
+    <header>
+      <strong>{{ (a.checked_at or a.created_at)[:16] | replace("T", " ") }}</strong>
+      · {% if a.scope == "item" %}отдельный пункт из «Моих ошибок»{% else %}всё упражнение{% endif %}
+      {% if a.status == "saved" %}· ответ сохранён{% else %}· верно сразу: {{ score[0] }} из {{ score[1] }}{% endif %}
+      {% if a.recalculated %}<mark class="badge">пересчитано</mark>{% endif %}
+    </header>
+    <ol class="history-items">
+      {% for item in e.items if item.id in a.item_ids %}
+        {% set outcome = a.outcome(item.id) %}
+        {% set first = a.first_results.get(item.id | string) %}
+        {% set shown = first.answer if first else a.answers.get(item.id | string, {}) %}
+        <li id="item-{{ item.id }}" value="{{ item.id }}">
+          <span lang="fr">{{ shown | answer_text }}</span>
+          —
+          {% if outcome == "correct" %}<span class="mark-ok">верно сразу</span>
+          {% elif outcome == "fixed_self" %}<span class="mark-wrong">ошибка</span>, исправлено самостоятельно
+          {% elif outcome == "revealed" %}<span class="mark-wrong">ошибка</span>, подсмотрен ответ
+          {% elif outcome == "wrong" %}<span class="mark-wrong">ошибка</span>
+          {% else %}<span class="muted">без проверки</span>{% endif %}
+          {% if a.recalculated.get(item.id | string) %}<small class="muted">(пересчитано по исправленному ответу)</small>{% endif %}
+        </li>
+      {% endfor %}
+    </ol>
+  </article>
+{% endfor %}
+{% endblock %}

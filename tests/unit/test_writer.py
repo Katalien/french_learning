@@ -125,3 +125,13 @@ def test_yaml_stays_readable(repo: Path):
     text = (repo / "lessons/001/exercises/ex-gapinput.yaml").read_text(encoding="utf-8")
     assert "Поставьте глагол" in text  # кириллица без \u-экранирования
     assert yaml.safe_load(text)["id"] == "ex-gapinput"
+
+
+def test_set_exercise_status_commits(repo: Path):
+    result = writer(repo).set_exercise_status("ex-gapchoic", "optional")
+    assert load_content(repo).elements["ex-gapchoic"].status == "optional"
+    assert result.committed and "ex-gapchoic" in commits(repo)[0]
+    with pytest.raises(WriteError):
+        writer(repo).set_exercise_status("ex-gapchoic", "wrong")
+    with pytest.raises(WriteError):
+        writer(repo).set_exercise_status("th-articles", "optional")

@@ -39,6 +39,9 @@ class Content:
     lesson_paths: dict[int, str] = field(default_factory=dict)
     elements: dict[str, Any] = field(default_factory=dict)
     element_paths: dict[str, str] = field(default_factory=dict)
+    trainers: list[schema.TrainerEntry] = field(default_factory=list)
+    batches: dict[str, schema.TaskBatch] = field(default_factory=dict)
+    batch_paths: dict[str, str] = field(default_factory=dict)
     reports: dict[str, schema.Report] = field(default_factory=dict)
     report_paths: dict[str, str] = field(default_factory=dict)
     errors: list[LoadError] = field(default_factory=list)
@@ -149,6 +152,7 @@ def load_content(root: Path) -> Content:
     candidates = _load_elements(content)
     _check_elements(content, candidates)
     _check_journals(content)
+    _load_trainers(content)
     _load_reports(content)
     return content
 
@@ -294,10 +298,45 @@ def _load_reports(content: Content) -> None:
         rel = _rel(content.root, path)
         try:
             report = _validate(schema.Report, _read_yaml(path))
-            if report.element not in content.elements:
+            if report.element not in content.elements and report.element not in content.batches:
                 raise _FileError(f"сообщение ссылается на несуществующий элемент {report.element}")
         except _FileError as exc:
             content.errors.append(LoadError(rel, str(exc)))
             continue
         content.reports[report.id] = report
         content.report_paths[report.id] = rel
+
+
+def _load_trainers(content: Content) -> None:
+    """Каталог (`trainers.yaml`) и пакеты заданий `trainers/<id>/tb-*.yaml` (функция 004)."""
+    path = content.root / "trainers.yaml"
+    if path.exists():
+        try:
+            content.trainers = _validate(schema.TrainersFile, _read_yaml(path)).trainers
+        except _FileError as exc:
+            content.errors.append(LoadError("trainers.yaml", str(exc)))
+    types = dict(schema.BUILTIN_TRAINERS)
+    for trainer in content.trainers:
+        if trainer.exercise_type:
+            types[trainer.id] = trainer.exercise_type
+    for path in sorted((content.root / "trainers").glob("*/tb-*.yaml")):
+        rel = _rel(content.root, path)
+        try:
+            batch = _validate(schema.TaskBatch, _read_yaml(path))
+            if batch.trainer not in types:
+                raise _FileError(f"тренажёра {batch.trainer} нет в каталоге")
+            if path.parent.name != batch.trainer:
+                raise _FileError(
+                    f"пакет тренажёра {batch.trainer} лежит в папке {path.parent.name}"
+                )
+            if batch.type != types[batch.trainer]:
+                raise _FileError(
+                    f"тип заданий {batch.type}, а у тренажёра — {types[batch.trainer]}"
+                )
+            if batch.id in content.batches:
+                raise _FileError(f"идентификатор {batch.id} повторяется")
+        except _FileError as exc:
+            content.errors.append(LoadError(rel, str(exc)))
+            continue
+        content.batches[batch.id] = batch
+        content.batch_paths[batch.id] = rel

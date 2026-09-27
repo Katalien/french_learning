@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Статистика — {{ trainer.name }}{% endblock %}
+{% block content %}
+<p class="breadcrumbs"><a href="/trainers">Тренажёры</a> › <a href="/trainers/{{ trainer.id }}">{{ trainer.name }}</a> › Статистика</p>
+<h1>Статистика</h1>
+{% if not stats.answers %}
+  <p class="empty">Ответов пока нет.</p>
+{% else %}
+  <p class="trainer-score">Верных ответов: <strong>{{ stats.percent }}%</strong>
+    <span class="muted">({{ stats.correct }} из {{ stats.answers }}; подсмотренный ответ считается ошибкой)</span></p>
+
+  <h2>По дням</h2>
+  <table class="stats-days">
+    <thead><tr><th>Дата</th><th>Ответов</th><th>Верно</th><th></th></tr></thead>
+    <tbody>
+      {% for d in stats.days %}
+        <tr>
+          <td>{{ d.date }}</td><td>{{ d.answers }}</td><td>{{ d.percent }}%</td>
+          <td><span class="stats-bar" style="width: {{ d.percent }}%"></span></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Типичные ошибки</h2>
+  {% if not stats.typical %}
+    <p class="muted">Повторяющихся ошибок нет.</p>
+  {% else %}
+    <ul>
+      {% for t in stats.typical %}
+        <li><span lang="fr">{{ t.question.prompt if t.question else "—" }}</span> →
+          <span lang="fr" class="mark-wrong">{{ t.answer }}</span> <span class="muted">× {{ t.count }}</span></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endif %}
+{% endblock %}

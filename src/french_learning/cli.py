@@ -28,6 +28,8 @@ def _serve(args: argparse.Namespace) -> int:
     settings = Settings()
     if args.content_dir:
         settings.content_dir = Path(args.content_dir)
+    if args.port:
+        settings.port = args.port
     app = create_app(settings, auto_backup=True)
     print(f"Приложение: http://{settings.host}:{settings.port}")
     _run_server(app, settings.host, settings.port)
@@ -97,6 +99,7 @@ def main(argv: list[str] | None = None) -> int:
 
     serve = commands.add_parser("serve", help="запустить приложение")
     serve.add_argument("--content-dir", help="папка хранилища (иначе CONTENT_DIR)")
+    serve.add_argument("--port", type=int, help="порт (иначе PORT, по умолчанию 8000)")
     serve.set_defaults(handler=_serve)
 
     validate = commands.add_parser("validate-content", help="проверить хранилище контента")

@@ -1,0 +1,19 @@
+id: tb-negaaaaa
+kind: task_batch
+trainer: negation
+type: transform
+created: 2026-09-27T18:00:00
+origin: ai
+instruction_ru: Сделайте предложение отрицательным.
+items:
+  - {id: 1, prompt: Je suis fatiguée., answers: [Je ne suis pas fatiguée.]}
+  - {id: 2, prompt: Il mange du pain., answers: [Il ne mange pas de pain.]}
+  - id: 3
+    prompt: Nous aimons le beurre.
+    answers: [Nous n'aimons pas le beurre.]
+    new_words: [{text: le beurre, translation: масло}]
+  - {id: 4, prompt: Tu es à la maison., answers: [Tu n'es pas à la maison.]}
+  - id: 5
+    prompt: Elle boit de l'eau.
+    answers: [Elle ne boit pas d'eau.]
+    needs_review: {flag: true, note: "проверить: de l'eau → d'eau"}

@@ -62,6 +62,7 @@ def lesson_tasks(
         part=part,
         exercises=visible,
         has_reserve=len(visible) < len(exercises),
+        done={e.id for e in visible if request.app.state.progress.is_done(e.id)},
     )
     template = "partials/task_list.html" if request.headers.get("HX-Request") else "tasks.html"
     return templates.TemplateResponse(request, template, context)

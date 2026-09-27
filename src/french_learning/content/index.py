@@ -78,6 +78,19 @@ class ContentIndex:
     def topic(self, topic_id: str) -> schema.Topic | None:
         return self._topics.get(topic_id)
 
+    # --- тренажёры (004) ---------------------------------------------------------------------
+
+    @property
+    def trainer_entries(self) -> list[schema.TrainerEntry]:
+        return self.content.trainers
+
+    def batches(self, trainer_id: str | None = None) -> list[schema.TaskBatch]:
+        found = [b for b in self.content.batches.values() if trainer_id in (None, b.trainer)]
+        return sorted(found, key=lambda b: (b.created, b.id))
+
+    def batch(self, batch_id: str) -> schema.TaskBatch | None:
+        return self.content.batches.get(batch_id)
+
     def all_topics(self) -> list[schema.Topic]:
         return sorted(self._topics.values(), key=lambda t: t.name.casefold())
 
@@ -217,10 +230,13 @@ def _topic_sort_key(element: Any) -> tuple:
 
 
 def tree_fingerprint(root: Path) -> str:
-    """Отпечаток дерева файлов хранилища (имя, время изменения, размер); .git пропускается."""
+    """Отпечаток дерева файлов хранилища (имя, время изменения, размер).
+
+    Пропускаются .git и база прогресса: оценки и попытки не должны перечитывать контент.
+    """
     digest = hashlib.sha1()
     for folder, dirs, files in os.walk(root):
-        dirs[:] = sorted(d for d in dirs if d != ".git")
+        dirs[:] = sorted(d for d in dirs if d not in (".git", ".progress"))
         for name in sorted(files):
             stat = os.stat(os.path.join(folder, name))
             digest.update(f"{folder}/{name}|{stat.st_mtime_ns}|{stat.st_size};".encode())

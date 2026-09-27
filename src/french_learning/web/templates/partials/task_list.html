@@ -24,6 +24,7 @@
         <a href="/elements/{{ e.id }}">{{ e.number }} — {{ topic.name if topic else "Без темы" }} — {{ e.description_ru }}</a>
         {% if e.sheet_number %}<small class="muted">на листе: упр. {{ e.sheet_number }}</small>{% endif %}
         {% if e.status == "optional" %}<mark class="badge">необязательное</mark>{% endif %}
+        {% if done and e.id in done %}<span class="done-mark" title="выполнено">✓ выполнено</span>{% endif %}
       </li>
     {% endfor %}
   </ol>

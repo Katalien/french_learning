@@ -123,3 +123,41 @@ def test_journal_elements_must_exist(clean_content_root: Path):
     assert 4 in content.lessons  # урок остаётся, это предупреждение
     [error] = content.errors
     assert error.warning and "ex-missingx" in error.message
+
+
+# --- 004: тренажёры ----------------------------------------------------------------------------
+
+
+def test_trainers_and_batches_loaded(clean_content_root: Path):
+    content = load_content(clean_content_root)
+    assert [t.id for t in content.trainers] == ["negation", "articles"]
+    batch = content.batches["tb-negaaaaa"]
+    assert len(batch.items) == 5
+    assert content.batch_paths["tb-negaaaaa"] == "trainers/negation/tb-negaaaaa.yaml"
+
+
+def test_storage_without_trainers_is_valid(clean_content_root: Path):
+    import shutil
+
+    (clean_content_root / "trainers.yaml").unlink()
+    shutil.rmtree(clean_content_root / "trainers")
+    content = load_content(clean_content_root)
+    assert content.errors == [] and content.trainers == [] and content.batches == {}
+
+
+def test_batch_errors_are_isolated(clean_content_root: Path):
+    folder = clean_content_root / "trainers"
+    good = (folder / "negation" / "tb-negaaaaa.yaml").read_text(encoding="utf-8")
+    (folder / "unknown").mkdir()
+    (folder / "unknown" / "tb-unknownx.yaml").write_text(
+        good.replace("tb-negaaaaa", "tb-unknownx").replace("trainer: negation", "trainer: unknown"),
+        encoding="utf-8",
+    )
+    (folder / "negation" / "tb-wrongtyp.yaml").write_text(
+        good.replace("tb-negaaaaa", "tb-wrongtyp").replace("type: transform", "type: gap_input"),
+        encoding="utf-8",
+    )
+    content = load_content(clean_content_root)
+    paths = {e.path for e in content.errors}
+    assert paths == {"trainers/unknown/tb-unknownx.yaml", "trainers/negation/tb-wrongtyp.yaml"}
+    assert set(content.batches) == {"tb-negaaaaa"}

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import datetime as dt
 import re
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
@@ -21,7 +21,7 @@ def _id(prefix: str) -> type[str]:
     return Annotated[str, StringConstraints(pattern=rf"^{prefix}-{_ID_TAIL}$")]
 
 
-Id = Annotated[str, StringConstraints(pattern=rf"^(les|th|tx|ex|voc|top|rep)-{_ID_TAIL}$")]
+Id = Annotated[str, StringConstraints(pattern=rf"^(les|th|tx|ex|voc|top|rep|tb)-{_ID_TAIL}$")]
 LessonId = _id("les")
 TheoryId = _id("th")
 TextId = _id("tx")
@@ -29,10 +29,12 @@ ExerciseId = _id("ex")
 VocabId = _id("voc")
 TopicId = _id("top")
 ReportId = _id("rep")
+BatchId = _id("tb")
 
 Part = Literal["class", "homework"]
 Origin = Literal["material", "external", "user", "ai", "service"]
 Status = Literal["main", "optional", "reserve"]
+STATUS_VALUES = ("main", "optional", "reserve")
 
 GAP_RE = re.compile(r"\{\{(\d+)\}\}")
 
@@ -473,3 +475,145 @@ class VocabEntry(ElementBase):
 
 
 Element = Theory | Text | ExerciseBase | VocabEntry
+
+
+# --- Тренажёры (функция 004, contracts/trainers-format.md) ---------------------------------
+
+TrainerSlug = Annotated[str, StringConstraints(pattern=r"^[a-z][a-z0-9-]{2,40}$")]
+BatchType = Literal[
+    "gap_input", "gap_choice", "multi_gap", "transform", "choice", "two_forms", "true_false"
+]
+# Встроенные тренажёры и тип заданий, если их источник переключён на агента (FR-062)
+BUILTIN_TRAINERS: dict[str, str] = {
+    "articles": "gap_choice",
+    "conjugation": "gap_input",
+    "feminine": "transform",
+    "plural": "transform",
+    "possessives": "gap_input",
+    "demonstratives": "gap_choice",
+    "adjective-agreement": "gap_input",
+    "numbers": "transform",
+    "sentence-builder": "transform",
+}
+
+
+class TrainerEntry(Model):
+    id: TrainerSlug
+    name: str | None = None
+    description: str | None = None
+    source: Literal["builtin", "agent"] | None = None
+    exercise_type: BatchType | None = None
+    rules: str | None = None
+    origin: Origin = "ai"
+
+    @property
+    def builtin(self) -> bool:
+        return self.id in BUILTIN_TRAINERS
+
+    @model_validator(mode="after")
+    def _rules(self) -> TrainerEntry:
+        if self.builtin:
+            if self.name or self.description:
+                raise ValueError(
+                    f"{self.id}: у встроенного тренажёра можно менять только source, "
+                    "exercise_type и rules"
+                )
+            return self
+        if not (self.name and self.description and self.exercise_type):
+            raise ValueError(f"{self.id}: нужны name, description и exercise_type")
+        if self.source == "builtin":
+            raise ValueError(f"{self.id}: встроенным может быть только тренажёр приложения")
+        self.source = "agent"
+        return self
+
+
+class TrainersFile(Model):
+    trainers: list[TrainerEntry] = []
+
+    @model_validator(mode="after")
+    def _unique(self) -> TrainersFile:
+        ids = [t.id for t in self.trainers]
+        repeated = sorted({i for i in ids if ids.count(i) > 1})
+        if repeated:
+            raise ValueError(f"тренажёр повторяется: {', '.join(repeated)}")
+        return self
+
+
+class NewWord(Model):
+    text: str
+    translation: str
+
+
+class _BatchItem(Model):
+    new_words: list[NewWord] = Field(default=[], max_length=2)
+
+
+class GapBatchItem(GapItem, _BatchItem):
+    pass
+
+
+class TransformBatchItem(TransformItem, _BatchItem):
+    pass
+
+
+class ChoiceBatchItem(ChoiceItem, _BatchItem):
+    pass
+
+
+class TwoFormsBatchItem(TwoFormsItem, _BatchItem):
+    pass
+
+
+class TrueFalseBatchItem(TrueFalseItem, _BatchItem):
+    pass
+
+
+_BATCH_ITEMS = {
+    "gap_input": GapBatchItem,
+    "gap_choice": GapBatchItem,
+    "multi_gap": GapBatchItem,
+    "transform": TransformBatchItem,
+    "choice": ChoiceBatchItem,
+    "two_forms": TwoFormsBatchItem,
+    "true_false": TrueFalseBatchItem,
+}
+
+
+class TaskBatch(Model):
+    """Пакет заданий тренажёра от агента: устроен как упражнение (data-model 004)."""
+
+    id: BatchId
+    kind: Literal["task_batch"]
+    trainer: TrainerSlug
+    type: BatchType
+    created: dt.datetime
+    origin: Origin = "ai"
+    instruction_ru: str
+    options: list[str] = []
+    items: list[Any] = Field(min_length=1)
+    needs_review: NeedsReview = NeedsReview()
+
+    @model_validator(mode="before")
+    @classmethod
+    def _typed_items(cls, data: Any) -> Any:
+        if isinstance(data, dict) and data.get("type") in _BATCH_ITEMS:
+            model = _BATCH_ITEMS[data["type"]]
+            data = {**data, "items": [model.model_validate(i) for i in data.get("items") or []]}
+        return data
+
+    @model_validator(mode="after")
+    def _type_rules(self) -> TaskBatch:
+        if self.type in ("gap_choice",):
+            if len(self.options) < 2:
+                raise ValueError("для gap_choice нужны варианты options")
+            options = {o.casefold() for o in self.options}
+            for item in self.items:
+                for variants in item.answers.values():
+                    if any(v.casefold() not in options for v in variants):
+                        raise ValueError(f"пункт {item.id}: ответ не входит в варианты options")
+        if self.type == "multi_gap" and any(len(i.gaps) < 2 for i in self.items):
+            raise ValueError("в multi_gap нужно не меньше 2 пропусков в пункте")
+        ids = [i.id for i in self.items]
+        if len(set(ids)) != len(ids):
+            raise ValueError("номера заданий повторяются")
+        return self

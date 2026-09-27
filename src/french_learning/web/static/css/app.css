@@ -158,3 +158,60 @@ table { display: block; overflow-x: auto; }
 .verdict-wrong { color: #c62828; }
 .entry-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .entry-actions form { margin: 0; }
+
+/* Выполнение упражнений (004) */
+.solve-items > li { margin-bottom: 1rem; line-height: 2.4; }
+.solve-items .answer-field {
+  display: inline-block; width: auto; min-width: 5rem; max-width: 100%;
+  margin: 0 0.2rem; padding: 0.15rem 0.4rem; height: auto; vertical-align: baseline;
+}
+.solve-items input.answer-field:not(.wide) { width: 7.5rem; }
+.solve-items select.answer-field { min-width: 5.5rem; padding-right: 2rem; }
+.solve-items input.answer-field.wide { width: 100%; display: block; margin: 0.25rem 0; }
+.solve-items textarea.answer-field { width: 100%; }
+.answer-field.field-correct { border-color: #2e7d32; background-color: #e8f5e9; }
+.answer-field.field-wrong { border-color: #c62828; background-color: #ffebee; }
+.answer-field.field-choose { border-color: var(--review-color); }
+.mark-ok { color: #2e7d32; font-weight: 700; margin-left: 0.2rem; }
+.mark-wrong { color: #c62828; font-weight: 700; margin-left: 0.2rem; }
+.tf-choice label, .choice-options label, .spelling-choice label { display: inline-flex; gap: 0.3rem; margin-right: 1rem; line-height: 1.6; }
+.choice-options { line-height: 1.6; }
+.spelling-choice { display: block; line-height: 1.6; }
+.item-actions { line-height: 1.5; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: baseline; }
+.item-actions button { margin: 0; }
+.correct-answer { margin: 0; }
+.disagree { width: 100%; margin: 0; }
+.disagree summary { font-size: 0.85rem; color: var(--pico-muted-color); }
+.new-words { display: block; color: var(--pico-muted-color); line-height: 1.5; }
+.solve-buttons { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+.solve-summary { font-weight: 700; }
+.solve-form .symbol-panel { justify-content: flex-start; position: sticky; top: 0; z-index: 2;
+  background: var(--pico-background-color); padding: 0.3rem 0; }
+.exercise-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+.exercise-toolbar form { margin: 0; }
+.done-mark { color: #2e7d32; font-size: 0.85rem; margin-left: 0.4rem; }
+.attempt header { font-size: 0.95rem; }
+.history-items li { margin-bottom: 0.3rem; }
+.mistakes .mistake { margin-bottom: 1rem; }
+.inline-form { display: inline; margin: 0; }
+.inline-form button { margin: 0.25rem 0 0; }
+
+/* Тренажёры (004) */
+.trainer-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); margin-bottom: 1.5rem; }
+.trainer-card { display: flex; flex-direction: column; gap: 0.3rem; padding: 0.9rem 1rem; border-radius: 0.6rem;
+  border: 1px solid var(--pico-muted-border-color); text-decoration: none; color: inherit; }
+.trainer-card:hover { border-color: var(--pico-primary); }
+.trainer-task { text-align: center; }
+.trainer-prompt { font-size: 1.6rem; font-weight: 700; margin: 0.5rem 0; }
+.trainer-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.trainer-buttons button { width: auto; flex: 0 0 auto; min-width: 4.5rem; margin: 0; font-size: 1.2rem; }
+.order-answer, .order-pool { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; min-height: 2.6rem; }
+.order-answer { border-bottom: 2px solid var(--pico-primary); padding-bottom: 0.4rem; }
+.trainer-token { margin: 0; padding: 0.3rem 0.7rem; width: auto; }
+.trainer-setup fieldset label { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.trainer-setup select { width: auto; margin: 0; }
+.trainer-score { font-size: 1.4rem; }
+.trainer-task .answer-form input[name="answer"] { max-width: 24rem; margin: 0 auto 0.75rem; display: block; }
+.trainer-task .symbol-panel { justify-content: center; }
+.status-form { max-width: 20rem; margin-top: 1rem; }
+.stats-bar { display: inline-block; height: 0.6rem; background: var(--pico-primary); border-radius: 0.3rem; }

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ trainer.name }}{% endblock %}
+{% block content %}
+<p class="breadcrumbs"><a href="/trainers">Тренажёры</a> › {{ trainer.name }}</p>
+{% if total == 0 %}
+  <h1>Заданий нет</h1>
+  <p>Для выбранных условий заданий нет.
+    {% if trainer.source == "agent" %}Попросите агента: <code>/generate-tasks {{ trainer.id }}</code>{% endif %}</p>
+{% else %}
+  <h1>Порция пройдена</h1>
+  <p class="trainer-score">Верно: <strong>{{ correct }} из {{ total }}</strong></p>
+{% endif %}
+<div class="inline-form">
+  {% if total %}
+    <form method="post" action="/trainers/s/{{ session_id }}/continue" class="inline-form"><button type="submit">Продолжить</button></form>
+  {% endif %}
+  <a href="/trainers/{{ trainer.id }}" role="button" class="outline">Закончить</a>
+</div>
+{% endblock %}
