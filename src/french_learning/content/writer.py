@@ -246,3 +246,37 @@ class ContentWriter:
         relative = content.element_paths[element_id]
         meta, body = self._read(relative)
         return relative, meta, body, content.elements[element_id]
+
+    def mark_verified(self, element_id: str, item_id: int | None = None) -> WriteResult:
+        """Снять «требует проверки» с элемента или пункта упражнения (FR-041)."""
+        relative, meta, body, _element = self._element(element_id)
+        if item_id is None:
+            meta["needs_review"] = {"flag": False}
+            what = f"Элемент {element_id} проверен"
+        else:
+            item = next((i for i in meta.get("items", []) if i.get("id") == item_id), None)
+            if item is None:
+                raise WriteError(f"пункт {item_id} не найден")
+            item.pop("needs_review", None)
+            what = f"Элемент {element_id}, пункт {item_id} проверен"
+        return self._save({relative: self._render(relative, meta, body)}, what)
+
+    def create_report(
+        self, element_id: str, item_id: int | None, comment: str
+    ) -> tuple[schema.Report, WriteResult]:
+        """Сообщение об ошибке (FR-042); разбирает агент (функция 002)."""
+        if not comment.strip():
+            raise WriteError("опишите, что не так")
+        self._element(element_id)
+        report = schema.Report(
+            id=new_id("rep"),
+            element=element_id,
+            item=item_id,
+            comment=comment.strip(),
+            created=dt.datetime.now().replace(microsecond=0),
+        )
+        relative = f"reports/{report.id}.yaml"
+        (self.root / "reports").mkdir(exist_ok=True)
+        text = _dump_yaml(report.model_dump(mode="json"))
+        result = self._save({relative: text}, f"Сообщение об ошибке в {element_id}")
+        return report, result

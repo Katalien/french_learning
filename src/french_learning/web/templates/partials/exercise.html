@@ -9,6 +9,12 @@
 
   <div class="exercise-body">
     <p class="instruction">{{ e.instruction.ru }}</p>
+    {% if show_origin and e.instruction.original != e.instruction.ru %}
+      <p class="original-instruction" lang="{{ e.instruction.original_lang }}">
+        {% with origin = e.instruction.origin, detail = none %}<span class="origin-badge origin-{{ origin }}">перевод: {{ ORIGIN_NAMES[origin] }}</span>{% endwith %}
+        оригинал: «{{ e.instruction.original }}»
+      </p>
+    {% endif %}
 
     {% if e.links.text %}<p><a href="/elements/{{ e.links.text }}">📖 Текст к упражнению</a></p>{% endif %}
     {% if e.links.theory %}<p><a href="/elements/{{ e.links.theory }}">📘 Теория к упражнению</a></p>{% endif %}
@@ -45,7 +51,7 @@
           {% elif e.type in ("picture", "open") %}
             {{ item.prompt or "" }} <span class="gap wide">&nbsp;</span>
           {% endif %}
-          {% if item.needs_review.flag %}<span class="review-mark" title="{{ item.needs_review.note }}">⚠</span>{% endif %}
+          {% if item.needs_review.flag %}{% with note = item.needs_review.note, item_id = item.id %}{% include "partials/review_badge.html" %}{% endwith %}{% endif %}
         </li>
       {% endfor %}
     </ol>

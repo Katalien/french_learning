@@ -4,6 +4,8 @@
 <nav class="quick-links">
   <a href="/topics" role="button" class="outline">Темы</a>
   <a href="/extras" role="button" class="outline">Дополнительные материалы</a>
+  <a href="/review" role="button" class="outline">Требует проверки: {{ index.needs_review() | length }}</a>
+  <a href="/reports" role="button" class="outline">Сообщения об ошибках: {{ index.open_reports_count() }}</a>
 </nav>
 
 <h1>Уроки</h1>

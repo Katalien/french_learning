@@ -17,6 +17,15 @@
         <li><a href="/">Уроки</a></li>
         <li><a href="/topics">Темы</a></li>
         <li><a href="/extras">Доп. материалы</a></li>
+        <li><a href="/review">Проверка</a></li>
+        <li>
+          <form method="post" action="/settings/origin" class="origin-toggle">
+            {% set origin_on = request.cookies.get("show_origin") == "1" %}
+            <input type="hidden" name="show" value="{{ '0' if origin_on else '1' }}">
+            <button type="submit" class="outline small" title="Показать, что взято из материалов, а что создано ИИ">
+              Происхождение: {{ "вкл" if origin_on else "выкл" }}</button>
+          </form>
+        </li>
       </ul>
     </nav>
   </header>

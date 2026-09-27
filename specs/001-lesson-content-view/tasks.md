@@ -179,16 +179,16 @@ PDF; лексика разделена; «Тексты» → текст со с�
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T048 [P] [US4] Тесты в `tests/unit/test_writer_review.py`: снятие `needs_review` у элемента и у пункта упражнения; создание сообщения `reports/rep-….yaml` с полями `id`, `element`, `item`, `comment`, `created`, `status: open`, `resolution: null`; git-коммит
-- [ ] T049 [P] [US4] Интеграционные тесты в `tests/integration/test_trust.py`: по умолчанию меток происхождения нет; после `POST /settings/origin` (cookie) метки видны у 100% элементов, у формулировки — оригинал; значок «требует проверки» раскрывает `note`; `GET /review` — все элементы и пункты с пометкой; `POST /elements/{id}/verified` снимает пометку; `POST /elements/{id}/report` — ответ содержит напоминание «сообщения разбирает агент» и команду; `GET /` показывает число открытых сообщений; `GET /reports` — открытые сверху
+- [X] T048 [P] [US4] Тесты в `tests/unit/test_writer_review.py`: снятие `needs_review` у элемента и у пункта упражнения; создание сообщения `reports/rep-….yaml` с полями `id`, `element`, `item`, `comment`, `created`, `status: open`, `resolution: null`; git-коммит
+- [X] T049 [P] [US4] Интеграционные тесты в `tests/integration/test_trust.py`: по умолчанию меток происхождения нет; после `POST /settings/origin` (cookie) метки видны у 100% элементов, у формулировки — оригинал; значок «требует проверки» раскрывает `note`; `GET /review` — все элементы и пункты с пометкой; `POST /elements/{id}/verified` снимает пометку; `POST /elements/{id}/report` — ответ содержит напоминание «сообщения разбирает агент» и команду; `GET /` показывает число открытых сообщений; `GET /reports` — открытые сверху
 
 ### Implementation for User Story 4
 
-- [ ] T050 [US4] Функции `mark_verified` и `create_report` в `src/french_learning/content/writer.py` — тесты T048 проходят
-- [ ] T051 [US4] Переключатель происхождения: маршрут `POST /settings/origin` в `src/french_learning/web/routes/settings.py`, метки в `templates/partials/origin_badge.html`, оригинал формулировки в шаблонах упражнений
-- [ ] T052 [US4] Значок и пояснение `templates/partials/review_badge.html` (Alpine.js), страница `GET /review` в `src/french_learning/web/routes/review.py` + `templates/review.html`, действие `verified`
-- [ ] T053 [US4] Сообщения об ошибках: форма `templates/partials/report_form.html`, маршруты `/elements/{id}/report` и `GET /reports` в `src/french_learning/web/routes/reports.py` + `templates/reports.html`, напоминание после отправки, счётчик на главной
-- [ ] T054 [US4] Проверка по независимому тесту US4 — тесты T049 проходят
+- [X] T050 [US4] Функции `mark_verified` и `create_report` в `src/french_learning/content/writer.py` — тесты T048 проходят
+- [X] T051 [US4] Переключатель происхождения: маршрут `POST /settings/origin` в `src/french_learning/web/routes/settings.py`, метки в `templates/partials/origin_badge.html`, оригинал формулировки в шаблонах упражнений
+- [X] T052 [US4] Значок и пояснение `templates/partials/review_badge.html` (Alpine.js), страница `GET /review` в `src/french_learning/web/routes/review.py` + `templates/review.html`, действие `verified`
+- [X] T053 [US4] Сообщения об ошибках: форма `templates/partials/report_form.html`, маршруты `/elements/{id}/report` и `GET /reports` в `src/french_learning/web/routes/reports.py` + `templates/reports.html`, напоминание после отправки, счётчик на главной
+- [X] T054 [US4] Проверка по независимому тесту US4 — тесты T049 проходят
 
 **Checkpoint**: US1–US4 работают
 
@@ -200,8 +200,8 @@ PDF; лексика разделена; «Тексты» → текст со с�
 
 **Independent Test**: урок 2 → список медиафайлов: имя, часть урока, путь; кнопка копирует путь
 
-- [ ] T055 [P] [US5] Интеграционный тест в `tests/integration/test_media.py`: `GET /lessons/2` показывает медиафайл с именем, частью урока и полным путём (`SOURCE_MATERIALS_DIR` + `path`); урок без медиа — блок не показывается
-- [ ] T056 [US5] Блок медиафайлов `templates/partials/media_list.html` с кнопкой «Скопировать путь» (Alpine.js, буфер обмена) — тест T055 проходит
+- [X] T055 [P] [US5] Интеграционный тест в `tests/integration/test_media.py`: `GET /lessons/2` показывает медиафайл с именем, частью урока и полным путём (`SOURCE_MATERIALS_DIR` + `path`); урок без медиа — блок не показывается
+- [X] T056 [US5] Блок медиафайлов `templates/partials/media_list.html` с кнопкой «Скопировать путь» (Alpine.js, буфер обмена) — тест T055 проходит
 
 **Checkpoint**: все истории работают
 

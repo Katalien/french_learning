@@ -1,0 +1,21 @@
+{# Аудио и видео урока: только список с путём к оригиналу (FR-036, research R10) #}
+{% if summary.lesson.media %}
+  <article class="media">
+    <header><h2>Аудио и видео</h2></header>
+    <p class="muted">Эти файлы не обрабатываются приложением. Откройте их сами — скопируйте путь
+      и вставьте в адресную строку проводника.</p>
+    <ul>
+      {% for m in summary.lesson.media %}
+        {% set full = media_path(materials_dir, m.path) %}
+        <li x-data="{ copied: false }">
+          {{ "🎧 аудио" if m.type == "audio" else "🎬 видео" }} · {{ PART_NAMES[m.part] }} ·
+          <strong>{{ m.name }}</strong><br>
+          <code class="media-path">{{ full }}</code>
+          <button type="button" class="outline small"
+                  @click="navigator.clipboard.writeText({{ full | tojson | forceescape }}); copied = true"
+                  x-text="copied ? 'Скопировано' : 'Скопировать путь'">Скопировать путь</button>
+        </li>
+      {% endfor %}
+    </ul>
+  </article>
+{% endif %}

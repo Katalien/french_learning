@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import datetime as dt
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from fastapi.templating import Jinja2Templates
 from markupsafe import Markup, escape
@@ -65,6 +65,12 @@ def gaps(text: str) -> Markup:
     return Markup("".join(html))
 
 
+def media_path(materials_dir: Path | None, relative: str) -> str:
+    """Полный путь к медиафайлу в папке исходных материалов (research R10)."""
+    parts = PurePosixPath(relative).parts
+    return str(Path(materials_dir, *parts)) if materials_dir else str(PurePosixPath(relative))
+
+
 def plural(n: int, one: str, few: str, many: str) -> str:
     if n % 10 == 1 and n % 100 != 11:
         word = one
@@ -84,4 +90,5 @@ env.globals.update(
     ORIGIN_NAMES=ORIGIN_NAMES,
     EXERCISE_TYPE_NAMES=EXERCISE_TYPE_NAMES,
     plural=plural,
+    media_path=media_path,
 )

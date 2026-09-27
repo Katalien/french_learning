@@ -24,6 +24,7 @@ def _context(request: Request, index: ContentIndex, number: int, **extra) -> dic
         "index": index,
         "summary": index.lesson_summary(number, request.app.state.progress),
         "show_origin": show_origin(request),
+        "materials_dir": request.app.state.settings.source_materials_dir,
         **extra,
     }
 

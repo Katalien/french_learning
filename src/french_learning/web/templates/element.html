@@ -35,7 +35,16 @@
   {% endif %}
 {% endif %}
 
+{% if e.needs_review.flag %}
+  <p>Требует проверки: {% with note = e.needs_review.note, item_id = none %}{% include "partials/review_badge.html" %}{% endwith %}</p>
+{% endif %}
+{% if show_origin %}
+  <p class="origin-line">Происхождение:
+    {% with origin = e.origin, detail = (e.sources | map(attribute="original") | select | join(", ")) %}{% include "partials/origin_badge.html" %}{% endwith %}
+  </p>
+{% endif %}
 {% include "partials/element_actions.html" %}
+{% include "partials/report_form.html" %}
 
 <details class="edit-block">
   <summary>Темы: {% for t in e.topics %}{% set tp = index.topic(t) %}{% if tp %}<a class="chip" href="/topics/{{ tp.id }}">{{ tp.name }}</a>{% endif %}{% else %}без темы{% endfor %}</summary>

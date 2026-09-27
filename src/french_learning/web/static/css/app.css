@@ -97,3 +97,15 @@ table { display: block; overflow-x: auto; }
 .element-row .kind { font-size: 0.75rem; text-transform: uppercase; color: var(--pico-muted-color); margin-right: 0.35rem; }
 .element-row small { display: block; }
 .toc { font-size: 0.95rem; margin-bottom: 1rem; }
+
+/* Доверие: происхождение и сомнения */
+.origin-toggle { margin: 0; }
+.origin-toggle button { margin: 0; }
+.origin-badge { font-size: 0.75rem; padding: 0.05rem 0.45rem; border-radius: 0.3rem; background: #e3f2fd; color: #0d47a1; }
+.origin-badge.origin-ai, .origin-badge.origin-service { background: #fff3e0; color: #e65100; }
+.original-instruction { font-size: 0.9rem; color: var(--pico-muted-color); }
+.review-badge { position: relative; }
+.review-toggle { all: unset; cursor: pointer; color: var(--review-color); padding: 0 0.2rem; }
+.review-note { display: block; margin: 0.35rem 0; padding: 0.5rem 0.75rem; border-left: 3px solid var(--review-color); background: #fff8e1; font-size: 0.9rem; }
+.review-note-inline { color: var(--review-color); font-size: 0.9rem; margin: 0.2rem 0 0.6rem; }
+.media-path { word-break: break-all; font-size: 0.8rem; }
