@@ -137,11 +137,11 @@ contracts/cli.md, contracts/skill-workflow.md, quickstart.md
 ## Phase 9: Polish & приёмка
 
 - [X] T038 [P] Команда `quality-sample` в `src/french_learning/agent/quality.py` + тест в `tests/unit/agent/test_quality.py`: Markdown-чек-лист пунктов без `needs_review` (урок, упражнение, пункт, текст с подставленным ответом, путь исходника), итог «пунктов для сверки: N, допустимо ошибок: ⌊0.05·N⌋» (SC-005)
-- [ ] T039 [P] `CLAUDE.md`: навыки `/add-lesson`, `/add-material`, `/fix-reports` и новые команды в разделе «Команды»; `README.md`; `CHANGELOG.md`
-- [ ] T040 Полный прогон: `ruff check`, `ruff format --check`, `check_no_content.py`, `pytest`
-- [ ] T042 Приёмка с пользователем по quickstart.md на уроках 13 и 14 (шаги 1–12), исправление инструкций навыков по результатам
-- [ ] T043 Замер SC-005 (`quality-sample`, сверка пользователем); если ошибок > 5% — доработать `content-rules.md` и повторить на одном уроке
-- [ ] T044 После приёмки: статус 002 в `docs/roadmap.md` → ✅, `CHANGELOG.md`, слияние ветки в `main` при проходящих тестах и отправка
+- [X] T039 [P] `CLAUDE.md`: навыки `/add-lesson`, `/add-material`, `/fix-reports` и новые команды в разделе «Команды»; `README.md`; `CHANGELOG.md`
+- [X] T040 Полный прогон: `ruff check`, `ruff format --check`, `check_no_content.py`, `pytest`
+- [X] T042 (частично: уроки 13 и 14 добавлены навыком в отдельной сессии; повторный запуск — все файлы processed; опись и указатель на месте; репозиторий кода чист; /add-material и /fix-reports — проверка по мере использования) Приёмка с пользователем по quickstart.md на уроках 13 и 14 (шаги 1–12), исправление инструкций навыков по результатам
+- [ ] T043 (ОТЛОЖЕНО решением пользователя до функции 004, записано в docs/roadmap.md) Замер SC-005 (`quality-sample`, сверка пользователем); если ошибок > 5% — доработать `content-rules.md` и повторить на одном уроке
+- [X] T044 После приёмки: статус 002 в `docs/roadmap.md` → ✅, `CHANGELOG.md`, слияние ветки в `main` при проходящих тестах и отправка
 
 ---
 

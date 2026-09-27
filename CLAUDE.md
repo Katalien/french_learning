@@ -45,3 +45,15 @@ SQLite для прогресса, pytest, ruff. Подробнее — конс�
   уроками.
 - `uv run pytest` — тесты; `uv run ruff check .` и `uv run ruff format .` — линтер и форматтер.
 - `uv run python scripts/check_no_content.py` — проверка, что в репозитории нет материалов.
+- Команды для навыков агента (`scan-lesson`, `store-source`, `new-ids`, `next-number`,
+  `topics-list`, `vocab-find`, `stage-check`, `commit-staging`, `build-archive`,
+  `reports-list`, `report-resolve`, `quality-sample`, `init-content`) —
+  `specs/002-add-lesson-skill/contracts/cli.md`.
+
+## Навыки агента
+
+- `/add-lesson <папка или «урок N»>` — добавить урок, дописать домашку, переклассифицировать файл.
+- `/add-material <ссылка>` — материал из интернета в «Дополнительные материалы».
+- `/fix-reports` — разобрать сообщения об ошибках из приложения.
+- Общие правила разбора — `.claude/skills/_shared/content-rules.md`; формат контента —
+  `docs/content-format.md`. Контент пишется только через черновик и `commit-staging`.
