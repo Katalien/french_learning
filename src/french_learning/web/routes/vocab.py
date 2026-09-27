@@ -8,6 +8,7 @@ from fastapi import APIRouter, Form, Request
 from fastapi.responses import RedirectResponse
 
 from french_learning.content.index import ContentIndex
+from french_learning.practice.checking import FRENCH_SYMBOLS
 from french_learning.practice.tts import DEFAULT_VOICE, VOICES
 from french_learning.vocab import entries as vocab_entries
 from french_learning.vocab.sessions import SessionParams
@@ -177,8 +178,6 @@ def backup_now(request: Request, index: Index):
 
 
 # --- ввод ответа (US4) ----------------------------------------------------------------------
-
-FRENCH_SYMBOLS = "éèêëàâçœùûüîïô"
 
 
 def _check(index: ContentIndex, entry, direction: str, answer: str):

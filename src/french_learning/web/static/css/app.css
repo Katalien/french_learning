@@ -158,3 +158,35 @@ table { display: block; overflow-x: auto; }
 .verdict-wrong { color: #c62828; }
 .entry-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .entry-actions form { margin: 0; }
+
+/* Выполнение упражнений (004) */
+.solve-items > li { margin-bottom: 1rem; line-height: 2.4; }
+.solve-items .answer-field {
+  display: inline-block; width: auto; min-width: 5rem; max-width: 100%;
+  margin: 0 0.2rem; padding: 0.15rem 0.4rem; height: auto; vertical-align: baseline;
+}
+.solve-items input.answer-field:not(.wide) { width: 7.5rem; }
+.solve-items select.answer-field { min-width: 5.5rem; padding-right: 2rem; }
+.solve-items input.answer-field.wide { width: 100%; display: block; margin: 0.25rem 0; }
+.solve-items textarea.answer-field { width: 100%; }
+.answer-field.field-correct { border-color: #2e7d32; background-color: #e8f5e9; }
+.answer-field.field-wrong { border-color: #c62828; background-color: #ffebee; }
+.answer-field.field-choose { border-color: var(--review-color); }
+.mark-ok { color: #2e7d32; font-weight: 700; margin-left: 0.2rem; }
+.mark-wrong { color: #c62828; font-weight: 700; margin-left: 0.2rem; }
+.tf-choice label, .choice-options label, .spelling-choice label { display: inline-flex; gap: 0.3rem; margin-right: 1rem; line-height: 1.6; }
+.choice-options { line-height: 1.6; }
+.spelling-choice { display: block; line-height: 1.6; }
+.item-actions { line-height: 1.5; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: baseline; }
+.item-actions button { margin: 0; }
+.correct-answer { margin: 0; }
+.disagree { width: 100%; margin: 0; }
+.disagree summary { font-size: 0.85rem; color: var(--pico-muted-color); }
+.new-words { display: block; color: var(--pico-muted-color); line-height: 1.5; }
+.solve-buttons { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+.solve-summary { font-weight: 700; }
+.solve-form .symbol-panel { justify-content: flex-start; position: sticky; top: 0; z-index: 2;
+  background: var(--pico-background-color); padding: 0.3rem 0; }
+.exercise-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+.exercise-toolbar form { margin: 0; }
+.done-mark { color: #2e7d32; font-size: 0.85rem; margin-left: 0.4rem; }

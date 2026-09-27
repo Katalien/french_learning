@@ -266,3 +266,81 @@ def test_vocab_hidden_and_completed_by_ai():
         dict(entry, hidden=True, completed_by_ai=["gender", "article"])
     )
     assert extended.hidden and extended.completed_by_ai == ["gender", "article"]
+
+
+# --- 004: каталог тренажёров и пакеты заданий ------------------------------------------------
+
+
+def batch(**overrides):
+    data = {
+        "id": "tb-abcdefgh",
+        "kind": "task_batch",
+        "trainer": "negation",
+        "type": "transform",
+        "created": "2026-09-27T18:00:00",
+        "origin": "ai",
+        "instruction_ru": "Сделайте отрицательным.",
+        "items": [{"id": 1, "prompt": "Je suis là.", "answers": ["Je ne suis pas là."]}],
+    }
+    data.update(overrides)
+    return schema.TaskBatch.model_validate(data)
+
+
+def test_task_batch_valid_and_new_words_limit():
+    assert batch().items[0].answers == ["Je ne suis pas là."]
+    words = [{"text": f"w{i}", "translation": "т"} for i in range(3)]
+    item = {"id": 1, "prompt": "p", "answers": ["a"], "new_words": words}
+    with pytest.raises(ValidationError):
+        batch(items=[item])
+    assert batch(items=[{**item, "new_words": words[:2]}]).items[0].new_words[1].text == "w1"
+
+
+def test_task_batch_items_follow_exercise_rules():
+    gap = {"id": 1, "text": "Je {{1}} là.", "answers": {1: ["suis"]}}
+    assert batch(type="gap_input", items=[gap]).items[0].gaps == [1]
+    with pytest.raises(ValidationError):  # ответа нет среди вариантов
+        batch(type="gap_choice", options=["es", "est"], items=[gap])
+    with pytest.raises(ValidationError):  # тип не поддерживается пакетами
+        batch(type="grouping", items=[{"id": 1, "word": "chat", "answer": "m"}])
+    with pytest.raises(ValidationError):
+        batch(id="ex-abcdefgh")
+
+
+def test_trainer_entries():
+    own = schema.TrainerEntry.model_validate(
+        {"id": "negation", "name": "Отрицание", "description": "d", "exercise_type": "transform"}
+    )
+    assert own.source == "agent"
+    override = schema.TrainerEntry.model_validate({"id": "articles", "source": "agent"})
+    assert override.builtin
+    with pytest.raises(ValidationError):  # у встроенного нельзя менять название
+        schema.TrainerEntry.model_validate({"id": "articles", "name": "x"})
+    with pytest.raises(ValidationError):  # у своего нужны название и тип
+        schema.TrainerEntry.model_validate({"id": "negation", "name": "x"})
+    with pytest.raises(ValidationError):
+        schema.TrainerEntry.model_validate(
+            {"id": "Bad id", "name": "x", "description": "d", "exercise_type": "transform"}
+        )
+    with pytest.raises(ValidationError):  # своему нельзя быть встроенным
+        schema.TrainerEntry.model_validate(
+            {
+                "id": "mine",
+                "name": "x",
+                "description": "d",
+                "exercise_type": "transform",
+                "source": "builtin",
+            }
+        )
+
+
+def test_report_may_point_to_batch():
+    report = schema.Report.model_validate(
+        {
+            "id": "rep-abcdefgh",
+            "element": "tb-abcdefgh",
+            "item": 2,
+            "comment": "c",
+            "created": "2026-09-27T18:00:00",
+        }
+    )
+    assert report.element == "tb-abcdefgh"

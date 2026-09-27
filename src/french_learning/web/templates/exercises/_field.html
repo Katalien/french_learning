@@ -1,0 +1,22 @@
+{# Одно поле ответа. Переменные: e, item, name (поле), attempt, kind: select|input|wide; options #}
+{% set value = attempt.answers.get(item.id | string, {}).get(name, "") if attempt else "" %}
+{% set status = attempt.field_status(item.id, name) if attempt and attempt.checked else none %}
+{% set field_name = "i" ~ item.id ~ "." ~ name %}
+{% if kind == "select" %}
+  <select name="{{ field_name }}" class="answer-field field-{{ status or 'none' }}" aria-label="пункт {{ item.id }}, ответ {{ name }}" lang="fr">
+    <option value=""></option>
+    {% for o in options %}<option value="{{ o }}" {% if value == o %}selected{% endif %}>{{ o }}</option>{% endfor %}
+  </select>
+{% else %}
+  <input name="{{ field_name }}" value="{{ value }}" autocomplete="off" autocapitalize="off" spellcheck="false" lang="fr"
+         class="answer-field field-{{ status or 'none' }}{% if kind == 'wide' %} wide{% endif %}" aria-label="пункт {{ item.id }}, ответ {{ name }}">
+{% endif %}
+{% if status == "correct" %}<span class="mark-ok" aria-label="верно">✓</span>{% elif status == "wrong" %}<span class="mark-wrong" aria-label="неверно">✗</span>{% endif %}
+{% if status == "choose" %}
+  <span class="spelling-choice" role="radiogroup" aria-label="Выберите правильное написание">
+    <small lang="ru">Выберите написание:</small>
+    {% for v in attempt.variants(item.id, name) %}
+      <label><input type="radio" name="{{ field_name }}~choice" value="{{ v }}"> <span lang="fr">{{ v }}</span></label>
+    {% endfor %}
+  </span>
+{% endif %}

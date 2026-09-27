@@ -13,6 +13,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from french_learning.config import Settings
 from french_learning.content.index import ContentStore
 from french_learning.content.progress import NoProgress
+from french_learning.exercises.attempts import AttemptStore, ExerciseProgress
 from french_learning.practice.backup import start_daily_backup
 from french_learning.practice.db import ProgressDB
 from french_learning.practice.tts import DEFAULT_VOICE, Speaker
@@ -33,11 +34,13 @@ def create_app(settings: Settings | None = None, auto_backup: bool = False) -> F
     app.state.settings = settings
     app.state.store = ContentStore(settings.content_dir) if settings.content_configured else None
     app.state.progress = NoProgress()
-    app.state.progress_db = app.state.cards = app.state.sessions = None
+    app.state.progress_db = app.state.cards = app.state.sessions = app.state.attempts = None
     if settings.content_configured:
         app.state.progress_db = ProgressDB(settings.content_dir)
         app.state.cards = CardStore(app.state.progress_db)
         app.state.sessions = SessionStore(app.state.progress_db, app.state.cards)
+        app.state.attempts = AttemptStore(app.state.progress_db)
+        app.state.progress = ExerciseProgress(app.state.attempts)
 
     app.state.speaker = Speaker(settings.tts_dir)
     if auto_backup:

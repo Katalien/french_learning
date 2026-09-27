@@ -1,12 +1,18 @@
-{# «Требует проверки» с раскрывающимся пояснением агента (FR-041). Переменные: e, note, item_id #}
+{# «Требует проверки» с раскрывающимся пояснением агента (FR-041). Переменные: e, note, item_id;
+   in_form — значок внутри формы решения (вложенные формы недопустимы, кнопка шлёт запрос HTMX) #}
 <span class="review-badge" x-data="{ open: false }">
   <button type="button" class="review-toggle" @click="open = !open" :aria-expanded="open"
           title="Агент не уверен — нажмите, чтобы увидеть почему">⚠</button>
   <span class="review-note" x-show="open" x-cloak>
     {{ note }}
-    <form method="post" action="/elements/{{ e.id }}/verified" class="inline-form">
-      {% if item_id %}<input type="hidden" name="item" value="{{ item_id }}">{% endif %}
-      <button type="submit" class="small">Проверено, всё верно</button>
-    </form>
+    {% if in_form %}
+      <button type="button" class="small" hx-post="/elements/{{ e.id }}/verified" hx-swap="none"
+              hx-vals='{"item": "{{ item_id or '' }}"}'>Проверено, всё верно</button>
+    {% else %}
+      <form method="post" action="/elements/{{ e.id }}/verified" class="inline-form">
+        {% if item_id %}<input type="hidden" name="item" value="{{ item_id }}">{% endif %}
+        <button type="submit" class="small">Проверено, всё верно</button>
+      </form>
+    {% endif %}
   </span>
 </span>

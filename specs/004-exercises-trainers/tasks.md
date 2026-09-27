@@ -17,8 +17,8 @@ contracts/ (ui-routes, cli, trainers-format), quickstart.md
 
 ## Phase 1: Setup
 
-- [ ] T001 Образец для тестов: в `tests/fixtures/content` — упражнения всех типов с несколькими допустимыми ответами, ответом с `l'`, ответом с диакритикой (`été`), пунктом с `needs_review`; словарь — существительные m / f / both / `plural_only` / `h_aspire` / на гласную, 2 глагола со спряжением в présent, 2 прилагательных с формами; `trainers.yaml` с одним тренажёром `negation` (agent) и пакет `trainers/negation/tb-*.yaml` на 5 заданий
-- [ ] T002 [P] Пакеты `src/french_learning/exercises/` и `src/french_learning/trainers/` (с `generators/`), папки тестов `tests/unit/exercises/`, `tests/unit/trainers/`
+- [X] T001 Образец для тестов: в `tests/fixtures/content` — упражнения всех типов с несколькими допустимыми ответами, ответом с `l'`, ответом с диакритикой (`été`), пунктом с `needs_review`; словарь для генераторов строится в самих тестах (чтобы не менять счётчики тестов 003); `trainers.yaml` с одним тренажёром `negation` (agent) и пакет `trainers/negation/tb-*.yaml` на 5 заданий
+- [X] T002 [P] Пакеты `src/french_learning/exercises/` и `src/french_learning/trainers/` (с `generators/`), папки тестов `tests/unit/exercises/`, `tests/unit/trainers/`
 
 ---
 
@@ -26,18 +26,18 @@ contracts/ (ui-routes, cli, trainers-format), quickstart.md
 
 ### Формат (TDD)
 
-- [ ] T003 [P] Тесты в `tests/unit/test_schema.py` и `tests/unit/test_loader.py`: префикс `tb`; модель `TaskBatch` (тип из поддерживаемых, пункты по моделям 001, `new_words` ≤ 2 с переводом); `TrainerEntry` (slug, для встроенного id — только `source` и `rules`); загрузка `trainers.yaml` и `trainers/*/tb-*.yaml`; пакет для тренажёра не из каталога или с чужим типом — ошибка загрузки без падения остального; хранилище без этих файлов корректно
-- [ ] T004 Реализовать в `src/french_learning/content/schema.py`, `loader.py`, `index.py` (доступ к каталогу и пакетам), `agent/ids.py` (`tb`) — тесты T003 проходят; описать формат в `docs/content-format.md`
+- [X] T003 [P] Тесты в `tests/unit/test_schema.py` и `tests/unit/test_loader.py`: префикс `tb`; модель `TaskBatch` (тип из поддерживаемых, пункты по моделям 001, `new_words` ≤ 2 с переводом); `TrainerEntry` (slug, для встроенного id — только `source` и `rules`); загрузка `trainers.yaml` и `trainers/*/tb-*.yaml`; пакет для тренажёра не из каталога или с чужим типом — ошибка загрузки без падения остального; хранилище без этих файлов корректно
+- [X] T004 Реализовать в `src/french_learning/content/schema.py`, `loader.py`, `index.py` (доступ к каталогу и пакетам), `agent/ids.py` (`tb`) — тесты T003 проходят; описать формат в `docs/content-format.md`
 
 ### База прогресса v2 (TDD)
 
-- [ ] T005 [P] Тесты в `tests/unit/practice/test_db.py`: миграция v1 → v2 добавляет `exercise_attempts`, `trainer_cards`, `trainer_answers`, `trainer_sessions`, данные v1 целы; `schema_version` = 2; настройка `trainer_portion_size` = 20; дамп резервной копии включает новые таблицы
-- [ ] T006 Реализовать миграцию в `src/french_learning/practice/db.py` — тесты T005 проходят
+- [X] T005 [P] Тесты в `tests/unit/practice/test_db.py`: миграция v1 → v2 добавляет `exercise_attempts`, `trainer_cards`, `trainer_answers`, `trainer_sessions`, данные v1 целы; `schema_version` = 2; настройка `trainer_portion_size` = 20; дамп резервной копии включает новые таблицы
+- [X] T006 Реализовать миграцию в `src/french_learning/practice/db.py` — тесты T005 проходят
 
 ### Проверка ответов по типам (TDD)
 
-- [ ] T007 [P] Тесты в `tests/unit/exercises/test_grading.py`: для каждого типа (`gap_choice`, `gap_input`, `multi_gap`, `transform`, `true_false`, `choice` с одним и несколькими ответами, `two_forms`, `grouping`, `picture` с ответами; `picture` без ответов — как открытый ответ) — верно / неверно по пропускам и пункту целиком; `de l’` и `De l'` = `de l'`; пробел перед `?` и точка в трансформации; любой из допустимых ответов; `ete` → `choose` с вариантами; пустой ответ — неверно; `open` — без проверки (SC-002)
-- [ ] T008 Реализовать `src/french_learning/exercises/grading.py` (на основе `practice/checking.py`) — тесты T007 проходят
+- [X] T007 [P] Тесты в `tests/unit/exercises/test_grading.py`: для каждого типа (`gap_choice`, `gap_input`, `multi_gap`, `transform`, `true_false`, `choice` с одним и несколькими ответами, `two_forms`, `grouping`, `picture` с ответами; `picture` без ответов — как открытый ответ) — верно / неверно по пропускам и пункту целиком; `de l’` и `De l'` = `de l'`; пробел перед `?` и точка в трансформации; любой из допустимых ответов; `ete` → `choose` с вариантами; пустой ответ — неверно; `open` — без проверки (SC-002)
+- [X] T008 Реализовать `src/french_learning/exercises/grading.py` (на основе `practice/checking.py`) — тесты T007 проходят
 
 **Checkpoint**: формат, база и проверка готовы — можно делать истории.
 
@@ -50,12 +50,12 @@ contracts/ (ui-routes, cli, trainers-format), quickstart.md
 
 **Independent Test**: quickstart, сценарии 1–3.
 
-- [ ] T009 [P] [US1] Тесты в `tests/unit/exercises/test_attempts.py`: черновик сохраняется и читается; первая проверка фиксирует `first_results`; исправление после подсветки → `fixed_self`; «Показать ответ» → `revealed` и итог `wrong`; выбор написания откладывает итог пункта до выбора, неверный выбор → `wrong`; открытый ответ → `saved`; `is_done` — после первой полной проверки независимо от результата (FR-022)
-- [ ] T010 [US1] Реализовать `src/french_learning/exercises/attempts.py` и `ExerciseProgress` (протокол в `content/progress.py`), подключить в `web/app.py` вместо `NoProgress` — тесты T009 проходят
-- [ ] T011 [P] [US1] Интеграционные тесты `tests/integration/test_exercise_solve.py`: форма по каждому типу (выпадающие списки из `options`, поля, радиокнопки, чекбоксы для нескольких ответов, группы); справка скрыта за кнопкой; панель символов; `POST /exercises/{id}/draft`, `/check` (подсветка, «Показать ответ», выбор написания, пометка «требует проверки» у пункта), `/reveal/{item}`, `/save` для открытого ответа; счётчик «X из Y» на странице урока растёт после проверки
-- [ ] T012 [US1] Вынести панель французских символов в `src/french_learning/web/static/js/symbols.js` (вставка в поле с фокусом) и использовать в 003 и 004
-- [ ] T013 [US1] Реализовать `src/french_learning/web/routes/exercises.py` и шаблоны `web/templates/exercises/{solve,_items,_result}.html` (HTMX для проверки, Alpine для черновика и справки), форма на странице `/elements/{ex-id}` — тесты T011 проходят
-- [ ] T014 [US1] Проверка страниц на ширине 375 px (SC-008): правка `static/css/app.css`
+- [X] T009 [P] [US1] Тесты в `tests/unit/exercises/test_attempts.py`: черновик сохраняется и читается; первая проверка фиксирует `first_results`; исправление после подсветки → `fixed_self`; «Показать ответ» → `revealed` и итог `wrong`; выбор написания откладывает итог пункта до выбора, неверный выбор → `wrong`; открытый ответ → `saved`; `is_done` — после первой полной проверки независимо от результата (FR-022)
+- [X] T010 [US1] Реализовать `src/french_learning/exercises/attempts.py` и `ExerciseProgress` (протокол в `content/progress.py`), подключить в `web/app.py` вместо `NoProgress` — тесты T009 проходят
+- [X] T011 [P] [US1] Интеграционные тесты `tests/integration/test_exercise_solve.py`: форма по каждому типу (выпадающие списки из `options`, поля, радиокнопки, чекбоксы для нескольких ответов, группы); справка скрыта за кнопкой; панель символов; `POST /exercises/{id}/draft`, `/check` (подсветка, «Показать ответ», выбор написания, пометка «требует проверки» у пункта), `/reveal/{item}`, `/save` для открытого ответа; счётчик «X из Y» на странице урока растёт после проверки
+- [X] T012 [US1] Вынести панель французских символов в `src/french_learning/web/static/js/symbols.js` (вставка в поле с фокусом) и использовать в 003 и 004
+- [X] T013 [US1] Реализовать `src/french_learning/web/routes/exercises.py` и шаблоны `web/templates/exercises/{solve,_items,_result}.html` (HTMX для проверки, Alpine для черновика и справки), форма на странице `/elements/{ex-id}` — тесты T011 проходят
+- [X] T014 [US1] Проверка страниц на ширине 375 px (SC-008): правка `static/css/app.css`
 
 **Checkpoint**: MVP — упражнения уроков 13 и 14 решаются в приложении.
 

@@ -23,7 +23,7 @@
     · {{ EXERCISE_TYPE_NAMES[e.type] }}
     {% if e.status != "main" %}<mark class="badge">{{ STATUS_NAMES[e.status] }}</mark>{% endif %}
   </p>
-  {% include "partials/exercise.html" %}
+  {% if solve_mode %}{% include "exercises/solve.html" %}{% else %}{% include "partials/exercise.html" %}{% endif %}
 {% else %}
   <h1>{{ e.title }}</h1>
   <article class="{{ e.kind }}" {% if e.kind == "text" %}lang="fr"{% endif %}>

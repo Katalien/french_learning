@@ -1,0 +1,138 @@
+{# Выполнение упражнения или пакета заданий (FR-001–FR-007, FR-010, FR-011, FR-020a, FR-030).
+   Переменные: e, attempt, symbols, base (адрес действий), report_url, only_items, checkable, notice #}
+{% set source = e.sources[0] if e.sources is defined and e.sources else none %}
+{% set checked = attempt and attempt.checked %}
+{% set text_input = e.type in ("gap_input", "multi_gap", "transform", "picture", "open") %}
+<div id="exercise-solve" class="exercise solve{% if e.show_source is defined and e.show_source %} with-source{% endif %}" x-data="{ reference: false }">
+  {% if e.show_source is defined and e.show_source and source and source.file %}
+    <figure class="exercise-source"><img src="/sources/{{ source.file }}" alt="Исходный лист упражнения"></figure>
+  {% endif %}
+
+  <div class="exercise-body">
+    {% if e.instruction is defined %}
+      <p class="instruction">{{ e.instruction.ru }}</p>
+      {% if show_origin and e.instruction.original != e.instruction.ru %}
+        <p class="original-instruction" lang="{{ e.instruction.original_lang }}">
+          <span class="origin-badge origin-{{ e.instruction.origin }}">перевод: {{ ORIGIN_NAMES[e.instruction.origin] }}</span>
+          оригинал: «{{ e.instruction.original }}»
+        </p>
+      {% endif %}
+    {% else %}
+      <p class="instruction">{{ e.instruction_ru }}</p>
+    {% endif %}
+    {% if e.links is defined %}
+      {% if e.links.text %}<p><a href="/elements/{{ e.links.text }}">📖 Текст к упражнению</a></p>{% endif %}
+      {% if e.links.theory %}<p><a href="/elements/{{ e.links.theory }}">📘 Теория к упражнению</a></p>{% endif %}
+    {% endif %}
+    {% if e.reference is defined and e.reference %}
+      <button type="button" class="outline secondary small" @click="reference = !reference"
+              x-text="reference ? 'Скрыть справку' : 'Справка'">Справка</button>
+      <div class="reference" x-show="reference" x-cloak>{{ e.reference | markdown }}</div>
+    {% endif %}
+
+    <form class="solve-form" method="post" action="{{ base }}/check"
+          hx-post="{{ base }}/check" hx-target="#exercise-solve" hx-swap="outerHTML">
+      {% if attempt %}<input type="hidden" name="attempt" value="{{ attempt.id }}">{% endif %}
+      <span hidden hx-post="{{ base }}/draft" hx-include="closest form" hx-swap="none"
+            hx-trigger="input from:closest form delay:1500ms, change from:closest form delay:1500ms"></span>
+      {% if text_input %}
+        <div class="symbol-panel" aria-label="Французские символы">
+          {% for ch in symbols %}<button type="button" class="symbol" data-char="{{ ch }}" tabindex="-1">{{ ch }}</button>{% endfor %}
+        </div>
+      {% endif %}
+
+      <ol class="items solve-items" lang="fr">
+        {% for item in e.items if not only_items or item.id in only_items %}
+          {% set outcome = attempt.outcome(item.id) if checked else none %}
+          {% set current = attempt.current_status(item.id) if checked else none %}
+          {% set mark = attempt.marks.get(item.id | string) if attempt else none %}
+          <li id="item-{{ item.id }}" class="item item-{{ current or 'none' }}" value="{{ item.id }}">
+            {% if e.type in ("gap_choice", "gap_input", "multi_gap", "two_forms") %}
+              {% for part_kind, part in item.text | gap_parts %}
+                {% if part_kind == "text" %}{{ part }}{% else %}
+                  {% with name = part, kind = "select" if e.type in ("gap_choice", "two_forms") else "input",
+                          options = e.options if e.type == "gap_choice" else item.forms %}{% include "exercises/_field.html" %}{% endwith %}
+                {% endif %}
+              {% endfor %}
+              {% if item.hint %}<span class="hint">{{ item.hint }}</span>{% endif %}
+            {% elif e.type in ("transform", "picture") %}
+              {% if item.prompt %}<span>{{ item.prompt }}</span> →{% endif %}
+              {% with name = "a", kind = "wide" %}{% include "exercises/_field.html" %}{% endwith %}
+            {% elif e.type == "true_false" %}
+              {% set value = attempt.answers.get(item.id | string, {}).get("a") if attempt else none %}
+              <span>{{ item.statement }}</span>
+              <span class="tf-choice" lang="ru">
+                <label><input type="radio" name="i{{ item.id }}.a" value="true" {% if value == "true" %}checked{% endif %}> верно</label>
+                <label><input type="radio" name="i{{ item.id }}.a" value="false" {% if value == "false" %}checked{% endif %}> неверно</label>
+              </span>
+              {% if current == "correct" %}<span class="mark-ok" aria-label="верно">✓</span>{% elif current == "wrong" %}<span class="mark-wrong" aria-label="неверно">✗</span>{% endif %}
+            {% elif e.type == "choice" %}
+              {% set value = attempt.answers.get(item.id | string, {}).get("a", []) if attempt else [] %}
+              {% set multiple = item.answer | length > 1 %}
+              <span>{{ item.question }}</span>{% if multiple %} <small class="muted" lang="ru">(несколько ответов)</small>{% endif %}
+              {% if current == "correct" %}<span class="mark-ok" aria-label="верно">✓</span>{% elif current == "wrong" %}<span class="mark-wrong" aria-label="неверно">✗</span>{% endif %}
+              <div class="choice-options">
+                {% for o in item.options %}
+                  <label><input type="{{ 'checkbox' if multiple else 'radio' }}" name="i{{ item.id }}.a" value="{{ loop.index0 }}" {% if (loop.index0 | string) in value %}checked{% endif %}> {{ o }}</label>
+                {% endfor %}
+              </div>
+            {% elif e.type == "grouping" %}
+              <span>{{ item.word }}</span> →
+              {% with name = "a", kind = "select", options = e.groups %}{% include "exercises/_field.html" %}{% endwith %}
+            {% elif e.type == "open" %}
+              {% set value = attempt.answers.get(item.id | string, {}).get("a", "") if attempt else "" %}
+              <label>{{ item.prompt }}<textarea name="i{{ item.id }}.a" rows="4" class="answer-field" lang="fr">{{ value }}</textarea></label>
+            {% endif %}
+
+            {% if item.new_words is defined and item.new_words %}
+              <small class="new-words" lang="ru">Новые слова: {% for w in item.new_words %}<span lang="fr">{{ w.text }}</span> — {{ w.translation }}{% if not loop.last %}; {% endif %}{% endfor %}</small>
+            {% endif %}
+            {% if item.needs_review.flag %}{% with note = item.needs_review.note, item_id = item.id, in_form = true %}{% include "partials/review_badge.html" %}{% endwith %}{% endif %}
+
+            {% if checked and e.type != "open" %}
+              {% set answer_origin = item.answers_origin or (e.answers_origin if e.answers_origin is defined else e.origin) %}
+              {% set answer_text = correct_answers(e, item).values() | map("join", " / ") | join(" · ") %}
+              <div class="item-actions" lang="ru">
+                {% if mark == "revealed" %}
+                  <p class="correct-answer">Ответ: <span lang="fr">{{ answer_text }}</span></p>
+                {% elif current != "correct" %}
+                  <button type="button" class="outline secondary small" hx-post="{{ base }}/reveal/{{ item.id }}"
+                          hx-include="closest form" hx-target="#exercise-solve" hx-swap="outerHTML">Показать ответ</button>
+                {% endif %}
+                {% if outcome == "fixed_self" %}<small class="muted">исправлено самостоятельно</small>{% endif %}
+                {% if report_url %}
+                  <details class="disagree"><summary>Не согласна с ответом</summary>
+                    <p class="muted">Правильный ответ:
+                      {% if mark == "revealed" or current == "correct" %}<span lang="fr">{{ answer_text }}</span>
+                      {% else %}откроется по кнопке «Показать ответ» (будет засчитан как подсмотренный){% endif %}
+                      <small class="origin-badge origin-{{ answer_origin }}">{{ ORIGIN_NAMES[answer_origin] }}</small></p>
+                    <textarea name="comment-{{ item.id }}" rows="2" placeholder="Почему ответ неверный?"></textarea>
+                    <button type="button" class="small" hx-post="{{ report_url }}/{{ item.id }}/report"
+                            hx-include="closest form" hx-target="#exercise-solve" hx-swap="outerHTML">Отправить сообщение</button>
+                  </details>
+                {% endif %}
+              </div>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ol>
+
+      {% if notice %}<p class="flash" role="status">{{ notice }}</p>{% endif %}
+      <div class="solve-buttons">
+        {% if not checkable %}
+          <button type="submit" formaction="{{ base }}/save" hx-post="{{ base }}/save">Сохранить ответ</button>
+          <small class="muted">Автоматической проверки у этого упражнения нет — она появится позже.</small>
+          {% if attempt and attempt.status == "saved" %}<small>Сохранено {{ attempt.updated_at[:16] | replace("T", " ") }}</small>{% endif %}
+        {% else %}
+          <button type="submit">Проверить</button>
+        {% endif %}
+      </div>
+    </form>
+
+    {% if checked %}
+      {% set score = attempt.score %}
+      <p class="solve-summary" role="status">Верно сразу: {{ score[0] }} из {{ score[1] }}</p>
+    {% endif %}
+    {% block after %}{% endblock %}
+  </div>
+</div>

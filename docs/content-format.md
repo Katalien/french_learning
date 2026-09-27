@@ -227,3 +227,53 @@ files:
   и `completed_by_ai: [gender, article, forms, verb, pos]` (какие поля заполнил агент).
 - Прогресс повторения — `.progress/progress.sqlite` (не в git), резервная копия —
   `backups/progress.sql` (в git, коммитится раз в день и по кнопке).
+
+## Дополнения функции 004
+
+Все файлы необязательны: хранилище без них остаётся корректным. Контракт —
+`specs/004-exercises-trainers/contracts/trainers-format.md`.
+
+### Каталог тренажёров — `trainers.yaml`
+
+```yaml
+trainers:
+  - id: negation                # slug: латиница, цифры, дефис; 3–41 символ
+    name: Отрицание
+    description: ne … pas в настоящем времени
+    source: agent               # у своих тренажёров всегда agent
+    exercise_type: transform    # gap_input | gap_choice | multi_gap | transform | choice | two_forms | true_false
+    rules: |                    # правила для агента при генерации заданий
+      …
+    origin: ai
+  - id: articles                # встроенный: можно менять только source, exercise_type, rules
+    source: agent
+```
+
+Встроенные id: `articles`, `conjugation`, `feminine`, `plural`, `possessives`,
+`demonstratives`, `adjective-agreement`, `numbers`, `sentence-builder`.
+
+### Пакет заданий — `trainers/<id тренажёра>/tb-….yaml`
+
+```yaml
+id: tb-k2m4q7xa
+kind: task_batch
+trainer: negation               # тренажёр из каталога; папка = trainer
+type: transform                 # = exercise_type тренажёра
+created: 2026-10-01T18:20:00
+origin: ai
+instruction_ru: Сделайте предложение отрицательным.
+options: []                     # варианты для gap_choice
+items:                          # пункты — как у упражнения этого типа
+  - id: 1
+    prompt: Je mange du pain.
+    answers: ["Je ne mange pas de pain."]
+    new_words: [{text: le beurre, translation: масло}]   # не больше 2
+    needs_review: {flag: false}
+```
+
+Пакет после создания не меняется, кроме исправлений по сообщениям об ошибках. Что решено
+верно (архив) и неверно («Ошибки»), хранится в базе прогресса, а не в файлах.
+
+### Сообщение об ошибке
+
+`element` может ссылаться на пакет заданий (`tb-…`), `item` — номер задания.

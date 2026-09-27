@@ -1,4 +1,6 @@
-"""База прогресса: SQLite в `CONTENT_DIR/.progress/progress.sqlite` (data-model 003).
+"""База прогресса: SQLite в `CONTENT_DIR/.progress/progress.sqlite` (data-model 003 и 004).
+
+Версия 2 (004) добавляет попытки упражнений и тренажёры; миграция — только новые таблицы.
 
 Папка `.progress/` исключена из git хранилища; резервная копия — `backups/progress.sql`
 (см. `practice/backup.py`).
@@ -12,9 +14,14 @@ from pathlib import Path
 
 from french_learning.agent.storage import ensure_progress_ignored
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
-DEFAULT_SETTINGS = {"portion_size": "20", "directions": "staged", "voice": "siwis"}
+DEFAULT_SETTINGS = {
+    "portion_size": "20",
+    "directions": "staged",
+    "voice": "siwis",
+    "trainer_portion_size": "20",
+}
 
 _SCHEMA = """
 create table if not exists meta (key text primary key, value text);
@@ -49,6 +56,49 @@ create table if not exists sessions (
     created_at text not null,
     last_review_id integer
 );
+create table if not exists exercise_attempts (
+    id integer primary key autoincrement,
+    exercise_id text not null,
+    scope text not null,
+    item_ids text not null,
+    status text not null,
+    answers text not null default '{}',
+    first_results text not null default '{}',
+    current_results text not null default '{}',
+    marks text not null default '{}',
+    created_at text not null,
+    checked_at text,
+    updated_at text not null
+);
+create index if not exists attempts_exercise on exercise_attempts (exercise_id, id);
+create table if not exists trainer_cards (
+    trainer_id text not null,
+    key text not null,
+    fsrs text not null,
+    due text not null,
+    created_at text not null,
+    primary key (trainer_id, key)
+);
+create table if not exists trainer_answers (
+    id integer primary key autoincrement,
+    trainer_id text not null,
+    key text not null,
+    answer text,
+    correct integer not null,
+    revealed integer not null default 0,
+    answered_at text not null,
+    session_id text
+);
+create index if not exists trainer_answers_key on trainer_answers (trainer_id, key, id);
+create table if not exists trainer_sessions (
+    id text primary key,
+    trainer_id text not null,
+    params text not null,
+    queue text not null,
+    position integer not null default 0,
+    correct integer not null default 0,
+    created_at text not null
+);
 """
 
 
@@ -66,8 +116,8 @@ class ProgressDB:
     def _migrate(self) -> None:
         with self.lock, self.conn:
             self.conn.executescript(_SCHEMA)
-            if self.get_meta("schema_version") is None:
-                self.set_meta("schema_version", str(SCHEMA_VERSION))
+            # таблицы всех версий создаются выше; версия — для будущих миграций с изменениями
+            self.set_meta("schema_version", str(SCHEMA_VERSION))
             for key, value in DEFAULT_SETTINGS.items():
                 self.conn.execute(
                     "insert or ignore into settings (key, value) values (?, ?)", (key, value)

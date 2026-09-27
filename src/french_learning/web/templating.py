@@ -10,6 +10,7 @@ from markupsafe import Markup, escape
 
 from french_learning.content.render import headings, render_markdown
 from french_learning.content.schema import EXERCISE_TYPE_NAMES, GAP_RE
+from french_learning.exercises.grading import correct_answers
 from french_learning.vocab.entries import display_fr
 
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
@@ -66,6 +67,12 @@ def gaps(text: str) -> Markup:
     return Markup("".join(html))
 
 
+def gap_parts(text: str) -> list[tuple[str, str]]:
+    """Текст пункта → части («text», кусок) и («gap», номер) для полей ответа (004)."""
+    parts = GAP_RE.split(text)
+    return [("text" if i % 2 == 0 else "gap", part) for i, part in enumerate(parts) if part]
+
+
 def media_path(materials_dir: Path | None, relative: str) -> str:
     """Полный путь к медиафайлу в папке исходных материалов (research R10)."""
     parts = PurePosixPath(relative).parts
@@ -94,7 +101,7 @@ def plural(n: int, one: str, few: str, many: str) -> str:
 
 
 env = templates.env
-env.filters.update(ru_date=ru_date, markdown=markdown, gaps=gaps, toc=toc)
+env.filters.update(ru_date=ru_date, markdown=markdown, gaps=gaps, toc=toc, gap_parts=gap_parts)
 env.globals.update(
     PART_NAMES=PART_NAMES,
     STATUS_NAMES=STATUS_NAMES,
@@ -105,4 +112,5 @@ env.globals.update(
     media_path=media_path,
     asset_version=asset_version,
     display_fr=display_fr,
+    correct_answers=correct_answers,
 )

@@ -14,6 +14,9 @@ import unicodedata
 from dataclasses import dataclass, field
 from typing import Literal
 
+# Панель символов для ввода без французской раскладки (003 FR-040, 004 FR-010)
+FRENCH_SYMBOLS = "éèêëàâçœùûüîïô"
+
 _APOSTROPHES = str.maketrans({"’": "'", "ʼ": "'", "‘": "'", "`": "'", "´": "'"})
 _SPACES = re.compile(r"\s+")
 _SPACE_BEFORE_PUNCT = re.compile(r"\s+([?!;:])")

@@ -1,0 +1,12 @@
+trainers:
+  - id: negation
+    name: Отрицание
+    description: ne … pas в настоящем времени
+    source: agent
+    exercise_type: transform
+    rules: |
+      Утвердительное предложение → отрицательное (ne … pas). Лексика — из словаря.
+    origin: ai
+  - id: articles
+    rules: |
+      Дополнительно: артикли перед словами на h придыхательное.

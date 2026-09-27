@@ -7,7 +7,7 @@ from pathlib import Path
 
 from french_learning.content.writer import new_id
 
-_ID_IN_FILE = re.compile(r"\b(?:les|th|tx|ex|voc|top|rep)-[a-z2-7]{8}\b")
+_ID_IN_FILE = re.compile(r"\b(?:les|th|tx|ex|voc|top|rep|tb)-[a-z2-7]{8}\b")
 
 
 def existing_ids(root: Path) -> set[str]:

@@ -2,6 +2,7 @@
 
 from french_learning.web.routes import (
     elements,
+    exercises,
     lessons,
     problems,
     sources,
@@ -14,6 +15,7 @@ from french_learning.web.routes import (
 ALL = [
     lessons.router,
     elements.router,
+    exercises.router,
     problems.router,
     sources.router,
     speech.router,

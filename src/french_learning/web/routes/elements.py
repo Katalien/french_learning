@@ -25,4 +25,9 @@ def element_page(request: Request, element_id: str, index: Index):
         "show_origin": show_origin(request),
         "linked": index.linked_exercises(element_id),
     }
+    store = request.app.state.attempts
+    if element.kind == "exercise" and store is not None:
+        from french_learning.web.routes.exercises import solve_context
+
+        context.update(solve_context(request, element, store.current(element_id)), solve_mode=True)
     return templates.TemplateResponse(request, "element.html", context)
