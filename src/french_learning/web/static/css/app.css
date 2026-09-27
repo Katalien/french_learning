@@ -156,3 +156,5 @@ table { display: block; overflow-x: auto; }
 .verdict { font-size: 1.3rem; font-weight: 700; }
 .verdict-ok { color: #2e7d32; }
 .verdict-wrong { color: #c62828; }
+.entry-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.entry-actions form { margin: 0; }

@@ -376,6 +376,122 @@ def vocab_complete(request: Request, index: Index):
     return templates.TemplateResponse(request, "vocab/complete.html", context)
 
 
+# --- управление записями (US5) ---------------------------------------------------------------
+
+
+def _entry_action(request: Request, entry_id: str, action, done: str, target: str | None = None):
+    from urllib.parse import urlencode
+
+    from french_learning.content.writer import WriteError
+    from french_learning.vocab.edits import VocabError
+
+    url = target or f"/vocab/{entry_id}"
+    try:
+        result = action()
+    except (VocabError, WriteError) as exc:
+        return _redirect(f"/vocab/{entry_id}?" + urlencode({"error": str(exc)}))
+    notice = done + (
+        f" {result.warning[0].upper()}{result.warning[1:]}." if result and result.warning else ""
+    )
+    return _redirect(f"{url}?" + urlencode({"notice": notice}))
+
+
+@router.post("/vocab/{entry_id}/edit")
+def vocab_edit(
+    request: Request,
+    entry_id: str,
+    translations: Annotated[str, Form()] = "",
+    notes: Annotated[str, Form()] = "",
+    gender: Annotated[str | None, Form()] = None,
+):
+    editor = _editor(request)
+    return _entry_action(
+        request,
+        entry_id,
+        lambda: editor.update(
+            entry_id,
+            translations=translations.replace(";", ",").split(","),
+            notes=notes,
+            gender=gender,
+        ),
+        "Сохранено.",
+    )
+
+
+@router.post("/vocab/{entry_id}/hide")
+def vocab_hide(request: Request, entry_id: str):
+    editor = _editor(request)
+    return _entry_action(
+        request, entry_id, lambda: editor.set_hidden(entry_id, True), "Слово скрыто."
+    )
+
+
+@router.post("/vocab/{entry_id}/unhide")
+def vocab_unhide(request: Request, entry_id: str):
+    editor = _editor(request)
+    return _entry_action(
+        request, entry_id, lambda: editor.set_hidden(entry_id, False), "Слово возвращено."
+    )
+
+
+@router.post("/vocab/{entry_id}/delete")
+def vocab_delete(request: Request, entry_id: str):
+    editor = _editor(request)
+
+    def action():
+        result = editor.delete(entry_id)
+        if request.app.state.cards is not None:
+            request.app.state.cards.remove_cards(entry_id)
+        return result
+
+    return _entry_action(request, entry_id, action, "Слово удалено.", target="/vocab")
+
+
+@router.post("/vocab/{entry_id}/known")
+def vocab_known(request: Request, entry_id: str, index: Index):
+    cards, _sessions = _practice(request, index)
+    cards.set_known(entry_id, True)
+    return _redirect(f"/vocab/{entry_id}?notice=Слово исключено из повторения («Знаю»).")
+
+
+@router.post("/vocab/{entry_id}/unknown")
+def vocab_unknown(request: Request, entry_id: str, index: Index):
+    cards, _sessions = _practice(request, index)
+    cards.set_known(entry_id, False)
+    return _redirect(f"/vocab/{entry_id}?notice=Слово снова в повторении.")
+
+
+# --- настройки ---------------------------------------------------------------------------------
+
+
+@router.get("/settings")
+def settings_page(request: Request, index: Index):
+    db = request.app.state.progress_db
+    context = {
+        "index": index,
+        "portion_size": db.get_setting("portion_size"),
+        "directions": db.get_setting("directions"),
+    }
+    return templates.TemplateResponse(request, "vocab/settings.html", context)
+
+
+@router.post("/settings")
+def settings_save(
+    request: Request,
+    index: Index,
+    portion_size: Annotated[str, Form()] = "20",
+    directions: Annotated[str, Form()] = "staged",
+):
+    db = request.app.state.progress_db
+    if not portion_size.isdigit() or not 1 <= int(portion_size) <= 500:
+        return _redirect("/settings?error=размер порции — число от 1 до 500")
+    if directions not in {"staged", "both"}:
+        return _redirect("/settings?error=неизвестный режим направлений")
+    db.set_setting("portion_size", str(int(portion_size)))
+    db.set_setting("directions", directions)
+    return _redirect("/settings?notice=Настройки сохранены.")
+
+
 # Маршрут записи — последним: иначе он перехватит /vocab/add и /vocab/complete.
 @router.get("/vocab/{entry_id}")
 def vocab_entry(request: Request, entry_id: str, index: Index):

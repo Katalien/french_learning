@@ -91,17 +91,17 @@ contracts/ui-routes.md, quickstart.md
 
 ## Phase 7: User Story 5 — Управлять записями (P5)
 
-- [ ] T026 [P] [US5] Тесты в `tests/unit/vocab/test_edits.py` и `tests/integration/test_vocab_manage.py`: правка полей и заметок (`origin` изменённых полей — `user`); удаление только своих (`origin: user`) с подтверждением; записи из уроков — только скрыть (`hidden`), скрытая запись видна в лексике урока с пометкой; «Знаю» / «Вернуть»; история оценок после правки / скрытия / «Знаю» / возврата сохранена
-- [ ] T027 [US5] Реализовать действия `/vocab/{id}/edit|hide|unhide|delete|known|unknown` и формы — тесты T026 проходят
+- [X] T026 [P] [US5] Тесты в `tests/unit/vocab/test_edits.py` и `tests/integration/test_vocab_manage.py`: правка полей и заметок (`origin` изменённых полей — `user`); удаление только своих (`origin: user`) с подтверждением; записи из уроков — только скрыть (`hidden`), скрытая запись видна в лексике урока с пометкой; «Знаю» / «Вернуть»; история оценок после правки / скрытия / «Знаю» / возврата сохранена
+- [X] T027 [US5] Реализовать действия `/vocab/{id}/edit|hide|unhide|delete|known|unknown` и формы — тесты T026 проходят
 
 ---
 
 ## Phase 8: Polish
 
-- [ ] T028 [P] Страница настроек `/settings` (размер порции, режим направлений) + тест
+- [X] T028 [P] Страница настроек `/settings` (размер порции, режим направлений) + тест
 - [ ] T029 [P] Проверка всех новых страниц на 375 px (SC-007)
-- [ ] T030 [P] `CLAUDE.md` (навык `/complete-words`, команда `restore-progress`), `README.md`, `CHANGELOG.md`, `docs/content-format.md`
-- [ ] T031 Полный прогон: `ruff`, `check_no_content.py`, `pytest`
+- [X] T030 [P] `CLAUDE.md` (навык `/complete-words`, команда `restore-progress`), `README.md`, `CHANGELOG.md`, `docs/content-format.md`
+- [X] T031 Полный прогон: `ruff`, `check_no_content.py`, `pytest`
 - [ ] T032 Приёмка по quickstart.md с пользователем на словах уроков 13 и 14
 - [ ] T033 После приёмки: статус 003 → ✅ в `docs/roadmap.md`, слияние в `main`, отправка
 

@@ -159,3 +159,66 @@ class VocabEditor:
             files, f"Словарь: добавлено {len(report.added)}, объединено {len(report.merged)}"
         )
         return report
+
+    # --- правка, скрытие, удаление (US5) -----------------------------------------------------
+
+    def _load(self, entry_id: str) -> tuple[str, dict, Any]:
+        entries, paths = self._existing()
+        entry = next((e for e in entries if e.id == entry_id), None)
+        if entry is None:
+            raise VocabError(f"слово {entry_id} не найдено")
+        path = paths[entry_id]
+        return path, yaml.safe_load((self.root / path).read_text(encoding="utf-8")), entry
+
+    def update(
+        self,
+        entry_id: str,
+        *,
+        translations: list[str] | None = None,
+        notes: str | None = None,
+        gender: str | None = None,
+        article: str | None = None,
+        pos: str | None = None,
+    ) -> WriteResult:
+        path, data, _entry = self._load(entry_id)
+        changed_fields: set[str] = set()
+        if translations is not None:
+            wanted = [t.strip() for t in translations if t.strip()]
+            if not wanted:
+                raise VocabError("нужен хотя бы один перевод")
+            previous = {t["text"]: t for t in data.get("translations", [])}
+            data["translations"] = [
+                previous.get(t) or {"text": t, "origin": "user"} for t in wanted
+            ]
+        if notes is not None:
+            data["notes"] = notes.strip() or None
+            if data["notes"] is None:
+                data.pop("notes")
+        for field_name, value in (("gender", gender), ("article", article), ("pos", pos)):
+            if value is not None:
+                data[field_name] = value or None
+                if data[field_name] is None:
+                    data.pop(field_name)
+                changed_fields.add(field_name)
+        if changed_fields and data.get("completed_by_ai"):
+            data["completed_by_ai"] = [
+                f for f in data["completed_by_ai"] if f not in changed_fields
+            ]
+        return self.writer.save_files({path: _dump_yaml(data)}, f"Словарь: правка «{data['text']}»")
+
+    def set_hidden(self, entry_id: str, hidden: bool) -> WriteResult:
+        path, data, _entry = self._load(entry_id)
+        if hidden:
+            data["hidden"] = True
+        else:
+            data.pop("hidden", None)
+        label = "скрыто" if hidden else "возвращено"
+        return self.writer.save_files(
+            {path: _dump_yaml(data)}, f"Словарь: {label} «{data['text']}»"
+        )
+
+    def delete(self, entry_id: str) -> WriteResult:
+        path, data, entry = self._load(entry_id)
+        if entry.origin != "user" or entry.lessons:
+            raise VocabError("удалять можно только свои слова; слова из уроков можно скрыть")
+        return self.writer.delete_files([path], f"Словарь: удалено «{data['text']}»")

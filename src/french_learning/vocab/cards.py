@@ -199,3 +199,8 @@ class CardStore:
             self.db.conn.execute(
                 "update cards set suspended = ? where entry_id = ?", (int(known), entry_id)
             )
+
+    def remove_cards(self, entry_id: str) -> None:
+        """Карточки удалённой записи убираются; история оценок остаётся (принцип VII)."""
+        with self.db.lock, self.db.conn:
+            self.db.conn.execute("delete from cards where entry_id = ?", (entry_id,))

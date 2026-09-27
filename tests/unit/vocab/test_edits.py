@@ -73,3 +73,42 @@ def test_different_gender_is_a_new_entry(repo: Path):
 def test_import_to_lesson(repo: Path):
     editor(repo).import_list("le fromage — сыр", topics=["top-nourritu"], lesson=2)
     assert vocab(repo)["fromage"].lessons == [2]
+
+
+# --- US5: правка, скрытие, удаление -----------------------------------------------------------
+
+
+def test_update_translations_and_notes(repo: Path):
+    editor(repo).update(
+        "voc-maisonaa", translations=["дом", "жилище"], notes="ж. р., как по-русски"
+    )
+    entry = vocab(repo)["maison"]
+    assert [t.text for t in entry.translations] == ["дом", "жилище"]
+    assert entry.translations[0].origin == "material"  # прежний перевод сохранил происхождение
+    assert entry.translations[1].origin == "user"
+    assert entry.notes == "ж. р., как по-русски"
+
+
+def test_update_gender_removes_ai_mark(repo: Path):
+    path = repo / "vocabulary/voc-chataaaa.yaml"
+    path.write_text(
+        path.read_text(encoding="utf-8") + "completed_by_ai: [gender, article]\n", encoding="utf-8"
+    )
+    editor(repo).update("voc-chataaaa", gender="f", article="la")
+    entry = vocab(repo)["chat"]
+    assert entry.gender == "f" and entry.completed_by_ai == []
+
+
+def test_hide_lesson_entry_and_unhide(repo: Path):
+    editor(repo).set_hidden("voc-maisonaa", True)
+    assert vocab(repo)["maison"].hidden
+    editor(repo).set_hidden("voc-maisonaa", False)
+    assert not vocab(repo)["maison"].hidden
+
+
+def test_delete_only_own_entries(repo: Path):
+    with pytest.raises(VocabError, match="только свои"):
+        editor(repo).delete("voc-maisonaa")
+    editor(repo).delete("voc-chataaaa")
+    assert "chat" not in vocab(repo)
+    assert load_content(repo).errors == []

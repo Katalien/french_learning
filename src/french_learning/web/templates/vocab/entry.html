@@ -48,5 +48,35 @@
   </details>
 </article>
 
+<section class="entry-actions">
+  <form method="post" action="/vocab/{{ e.id }}/{{ 'unknown' if known else 'known' }}">
+    <button type="submit" class="outline small">{{ "Вернуть в повторение" if known else "Я это знаю" }}</button>
+  </form>
+  {% if e.origin == "user" and not e.lessons %}
+    <form method="post" action="/vocab/{{ e.id }}/delete" onsubmit="return confirm('Удалить слово?')">
+      <button type="submit" class="outline secondary small">Удалить</button>
+    </form>
+  {% else %}
+    <form method="post" action="/vocab/{{ e.id }}/{{ 'unhide' if e.hidden else 'hide' }}">
+      <button type="submit" class="outline secondary small">{{ "Вернуть" if e.hidden else "Скрыть" }}</button>
+    </form>
+  {% endif %}
+</section>
+
+<details class="edit-block">
+  <summary>Изменить</summary>
+  <form method="post" action="/vocab/{{ e.id }}/edit">
+    <label>Переводы (через запятую) <input name="translations" value="{{ e.translations | map(attribute='text') | join(', ') }}" required></label>
+    <label>Род
+      <select name="gender">
+        <option value="" {% if not e.gender %}selected{% endif %}>—</option>
+        {% for g in ("m", "f", "both") %}<option value="{{ g }}" {% if e.gender == g %}selected{% endif %}>{{ g }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Мои заметки (исключения, произношение) <textarea name="notes" rows="3">{{ e.notes or "" }}</textarea></label>
+    <button type="submit">Сохранить</button>
+  </form>
+</details>
+
 <script src="/static/js/speech.js" defer></script>
 {% endblock %}
