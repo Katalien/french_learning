@@ -109,3 +109,7 @@ table { display: block; overflow-x: auto; }
 .review-note { display: block; margin: 0.35rem 0; padding: 0.5rem 0.75rem; border-left: 3px solid var(--review-color); background: #fff8e1; font-size: 0.9rem; }
 .review-note-inline { color: var(--review-color); font-size: 0.9rem; margin: 0.2rem 0 0.6rem; }
 .media-path { word-break: break-all; font-size: 0.8rem; }
+
+/* Шапка на узком экране: пункты меню переносятся, ничего не обрезается */
+.site-header nav ul { flex-wrap: wrap; }
+.site-header nav ul:last-child { margin-right: 0; }
