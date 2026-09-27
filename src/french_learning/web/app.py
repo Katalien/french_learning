@@ -7,6 +7,7 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from french_learning.config import Settings
 from french_learning.content.index import ContentStore
@@ -36,6 +37,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "not_configured.html",
             {"content_dir": settings.content_dir},
             status_code=503,
+        )
+
+    @app.exception_handler(StarletteHTTPException)
+    async def _http_error(request: Request, exc: StarletteHTTPException) -> HTMLResponse:
+        message = exc.detail if exc.status_code == 404 and exc.detail != "Not Found" else None
+        return templates.TemplateResponse(
+            request,
+            "error.html",
+            {"status": exc.status_code, "message": message or "Страница не найдена"},
+            status_code=exc.status_code,
         )
 
     return app

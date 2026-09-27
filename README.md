@@ -16,7 +16,48 @@
 
 ```bash
 uv sync
+uv run pre-commit install
 ```
+
+Скопируйте `.env.example` в `.env` и укажите путь к хранилищу контента:
+
+```
+CONTENT_DIR=C:/путь/к/french_learning_materials
+SOURCE_MATERIALS_DIR=C:/путь/к/исходным/материалам
+```
+
+## Запуск
+
+```bash
+uv run french-learning serve
+```
+
+Приложение откроется по адресу http://127.0.0.1:8000 (доступно только с этого компьютера).
+
+## Проверка контента
+
+```bash
+uv run french-learning validate-content
+```
+
+## Демо без настоящих материалов
+
+```bash
+uv run french-learning demo-init C:/путь/к/french_learning_demo
+```
+
+Затем укажите эту папку в `CONTENT_DIR`.
+
+## Разработка
+
+```bash
+uv run pytest
+uv run ruff check .
+uv run ruff format .
+```
+
+Перед коммитом и отправкой git-хуки автоматически запускают линтер, проверку на отсутствие
+учебных материалов в репозитории и тесты.
 
 ## Документация проекта
 

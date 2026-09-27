@@ -209,13 +209,13 @@ PDF; лексика разделена; «Тексты» → текст со с�
 
 ## Phase 8: Polish & Cross-Cutting
 
-- [ ] T057 [P] Команда `french-learning demo-init <папка>` в `src/french_learning/cli.py`: копирует образец без повреждённого файла и с ним (флаг `--with-broken`) в указанную папку и выполняет `git init` + первый коммит; тест в `tests/integration/test_cli.py`
+- [X] T057 [P] Команда `french-learning demo-init <папка>` в `src/french_learning/cli.py`: копирует образец без повреждённого файла и с ним (флаг `--with-broken`) в указанную папку и выполняет `git init` + первый коммит; тест в `tests/integration/test_cli.py`
 - [ ] T058 [P] Проверить все страницы на ширине 375 px и поправить `static/css/app.css` (SC-007)
-- [ ] T059 [P] Сообщения интерфейса: проверить, что все тексты на русском, ошибки — понятные, без технических деталей (FR-050)
-- [ ] T060 Полный прогон: `uv run ruff check .`, `uv run ruff format --check .`, `uv run pytest`, `python scripts/check_no_content.py`
+- [X] T059 [P] Сообщения интерфейса: проверить, что все тексты на русском, ошибки — понятные, без технических деталей (FR-050)
+- [X] T060 Полный прогон: `uv run ruff check .`, `uv run ruff format --check .`, `uv run pytest`, `python scripts/check_no_content.py`
 - [ ] T061 Пройти quickstart.md на демо-хранилище `C:\Users\Kate\source\french_learning_demo` (создаётся T057) и исправить найденное
-- [ ] T062 [P] Обновить `CLAUDE.md`, раздел «Команды»: `uv sync`, `uv run french-learning serve`, `uv run french-learning validate-content`, `uv run pytest`, `uv run ruff check .`
-- [ ] T063 [P] Обновить `README.md` (установка, настройка `.env`, запуск, проверка контента, демо) и `CHANGELOG.md` (что появилось в 001)
+- [X] T062 [P] Обновить `CLAUDE.md`, раздел «Команды»: `uv sync`, `uv run french-learning serve`, `uv run french-learning validate-content`, `uv run pytest`, `uv run ruff check .`
+- [X] T063 [P] Обновить `README.md` (установка, настройка `.env`, запуск, проверка контента, демо) и `CHANGELOG.md` (что появилось в 001)
 - [ ] T064 После приёмки пользователем: статус функции 001 в `docs/roadmap.md` 🛠 → ✅; слить ветку `001-lesson-content-view` в `main` при проходящих тестах и отправить `main` на GitHub (конституция, «Контроль качества»: слияние только после приёмки)
 
 ---

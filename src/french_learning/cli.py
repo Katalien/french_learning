@@ -6,6 +6,8 @@
 from __future__ import annotations
 
 import argparse
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -46,6 +48,30 @@ def _validate(args: argparse.Namespace) -> int:
     return 1
 
 
+DEMO_SOURCE = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "content"
+BROKEN_DEMO_FILE = Path("lessons/002/exercises/ex-brokenaa.yaml")
+
+
+def _demo_init(args: argparse.Namespace) -> int:
+    """Демо-хранилище из синтетического образца (quickstart.md) — без настоящих материалов."""
+    target = Path(args.folder)
+    if target.exists() and any(target.iterdir()):
+        print(f"Папка {target} не пуста — выберите пустую или несуществующую папку.")
+        return 2
+    shutil.copytree(DEMO_SOURCE, target, dirs_exist_ok=True)
+    if not args.with_broken:
+        (target / BROKEN_DEMO_FILE).unlink()
+    for command in (
+        ["init", "-q"],
+        ["add", "-A"],
+        ["-c", "user.name=demo", "-c", "user.email=demo@localhost", "commit", "-qm", "Демо"],
+    ):
+        subprocess.run(["git", "-C", str(target), *command], check=True, capture_output=True)
+    print(f"Демо-хранилище создано: {target}")
+    print(f"Укажите в .env: CONTENT_DIR={target}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
@@ -59,6 +85,11 @@ def main(argv: list[str] | None = None) -> int:
     validate = commands.add_parser("validate-content", help="проверить хранилище контента")
     validate.add_argument("--content-dir", help="папка хранилища (иначе CONTENT_DIR)")
     validate.set_defaults(handler=_validate)
+
+    demo = commands.add_parser("demo-init", help="создать демо-хранилище с придуманными уроками")
+    demo.add_argument("folder", help="папка для демо-хранилища")
+    demo.add_argument("--with-broken", action="store_true", help="оставить повреждённый файл")
+    demo.set_defaults(handler=_demo_init)
 
     args = parser.parse_args(argv)
     return args.handler(args)
