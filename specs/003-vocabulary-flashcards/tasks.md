@@ -84,8 +84,8 @@ contracts/ui-routes.md, quickstart.md
 
 ## Phase 6: User Story 4 — Ввод ответа без французской клавиатуры (P4)
 
-- [ ] T024 [P] [US4] Интеграционные тесты в `tests/integration/test_vocab_input.py`: переключатель «ввод ответа»; панель символов (é è ê ë à â ç œ ù û ü î ï ô) в разметке; `answer`: верный → «Помню», неверный → «Не помню» и правильный ответ; `ete` для «été» → фрагмент выбора написания; неверный выбор → ошибка; RU → FR без артикля у существительного → ошибка; любой из допустимых ответов засчитан
-- [ ] T025 [US4] Реализовать ввод в `web/routes/vocab.py` и шаблоны `templates/vocab/partials/answer_input.html`, `partials/spelling_choice.html`, `partials/symbol_panel.html` (вставка в позицию курсора — Alpine.js) — тесты T024 проходят
+- [X] T024 [P] [US4] Интеграционные тесты в `tests/integration/test_vocab_input.py`: переключатель «ввод ответа»; панель символов (é è ê ë à â ç œ ù û ü î ï ô) в разметке; `answer`: верный → «Помню», неверный → «Не помню» и правильный ответ; `ete` для «été» → фрагмент выбора написания; неверный выбор → ошибка; RU → FR без артикля у существительного → ошибка; любой из допустимых ответов засчитан
+- [X] T025 [US4] Реализовать ввод в `web/routes/vocab.py` и шаблоны `templates/vocab/partials/answer_input.html`, `partials/spelling_choice.html`, `partials/symbol_panel.html` (вставка в позицию курсора — Alpine.js) — тесты T024 проходят
 
 ---
 

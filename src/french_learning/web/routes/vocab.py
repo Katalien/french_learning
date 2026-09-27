@@ -110,6 +110,7 @@ def _card_page(request: Request, index: ContentIndex, session_id: str, shown: bo
         "direction_name": DIRECTIONS[params.direction],
         "ratings": RATING_NAMES,
         "can_undo": sessions._load(session_id)[3] is not None,
+        "symbols": FRENCH_SYMBOLS,
         **extra,
     }
     if current is None:
@@ -172,6 +173,74 @@ def backup_now(request: Request, index: Index):
     if not result.committed and not result.warning:
         return _redirect("/practice?notice=Копия уже актуальна, изменений нет.")
     return redirect_after_write("/practice", result)
+
+
+# --- ввод ответа (US4) ----------------------------------------------------------------------
+
+FRENCH_SYMBOLS = "éèêëàâçœùûüîïô"
+
+
+def _check(index: ContentIndex, entry, direction: str, answer: str):
+    from french_learning.practice.checking import check_french, check_russian
+
+    accepted = vocab_entries.accepted_answers(index, entry, direction)
+    if direction == "fr_ru":
+        return check_russian(answer, accepted), accepted
+    return check_french(answer, accepted), accepted
+
+
+def _result_page(request, index, session_id, entry, direction, answer, ok, accepted):
+    _cards, sessions = _practice(request, index)
+    context = {
+        "index": index,
+        "session_id": session_id,
+        "entry": entry,
+        "direction": direction,
+        "question": vocab_entries.question(index, entry, direction),
+        "answers": accepted,
+        "given": answer,
+        "ok": ok,
+        "progress": sessions.progress(session_id),
+    }
+    return templates.TemplateResponse(request, "vocab/practice_result.html", context)
+
+
+@router.post("/practice/{session_id}/answer")
+def practice_answer(
+    request: Request, session_id: str, index: Index, answer: Annotated[str, Form()] = ""
+):
+    _cards, sessions = _practice(request, index)
+    current = sessions.current(session_id)
+    if current is None:
+        return _redirect(f"/practice/{session_id}")
+    entry = index.element(current[0])
+    result, accepted = _check(index, entry, current[1], answer)
+    if result.status == "choose_spelling":
+        return _card_page(
+            request, index, session_id, shown=False, choose=result.variants, given=answer
+        )
+    ok = result.status == "correct"
+    sessions.rate(session_id, "good" if ok else "again", answer=answer)
+    return _result_page(request, index, session_id, entry, current[1], answer, ok, accepted)
+
+
+@router.post("/practice/{session_id}/spelling")
+def practice_spelling(
+    request: Request,
+    session_id: str,
+    index: Index,
+    answer: Annotated[str, Form()] = "",
+    choice: Annotated[str, Form()] = "",
+):
+    _cards, sessions = _practice(request, index)
+    current = sessions.current(session_id)
+    if current is None:
+        return _redirect(f"/practice/{session_id}")
+    entry = index.element(current[0])
+    result, accepted = _check(index, entry, current[1], answer)
+    ok = result.status == "choose_spelling" and choice == result.matched
+    sessions.rate(session_id, "good" if ok else "again", answer=choice or answer)
+    return _result_page(request, index, session_id, entry, current[1], choice, ok, accepted)
 
 
 # --- просмотр словаря (US2) -------------------------------------------------------------------

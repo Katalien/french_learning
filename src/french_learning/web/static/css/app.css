@@ -146,3 +146,13 @@ table { display: block; overflow-x: auto; }
 .translations { font-size: 1.2rem; }
 .speak { padding: 0.1rem 0.5rem; vertical-align: middle; }
 .conjugation { max-width: 20rem; }
+
+/* Ввод ответа */
+.answer-form input[name="answer"] { font-size: 1.3rem; text-align: center; }
+.symbol-panel { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; margin-bottom: 0.75rem; }
+.symbol { width: 2.4rem; padding: 0.3rem 0; margin: 0; font-size: 1.1rem; }
+.spelling-choice { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.spelling-choice button { width: auto; font-size: 1.2rem; }
+.verdict { font-size: 1.3rem; font-weight: 700; }
+.verdict-ok { color: #2e7d32; }
+.verdict-wrong { color: #c62828; }

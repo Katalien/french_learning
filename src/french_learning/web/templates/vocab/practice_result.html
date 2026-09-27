@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Повторение{% endblock %}
+{% block content %}
+<p class="breadcrumbs"><a href="/practice">Повторение</a></p>
+<p class="muted">Карточка {{ progress.position }} из {{ progress.total }}</p>
+<article class="flashcard gender-{{ entry.gender or 'none' }}">
+  <p class="question" lang="{{ 'fr' if direction == 'fr_ru' else 'ru' }}">{{ question.text }}</p>
+  <hr>
+  {% if ok %}
+    <p class="verdict verdict-ok">Верно ✅</p>
+  {% else %}
+    <p class="verdict verdict-wrong">Неверно ❌ <span class="muted">вы ввели: {{ given or "—" }}</span></p>
+  {% endif %}
+  <p class="answer" lang="{{ 'ru' if direction == 'fr_ru' else 'fr' }}">{{ answers | join(", ") }}</p>
+  <a href="/practice/{{ session_id }}" role="button" autofocus>Дальше</a>
+</article>
+<form method="post" action="/practice/{{ session_id }}/undo">
+  <button type="submit" class="outline secondary small">Отменить эту оценку</button>
+</form>
+{% endblock %}
