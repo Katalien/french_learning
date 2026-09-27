@@ -133,6 +133,13 @@
       {% set score = attempt.score %}
       <p class="solve-summary" role="status">Верно сразу: {{ score[0] }} из {{ score[1] }}</p>
     {% endif %}
-    {% block after %}{% endblock %}
+    {% if attempt and attempt.scope == "item" %}
+      <p><a href="/mistakes">← К списку ошибок</a></p>
+    {% elif checked or (attempt and attempt.status == "saved") %}
+      <div class="exercise-toolbar">
+        <button type="button" class="outline" hx-post="{{ base }}/restart" hx-target="#exercise-solve" hx-swap="outerHTML">Решить заново</button>
+        <a href="{{ base }}/history" role="button" class="outline secondary">История попыток</a>
+      </div>
+    {% endif %}
   </div>
 </div>

@@ -90,3 +90,18 @@ def test_restart_creates_new_empty_attempt(env):
     assert fresh.id != first.id and fresh.answers == {} and fresh.status == "draft"
     assert [a.id for a in store.history("ex-gapchoic")] == [fresh.id, first.id]
     assert ExerciseProgress(store).is_done("ex-gapchoic")  # прошлая проверка засчитана
+
+
+def test_recalculated_after_answer_fix_keeps_stored_data(env):
+    store, el = env
+    e = el["ex-gapinput"]
+    attempt = store.check(e, {"1": {"1": "reste"}, "2": {"1": "sommes"}})
+    assert attempt.first_status("1") == "wrong"
+    # агент исправил правильный ответ: теперь «reste» тоже верно
+    fixed_item = e.items[0].model_copy(update={"answers": {1: ["suis", "reste"]}})
+    fixed = e.model_copy(update={"items": [fixed_item, e.items[1]]})
+    again = store.recalculate(fixed, store.get(attempt.id))
+    assert again.recalculated == {"1": "correct"} and again.first_status("1") == "correct"
+    stored = store.get(attempt.id)
+    assert stored.first_results["1"]["status"] == "wrong"  # в базе без изменений
+    assert stored.answers["1"] == {"1": "reste"}

@@ -190,3 +190,8 @@ table { display: block; overflow-x: auto; }
 .exercise-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
 .exercise-toolbar form { margin: 0; }
 .done-mark { color: #2e7d32; font-size: 0.85rem; margin-left: 0.4rem; }
+.attempt header { font-size: 0.95rem; }
+.history-items li { margin-bottom: 0.3rem; }
+.mistakes .mistake { margin-bottom: 1rem; }
+.inline-form { display: inline; margin: 0; }
+.inline-form button { margin: 0.25rem 0 0; }

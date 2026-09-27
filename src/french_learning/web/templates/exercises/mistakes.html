@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Мои ошибки{% endblock %}
+{% block content %}
+<h1>Мои ошибки</h1>
+<p class="muted">Пункты упражнений уроков, в которых последняя проверка была с ошибкой. Решите пункт
+  верно — он уйдёт из списка; история попыток сохранится.</p>
+<form method="get" action="/mistakes" class="vocab-filters">
+  <select name="lesson" aria-label="Урок" onchange="this.form.requestSubmit()">
+    <option value="">все уроки</option>
+    {% for l in lessons %}<option value="{{ l.number }}" {% if selected.lesson == l.number | string %}selected{% endif %}>Урок {{ l.number }}</option>{% endfor %}
+  </select>
+  <select name="topic" aria-label="Тема" onchange="this.form.requestSubmit()">
+    <option value="">все темы</option>
+    {% for t in topics %}<option value="{{ t.id }}" {% if selected.topic == t.id %}selected{% endif %}>{{ t.name }}</option>{% endfor %}
+  </select>
+  <noscript><button type="submit" class="small">Показать</button></noscript>
+</form>
+{% if not mistakes %}<p class="empty">Ошибок нет.</p>{% endif %}
+<ul class="mistakes">
+  {% for m in mistakes %}
+    <li class="mistake">
+      <a href="/elements/{{ m.exercise.id }}">Урок {{ m.exercise.lesson }} · упр. {{ m.exercise.number }}</a>, пункт {{ m.item.id }}
+      <span class="muted">— {{ m.exercise.description_ru }}</span>
+      <br><span class="muted">ваш ответ:</span> <span lang="fr">{{ m.answer | answer_text }}</span>
+      <form method="post" action="/mistakes/{{ m.exercise.id }}/{{ m.item.id }}" class="inline-form">
+        <button type="submit" class="small">Прорешать</button>
+      </form>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

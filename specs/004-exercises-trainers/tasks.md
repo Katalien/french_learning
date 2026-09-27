@@ -67,10 +67,10 @@ contracts/ (ui-routes, cli, trainers-format), quickstart.md
 
 **Independent Test**: quickstart, сценарии 4–5.
 
-- [ ] T015 [P] [US2] Тесты в `tests/unit/exercises/test_attempts.py` и `tests/unit/exercises/test_mistakes.py`: «Решить заново» — новая пустая попытка, старые целы; история по датам; пересчёт при изменённом правильном ответе — пометка «пересчитано», сохранённые ответы и итоги не меняются (FR-031, SC-004); «Мои ошибки» — пункты с `wrong` в последней попытке, фильтры урок и тема, прорешанный верно пункт (`scope=item`) уходит из списка
-- [ ] T016 [US2] Реализовать пересчёт в `exercises/attempts.py` и `src/french_learning/exercises/mistakes.py` — тесты T015 проходят
-- [ ] T017 [P] [US2] Интеграционные тесты `tests/integration/test_exercise_history.py`: `/exercises/{id}/restart`, `/history`, `/mistakes?lesson=`, прорешивание пункта `/mistakes/{id}/{item}`
-- [ ] T018 [US2] Маршруты и шаблоны `exercises/history.html`, `exercises/mistakes.html`, ссылка «Мои ошибки» в навигации — тесты T017 проходят
+- [X] T015 [P] [US2] Тесты в `tests/unit/exercises/test_attempts.py` и `tests/unit/exercises/test_mistakes.py`: «Решить заново» — новая пустая попытка, старые целы; история по датам; пересчёт при изменённом правильном ответе — пометка «пересчитано», сохранённые ответы и итоги не меняются (FR-031, SC-004); «Мои ошибки» — пункты с `wrong` в последней попытке, фильтры урок и тема, прорешанный верно пункт (`scope=item`) уходит из списка
+- [X] T016 [US2] Реализовать пересчёт в `exercises/attempts.py` и `src/french_learning/exercises/mistakes.py` — тесты T015 проходят
+- [X] T017 [P] [US2] Интеграционные тесты `tests/integration/test_exercise_history.py`: `/exercises/{id}/restart`, `/history`, `/mistakes?lesson=`, прорешивание пункта `/mistakes/{id}/{item}`
+- [X] T018 [US2] Маршруты и шаблоны `exercises/history.html`, `exercises/mistakes.html`, ссылка «Мои ошибки» в навигации — тесты T017 проходят
 
 ---
 

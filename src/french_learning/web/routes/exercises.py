@@ -118,3 +118,59 @@ async def save_open(request: Request, exercise_id: str, index: Index):
     answers, _attempt_id = await form_answers(request, exercise)
     attempt = attempts(request).save_open(exercise, answers)
     return _respond(request, exercise, attempt)
+
+
+@router.post("/exercises/{exercise_id}/restart")
+def restart(request: Request, exercise_id: str, index: Index):
+    exercise = _exercise(index, exercise_id)
+    return _respond(request, exercise, attempts(request).restart(exercise))
+
+
+@router.get("/exercises/{exercise_id}/history")
+def history(request: Request, exercise_id: str, index: Index):
+    exercise = _exercise(index, exercise_id)
+    store = attempts(request)
+    items = [
+        store.recalculate(exercise, a) for a in store.history(exercise_id) if a.status != "draft"
+    ]
+    context = {"index": index, "e": exercise, "attempts": items}
+    return templates.TemplateResponse(request, "exercises/history.html", context)
+
+
+@router.get("/mistakes")
+def mistakes_page(request: Request, index: Index, lesson: str = "", topic: str = ""):
+    from french_learning.exercises.mistakes import find_mistakes
+
+    found = find_mistakes(
+        index,
+        attempts(request),
+        lesson=int(lesson) if lesson.isdigit() else None,
+        topic=topic or None,
+    )
+    context = {
+        "index": index,
+        "mistakes": found,
+        "selected": {"lesson": lesson, "topic": topic},
+        "lessons": index.lessons(),
+        "topics": index.all_topics(),
+    }
+    return templates.TemplateResponse(request, "exercises/mistakes.html", context)
+
+
+@router.post("/mistakes/{exercise_id}/{item_id}")
+def start_mistake(request: Request, exercise_id: str, item_id: int, index: Index):
+    exercise = _exercise(index, exercise_id)
+    if item_id not in {i.id for i in exercise.items}:
+        raise not_found("Пункт не найден")
+    attempt = attempts(request).start_item(exercise, item_id)
+    return RedirectResponse(f"/mistakes/attempts/{attempt.id}", status_code=303)
+
+
+@router.get("/mistakes/attempts/{attempt_id}")
+def mistake_attempt(request: Request, attempt_id: int, index: Index):
+    attempt = attempts(request).get(attempt_id)
+    if attempt is None:
+        raise not_found("Попытка не найдена")
+    exercise = _exercise(index, attempt.exercise_id)
+    context = {"index": index, **solve_context(request, exercise, attempt)}
+    return templates.TemplateResponse(request, "exercises/mistake.html", context)
