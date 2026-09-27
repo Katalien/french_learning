@@ -148,8 +148,25 @@ def load_content(root: Path) -> Content:
     _load_lessons(content)
     candidates = _load_elements(content)
     _check_elements(content, candidates)
+    _check_journals(content)
     _load_reports(content)
     return content
+
+
+def _check_journals(content: Content) -> None:
+    """Журнал файлов урока ссылается только на существующие элементы (предупреждение)."""
+    for number, lesson in content.lessons.items():
+        missing = sorted(
+            {i for entry in lesson.files for i in entry.elements} - set(content.elements)
+        )
+        if missing:
+            content.errors.append(
+                LoadError(
+                    content.lesson_paths[number],
+                    f"журнал файлов ссылается на несуществующие элементы: {', '.join(missing)}",
+                    warning=True,
+                )
+            )
 
 
 def _load_topics(content: Content) -> None:

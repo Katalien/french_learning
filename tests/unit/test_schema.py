@@ -177,3 +177,74 @@ def test_vocab_entry_has_no_lesson_or_part():
     assert schema.VocabEntry.model_validate(entry).lessons == [1]
     with pytest.raises(ValidationError):
         schema.VocabEntry.model_validate(dict(entry, translations=[]))
+
+
+# --- Дополнения функции 002: журнал файлов урока и закрытие сообщений ---------------------
+
+SHA = "a" * 64
+
+
+def lesson(**overrides):
+    data = {"id": "les-abcdefgh", "number": 7, "source_folder": "Leçon 07"}
+    data.update(overrides)
+    return data
+
+
+def test_lesson_without_files_is_valid():
+    assert schema.Lesson.model_validate(lesson()).files == []
+
+
+def test_lesson_file_entries():
+    files = [
+        {
+            "path": "Leçon 07/IMG_1.jpeg",
+            "part": "class",
+            "sha256": SHA,
+            "classification": "exercises",
+            "elements": ["ex-abcdefgh"],
+            "stored_as": "lessons/007/sources/img-1.jpg",
+        },
+        {
+            "path": "Leçon 07/dup.jpeg",
+            "part": "class",
+            "sha256": SHA,
+            "classification": "duplicate",
+            "elements": [],
+            "note": "дубль Devoirs/IMG_0101.jpeg",
+        },
+    ]
+    assert len(schema.Lesson.model_validate(lesson(files=files)).files) == 2
+
+
+@pytest.mark.parametrize("classification", ["duplicate", "unrecognized", "skipped"])
+def test_note_required_for_non_processed_files(classification):
+    entry = {"path": "a.jpg", "part": "class", "sha256": SHA, "classification": classification}
+    with pytest.raises(ValidationError, match="note"):
+        schema.Lesson.model_validate(lesson(files=[entry]))
+
+
+def test_file_classification_and_hash_are_checked():
+    bad_class = {"path": "a", "part": "class", "sha256": SHA, "classification": "photo"}
+    bad_hash = {"path": "a", "part": "class", "sha256": "xyz", "classification": "theory"}
+    for entry in (bad_class, bad_hash):
+        with pytest.raises(ValidationError):
+            schema.Lesson.model_validate(lesson(files=[entry]))
+
+
+def test_file_paths_unique_in_lesson():
+    entry = {"path": "a.jpg", "part": "class", "sha256": SHA, "classification": "theory"}
+    with pytest.raises(ValidationError, match="повторяется"):
+        schema.Lesson.model_validate(lesson(files=[entry, entry]))
+
+
+def test_report_resolved_optional():
+    report = {
+        "id": "rep-abcdefgh",
+        "element": "ex-abcdefgh",
+        "comment": "x",
+        "created": "2026-09-27T10:00:00",
+        "status": "fixed",
+        "resolution": "исправлено",
+        "resolved": "2026-09-28T09:00:00",
+    }
+    assert schema.Report.model_validate(report).resolved is not None

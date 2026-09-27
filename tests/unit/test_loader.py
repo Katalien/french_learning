@@ -108,3 +108,18 @@ def test_unknown_files_are_ignored(clean_content_root: Path):
     (clean_content_root / "inventory.md").write_text("# опись", encoding="utf-8")
     (clean_content_root / "lessons/001/notes.txt").write_text("x", encoding="utf-8")
     assert load_content(clean_content_root).errors == []
+
+
+def test_journal_elements_must_exist(clean_content_root: Path):
+    path = clean_content_root / "lessons/004/lesson.yaml"
+    path.write_text(
+        path.read_text(encoding="utf-8")
+        + "files:\n  - {path: a.jpg, part: homework, sha256: "
+        + "b" * 64
+        + ", classification: exercises, elements: [ex-missingx]}\n",
+        encoding="utf-8",
+    )
+    content = load_content(clean_content_root)
+    assert 4 in content.lessons  # урок остаётся, это предупреждение
+    [error] = content.errors
+    assert error.warning and "ex-missingx" in error.message

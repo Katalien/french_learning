@@ -75,12 +75,53 @@ class Media(Model):
     path: str
 
 
+FileClassification = Literal[
+    "theory",
+    "vocabulary",
+    "text",
+    "exercises",
+    "exercises_with_reference",
+    "media",
+    "duplicate",
+    "unrecognized",
+    "skipped",
+]
+
+
+class LessonFile(Model):
+    """Запись журнала обработанных файлов урока (функция 002, data-model)."""
+
+    path: str
+    part: Part
+    sha256: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
+    classification: FileClassification
+    elements: list[Id] = []
+    stored_as: str | None = None
+    note: str | None = None
+
+    @model_validator(mode="after")
+    def _note_when_not_processed(self) -> LessonFile:
+        if self.classification in {"duplicate", "unrecognized", "skipped"} and not self.note:
+            raise ValueError(f"{self.path}: для «{self.classification}» нужен note с причиной")
+        return self
+
+
 class Lesson(Model):
     id: LessonId
     number: int = Field(ge=1)
     date: dt.date | None = None
     source_folder: str
     media: list[Media] = []
+    files: list[LessonFile] = []
+
+    @model_validator(mode="after")
+    def _unique_file_paths(self) -> Lesson:
+        seen: set[str] = set()
+        for entry in self.files:
+            if entry.path in seen:
+                raise ValueError(f"файл {entry.path} повторяется в журнале")
+            seen.add(entry.path)
+        return self
 
 
 class Section(Model):
@@ -124,6 +165,7 @@ class Report(Model):
     created: dt.datetime
     status: Literal["open", "fixed", "rejected"] = "open"
     resolution: str | None = None
+    resolved: dt.datetime | None = None
 
 
 # --- Элементы контента -----------------------------------------------------------------------

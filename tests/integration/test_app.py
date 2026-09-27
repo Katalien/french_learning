@@ -4,9 +4,9 @@ import re
 from pathlib import Path
 
 from fastapi.testclient import TestClient
-from french_learning.web.app import create_app
 
 from french_learning.config import Settings
+from french_learning.web.app import create_app
 
 TEMPLATES = Path(__file__).parents[2] / "src/french_learning/web/templates"
 

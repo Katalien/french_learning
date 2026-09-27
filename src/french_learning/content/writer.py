@@ -95,10 +95,14 @@ class ContentWriter:
             check=False,
         )
 
+    def commit_paths(self, paths: list[str], message: str) -> WriteResult:
+        """Коммит указанных путей (включая удалённые) и попытка отправки."""
+        return self._commit(paths, message)
+
     def _commit(self, paths: list[str], message: str) -> WriteResult:
         if self._git("rev-parse", "--git-dir").returncode != 0:
             return WriteResult(False, False, "хранилище не под git: правка сохранена без истории")
-        self._git("add", "--", *paths)
+        self._git("add", "-A", "--", *paths)
         commit = self._git("commit", "-m", message)
         if commit.returncode != 0:
             return WriteResult(

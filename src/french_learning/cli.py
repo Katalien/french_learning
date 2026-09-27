@@ -11,6 +11,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from french_learning.agent import commands as agent_commands
 from french_learning.config import Settings
 from french_learning.content.loader import load_content
 
@@ -73,8 +74,9 @@ def _demo_init(args: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    if hasattr(sys.stdout, "reconfigure"):
-        sys.stdout.reconfigure(encoding="utf-8")
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(prog="french-learning")
     commands = parser.add_subparsers(dest="command", required=True)
 
@@ -91,8 +93,13 @@ def main(argv: list[str] | None = None) -> int:
     demo.add_argument("--with-broken", action="store_true", help="оставить повреждённый файл")
     demo.set_defaults(handler=_demo_init)
 
+    agent_commands.register(commands)
+
     args = parser.parse_args(argv)
-    return args.handler(args)
+    try:
+        return args.handler(args)
+    except agent_commands.UsageError as exc:
+        return agent_commands.fail(str(exc))
 
 
 if __name__ == "__main__":
