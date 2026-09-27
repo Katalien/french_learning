@@ -99,7 +99,7 @@ contracts/ui-routes.md, quickstart.md
 ## Phase 8: Polish
 
 - [X] T028 [P] Страница настроек `/settings` (размер порции, режим направлений) + тест
-- [ ] T029 [P] Проверка всех новых страниц на 375 px (SC-007)
+- [X] T029 [P] Проверка всех новых страниц на 375 px (SC-007)
 - [X] T030 [P] `CLAUDE.md` (навык `/complete-words`, команда `restore-progress`), `README.md`, `CHANGELOG.md`, `docs/content-format.md`
 - [X] T031 Полный прогон: `ruff`, `check_no_content.py`, `pytest`
 - [ ] T032 Приёмка по quickstart.md с пользователем на словах уроков 13 и 14
