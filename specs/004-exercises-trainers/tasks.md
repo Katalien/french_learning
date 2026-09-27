@@ -148,8 +148,8 @@ contracts/ (ui-routes, cli, trainers-format), quickstart.md
 - [X] T044 [P] Все новые страницы на 375 px (SC-008), доступность форм (подписи полей)
 - [X] T045 [P] `CLAUDE.md` (навыки, команды), `README.md`, `CHANGELOG.md`, `docs/content-format.md`, `docs/roadmap.md`
 - [X] T046 Полный прогон: `ruff`, `check_no_content.py`, `pytest`
-- [ ] T047 Приёмка по quickstart.md с пользователем на уроках 13 и 14, включая замер качества SC-005 из 002
-- [ ] T048 После приёмки: статус 004 → ✅, релиз в CHANGELOG, слияние в `main`, отправка
+- [X] T047 Приёмка по quickstart.md с пользователем на уроках 13 и 14, включая замер качества SC-005 из 002
+- [X] T048 После приёмки: статус 004 → ✅, релиз в CHANGELOG, слияние в `main`, отправка
 
 ---
 
