@@ -1,0 +1,7 @@
+{# Краткая карточка записи в списке. Переменная: e #}
+<a href="/vocab/{{ e.id }}" class="entry-card gender-{{ e.gender or 'none' }}">
+  <span class="entry-fr" lang="fr">{{ display_fr(e) }}</span>
+  {% if e.gender in ("m", "f") %}<span class="gender-label">{{ e.gender }}</span>{% endif %}
+  <span class="entry-ru">{{ e.translations | map(attribute="text") | join(", ") }}</span>
+  {% if e.needs_completion %}<small class="muted">нужно дополнить</small>{% endif %}
+</a>

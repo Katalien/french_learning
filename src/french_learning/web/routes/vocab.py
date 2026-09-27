@@ -172,3 +172,67 @@ def backup_now(request: Request, index: Index):
     if not result.committed and not result.warning:
         return _redirect("/practice?notice=Копия уже актуальна, изменений нет.")
     return redirect_after_write("/practice", result)
+
+
+# --- просмотр словаря (US2) -------------------------------------------------------------------
+
+VOCAB_FILTERS = {
+    "": "все",
+    "known": "«Знаю»",
+    "hidden": "скрытые",
+    "incomplete": "нужно дополнить",
+}
+
+
+@router.get("/vocab")
+def vocab_list(
+    request: Request,
+    index: Index,
+    lesson: str = "",
+    topic: str = "",
+    kind: str = "",
+    filter: str = "",
+    view: str = "cards",
+):
+    cards, _sessions = _practice(request, index)
+    items = vocab_entries.filter_entries(
+        index,
+        lesson=int(lesson) if lesson else None,
+        topic=topic or None,
+        kind=kind or None,
+        flag=filter or None,
+        known_ids=cards.known_ids(),
+    )
+    incomplete = len(vocab_entries.filter_entries(index, flag="incomplete"))
+    context = {
+        "index": index,
+        "items": items,
+        "view": "list" if view == "list" else "cards",
+        "selected": {"lesson": lesson, "topic": topic, "kind": kind, "filter": filter},
+        "filters": VOCAB_FILTERS,
+        "kinds": {"": "все виды", "word": "слова", "verb": "глаголы", "phrase": "фразы"},
+        "lessons": index.lessons(),
+        "topics": index.all_topics(),
+        "incomplete": incomplete,
+        "display_fr": vocab_entries.display_fr,
+    }
+    return templates.TemplateResponse(request, "vocab/list.html", context)
+
+
+@router.get("/vocab/{entry_id}")
+def vocab_entry(request: Request, entry_id: str, index: Index):
+    cards, _sessions = _practice(request, index)
+    entry = index.element(entry_id)
+    if entry is None or entry.kind != "vocab":
+        raise not_found("Слово не найдено")
+    context = {
+        "index": index,
+        "entry": entry,
+        "display_fr": vocab_entries.display_fr,
+        "indefinite": vocab_entries.indefinite(entry),
+        "known": entry_id in cards.known_ids(),
+        "history": cards.history(entry_id),
+        "pos_names": vocab_entries.POS_NAMES,
+        "kind_names": vocab_entries.KIND_NAMES,
+    }
+    return templates.TemplateResponse(request, "vocab/entry.html", context)

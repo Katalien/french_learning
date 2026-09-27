@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% set e = entry %}
+{% block title %}{{ display_fr(e) }}{% endblock %}
+{% block content %}
+<p class="breadcrumbs"><a href="/vocab">Словарь</a> › {{ display_fr(e) }}</p>
+
+<article class="entry gender-{{ e.gender or 'none' }}">
+  <header>
+    <h1 lang="fr">{{ display_fr(e) }}
+      {% if e.gender in ("m", "f") %}<span class="gender-label">{{ e.gender }}</span>{% endif %}
+      <button type="button" class="speak outline small" data-speak="{{ display_fr(e) }}" title="Произнести">🔊</button>
+    </h1>
+    <p class="muted">
+      {{ kind_names[e.entry_type] }}{% if e.pos %} · {{ pos_names.get(e.pos, e.pos) }}{% endif %}
+      {% if indefinite %} · неопр.: {{ indefinite }}{% endif %}
+      {% if known %} · <mark class="badge">знаю</mark>{% endif %}
+      {% if e.hidden %} · <mark class="badge">скрыто</mark>{% endif %}
+    </p>
+  </header>
+  <p class="translations">{{ e.translations | map(attribute="text") | join(", ") }}</p>
+
+  <details class="entry-extra">
+    <summary>Подробнее</summary>
+    {% if e.needs_completion %}<p class="muted">Нужно дополнить: формы и спряжение заполнит агент по команде «/complete-words».</p>{% endif %}
+    {% if e.forms.feminine or e.forms.plural or e.forms.note %}
+      <h3>Формы</h3>
+      <ul>
+        {% if e.forms.feminine %}<li>женский род: <span lang="fr">{{ e.forms.feminine }}</span></li>{% endif %}
+        {% if e.forms.plural %}<li>множественное число: <span lang="fr">{{ e.forms.plural }}</span></li>{% endif %}
+        {% if e.forms.note %}<li>{{ e.forms.note }}</li>{% endif %}
+      </ul>
+    {% endif %}
+    {% if e.verb %}
+      <h3>Глагол{% if e.verb.group %}, {{ e.verb.group }} группа{% endif %}</h3>
+      {% for tense, forms in e.verb.conjugation.items() %}
+        <p class="muted">{{ {"present": "настоящее время"}.get(tense, tense) }}</p>
+        <table class="conjugation" lang="fr">
+          {% for pronoun, form in forms.items() %}<tr><td>{{ pronoun }}</td><td>{{ form }}</td></tr>{% endfor %}
+        </table>
+      {% endfor %}
+    {% endif %}
+    {% if e.notes %}<h3>Заметки</h3><p>{{ e.notes }}</p>{% endif %}
+    <h3>Уроки</h3>
+    <p>{% if e.lessons %}{{ e.lessons | join(", ") }}{% else %}добавлено вручную{% endif %}</p>
+    {% if e.examples %}<h3>Пример</h3><p lang="fr">{{ e.examples[0].text }}</p>{% endif %}
+    <h3>Повторения</h3>
+    <p>{% if history %}{{ history | length }} (последнее: {{ history[-1].reviewed_at[:10] }}){% else %}ещё не было{% endif %}</p>
+  </details>
+</article>
+
+<script src="/static/js/speech.js" defer></script>
+{% endblock %}

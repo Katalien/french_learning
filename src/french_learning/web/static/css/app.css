@@ -128,3 +128,21 @@ table { display: block; overflow-x: auto; }
 .rating-hard { background: #ef6c00; border-color: #ef6c00; }
 .rating-good { background: #2e7d32; border-color: #2e7d32; }
 .practice-setup fieldset label { display: block; }
+
+/* Словарь */
+.vocab-filters { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.vocab-filters select, .vocab-filters button { width: auto; margin: 0; }
+.entry-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.6rem; }
+.entry-card { display: flex; flex-direction: column; padding: 0.7rem; border-radius: 0.6rem; border: 1px solid var(--pico-muted-border-color); border-left: 5px solid var(--neutral); text-decoration: none; }
+.entry-card.gender-m, .entry.gender-m { border-left-color: var(--masc); }
+.entry-card.gender-f, .entry.gender-f { border-left-color: var(--fem); }
+.entry-card.gender-both, .entry.gender-both { border-left-color: #7b1fa2; }
+.entry { border-left: 6px solid var(--neutral); }
+.entry-fr { font-weight: 700; }
+.entry-ru { color: var(--pico-muted-color); font-size: 0.9rem; }
+.gender-label { font-size: 0.7rem; font-weight: 700; padding: 0.05rem 0.35rem; border-radius: 0.3rem; color: #fff; background: var(--neutral); vertical-align: middle; align-self: flex-start; }
+.gender-m .gender-label { background: var(--masc); }
+.gender-f .gender-label { background: var(--fem); }
+.translations { font-size: 1.2rem; }
+.speak { padding: 0.1rem 0.5rem; vertical-align: middle; }
+.conjugation { max-width: 20rem; }
