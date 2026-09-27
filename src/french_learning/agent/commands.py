@@ -185,6 +185,30 @@ def _restore_progress(args) -> int:
     return 0
 
 
+def _trainers_list(args) -> int:
+    from french_learning.agent.trainers import trainers_list
+
+    emit(trainers_list(_readable(args)))
+    return 0
+
+
+def _trainer_context(args) -> int:
+    from french_learning.agent.trainers import TrainerNotFound, trainer_context
+
+    try:
+        emit(trainer_context(_readable(args), args.trainer))
+    except TrainerNotFound as exc:
+        return fail(str(exc))
+    return 0
+
+
+def _mistakes_list(args) -> int:
+    from french_learning.agent.trainers import mistakes_list
+
+    emit(mistakes_list(_readable(args), args.trainer, args.lesson))
+    return 0
+
+
 def register(commands) -> None:
     """Добавить команды агента в парсер `french-learning`."""
 
@@ -199,7 +223,7 @@ def register(commands) -> None:
     p.add_argument("folder")
 
     p = add("new-ids", _new_ids, "новые уникальные идентификаторы")
-    p.add_argument("prefix", choices=["les", "th", "tx", "ex", "voc", "top", "rep"])
+    p.add_argument("prefix", choices=["les", "th", "tx", "ex", "voc", "top", "rep", "tb"])
     p.add_argument("--count", type=int, default=1)
 
     p = add("stage-check", _stage_check, "проверить черновик вместе с хранилищем")
@@ -245,3 +269,12 @@ def register(commands) -> None:
 
     p = add("quality-sample", _quality_sample, "чек-лист для сверки качества (SC-005)")
     p.add_argument("--lesson", type=int, action="append", required=True)
+
+    add("trainers-list", _trainers_list, "каталог тренажёров и заданий в пулах")
+
+    p = add("trainer-context", _trainer_context, "всё для генерации заданий тренажёра")
+    p.add_argument("trainer")
+
+    p = add("mistakes-list", _mistakes_list, "ошибки в тренажёре и в упражнениях уроков")
+    p.add_argument("--trainer")
+    p.add_argument("--lesson", type=int)

@@ -45,3 +45,15 @@ def test_missing_data_messages(clean_content_root: Path):
             assert trainer.missing, trainer.id
     assert get_trainer(index, "numbers").questions(empty)
     assert get_trainer(index, "unknown") is None
+
+
+def test_own_trainer_without_code_change(clean_content_root: Path):
+    # SC-007: запись в каталоге с существующим типом → тренажёр доступен
+    (clean_content_root / "trainers.yaml").write_text(
+        "trainers:\n"
+        "  - {id: est-ce-que, name: Вопросы с est-ce que, description: d,"
+        " exercise_type: transform, rules: r}\n",
+        encoding="utf-8",
+    )
+    trainer = get_trainer(index_of(clean_content_root), "est-ce-que")
+    assert trainer is not None and trainer.source == "agent" and trainer.progress == "stats"

@@ -140,10 +140,14 @@ def _page(request: Request, index: ContentIndex, session_id: str, **extra):
         **extra,
     }
     if "result" in extra:
+        q = extra.get("q")
+        if q is not None and q.source and q.source.startswith("tb-"):
+            item = q.key.rsplit(":", 1)[1]
+            context["report_url"] = f"/trainers/tasks/{q.source}/{item}/report"
         return templates.TemplateResponse(request, "trainers/result.html", context)
     if key is None or key not in questions:
         if key is not None:  # вопрос исчез (слово удалено) — пропустить
-            sessions.record(session_id, key, correct=False, answer=None, srs=False)
+            sessions.skip(session_id)
             return _page(request, index, session_id, **extra)
         return templates.TemplateResponse(request, "trainers/summary.html", context)
     context["q"] = questions[key]
@@ -252,3 +256,52 @@ def trainer_continue(request: Request, session_id: str, index: Index):
     keys = [q.key for q in _scoped(list(questions.values()), params, hard)]
     sessions.continue_with(session_id, keys)
     return RedirectResponse(f"/trainers/s/{session_id}", status_code=303)
+
+
+@router.get("/trainers/{trainer_id}/mistakes")
+def trainer_mistakes(request: Request, trainer_id: str, index: Index):
+    from french_learning.trainers.pools import pool_mistakes
+
+    trainer = _trainer(index, trainer_id)
+    found = pool_mistakes(index, request.app.state.trainer_schedule, trainer.id)
+    context = {"index": index, "trainer": trainer, "mistakes": found}
+    return templates.TemplateResponse(request, "trainers/mistakes.html", context)
+
+
+@router.get("/trainers/{trainer_id}/stats")
+def trainer_stats(request: Request, trainer_id: str, index: Index):
+    from french_learning.trainers.pools import pool_stats
+
+    trainer = _trainer(index, trainer_id)
+    stats = pool_stats(index, request.app.state.trainer_schedule, trainer.id)
+    context = {"index": index, "trainer": trainer, "stats": stats}
+    return templates.TemplateResponse(request, "trainers/stats.html", context)
+
+
+@router.post("/trainers/tasks/{batch_id}/{item_id}/report")
+def report_task(
+    request: Request,
+    batch_id: str,
+    item_id: int,
+    index: Index,
+    comment: Annotated[str, Form()] = "",
+):
+    """«Не согласна» у задания пакета: сообщение об ошибке для агента (Edge Cases)."""
+    from french_learning.content.writer import WriteError
+    from french_learning.web.routes.topics import redirect_after_write, writer
+    from french_learning.web.routes.trust import REPORT_REMINDER
+
+    batch = index.batch(batch_id)
+    if batch is None:
+        raise not_found("Задание не найдено")
+    back = f"/trainers/{batch.trainer}"
+    try:
+        _report, result = writer(request).create_report(batch_id, item_id, comment)
+    except WriteError as exc:
+        return redirect_after_write(back, error=str(exc))
+    notice = REPORT_REMINDER
+    if result.warning:
+        notice += f" {result.warning[0].upper()}{result.warning[1:]}."
+    from urllib.parse import urlencode
+
+    return RedirectResponse(f"{back}?{urlencode({'notice': notice})}", status_code=303)

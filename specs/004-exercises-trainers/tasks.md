@@ -123,12 +123,12 @@ contracts/ (ui-routes, cli, trainers-format), quickstart.md
 **Independent Test**: quickstart, сценарии 8–9.
 
 - [X] T035 [P] [US5] Тесты `tests/unit/trainers/test_pools.py`: пул = задания минус верно решённые; неверное остаётся и попадает в «Ошибки»; пустой пул; статистика (доля верных, по дням, типичные ошибки; подсмотрено = ошибка); FSRS не ведётся
-- [ ] T036 [US5] Реализовать `src/french_learning/trainers/pools.py`, сеансы для пакетов в `sessions.py` — тесты T035 проходят
-- [ ] T037 [P] [US5] Интеграционные тесты `tests/integration/test_trainers_pool.py`: решение заданий пакета (подсказки `new_words` видны), «в пуле N», `/trainers/{id}/mistakes`, `/stats`, пустой пул с командой агента, «Не согласна» у задания пакета (`tb-…` в сообщении)
-- [ ] T038 [US5] Маршруты и шаблоны пула, ошибок, статистики — тесты T037 проходят
-- [ ] T039 [P] [US5] Тесты `tests/integration/test_agent_cli.py`: `trainers-list`, `trainer-context <id>` (правила, словарь, темы пройденных уроков, существующие задания), `mistakes-list --trainer / --lesson`; пакет через черновик проходит `stage-check` и `commit-staging`
-- [ ] T040 [US5] Реализовать команды в `src/french_learning/agent/commands.py`, описать в `specs/004-exercises-trainers/contracts/cli.md` — тесты T039 проходят
-- [ ] T041 [US5] Навыки `.claude/skills/generate-tasks/SKILL.md` и `.claude/skills/explain-mistakes/SKILL.md` (правила: лексика словаря и пройденных уроков, ≤ 2 новых слов с переводом, `origin: ai`, `needs_review` при сомнениях, только по просьбе)
+- [X] T036 [US5] Реализовать `src/french_learning/trainers/pools.py`, сеансы для пакетов в `sessions.py` — тесты T035 проходят
+- [X] T037 [P] [US5] Интеграционные тесты `tests/integration/test_trainers_pool.py`: решение заданий пакета (подсказки `new_words` видны), «в пуле N», `/trainers/{id}/mistakes`, `/stats`, пустой пул с командой агента, «Не согласна» у задания пакета (`tb-…` в сообщении)
+- [X] T038 [US5] Маршруты и шаблоны пула, ошибок, статистики — тесты T037 проходят
+- [X] T039 [P] [US5] Тесты `tests/integration/test_agent_cli.py`: `trainers-list`, `trainer-context <id>` (правила, словарь, темы пройденных уроков, существующие задания), `mistakes-list --trainer / --lesson`; пакет через черновик проходит `stage-check` и `commit-staging`
+- [X] T040 [US5] Реализовать команды в `src/french_learning/agent/commands.py`, описать в `specs/004-exercises-trainers/contracts/cli.md` — тесты T039 проходят
+- [X] T041 [US5] Навыки `.claude/skills/generate-tasks/SKILL.md` и `.claude/skills/explain-mistakes/SKILL.md` (правила: лексика словаря и пройденных уроков, ≤ 2 новых слов с переводом, `origin: ai`, `needs_review` при сомнениях, только по просьбе)
 
 ---
 
@@ -138,8 +138,8 @@ contracts/ (ui-routes, cli, trainers-format), quickstart.md
 
 **Independent Test**: quickstart, сценарий 8 (начало).
 
-- [ ] T042 [P] [US6] Тест: запись в `trainers.yaml` с существующим типом → тренажёр во вкладке и в `trainers-list` без изменения кода (SC-007); переопределение встроенного `source: agent` → задания из пула
-- [ ] T043 [US6] Навык `.claude/skills/add-trainer/SKILL.md` (запись через черновик; новый тип — сообщить о доработке, не добавлять)
+- [X] T042 [P] [US6] Тест: запись в `trainers.yaml` с существующим типом → тренажёр во вкладке и в `trainers-list` без изменения кода (SC-007); переопределение встроенного `source: agent` → задания из пула
+- [X] T043 [US6] Навык `.claude/skills/add-trainer/SKILL.md` (запись через черновик; новый тип — сообщить о доработке, не добавлять)
 
 ---
 

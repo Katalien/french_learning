@@ -127,6 +127,12 @@ class TrainerSessions:
         state["correct"] += int(correct and not revealed)
         self._save(session_id, state)
 
+    def skip(self, session_id: str) -> None:
+        """Пропустить вопрос, которого больше нет (слово удалено), без записи ответа."""
+        state = self._load(session_id)
+        state["queue"].pop(state["position"])
+        self._save(session_id, state)
+
     def continue_with(self, session_id: str, keys: list[str]) -> None:
         state = self._load(session_id)
         state["params"]["seen"] = self.seen(session_id)

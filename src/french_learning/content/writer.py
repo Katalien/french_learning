@@ -289,7 +289,11 @@ class ContentWriter:
         """Сообщение об ошибке (FR-042); разбирает агент (функция 002)."""
         if not comment.strip():
             raise WriteError("опишите, что не так")
-        self._element(element_id)
+        if element_id.startswith("tb-"):
+            if element_id not in self._content().batches:
+                raise WriteError(f"пакет заданий {element_id} не найден")
+        else:
+            self._element(element_id)
         report = schema.Report(
             id=new_id("rep"),
             element=element_id,
