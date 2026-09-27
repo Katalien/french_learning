@@ -52,14 +52,14 @@ contracts/ui-routes.md, quickstart.md
 
 ### Tests ⚠️
 
-- [ ] T012 [P] [US1] Тесты в `tests/unit/vocab/test_sessions.py`: сеанс из словаря — порции по N из настроек, после порции итог и «продолжить / закончить»; из урока — все карточки урока одной очередью; режимы today / lesson / topic / all / hard и вид word / verb / phrase / all; направление; «пора сегодня» включает новые без ограничения и показывает число до начала; нет карточек → сообщение; закрытие посреди сеанса — оценки сохранены (FR-035c); «Отменить» — только последняя оценка текущего сеанса: состояние карточки восстановлено, запись оценки удалена, позиция −1
-- [ ] T013 [P] [US1] Интеграционные тесты в `tests/integration/test_vocab_practice.py`: `GET /practice` → `POST /practice/start` → карточка без ответа → `show` → ответ и кнопки оценок (оценки до показа недоступны) → `rate` → следующая карточка; `undo`; `GET /lessons/14/practice`-аналог на образце (`/lessons/1/practice`) запускает все слова урока
+- [X] T012 [P] [US1] Тесты в `tests/unit/vocab/test_sessions.py`: сеанс из словаря — порции по N из настроек, после порции итог и «продолжить / закончить»; из урока — все карточки урока одной очередью; режимы today / lesson / topic / all / hard и вид word / verb / phrase / all; направление; «пора сегодня» включает новые без ограничения и показывает число до начала; нет карточек → сообщение; закрытие посреди сеанса — оценки сохранены (FR-035c); «Отменить» — только последняя оценка текущего сеанса: состояние карточки восстановлено, запись оценки удалена, позиция −1
+- [X] T013 [P] [US1] Интеграционные тесты в `tests/integration/test_vocab_practice.py`: `GET /practice` → `POST /practice/start` → карточка без ответа → `show` → ответ и кнопки оценок (оценки до показа недоступны) → `rate` → следующая карточка; `undo`; `GET /lessons/14/practice`-аналог на образце (`/lessons/1/practice`) запускает все слова урока
 
 ### Implementation
 
-- [ ] T014 [US1] Реализовать `src/french_learning/vocab/sessions.py` — тесты T012 проходят
-- [ ] T015 [US1] Маршруты повторения в `src/french_learning/web/routes/vocab.py` и шаблоны `templates/vocab/practice_setup.html`, `practice_card.html`, `practice_summary.html`; кнопка «Повторить лексику урока» в `templates/theory.html` — тесты T013 проходят
-- [ ] T016 [US1] Резервная копия прогресса (FR-053, FR-053a): тесты в `tests/unit/practice/test_backup.py` (дамп в `backups/progress.sql`, восстановление из дампа без потерь (SC-006), ежедневный запуск — один раз в день, коммит + отправка в фоне, без сети — дата последней успешной отправки не меняется, работа не блокируется) → реализация `src/french_learning/practice/backup.py`, `POST /backup`, запуск при первом запросе дня, команда `french-learning restore-progress`
+- [X] T014 [US1] Реализовать `src/french_learning/vocab/sessions.py` — тесты T012 проходят
+- [X] T015 [US1] Маршруты повторения в `src/french_learning/web/routes/vocab.py` и шаблоны `templates/vocab/practice_setup.html`, `practice_card.html`, `practice_summary.html`; кнопка «Повторить лексику урока» в `templates/theory.html` — тесты T013 проходят
+- [X] T016 [US1] Резервная копия прогресса (FR-053, FR-053a): тесты в `tests/unit/practice/test_backup.py` (дамп в `backups/progress.sql`, восстановление из дампа без потерь (SC-006), ежедневный запуск — один раз в день, коммит + отправка в фоне, без сети — дата последней успешной отправки не меняется, работа не блокируется) → реализация `src/french_learning/practice/backup.py`, `POST /backup`, запуск при первом запросе дня, команда `french-learning restore-progress`
 
 **Checkpoint**: повторение работает на словах уроков 13 и 14 — показ пользователю
 

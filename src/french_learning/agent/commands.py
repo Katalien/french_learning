@@ -173,6 +173,18 @@ def _quality_sample(args) -> int:
     return 0
 
 
+def _restore_progress(args) -> int:
+    from french_learning.practice.backup import BACKUP_PATH, restore
+
+    root = _readable(args)
+    source = Path(args.source) if args.source else root / BACKUP_PATH
+    if not source.is_file():
+        return fail(f"копия не найдена: {source}")
+    database = restore(root, source)
+    print(f"Прогресс восстановлен из {source} в {database} (прежний файл — .bak)", file=sys.stderr)
+    return 0
+
+
 def register(commands) -> None:
     """Добавить команды агента в парсер `french-learning`."""
 
@@ -227,6 +239,9 @@ def register(commands) -> None:
     p.add_argument("report")
     p.add_argument("status", choices=["fixed", "rejected"])
     p.add_argument("--resolution", required=True)
+
+    p = add("restore-progress", _restore_progress, "восстановить прогресс из резервной копии")
+    p.add_argument("--source", help="файл SQL-дампа (по умолчанию backups/progress.sql)")
 
     p = add("quality-sample", _quality_sample, "чек-лист для сверки качества (SC-005)")
     p.add_argument("--lesson", type=int, action="append", required=True)

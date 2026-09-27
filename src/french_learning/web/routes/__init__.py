@@ -1,6 +1,14 @@
 """Маршруты приложения (contracts/ui-routes.md)."""
 
-from french_learning.web.routes import elements, lessons, problems, sources, topics, trust
+from french_learning.web.routes import (
+    elements,
+    lessons,
+    problems,
+    sources,
+    topics,
+    trust,
+    vocab,
+)
 
 ALL = [
     lessons.router,
@@ -9,4 +17,5 @@ ALL = [
     sources.router,
     topics.router,
     trust.router,
+    vocab.router,
 ]

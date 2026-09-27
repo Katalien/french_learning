@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Повторение{% endblock %}
+{% block content %}
+<p class="breadcrumbs"><a href="/vocab">Словарь</a> › Повторение</p>
+<h1>Повторение</h1>
+<p>Карточек к повторению: {{ today_count }} <span class="muted">(сегодня, французский → русский)</span></p>
+
+<form method="post" action="/practice/start" class="practice-setup" x-data="{ mode: 'today' }">
+  <fieldset>
+    <legend>Что повторять</legend>
+    {% for key, name in modes.items() %}
+      <label><input type="radio" name="mode" value="{{ key }}" x-model="mode" {% if loop.first %}checked{% endif %}> {{ name }}</label>
+    {% endfor %}
+  </fieldset>
+  <label x-show="mode === 'lesson'" x-cloak>Урок
+    <select name="lesson">{% for l in lessons %}<option value="{{ l.number }}">Урок {{ l.number }}</option>{% endfor %}</select>
+  </label>
+  <label x-show="mode === 'topic'" x-cloak>Тема
+    <select name="topic">{% for t in topics %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}</select>
+  </label>
+  <label>Вид
+    <select name="kind">{% for key, name in kinds.items() %}<option value="{{ key }}">{{ name }}</option>{% endfor %}</select>
+  </label>
+  <label>Направление
+    <select name="direction">{% for key, name in directions.items() %}<option value="{{ key }}">{{ name }}</option>{% endfor %}</select>
+  </label>
+  <label><input type="checkbox" name="method" value="input" role="switch"> Вводить ответ (вместо самооценки)</label>
+  <button type="submit">Начать</button>
+</form>
+
+<details class="edit-block">
+  <summary>Резервная копия прогресса</summary>
+  <p>Копия сохраняется в хранилище и отправляется на GitHub автоматически раз в день.
+    Последняя отправленная: {{ last_backup or "ещё не было" }}.</p>
+  <form method="post" action="/backup"><button type="submit" class="outline">Сделать копию сейчас</button></form>
+</details>
+{% endblock %}

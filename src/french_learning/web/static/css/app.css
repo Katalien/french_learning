@@ -113,3 +113,18 @@ table { display: block; overflow-x: auto; }
 /* Шапка на узком экране: пункты меню переносятся, ничего не обрезается */
 .site-header nav ul { flex-wrap: wrap; }
 .site-header nav ul:last-child { margin-right: 0; }
+
+/* Карточки повторения; род — цветом и меткой (003) */
+:root { --masc: #1565c0; --fem: #c2185b; --neutral: #616161; }
+.flashcard { text-align: center; border-top: 6px solid var(--neutral); }
+.flashcard.gender-m { border-top-color: var(--masc); }
+.flashcard.gender-f { border-top-color: var(--fem); }
+.flashcard.gender-both { border-top-color: #7b1fa2; }
+.flashcard .question { font-size: 1.8rem; font-weight: 700; margin: 1rem 0 0.25rem; }
+.flashcard .answer { font-size: 1.4rem; }
+.ratings { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+.ratings button { flex: 1 1 8rem; }
+.rating-again { background: #c62828; border-color: #c62828; }
+.rating-hard { background: #ef6c00; border-color: #ef6c00; }
+.rating-good { background: #2e7d32; border-color: #2e7d32; }
+.practice-setup fieldset label { display: block; }

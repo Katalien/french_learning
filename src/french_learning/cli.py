@@ -28,7 +28,7 @@ def _serve(args: argparse.Namespace) -> int:
     settings = Settings()
     if args.content_dir:
         settings.content_dir = Path(args.content_dir)
-    app = create_app(settings)
+    app = create_app(settings, auto_backup=True)
     print(f"Приложение: http://{settings.host}:{settings.port}")
     _run_server(app, settings.host, settings.port)
     return 0
