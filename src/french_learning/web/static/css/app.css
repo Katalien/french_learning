@@ -213,3 +213,4 @@ table { display: block; overflow-x: auto; }
 .trainer-score { font-size: 1.4rem; }
 .trainer-task .answer-form input[name="answer"] { max-width: 24rem; margin: 0 auto 0.75rem; display: block; }
 .trainer-task .symbol-panel { justify-content: center; }
+.status-form { max-width: 20rem; margin-top: 1rem; }

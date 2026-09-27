@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Form, Request
 from fastapi.responses import RedirectResponse
 
 from french_learning.content.index import ContentIndex
@@ -174,3 +174,41 @@ def mistake_attempt(request: Request, attempt_id: int, index: Index):
     exercise = _exercise(index, attempt.exercise_id)
     context = {"index": index, **solve_context(request, exercise, attempt)}
     return templates.TemplateResponse(request, "exercises/mistake.html", context)
+
+
+@router.post("/exercises/{exercise_id}/items/{item_id}/report")
+async def report_item(request: Request, exercise_id: str, item_id: int, index: Index):
+    """«Не согласна с ответом» (FR-030): сообщение агенту, ответы в форме сохраняются."""
+    from french_learning.content.writer import WriteError
+    from french_learning.web.routes.topics import writer
+    from french_learning.web.routes.trust import REPORT_REMINDER
+
+    exercise = _exercise(index, exercise_id)
+    form = await request.form()
+    comment = str(form.get(f"comment-{item_id}") or form.get("comment") or "")
+    answers, attempt_id = await form_answers(request, exercise)
+    store = attempts(request)
+    attempt = _own_attempt(store, exercise, attempt_id) or store.current(exercise.id)
+    if attempt is not None and answers:
+        attempt.answers = answers
+    try:
+        _report, result = writer(request).create_report(exercise.id, item_id, comment)
+        notice = REPORT_REMINDER
+        if result.warning:
+            notice += f" {result.warning[0].upper()}{result.warning[1:]}."
+    except WriteError as exc:
+        notice = f"Сообщение не отправлено: {exc}."
+    return _respond(request, exercise, attempt, notice=notice)
+
+
+@router.post("/exercises/{exercise_id}/status")
+def change_status(request: Request, exercise_id: str, index: Index, status: str = Form("main")):
+    from french_learning.content.writer import WriteError
+    from french_learning.web.routes.topics import redirect_after_write, writer
+
+    _exercise(index, exercise_id)
+    try:
+        result = writer(request).set_exercise_status(exercise_id, status)
+    except WriteError as exc:
+        return redirect_after_write(f"/elements/{exercise_id}", error=str(exc))
+    return redirect_after_write(f"/elements/{exercise_id}", result)

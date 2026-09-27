@@ -44,6 +44,16 @@
   </p>
 {% endif %}
 {% include "partials/element_actions.html" %}
+{% if e.kind == "exercise" and solve_mode %}
+  <form method="post" action="/exercises/{{ e.id }}/status" class="status-form">
+    <label>Статус упражнения
+      <select name="status" onchange="this.form.requestSubmit()">
+        {% for key, name in STATUS_NAMES.items() %}<option value="{{ key }}" {% if e.status == key %}selected{% endif %}>{{ name }}</option>{% endfor %}
+      </select>
+    </label>
+    <noscript><button type="submit" class="small">Сохранить</button></noscript>
+  </form>
+{% endif %}
 {% include "partials/report_form.html" %}
 
 <details class="edit-block">

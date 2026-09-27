@@ -34,6 +34,7 @@ BatchId = _id("tb")
 Part = Literal["class", "homework"]
 Origin = Literal["material", "external", "user", "ai", "service"]
 Status = Literal["main", "optional", "reserve"]
+STATUS_VALUES = ("main", "optional", "reserve")
 
 GAP_RE = re.compile(r"\{\{(\d+)\}\}")
 

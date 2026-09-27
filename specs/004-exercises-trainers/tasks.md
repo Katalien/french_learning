@@ -111,8 +111,8 @@ contracts/ (ui-routes, cli, trainers-format), quickstart.md
 
 **Independent Test**: quickstart, сценарий 6.
 
-- [ ] T033 [P] [US3] Тесты: `tests/unit/test_writer.py` — `set_exercise_status` меняет YAML, коммит; `tests/integration/test_exercise_report_status.py` — «Не согласна» создаёт сообщение с пунктом, напоминание, происхождение ответа видно при выключенном переключателе; смена статуса пересчитывает счётчики урока и переносит упражнение в список
-- [ ] T034 [US3] Реализовать `ContentWriter.set_exercise_status`, маршруты `/exercises/{id}/status` и `/exercises/{id}/items/{item}/report`, формы — тесты T033 проходят
+- [X] T033 [P] [US3] Тесты: `tests/unit/test_writer.py` — `set_exercise_status` меняет YAML, коммит; `tests/integration/test_exercise_report_status.py` — «Не согласна» создаёт сообщение с пунктом, напоминание, происхождение ответа видно при выключенном переключателе; смена статуса пересчитывает счётчики урока и переносит упражнение в список
+- [X] T034 [US3] Реализовать `ContentWriter.set_exercise_status`, маршруты `/exercises/{id}/status` и `/exercises/{id}/items/{item}/report`, формы — тесты T033 проходят
 
 ---
 
@@ -122,7 +122,7 @@ contracts/ (ui-routes, cli, trainers-format), quickstart.md
 
 **Independent Test**: quickstart, сценарии 8–9.
 
-- [ ] T035 [P] [US5] Тесты `tests/unit/trainers/test_pools.py`: пул = задания минус верно решённые; неверное остаётся и попадает в «Ошибки»; пустой пул; статистика (доля верных, по дням, типичные ошибки; подсмотрено = ошибка); FSRS не ведётся
+- [X] T035 [P] [US5] Тесты `tests/unit/trainers/test_pools.py`: пул = задания минус верно решённые; неверное остаётся и попадает в «Ошибки»; пустой пул; статистика (доля верных, по дням, типичные ошибки; подсмотрено = ошибка); FSRS не ведётся
 - [ ] T036 [US5] Реализовать `src/french_learning/trainers/pools.py`, сеансы для пакетов в `sessions.py` — тесты T035 проходят
 - [ ] T037 [P] [US5] Интеграционные тесты `tests/integration/test_trainers_pool.py`: решение заданий пакета (подсказки `new_words` видны), «в пуле N», `/trainers/{id}/mistakes`, `/stats`, пустой пул с командой агента, «Не согласна» у задания пакета (`tb-…` в сообщении)
 - [ ] T038 [US5] Маршруты и шаблоны пула, ошибок, статистики — тесты T037 проходят
