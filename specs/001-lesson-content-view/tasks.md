@@ -216,7 +216,7 @@ PDF; лексика разделена; «Тексты» → текст со с�
 - [X] T061 Пройти quickstart.md на демо-хранилище `C:\Users\Kate\source\french_learning_demo` (создаётся T057) и исправить найденное
 - [X] T062 [P] Обновить `CLAUDE.md`, раздел «Команды»: `uv sync`, `uv run french-learning serve`, `uv run french-learning validate-content`, `uv run pytest`, `uv run ruff check .`
 - [X] T063 [P] Обновить `README.md` (установка, настройка `.env`, запуск, проверка контента, демо) и `CHANGELOG.md` (что появилось в 001)
-- [ ] T064 После приёмки пользователем: статус функции 001 в `docs/roadmap.md` 🛠 → ✅; слить ветку `001-lesson-content-view` в `main` при проходящих тестах и отправить `main` на GitHub (конституция, «Контроль качества»: слияние только после приёмки)
+- [X] T064 После приёмки пользователем: статус функции 001 в `docs/roadmap.md` 🛠 → ✅; слить ветку `001-lesson-content-view` в `main` при проходящих тестах и отправить `main` на GitHub (конституция, «Контроль качества»: слияние только после приёмки)
 
 ---
 
