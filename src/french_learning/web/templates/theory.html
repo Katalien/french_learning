@@ -27,6 +27,7 @@
 {% if new_words or repeat_words %}
   <article class="vocab">
     <header><h2>Лексика урока</h2></header>
+    <p><a href="/lessons/{{ summary.number }}/practice" role="button">Повторить лексику урока</a></p>
     {% include "partials/vocab_list.html" %}
   </article>
 {% endif %}

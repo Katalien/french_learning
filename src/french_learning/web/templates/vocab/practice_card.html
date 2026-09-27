@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Повторение{% endblock %}
+{% block content %}
+<p class="breadcrumbs"><a href="/practice">Повторение</a> › {{ mode_name }} · {{ direction_name }}</p>
+<p class="muted">Карточка {{ progress.number }} из {{ progress.total }}</p>
+
+<article class="flashcard gender-{{ entry.gender or 'none' }}">
+  <p class="question" lang="{{ 'fr' if direction == 'fr_ru' else 'ru' }}">{{ question.text }}
+    {% if direction == 'fr_ru' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}</p>
+  {% if question.hint %}<p class="muted hint">{{ question.hint }}</p>{% endif %}
+
+  {% if shown or result is defined %}
+    <hr>
+    <p class="answer" lang="{{ 'ru' if direction == 'fr_ru' else 'fr' }}">{{ answers | join(", ") }}
+      {% if direction == 'ru_fr' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}</p>
+  {% endif %}
+
+  {% block answer_area %}
+    {% if params.method == "input" and not shown %}
+      {% include "vocab/partials/answer_input.html" %}
+    {% elif not shown %}
+      <form method="post" action="/practice/{{ session_id }}/show">
+        <button type="submit">Показать</button>
+      </form>
+    {% else %}
+      <form method="post" action="/practice/{{ session_id }}/rate" class="ratings">
+        {% for key, name in ratings.items() %}
+          <button type="submit" name="rating" value="{{ key }}" class="rating-{{ key }}">{{ name }}</button>
+        {% endfor %}
+      </form>
+    {% endif %}
+  {% endblock %}
+</article>
+
+{% if can_undo %}
+  <form method="post" action="/practice/{{ session_id }}/undo">
+    <button type="submit" class="outline secondary small">Отменить последнюю оценку</button>
+  </form>
+{% endif %}
+{% endblock %}

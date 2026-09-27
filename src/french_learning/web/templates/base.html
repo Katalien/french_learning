@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Французский{% endblock %} · French Learning</title>
   <link rel="stylesheet" href="/static/vendor/pico.min.css">
-  <link rel="stylesheet" href="/static/css/app.css">
+  <link rel="stylesheet" href="/static/css/app.css?v={{ asset_version('css/app.css') }}">
   <script src="/static/vendor/htmx.min.js" defer></script>
   <script src="/static/vendor/alpine.min.js" defer></script>
+  <script src="/static/js/speech.js?v={{ asset_version('js/speech.js') }}" defer></script>
 </head>
 <body>
   <header class="container site-header">
@@ -15,6 +16,7 @@
       <ul><li><a href="/" class="brand">🇫🇷 Французский</a></li></ul>
       <ul>
         <li><a href="/">Уроки</a></li>
+        <li><a href="/vocab">Словарь</a></li>
         <li><a href="/topics">Темы</a></li>
         <li><a href="/extras">Доп. материалы</a></li>
         <li><a href="/review">Проверка</a></li>

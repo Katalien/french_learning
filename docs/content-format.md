@@ -220,3 +220,10 @@ files:
 
 `lessons/NNN/inventory.md` и `index.md` генерируются командой `build-archive`
 (вызывается `commit-staging` автоматически). Руками не править.
+
+## Дополнения функции 003
+
+- У лексики необязательные поля `hidden: true` (запись из урока скрыта пользователем)
+  и `completed_by_ai: [gender, article, forms, verb, pos]` (какие поля заполнил агент).
+- Прогресс повторения — `.progress/progress.sqlite` (не в git), резервная копия —
+  `backups/progress.sql` (в git, коммитится раз в день и по кнопке).

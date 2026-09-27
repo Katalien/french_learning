@@ -1,0 +1,25 @@
+{# Ввод ответа: поле, панель французских символов, выбор написания (FR-040–FR-042) #}
+{% if choose %}
+  <p><strong>Выберите правильное написание</strong> <span class="muted">(вы ввели: {{ given }})</span></p>
+  <form method="post" action="/practice/{{ session_id }}/spelling" class="spelling-choice">
+    <input type="hidden" name="answer" value="{{ given }}">
+    {% for variant in choose %}
+      <button type="submit" name="choice" value="{{ variant }}" class="outline" lang="fr">{{ variant }}</button>
+    {% endfor %}
+  </form>
+{% else %}
+  <form method="post" action="/practice/{{ session_id }}/answer" class="answer-form"
+        x-data="{ insert(ch) { const f = this.$refs.answer; const s = f.selectionStart ?? f.value.length, e = f.selectionEnd ?? s; f.value = f.value.slice(0, s) + ch + f.value.slice(e); f.focus(); f.setSelectionRange(s + ch.length, s + ch.length); } }">
+    <input name="answer" x-ref="answer" autocomplete="off" autofocus required
+           lang="{{ 'ru' if direction == 'fr_ru' else 'fr' }}"
+           placeholder="{{ 'перевод на русском' if direction == 'fr_ru' else 'по-французски, с артиклем' }}">
+    {% if direction == "ru_fr" %}
+      <div class="symbol-panel" aria-label="Французские символы">
+        {% for ch in symbols %}<button type="button" class="symbol" data-char="{{ ch }}" @click="insert('{{ ch }}')">{{ ch }}</button>{% endfor %}
+      </div>
+    {% else %}
+      <div class="symbol-panel" hidden>{% for ch in symbols %}<span data-char="{{ ch }}"></span>{% endfor %}</div>
+    {% endif %}
+    <button type="submit">Проверить</button>
+  </form>
+{% endif %}

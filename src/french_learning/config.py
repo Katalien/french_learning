@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     # Конституция XII: по умолчанию приложение доступно только с этого компьютера.
     host: str = "127.0.0.1"
     port: int = 8000
+    # Модели голосов и кеш озвучки — вне обоих репозиториев (большие файлы, не контент).
+    tts_dir: Path = Path.home() / ".french-learning" / "tts"
 
     @property
     def content_configured(self) -> bool:

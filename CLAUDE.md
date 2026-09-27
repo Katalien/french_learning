@@ -41,13 +41,15 @@ SQLite для прогресса, pytest, ruff. Подробнее — конс�
 - `uv run french-learning serve` — запустить приложение (http://127.0.0.1:8000).
 - `uv run french-learning validate-content` — проверить хранилище контента (вызывать перед
   сохранением контента агентом).
+- `uv run french-learning tts-download` — скачать голоса озвучки Piper (около 130 МБ, один раз;
+  хранятся в `~/.french-learning/tts`, там же кеш звука).
 - `uv run french-learning demo-init <папка> [--with-broken]` — демо-хранилище с придуманными
   уроками.
 - `uv run pytest` — тесты; `uv run ruff check .` и `uv run ruff format .` — линтер и форматтер.
 - `uv run python scripts/check_no_content.py` — проверка, что в репозитории нет материалов.
 - Команды для навыков агента (`scan-lesson`, `store-source`, `new-ids`, `next-number`,
   `topics-list`, `vocab-find`, `stage-check`, `commit-staging`, `build-archive`,
-  `reports-list`, `report-resolve`, `quality-sample`, `init-content`) —
+  `reports-list`, `report-resolve`, `quality-sample`, `init-content`, `restore-progress`) —
   `specs/002-add-lesson-skill/contracts/cli.md`.
 
 ## Навыки агента
@@ -55,5 +57,14 @@ SQLite для прогресса, pytest, ruff. Подробнее — конс�
 - `/add-lesson <папка или «урок N»>` — добавить урок, дописать домашку, переклассифицировать файл.
 - `/add-material <ссылка>` — материал из интернета в «Дополнительные материалы».
 - `/fix-reports` — разобрать сообщения об ошибках из приложения.
+- `/complete-words` — дополнить слова словаря с пометкой «нужно дополнить» (род, формы, спряжение).
 - Общие правила разбора — `.claude/skills/_shared/content-rules.md`; формат контента —
   `docs/content-format.md`. Контент пишется только через черновик и `commit-staging`.
+
+## Прогресс повторения
+
+- База прогресса (карточки, оценки, сеансы, настройки) — `CONTENT_DIR/.progress/progress.sqlite`
+  (не в git). Резервная копия — `backups/progress.sql` в хранилище: коммит и отправка раз в день
+  при работающем приложении и по кнопке; восстановление — `french-learning restore-progress`.
+- Проверка введённых ответов — `src/french_learning/practice/checking.py` (общая для словаря
+  и упражнений).

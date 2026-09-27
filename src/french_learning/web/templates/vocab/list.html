@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Словарь{% endblock %}
+{% block content %}
+<h1>Словарь</h1>
+<nav class="quick-links">
+  <a href="/practice" role="button">Повторение</a>
+  <a href="/vocab/add" role="button" class="outline">Добавить слова</a>
+  <a href="/settings" role="button" class="outline">Настройки</a>
+  {% if incomplete %}<a href="/vocab/complete" role="button" class="outline">Дополнить: {{ incomplete }}</a>{% endif %}
+</nav>
+
+<form method="get" action="/vocab" class="vocab-filters">
+  <select name="lesson" onchange="this.form.requestSubmit()" aria-label="Урок">
+    <option value="">все уроки</option>
+    {% for l in lessons %}<option value="{{ l.number }}" {% if selected.lesson == l.number | string %}selected{% endif %}>Урок {{ l.number }}</option>{% endfor %}
+  </select>
+  <select name="topic" onchange="this.form.requestSubmit()" aria-label="Тема">
+    <option value="">все темы</option>
+    {% for t in topics %}<option value="{{ t.id }}" {% if selected.topic == t.id %}selected{% endif %}>{{ t.name }}</option>{% endfor %}
+  </select>
+  <select name="kind" onchange="this.form.requestSubmit()" aria-label="Вид">
+    {% for key, name in kinds.items() %}<option value="{{ key }}" {% if selected.kind == key %}selected{% endif %}>{{ name }}</option>{% endfor %}
+  </select>
+  <select name="filter" onchange="this.form.requestSubmit()" aria-label="Список">
+    {% for key, name in filters.items() %}<option value="{{ key }}" {% if selected.filter == key %}selected{% endif %}>{{ name }}</option>{% endfor %}
+  </select>
+  <input type="hidden" name="view" value="{{ view }}">
+  <noscript><button type="submit" class="small">Показать</button></noscript>
+  {% if selected.lesson or selected.topic or selected.kind or selected.filter %}<a href="/vocab?view={{ view }}" class="small">сбросить</a>{% endif %}
+</form>
+
+<p class="muted">
+  Записей: {{ items | length }} ·
+  {% if view == "cards" %}<a href="?{{ request.query_params | string | replace('view=cards', '') }}&view=list">списком</a>
+  {% else %}<a href="?{{ request.query_params | string | replace('view=list', '') }}&view=cards">карточками</a>{% endif %}
+</p>
+
+{% if not items %}<p class="empty">Нет слов для выбранных условий.</p>{% endif %}
+{% if view == "list" %}
+  <ul class="words">
+    {% for e in items %}<li><a href="/vocab/{{ e.id }}"><span class="fr" lang="fr">{{ display_fr(e) }}</span></a> — {{ e.translations | map(attribute="text") | join(", ") }}</li>{% endfor %}
+  </ul>
+{% else %}
+  <div class="entry-grid">
+    {% for e in items %}{% include "vocab/partials/entry_card.html" %}{% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

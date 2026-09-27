@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Повторение{% endblock %}
+{% block content %}
+<p class="breadcrumbs"><a href="/practice">Повторение</a> › {{ mode_name }}</p>
+{% if progress.total == 0 %}
+  <h1>Нет карточек</h1>
+  <p>Для выбранных условий карточек нет. Попробуйте другой режим повторения.</p>
+{% elif progress.finished %}
+  <h1>Готово</h1>
+  <p>Повторено карточек: {{ progress.position }}.</p>
+{% else %}
+  <h1>Порция пройдена</h1>
+  <p>Пройдено {{ progress.position }} из {{ progress.total }}.</p>
+{% endif %}
+<ul class="stats">
+  {% for key, name in ratings.items() %}<li>{{ name }}: <strong>{{ summary.get(key, 0) }}</strong></li>{% endfor %}
+</ul>
+<div class="inline-form">
+  {% if not progress.finished and progress.total %}
+    <form method="post" action="/practice/{{ session_id }}/continue"><button type="submit">Продолжить</button></form>
+  {% endif %}
+  <a href="/practice" role="button" class="outline">Закончить</a>
+  {% if can_undo %}
+    <form method="post" action="/practice/{{ session_id }}/undo"><button type="submit" class="outline secondary">Отменить последнюю оценку</button></form>
+  {% endif %}
+</div>
+{% endblock %}

@@ -113,3 +113,48 @@ table { display: block; overflow-x: auto; }
 /* Шапка на узком экране: пункты меню переносятся, ничего не обрезается */
 .site-header nav ul { flex-wrap: wrap; }
 .site-header nav ul:last-child { margin-right: 0; }
+
+/* Карточки повторения; род — цветом и меткой (003) */
+:root { --masc: #1565c0; --fem: #c2185b; --neutral: #616161; }
+.flashcard { text-align: center; border-top: 6px solid var(--neutral); }
+.flashcard.gender-m { border-top-color: var(--masc); }
+.flashcard.gender-f { border-top-color: var(--fem); }
+.flashcard.gender-both { border-top-color: #7b1fa2; }
+.flashcard .question { font-size: 1.8rem; font-weight: 700; margin: 1rem 0 0.25rem; }
+.flashcard .answer { font-size: 1.4rem; }
+.ratings { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+.ratings button { flex: 1 1 8rem; }
+.rating-again { background: #c62828; border-color: #c62828; }
+.rating-hard { background: #ef6c00; border-color: #ef6c00; }
+.rating-good { background: #2e7d32; border-color: #2e7d32; }
+.practice-setup fieldset label { display: block; }
+
+/* Словарь */
+.vocab-filters { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.vocab-filters select, .vocab-filters button { width: auto; margin: 0; }
+.entry-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.6rem; }
+.entry-card { display: flex; flex-direction: column; padding: 0.7rem; border-radius: 0.6rem; border: 1px solid var(--pico-muted-border-color); border-left: 5px solid var(--neutral); text-decoration: none; }
+.entry-card.gender-m, .entry.gender-m { border-left-color: var(--masc); }
+.entry-card.gender-f, .entry.gender-f { border-left-color: var(--fem); }
+.entry-card.gender-both, .entry.gender-both { border-left-color: #7b1fa2; }
+.entry { border-left: 6px solid var(--neutral); }
+.entry-fr { font-weight: 700; }
+.entry-ru { color: var(--pico-muted-color); font-size: 0.9rem; }
+.gender-label { font-size: 0.7rem; font-weight: 700; padding: 0.05rem 0.35rem; border-radius: 0.3rem; color: #fff; background: var(--neutral); vertical-align: middle; align-self: flex-start; }
+.gender-m .gender-label { background: var(--masc); }
+.gender-f .gender-label { background: var(--fem); }
+.translations { font-size: 1.2rem; }
+.speak { padding: 0.1rem 0.5rem; vertical-align: middle; }
+.conjugation { max-width: 20rem; }
+
+/* Ввод ответа */
+.answer-form input[name="answer"] { font-size: 1.3rem; text-align: center; }
+.symbol-panel { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; margin-bottom: 0.75rem; }
+.symbol { width: 2.4rem; padding: 0.3rem 0; margin: 0; font-size: 1.1rem; }
+.spelling-choice { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.spelling-choice button { width: auto; font-size: 1.2rem; }
+.verdict { font-size: 1.3rem; font-weight: 700; }
+.verdict-ok { color: #2e7d32; }
+.verdict-wrong { color: #c62828; }
+.entry-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.entry-actions form { margin: 0; }

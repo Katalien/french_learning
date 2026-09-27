@@ -1,0 +1,66 @@
+"""US2: словарь и карточка записи (FR-010–FR-014)."""
+
+import re
+
+
+def links(html: str) -> set[str]:
+    return set(re.findall(r'href="/vocab/(voc-[a-z2-7]{8})"', html))
+
+
+def test_dictionary_list_and_filters(client):
+    assert links(client.get("/vocab").text) == {
+        "voc-maisonaa",
+        "voc-painaaaa",
+        "voc-eauaaaaa",
+        "voc-chataaaa",
+    }
+    assert links(client.get("/vocab?lesson=2").text) == {"voc-painaaaa", "voc-eauaaaaa"}
+    assert links(client.get("/vocab?topic=top-maisonxx").text) == {"voc-maisonaa", "voc-chataaaa"}
+    assert links(client.get("/vocab?kind=verb").text) == set()
+
+
+def test_list_and_cards_views(client):
+    listing = re.sub(r"<[^>]+>", "", client.get("/vocab?view=list").text)
+    assert "la maison — дом" in listing
+    cards = client.get("/vocab?view=cards").text
+    assert 'class="entry-card gender-f"' in cards
+
+
+def test_entry_page_gender_label_and_color(client):
+    html = client.get("/vocab/voc-maisonaa").text
+    assert "gender-f" in html
+    assert '<span class="gender-label">f</span>' in html
+    html = client.get("/vocab/voc-painaaaa").text
+    assert "gender-m" in html and '<span class="gender-label">m</span>' in html
+
+
+def test_entry_without_gender_is_neutral(client, content_root):
+    path = content_root / "vocabulary/voc-chataaaa.yaml"
+    text = path.read_text(encoding="utf-8").replace("gender: m\n", "").replace("article: le\n", "")
+    path.write_text(text, encoding="utf-8")
+    html = client.get("/vocab/voc-chataaaa").text
+    assert "gender-none" in html and "gender-label" not in html
+
+
+def test_extra_block_collapsed_with_details(client):
+    html = client.get("/vocab/voc-painaaaa").text
+    assert '<details class="entry-extra">' in html
+    assert "Уроки" in html and "1, 2" in html
+
+
+def test_speech_button(client):
+    html = client.get("/vocab/voc-maisonaa").text
+    assert 'data-speak="la maison"' in html
+    assert "/static/js/speech.js" in html
+    assert client.get("/static/js/speech.js").status_code == 200
+
+
+def test_menu_links_to_dictionary(client):
+    assert 'href="/vocab"' in client.get("/").text
+
+
+def test_filters_apply_on_change_and_list_only_topics_with_words(client):
+    html = client.get("/vocab").text
+    assert html.count('onchange="this.form.requestSubmit()"') == 4
+    assert 'value="top-maisonxx"' in html
+    assert 'value="top-nasalson"' not in html

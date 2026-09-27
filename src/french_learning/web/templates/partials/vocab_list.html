@@ -1,7 +1,7 @@
 {# Лексика урока: новые и на повторение (FR-039) #}
 {% macro word_row(w) -%}
   <li><span class="fr">{% if w.article %}{{ w.article }}{% if w.article != "l'" %} {% endif %}{% endif %}{{ w.text }}</span>
-    — {{ w.translations | map(attribute="text") | join(", ") }}</li>
+    — {{ w.translations | map(attribute="text") | join(", ") }}{% if w.hidden %} <mark class="badge">скрыто</mark>{% endif %}</li>
 {%- endmacro %}
 {% if new_words %}
   <h3>Новые слова</h3>

@@ -28,7 +28,7 @@ def _serve(args: argparse.Namespace) -> int:
     settings = Settings()
     if args.content_dir:
         settings.content_dir = Path(args.content_dir)
-    app = create_app(settings)
+    app = create_app(settings, auto_backup=True)
     print(f"Приложение: http://{settings.host}:{settings.port}")
     _run_server(app, settings.host, settings.port)
     return 0
@@ -73,6 +73,21 @@ def _demo_init(args: argparse.Namespace) -> int:
     return 0
 
 
+def _tts_download(args: argparse.Namespace) -> int:
+    """Скачать голоса озвучки Piper (около 130 МБ, один раз); дальше озвучка работает офлайн."""
+    from french_learning.practice.tts import VOICES, download_voices
+
+    tts_dir = Settings().tts_dir
+    print(f"Скачиваю голоса ({', '.join(name for _c, name in VOICES.values())}) в {tts_dir} …")
+    try:
+        download_voices(tts_dir)
+    except OSError as exc:
+        print(f"Не удалось скачать: {exc}")
+        return 1
+    print("Готово. Перезапустите приложение, если оно запущено.")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
@@ -92,6 +107,9 @@ def main(argv: list[str] | None = None) -> int:
     demo.add_argument("folder", help="папка для демо-хранилища")
     demo.add_argument("--with-broken", action="store_true", help="оставить повреждённый файл")
     demo.set_defaults(handler=_demo_init)
+
+    tts = commands.add_parser("tts-download", help="скачать голоса озвучки (один раз)")
+    tts.set_defaults(handler=_tts_download)
 
     agent_commands.register(commands)
 

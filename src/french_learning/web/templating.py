@@ -10,6 +10,7 @@ from markupsafe import Markup, escape
 
 from french_learning.content.render import headings, render_markdown
 from french_learning.content.schema import EXERCISE_TYPE_NAMES, GAP_RE
+from french_learning.vocab.entries import display_fr
 
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
@@ -71,6 +72,17 @@ def media_path(materials_dir: Path | None, relative: str) -> str:
     return str(Path(materials_dir, *parts)) if materials_dir else str(PurePosixPath(relative))
 
 
+STATIC_DIR = Path(__file__).parent / "static"
+
+
+def asset_version(relative: str) -> str:
+    """Версия статического файла для адреса: браузер загрузит новую копию после изменения."""
+    try:
+        return str((STATIC_DIR / relative).stat().st_mtime_ns)
+    except OSError:
+        return "0"
+
+
 def plural(n: int, one: str, few: str, many: str) -> str:
     if n % 10 == 1 and n % 100 != 11:
         word = one
@@ -91,4 +103,6 @@ env.globals.update(
     EXERCISE_TYPE_NAMES=EXERCISE_TYPE_NAMES,
     plural=plural,
     media_path=media_path,
+    asset_version=asset_version,
+    display_fr=display_fr,
 )

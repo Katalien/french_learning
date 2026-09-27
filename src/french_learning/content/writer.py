@@ -120,6 +120,10 @@ class ContentWriter:
             return WriteResult(True, False, "копия не отправлена: нет связи с GitHub")
         return WriteResult(True, True)
 
+    def save_files(self, files: dict[str, str], message: str) -> WriteResult:
+        """Записать файлы атомарно и закоммитить одним коммитом (с попыткой отправки)."""
+        return self._save(files, message)
+
     def _save(self, files: dict[str, str], message: str) -> WriteResult:
         self._write_all(files)
         return self._commit(list(files), message)
@@ -284,3 +288,12 @@ class ContentWriter:
         text = _dump_yaml(report.model_dump(mode="json"))
         result = self._save({relative: text}, f"Сообщение об ошибке в {element_id}")
         return report, result
+
+    def delete_files(self, paths: list[str], message: str) -> WriteResult:
+        """Удалить файлы контента и закоммитить удаление (с попыткой отправки)."""
+        for relative in paths:
+            target = (self.root / relative).resolve()
+            if not target.is_relative_to(self.root.resolve()):
+                raise WriteError(f"путь вне хранилища: {relative}")
+            target.unlink(missing_ok=True)
+        return self._commit(paths, message)
