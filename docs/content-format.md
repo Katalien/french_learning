@@ -1,5 +1,9 @@
-# Contract: Формат контента (версия 1)
-> Действующая версия формата с дополнениями последующих функций — [docs/content-format.md](../../../docs/content-format.md).
+# Формат контента (версия 1)
+
+Действующее описание формата хранилища `french_learning_materials`. На него опираются
+приложение (функция 001) и навыки агента (функция 002). Схема в коде:
+`src/french_learning/content/schema.py`. История: создан в `specs/001-…/contracts/`,
+дополнен в функции 002 (журнал файлов, поле `resolved`, черновик `.staging/`).
 
 Договор между агентом (пишет контент, функция 002) и приложением (читает и показывает).
 Схема реализуется моделями в `src/french_learning/content/schema.py`; команда
@@ -171,3 +175,48 @@ resolution: null          # заполняет агент
 
 `validate-content` печатает список нарушений (файл, поле, сообщение) и завершается с кодом
 0 — всё верно, 1 — есть нарушения.
+
+## Дополнения функции 002
+
+### Журнал файлов урока — поле `files` в `lesson.yaml` (необязательное)
+
+```yaml
+files:
+  - path: Leçon 14/Devoirs/IMG_3874.jpeg   # относительно папки исходных материалов
+    part: homework
+    sha256: 3f9a…                          # 64 шестнадцатеричных символа
+    classification: exercises            # theory | vocabulary | text | exercises |
+                                         # exercises_with_reference | media | duplicate |
+                                         # unrecognized | skipped
+    elements: [ex-7kq2m9pd, ex-2p4r6t8v]
+    stored_as: lessons/014/sources/img-3874-3f9a.jpg
+  - path: Leçon 14/Video.mov
+    part: class
+    sha256: …
+    classification: media
+    elements: []
+  - path: Leçon 14/IMG_4191.jpeg
+    part: class
+    sha256: …
+    classification: duplicate
+    elements: []
+    note: дубль файла Devoirs/IMG_4191.jpeg
+```
+
+Правила: `path` уникален в уроке; все `elements` существуют; для `duplicate`,
+`unrecognized`, `skipped` обязателен `note`.
+
+### Сообщение об ошибке — поле `resolved`
+
+Дата-время закрытия сообщения агентом (`status: fixed | rejected`, `resolution` обязателен).
+
+### Черновик `.staging/`
+
+`CONTENT_DIR/.staging/<операция>/` — та же структура, что у хранилища; применяется командой
+`commit-staging` целиком или не применяется. Удаления — `_delete.txt` (пути относительно
+хранилища, по одному в строке). Папка `.staging/` исключена из git хранилища.
+
+### Опись урока и указатель
+
+`lessons/NNN/inventory.md` и `index.md` генерируются командой `build-archive`
+(вызывается `commit-staging` автоматически). Руками не править.
