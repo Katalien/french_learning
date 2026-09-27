@@ -82,7 +82,7 @@ contracts/cli.md, contracts/skill-workflow.md, quickstart.md
 - [X] T024 [US1] Навык `.claude/skills/add-lesson/SKILL.md` (FR-001, FR-002): шаги 1–7 из contracts/skill-workflow.md с вызовами команд; при `conflict` из `scan-lesson` — спросить, дополнить существующий урок или это ошибка; дата урока (FR-005); журнал `files` в `lesson.yaml`; сообщение коммита; ссылки на `_shared/*` и `docs/content-format.md`
 - [X] T025 [US1] Прогон навыка на синтетических материалах `tests/fixtures/materials/Leçon 07` в демо-хранилище (без настоящих материалов): опись, сохранение, урок виден в приложении; исправить инструкции по результату
 
-- [ ] T041 [US1] (перенесено из Polish по анализу, H1) Подготовить настоящее хранилище: `init-content C:/Users/Kate/source/french_learning_materials`, переключить `.env` (`CONTENT_DIR`, `SOURCE_MATERIALS_DIR`), первая отправка на GitHub
+- [X] T041 [US1] (перенесено из Polish по анализу, H1) Подготовить настоящее хранилище: `init-content C:/Users/Kate/source/french_learning_materials`, переключить `.env` (`CONTENT_DIR`, `SOURCE_MATERIALS_DIR`), первая отправка на GitHub
 
 **Checkpoint**: урок добавляется навыком — можно показывать пользователю на настоящих материалах
 
