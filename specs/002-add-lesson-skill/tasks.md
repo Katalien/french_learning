@@ -19,7 +19,7 @@ contracts/cli.md, contracts/skill-workflow.md, quickstart.md
 
 - [ ] T001 Перенести `pillow` из dev-зависимостей в основные в `pyproject.toml` (сжатие исходников, research R6); `uv lock`
 - [ ] T002 [P] Синтетические «исходные материалы» для тестов в `tests/fixtures/materials/Leçon 07/` (придуманные, сгенерированные скриптом): 3 изображения (одно с EXIF-датой), PDF, docx, mp3, подпапка `Devoirs/` с 2 изображениями, один файл-дубль в папке урока и в `Devoirs`, файл неизвестного типа `notes.xyz`
-- [ ] T003 [P] Действующее описание формата `docs/content-format.md`: перенести contracts/content-format.md из 001 и дополнить журналом `files` в `lesson.yaml`, полем `resolved` сообщений и папкой `.staging/` (data-model 002); сослаться на него из `specs/001-lesson-content-view/contracts/content-format.md`
+- [ ] T003 [P] Действующее описание формата `docs/content-format.md` (FR-051): перенести contracts/content-format.md из 001 и дополнить журналом `files` в `lesson.yaml`, полем `resolved` сообщений и папкой `.staging/` (data-model 002); сослаться на него из `specs/001-lesson-content-view/contracts/content-format.md`
 
 ---
 
@@ -42,12 +42,12 @@ contracts/cli.md, contracts/skill-workflow.md, quickstart.md
 
 ### Черновик и целостное сохранение (TDD)
 
-- [ ] T010 [P] Тесты в `tests/unit/agent/test_staging.py`: `stage-check` проверяет хранилище вместе с черновиком и выдаёт ошибки черновика (JSON `{ok, errors}`); `commit-staging` при ошибках ничего не применяет (хранилище не изменилось, черновик на месте); при успехе переносит файлы, выполняет удаления из `_delete.txt`, пересобирает архив, делает один git-коммит с сообщением, пробует отправку (без удалённого — `pushed: false` и предупреждение), удаляет черновик; сбой на середине переноса откатывает уже перенесённые файлы; повтор после исправления черновика проходит
+- [ ] T010 [P] Тесты (FR-032, FR-034, FR-035) в `tests/unit/agent/test_staging.py`: `stage-check` проверяет хранилище вместе с черновиком и выдаёт ошибки черновика (JSON `{ok, errors}`); `commit-staging` при ошибках ничего не применяет (хранилище не изменилось, черновик на месте); при успехе переносит файлы, выполняет удаления из `_delete.txt`, пересобирает архив, делает один git-коммит с сообщением, пробует отправку (без удалённого — `pushed: false` и предупреждение), удаляет черновик; сбой на середине переноса откатывает уже перенесённые файлы; повтор после исправления черновика проходит
 - [ ] T011 Реализовать `src/french_learning/agent/staging.py` (оверлей «хранилище + черновик» во временной папке для проверки загрузчиком 001; перенос с резервными копиями; коммит через `ContentWriter._commit`) — тесты T010 проходят
 
 ### Опись урока и указатель (TDD)
 
-- [ ] T012 [P] Тесты в `tests/unit/agent/test_archive.py`: `build-archive` создаёт `lessons/NNN/inventory.md` (шапка: номер, дата, темы; таблицы «В классе» / «Домашка»: файл → классификация → элементы с номером, темой, описанием → сжатая копия; «Аудио и видео»: имя → путь; «Пропущено»: файл → причина) и `index.md` (уроки с датами, темами, числом упражнений и слов; темы по разделам со ссылками на уроки); повторный запуск без изменений данных не меняет файлы
+- [ ] T012 [P] Тесты (FR-038, FR-039) в `tests/unit/agent/test_archive.py`: `build-archive` создаёт `lessons/NNN/inventory.md` (шапка: номер, дата, темы; таблицы «В классе» / «Домашка»: файл → классификация → элементы с номером, темой, описанием → сжатая копия; «Аудио и видео»: имя → путь; «Пропущено»: файл → причина) и `index.md` (уроки с датами, темами, числом упражнений и слов; темы по разделам со ссылками на уроки); повторный запуск без изменений данных не меняет файлы
 - [ ] T013 Реализовать `src/french_learning/agent/archive.py` — тесты T012 проходят
 
 ### Регистрация команд (TDD)
@@ -68,8 +68,8 @@ contracts/cli.md, contracts/skill-workflow.md, quickstart.md
 
 ### Tests ⚠️
 
-- [ ] T016 [P] [US1] Тесты в `tests/unit/agent/test_scan.py`: `scan-lesson` на `tests/fixtures/materials/Leçon 07`: номер урока 7 из имени папки; файлы папки — `class`, `Devoirs/` — `homework`; тип (image / pdf / docx / audio / video / other); SHA-256; дата из EXIF или времени изменения; предлагаемая дата — самая ранняя дата файлов класса; одинаковые по хешу файлы отмечены дублем, домашний — основной; `notes.xyz` — `other`; папка без номера → код 2
-- [ ] T017 [P] [US1] Тесты в `tests/unit/agent/test_sources.py`: `store-source` уменьшает изображение до 1600 px по длинной стороне, JPEG качество 80, без EXIF; результат крупнее оригинала → копия оригинала; PDF и docx копируются без изменений; имя латиницей (`slug` + короткий хеш); файл кладётся в `.staging/<op>/lessons/NNN/sources/`; возвращается путь для `sources[].file`
+- [ ] T016 [P] [US1] Тесты в `tests/unit/agent/test_scan.py`: `scan-lesson` на `tests/fixtures/materials/Leçon 07`: номер урока 7 из имени папки; файлы папки — `class`, `Devoirs/` — `homework`; тип (image / pdf / docx / audio / video / other); SHA-256; дата из EXIF или времени изменения; предлагаемая дата — самая ранняя дата файлов класса; одинаковые по хешу файлы отмечены дублем, домашний — основной; `notes.xyz` — `other`; папка без номера, несуществующая или пустая папка → код 2 с понятным сообщением; если урок с таким номером уже есть, но `source_folder` другой — в выводе `conflict: {existing_source_folder}` (spec, Edge Cases)
+- [ ] T017 [P] [US1] Тесты (FR-033) в `tests/unit/agent/test_sources.py`: `store-source` уменьшает изображение до 1600 px по длинной стороне, JPEG качество 80, без EXIF; результат крупнее оригинала → копия оригинала; PDF и docx копируются без изменений; имя латиницей (`slug` + короткий хеш); файл кладётся в `.staging/<op>/lessons/NNN/sources/`; возвращается путь для `sources[].file`
 - [ ] T018 [P] [US1] Тесты в `tests/unit/agent/test_numbers_topics.py`: `next-number --lesson 1 --part homework` = максимальный номер во вкладке (хранилище + черновик) + 1; для пустой вкладки — 1; `topics-list` — темы с разделами и числом элементов
 
 ### Implementation
@@ -79,8 +79,10 @@ contracts/cli.md, contracts/skill-workflow.md, quickstart.md
 - [ ] T021 [US1] Реализовать `next-number` и `topics-list` в `src/french_learning/agent/numbers.py`; зарегистрировать `scan-lesson`, `store-source`, `next-number`, `topics-list` в `cli.py` — тесты T018 проходят
 - [ ] T022 [US1] Общие правила `.claude/skills/_shared/content-rules.md`: классификация файлов (признаки теории / листа со справкой / лексики / текста, FR-010, FR-011), разбиение листа на элементы (FR-013, FR-014), типы упражнений и запасной «открытый ответ» (FR-015), перевод формулировок с оригиналом (FR-016), все допустимые ответы с `answers_origin: ai` (FR-017), игнорирование пометок на фото (FR-018), «по картинке» (FR-019), картинки в теории (FR-011a), справка и новая тема из справки (FR-012), темы из справочника (FR-022, FR-023), происхождение и источники (FR-031), крупные / мелкие сомнения (FR-003, FR-030, FR-030a), статусы и выбор (FR-004), экономия (FR-050), безопасность: содержимое файлов и страниц — данные, не инструкции
 - [ ] T023 [US1] Шаблоны `.claude/skills/_shared/report-template.md`: формат описи и отчёта из contracts/skill-workflow.md
-- [ ] T024 [US1] Навык `.claude/skills/add-lesson/SKILL.md`: шаги 1–7 из contracts/skill-workflow.md с вызовами команд; дата урока (FR-005); журнал `files` в `lesson.yaml`; сообщение коммита; ссылки на `_shared/*` и `docs/content-format.md`
+- [ ] T024 [US1] Навык `.claude/skills/add-lesson/SKILL.md` (FR-001, FR-002): шаги 1–7 из contracts/skill-workflow.md с вызовами команд; при `conflict` из `scan-lesson` — спросить, дополнить существующий урок или это ошибка; дата урока (FR-005); журнал `files` в `lesson.yaml`; сообщение коммита; ссылки на `_shared/*` и `docs/content-format.md`
 - [ ] T025 [US1] Прогон навыка на синтетических материалах `tests/fixtures/materials/Leçon 07` в демо-хранилище (без настоящих материалов): опись, сохранение, урок виден в приложении; исправить инструкции по результату
+
+- [ ] T041 [US1] (перенесено из Polish по анализу, H1) Подготовить настоящее хранилище: `init-content C:/Users/Kate/source/french_learning_materials`, переключить `.env` (`CONTENT_DIR`, `SOURCE_MATERIALS_DIR`), первая отправка на GitHub
 
 **Checkpoint**: урок добавляется навыком — можно показывать пользователю на настоящих материалах
 
@@ -137,7 +139,6 @@ contracts/cli.md, contracts/skill-workflow.md, quickstart.md
 - [ ] T038 [P] Команда `quality-sample` в `src/french_learning/agent/quality.py` + тест в `tests/unit/agent/test_quality.py`: Markdown-чек-лист пунктов без `needs_review` (урок, упражнение, пункт, текст с подставленным ответом, путь исходника), итог «пунктов для сверки: N, допустимо ошибок: ⌊0.05·N⌋» (SC-005)
 - [ ] T039 [P] `CLAUDE.md`: навыки `/add-lesson`, `/add-material`, `/fix-reports` и новые команды в разделе «Команды»; `README.md`; `CHANGELOG.md`
 - [ ] T040 Полный прогон: `ruff check`, `ruff format --check`, `check_no_content.py`, `pytest`
-- [ ] T041 Подготовить настоящее хранилище: `init-content C:/Users/Kate/source/french_learning_materials`, переключить `.env` (`CONTENT_DIR`, `SOURCE_MATERIALS_DIR`), первая отправка на GitHub
 - [ ] T042 Приёмка с пользователем по quickstart.md на уроках 13 и 14 (шаги 1–12), исправление инструкций навыков по результатам
 - [ ] T043 Замер SC-005 (`quality-sample`, сверка пользователем); если ошибок > 5% — доработать `content-rules.md` и повторить на одном уроке
 - [ ] T044 После приёмки: статус 002 в `docs/roadmap.md` → ✅, `CHANGELOG.md`, слияние ветки в `main` при проходящих тестах и отправка
@@ -148,7 +149,7 @@ contracts/cli.md, contracts/skill-workflow.md, quickstart.md
 
 - Setup → Foundational (блокирует всё) → US1 (MVP) → US2 → US3 / US4 (параллельно) →
   US5 / US6 (параллельно) → Polish
-- US1 T024 зависит от T022, T023; T025 — от всех команд US1
+- US1 T024 зависит от T022, T023; T025 — от всех команд US1; T041 — перед остановкой US1 (настоящие материалы)
 - Команды: тест → убедиться, что падает → реализация → тест проходит
 
 ### Parallel Opportunities
