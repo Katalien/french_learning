@@ -1,0 +1,17 @@
+{# Строка элемента в списках тем и дополнительных материалов. Переменная: e #}
+{% set lesson_no = e.lesson if e.kind != "vocab" else (e.lessons | min if e.lessons else none) %}
+<li class="element-row">
+  <span class="kind">{{ KIND_NAMES[e.kind] }}</span>
+  {% if e.kind == "vocab" %}
+    <span class="fr">{% if e.article %}{{ e.article }}{% if e.article != "l'" %} {% endif %}{% endif %}{{ e.text }}</span>
+    — {{ e.translations | map(attribute="text") | join(", ") }}
+  {% elif e.kind == "exercise" %}
+    <a href="/elements/{{ e.id }}">{{ e.description_ru }}</a>
+  {% else %}
+    <a href="/elements/{{ e.id }}">{{ e.title }}</a>
+  {% endif %}
+  <small class="muted">
+    {% if lesson_no %}Урок {{ lesson_no }}{% if e.kind == "exercise" %}, {{ PART_NAMES[e.part] | lower }}{% endif %}
+    {% else %}дополнительный материал · {{ ORIGIN_NAMES[e.origin] }}{% endif %}
+  </small>
+</li>

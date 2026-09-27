@@ -83,3 +83,17 @@ table { display: block; overflow-x: auto; }
 .fr { font-weight: 600; }
 .words li { margin-bottom: 0.25rem; }
 .data-error { border-left: 4px solid var(--error-color); }
+
+/* Правки и сообщения */
+.flash { padding: 0.6rem 0.9rem; border-radius: 0.5rem; background: #e8f5e9; color: #1b5e20; }
+.flash-error { background: #ffebee; color: var(--error-color); }
+.edit-block { margin: 0.75rem 0; }
+.edit-block summary { color: var(--pico-muted-color); font-size: 0.9rem; }
+.inline-form { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+.inline-form input, .inline-form button { width: auto; margin: 0; }
+.topic-choice { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; }
+.topic-list li, .elements li { margin-bottom: 0.4rem; }
+.count { color: var(--pico-muted-color); font-size: 0.85rem; }
+.element-row .kind { font-size: 0.75rem; text-transform: uppercase; color: var(--pico-muted-color); margin-right: 0.35rem; }
+.element-row small { display: block; }
+.toc { font-size: 0.95rem; margin-bottom: 1rem; }

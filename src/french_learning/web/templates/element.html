@@ -36,4 +36,24 @@
 {% endif %}
 
 {% include "partials/element_actions.html" %}
+
+<details class="edit-block">
+  <summary>Темы: {% for t in e.topics %}{% set tp = index.topic(t) %}{% if tp %}<a class="chip" href="/topics/{{ tp.id }}">{{ tp.name }}</a>{% endif %}{% else %}без темы{% endfor %}</summary>
+  <form method="post" action="/elements/{{ e.id }}/topics">
+    <fieldset class="topic-choice">
+      {% for t in index.all_topics() %}
+        <label><input type="checkbox" name="topics" value="{{ t.id }}" {% if t.id in e.topics %}checked{% endif %}> {{ t.name }}</label>
+      {% endfor %}
+    </fieldset>
+    <div class="grid">
+      <label>Новая тема <input name="new_topic" placeholder="название"></label>
+      <label>Раздел
+        <select name="new_section">
+          {% for s in index.content.topics.sections %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+        </select>
+      </label>
+    </div>
+    <button type="submit">Сохранить темы</button>
+  </form>
+</details>
 {% endblock %}

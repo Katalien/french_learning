@@ -21,6 +21,11 @@
     </nav>
   </header>
   <main class="container">
+    {% if request.query_params.get("error") %}
+      <p class="flash flash-error" role="alert">Не сохранено: {{ request.query_params.get("error") }}</p>
+    {% elif request.query_params.get("notice") %}
+      <p class="flash" role="status">{{ request.query_params.get("notice") }}</p>
+    {% endif %}
     {% block content %}{% endblock %}
   </main>
 </body>

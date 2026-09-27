@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import threading
 from dataclasses import dataclass
 from pathlib import Path
@@ -216,12 +217,13 @@ def _topic_sort_key(element: Any) -> tuple:
 
 
 def tree_fingerprint(root: Path) -> str:
+    """Отпечаток дерева файлов хранилища (имя, время изменения, размер); .git пропускается."""
     digest = hashlib.sha1()
-    for path in sorted(root.rglob("*")):
-        if ".git" in path.parts or not path.is_file():
-            continue
-        stat = path.stat()
-        digest.update(f"{path.as_posix()}|{stat.st_mtime_ns}|{stat.st_size}\n".encode())
+    for folder, dirs, files in os.walk(root):
+        dirs[:] = sorted(d for d in dirs if d != ".git")
+        for name in sorted(files):
+            stat = os.stat(os.path.join(folder, name))
+            digest.update(f"{folder}/{name}|{stat.st_mtime_ns}|{stat.st_size};".encode())
     return digest.hexdigest()
 
 

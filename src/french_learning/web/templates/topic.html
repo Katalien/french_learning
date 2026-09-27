@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ topic.name if topic else "Без темы" }}{% endblock %}
+{% block content %}
+<p class="breadcrumbs"><a href="/topics">Темы</a> › {{ topic.name if topic else "Без темы" }}</p>
+<h1>{{ topic.name if topic else "Без темы" }}</h1>
+
+{% if not elements %}<p class="empty">Нет материалов.</p>{% endif %}
+<ul class="elements">
+  {% for e in elements %}{% include "partials/element_row.html" %}{% endfor %}
+</ul>
+
+{% if topic %}
+  <details class="edit-block">
+    <summary>Изменить тему</summary>
+    <form method="post" action="/topics/{{ topic.id }}/rename">
+      <label>Новое название
+        <input name="name" value="{{ topic.name }}" required>
+      </label>
+      <button type="submit">Переименовать везде</button>
+    </form>
+    <form method="post" action="/topics/{{ topic.id }}/merge">
+      <label>Объединить с темой (эта тема исчезнет, её материалы перейдут в выбранную)
+        <select name="target" required>
+          {% for t in all_topics if t.id != topic.id %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+        </select>
+      </label>
+      <button type="submit" class="secondary">Объединить</button>
+    </form>
+  </details>
+{% endif %}
+{% endblock %}

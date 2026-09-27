@@ -5,6 +5,13 @@
 <p class="breadcrumbs"><a href="/">Уроки</a> › Урок {{ n }}</p>
 <h1>Урок {{ n }}</h1>
 {% with s = summary %}{% include "partials/lesson_summary.html" %}{% endwith %}
+<details class="edit-block">
+  <summary>Изменить дату урока</summary>
+  <form method="post" action="/lessons/{{ n }}/date" class="inline-form">
+    <input type="date" name="date" value="{{ summary.date.isoformat() if summary.date else '' }}" aria-label="Дата урока">
+    <button type="submit">Сохранить</button>
+  </form>
+</details>
 
 <nav class="sections" aria-label="Разделы урока">
   <a href="/lessons/{{ n }}/theory" {% if section == "theory" %}aria-current="page"{% endif %}>Теория</a>
