@@ -5,12 +5,14 @@
 <p class="muted">Карточка {{ progress.number }} из {{ progress.total }}</p>
 
 <article class="flashcard gender-{{ entry.gender or 'none' }}">
-  <p class="question" lang="{{ 'fr' if direction == 'fr_ru' else 'ru' }}">{{ question.text }}</p>
+  <p class="question" lang="{{ 'fr' if direction == 'fr_ru' else 'ru' }}">{{ question.text }}
+    {% if direction == 'fr_ru' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}</p>
   {% if question.hint %}<p class="muted hint">{{ question.hint }}</p>{% endif %}
 
   {% if shown or result is defined %}
     <hr>
-    <p class="answer" lang="{{ 'ru' if direction == 'fr_ru' else 'fr' }}">{{ answers | join(", ") }}</p>
+    <p class="answer" lang="{{ 'ru' if direction == 'fr_ru' else 'fr' }}">{{ answers | join(", ") }}
+      {% if direction == 'ru_fr' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}</p>
   {% endif %}
 
   {% block answer_area %}

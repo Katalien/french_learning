@@ -10,6 +10,7 @@ from markupsafe import Markup, escape
 
 from french_learning.content.render import headings, render_markdown
 from french_learning.content.schema import EXERCISE_TYPE_NAMES, GAP_RE
+from french_learning.vocab.entries import display_fr
 
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
@@ -103,4 +104,5 @@ env.globals.update(
     plural=plural,
     media_path=media_path,
     asset_version=asset_version,
+    display_fr=display_fr,
 )

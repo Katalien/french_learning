@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Настройки{% endblock %}
 {% block content %}
-<h1>Настройки повторения</h1>
+<h1>Настройки</h1>
 <form method="post" action="/settings">
   <label>Карточек за один подход (из словаря)
     <input type="number" name="portion_size" min="1" max="500" value="{{ portion_size }}">
@@ -12,6 +12,16 @@
       Сначала французский → русский; русский → французский — после первого «Помню»</label>
     <label><input type="radio" name="directions" value="both" {% if directions == "both" %}checked{% endif %}>
       Сразу в обоих направлениях</label>
+  </fieldset>
+  <fieldset>
+    <legend>Голос озвучки</legend>
+    {% for key, name in voices.items() %}
+      <label><input type="radio" name="voice" value="{{ key }}" {% if voice == key %}checked{% endif %}>
+        {{ name }}
+        <button type="button" class="speak outline small" data-speak="Bonjour, je m'appelle {{ 'Siwis' if key == 'siwis' else 'Tom' }}." data-voice="{{ key }}" title="Послушать">🔊</button></label>
+    {% endfor %}
+    {% if voices_missing %}<p class="muted">Голоса ещё не скачаны: выполните в терминале
+      <code>uv run french-learning tts-download</code> (около 130 МБ, один раз).</p>{% endif %}
   </fieldset>
   <button type="submit">Сохранить</button>
 </form>

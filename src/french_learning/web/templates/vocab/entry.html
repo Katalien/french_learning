@@ -8,7 +8,7 @@
   <header>
     <h1 lang="fr">{{ display_fr(e) }}
       {% if e.gender in ("m", "f") %}<span class="gender-label">{{ e.gender }}</span>{% endif %}
-      <button type="button" class="speak outline small" data-speak="{{ display_fr(e) }}" title="Произнести">🔊</button>
+      {% with speak = display_fr(e) %}{% include "partials/speak.html" %}{% endwith %}
     </h1>
     <p class="muted">
       {{ kind_names[e.entry_type] }}{% if e.pos %} · {{ pos_names.get(e.pos, e.pos) }}{% endif %}
@@ -78,5 +78,4 @@
   </form>
 </details>
 
-<script src="/static/js/speech.js" defer></script>
 {% endblock %}

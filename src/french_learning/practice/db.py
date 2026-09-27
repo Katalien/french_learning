@@ -14,7 +14,7 @@ from french_learning.agent.storage import ensure_progress_ignored
 
 SCHEMA_VERSION = 1
 
-DEFAULT_SETTINGS = {"portion_size": "20", "directions": "staged"}
+DEFAULT_SETTINGS = {"portion_size": "20", "directions": "staged", "voice": "siwis"}
 
 _SCHEMA = """
 create table if not exists meta (key text primary key, value text);

@@ -17,7 +17,11 @@
 ```bash
 uv sync
 uv run pre-commit install
+uv run french-learning tts-download
 ```
+
+Последняя команда один раз скачивает голоса озвучки Piper (около 130 МБ, в
+`~/.french-learning/tts`); после этого произношение работает без интернета.
 
 Скопируйте `.env.example` в `.env` и укажите путь к хранилищу контента:
 

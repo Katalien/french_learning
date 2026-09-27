@@ -41,6 +41,8 @@ SQLite для прогресса, pytest, ruff. Подробнее — конс�
 - `uv run french-learning serve` — запустить приложение (http://127.0.0.1:8000).
 - `uv run french-learning validate-content` — проверить хранилище контента (вызывать перед
   сохранением контента агентом).
+- `uv run french-learning tts-download` — скачать голоса озвучки Piper (около 130 МБ, один раз;
+  хранятся в `~/.french-learning/tts`, там же кеш звука).
 - `uv run french-learning demo-init <папка> [--with-broken]` — демо-хранилище с придуманными
   уроками.
 - `uv run pytest` — тесты; `uv run ruff check .` и `uv run ruff format .` — линтер и форматтер.

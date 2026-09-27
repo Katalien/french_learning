@@ -8,6 +8,7 @@ from fastapi import APIRouter, Form, Request
 from fastapi.responses import RedirectResponse
 
 from french_learning.content.index import ContentIndex
+from french_learning.practice.tts import DEFAULT_VOICE, VOICES
 from french_learning.vocab import entries as vocab_entries
 from french_learning.vocab.sessions import SessionParams
 from french_learning.web.deps import Index, not_found
@@ -491,6 +492,9 @@ def settings_page(request: Request, index: Index):
         "index": index,
         "portion_size": db.get_setting("portion_size"),
         "directions": db.get_setting("directions"),
+        "voice": db.get_setting("voice"),
+        "voices": {key: name for key, (_code, name) in VOICES.items()},
+        "voices_missing": not request.app.state.speaker.available(db.get_setting("voice")),
     }
     return templates.TemplateResponse(request, "vocab/settings.html", context)
 
@@ -501,12 +505,16 @@ def settings_save(
     index: Index,
     portion_size: Annotated[str, Form()] = "20",
     directions: Annotated[str, Form()] = "staged",
+    voice: Annotated[str, Form()] = DEFAULT_VOICE,
 ):
     db = request.app.state.progress_db
     if not portion_size.isdigit() or not 1 <= int(portion_size) <= 500:
         return _redirect("/settings?error=размер порции — число от 1 до 500")
     if directions not in {"staged", "both"}:
         return _redirect("/settings?error=неизвестный режим направлений")
+    if voice not in VOICES:
+        return _redirect("/settings?error=неизвестный голос озвучки")
+    db.set_setting("voice", voice)
     db.set_setting("portion_size", str(int(portion_size)))
     db.set_setting("directions", directions)
     return _redirect("/settings?notice=Настройки сохранены.")
