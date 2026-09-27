@@ -219,6 +219,95 @@ def vocab_list(
     return templates.TemplateResponse(request, "vocab/list.html", context)
 
 
+# --- добавление слов (US3) --------------------------------------------------------------------
+
+
+def _editor(request: Request):
+    from french_learning.vocab.edits import VocabEditor
+
+    return VocabEditor(request.app.state.settings.content_dir)
+
+
+def _add_context(index: ContentIndex, **extra) -> dict:
+    return {
+        "index": index,
+        "topics": index.all_topics(),
+        "lessons": index.lessons(),
+        "kinds": {"word": "слово", "verb": "глагол", "phrase": "фраза"},
+        **extra,
+    }
+
+
+@router.get("/vocab/add")
+def vocab_add_page(request: Request, index: Index):
+    return templates.TemplateResponse(request, "vocab/add.html", _add_context(index))
+
+
+@router.post("/vocab/add")
+def vocab_add(
+    request: Request,
+    index: Index,
+    text: Annotated[str, Form()] = "",
+    translations: Annotated[str, Form()] = "",
+    topic: Annotated[str, Form()] = "",
+    article: Annotated[str, Form()] = "",
+    gender: Annotated[str, Form()] = "",
+    entry_type: Annotated[str, Form()] = "word",
+    lesson: Annotated[str, Form()] = "",
+):
+    from urllib.parse import urlencode
+
+    from french_learning.content.writer import WriteError
+    from french_learning.vocab.edits import VocabError
+
+    try:
+        entry_id, merged = _editor(request).add_word(
+            text=text,
+            translations=translations.replace(";", ",").split(","),
+            topics=[topic] if topic else [],
+            article=article or None,
+            gender=gender or None,
+            entry_type=entry_type,
+            lesson=int(lesson) if lesson else None,
+        )
+    except (VocabError, WriteError) as exc:
+        return _redirect("/vocab/add?" + urlencode({"error": str(exc)}))
+    notice = "Перевод добавлен к существующему слову." if merged else "Слово добавлено."
+    return _redirect(f"/vocab/{entry_id}?" + urlencode({"notice": notice}))
+
+
+@router.post("/vocab/import")
+def vocab_import(
+    request: Request,
+    index: Index,
+    text: Annotated[str, Form()] = "",
+    topic: Annotated[str, Form()] = "",
+    lesson: Annotated[str, Form()] = "",
+):
+    from french_learning.content.writer import WriteError
+    from french_learning.vocab.edits import VocabError
+
+    try:
+        report = _editor(request).import_list(
+            text, topics=[topic] if topic else [], lesson=int(lesson) if lesson else None
+        )
+    except (VocabError, WriteError) as exc:
+        return templates.TemplateResponse(
+            request, "vocab/add.html", _add_context(index, error=str(exc), list_text=text)
+        )
+    return templates.TemplateResponse(
+        request, "vocab/add.html", _add_context(index, report=report, topic=topic, lesson=lesson)
+    )
+
+
+@router.get("/vocab/complete")
+def vocab_complete(request: Request, index: Index):
+    items = vocab_entries.filter_entries(index, flag="incomplete")
+    context = {"index": index, "items": items, "display_fr": vocab_entries.display_fr}
+    return templates.TemplateResponse(request, "vocab/complete.html", context)
+
+
+# Маршрут записи — последним: иначе он перехватит /vocab/add и /vocab/complete.
 @router.get("/vocab/{entry_id}")
 def vocab_entry(request: Request, entry_id: str, index: Index):
     cards, _sessions = _practice(request, index)

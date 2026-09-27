@@ -120,6 +120,10 @@ class ContentWriter:
             return WriteResult(True, False, "копия не отправлена: нет связи с GitHub")
         return WriteResult(True, True)
 
+    def save_files(self, files: dict[str, str], message: str) -> WriteResult:
+        """Записать файлы атомарно и закоммитить одним коммитом (с попыткой отправки)."""
+        return self._save(files, message)
+
     def _save(self, files: dict[str, str], message: str) -> WriteResult:
         self._write_all(files)
         return self._commit(list(files), message)
