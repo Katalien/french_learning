@@ -1,0 +1,14 @@
+id: voc-painaaaa
+kind: vocab
+entry_type: word
+text: pain
+article: le
+gender: m
+pos: nom
+translations:
+  - {text: хлеб, lesson: 1, origin: material}
+lessons: [1, 2]
+topics: [top-nourritu]
+origin: material
+sources:
+  - {file: lessons/001/sources/sheet.jpg, original: sheet.jpg}

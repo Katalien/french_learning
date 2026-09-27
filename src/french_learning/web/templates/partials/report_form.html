@@ -1,0 +1,19 @@
+{# Сообщить об ошибке (FR-042). Переменная: e #}
+<details class="edit-block report-block">
+  <summary>Сообщить об ошибке</summary>
+  <form method="post" action="/elements/{{ e.id }}/report">
+    {% if e.items is defined %}
+      <label>Пункт
+        <select name="item">
+          <option value="">всё упражнение</option>
+          {% for item in e.items %}<option value="{{ item.id }}">пункт {{ item.id }}</option>{% endfor %}
+        </select>
+      </label>
+    {% endif %}
+    <label>Что не так
+      <textarea name="comment" rows="3" required placeholder="Например: на фото «eaux», а не «eau»"></textarea>
+    </label>
+    <button type="submit">Отправить</button>
+    <small class="muted">Сообщения разбирает агент в Claude Code по команде «разбери сообщения об ошибках».</small>
+  </form>
+</details>

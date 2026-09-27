@@ -1,0 +1,16 @@
+id: ex-twoforms
+type: two_forms
+kind: exercise
+lesson: 1
+origin: material
+answers_origin: ai
+sources:
+  - {file: lessons/001/sources/sheet.jpg, original: sheet.jpg}
+part: homework
+number: 3
+topics: [top-articles]
+description_ru: Выбрать форму
+instruction: {ru: Выберите правильную форму., original: Choisissez la bonne forme., original_lang: fr, origin: ai}
+status: optional
+items:
+  - {id: 1, text: "J'aime {{1}} fruits.", forms: [le, les], answers: {1: [les]}}

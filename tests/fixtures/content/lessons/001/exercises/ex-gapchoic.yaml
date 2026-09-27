@@ -1,0 +1,24 @@
+id: ex-gapchoic
+type: gap_choice
+kind: exercise
+lesson: 1
+origin: material
+answers_origin: ai
+sources:
+  - {file: lessons/001/sources/sheet.jpg, original: sheet.jpg}
+part: class
+number: 1
+sheet_number: "1"
+topics: [top-articles]
+description_ru: Вставить определённый артикль
+instruction: {ru: "Вставьте le, la, l' или les.", original: "Complétez avec le, la, l' ou les.", original_lang: fr, origin: ai}
+status: main
+links: {theory: th-articles}
+options: [le, la, "l'", les]
+items:
+  - {id: 1, text: "{{1}} chat dort.", answers: {1: [Le]}}
+  - id: 2
+    text: "Je bois {{1}} eau."
+    answers: {1: ["l'"]}
+    needs_review: {flag: true, note: "Слово на фото плохо читается: «eau» или «eaux»"}
+  - {id: 3, text: "{{1}} maisons sont grandes.", answers: {1: [Les]}}

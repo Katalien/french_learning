@@ -1,0 +1,5 @@
+id: les-lessonbb
+number: 2
+source_folder: Leçon 02
+media:
+  - {name: Video.mov, type: video, part: class, path: Leçon 02/Video.mov}

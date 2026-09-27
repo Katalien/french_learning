@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Хранилище не найдено{% endblock %}
+{% block content %}
+<article>
+  <header><h1>Хранилище контента не найдено</h1></header>
+  {% if content_dir %}
+    <p>Папка <code>{{ content_dir }}</code> не существует.</p>
+  {% else %}
+    <p>Не указано, где лежит хранилище с уроками.</p>
+  {% endif %}
+  <p>Укажите путь в файле <code>.env</code> в корне проекта (образец — <code>.env.example</code>):</p>
+  <pre>CONTENT_DIR=C:\Users\Kate\source\french_learning_materials</pre>
+  <p>Затем перезапустите приложение.</p>
+</article>
+{% endblock %}

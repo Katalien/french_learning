@@ -37,4 +37,11 @@ SQLite для прогресса, pytest, ruff. Подробнее — конс�
 
 ## Команды
 
-Появятся в функции 001 (запуск приложения, тесты, линтер).
+- `uv sync` — установить зависимости; `uv run pre-commit install` — git-хуки.
+- `uv run french-learning serve` — запустить приложение (http://127.0.0.1:8000).
+- `uv run french-learning validate-content` — проверить хранилище контента (вызывать перед
+  сохранением контента агентом).
+- `uv run french-learning demo-init <папка> [--with-broken]` — демо-хранилище с придуманными
+  уроками.
+- `uv run pytest` — тесты; `uv run ruff check .` и `uv run ruff format .` — линтер и форматтер.
+- `uv run python scripts/check_no_content.py` — проверка, что в репозитории нет материалов.

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% set e = element %}
+{% block title %}{{ e.title if e.title is defined else e.description_ru }}{% endblock %}
+{% block content %}
+<p class="breadcrumbs">
+  <a href="/">Уроки</a> ›
+  {% if e.lesson %}
+    <a href="/lessons/{{ e.lesson }}">Урок {{ e.lesson }}</a> ›
+    {% if e.kind == "exercise" %}<a href="/lessons/{{ e.lesson }}/tasks?part={{ e.part }}">{{ PART_NAMES[e.part] }}</a>
+    {% elif e.kind == "theory" %}<a href="/lessons/{{ e.lesson }}/theory">Теория</a>
+    {% else %}<a href="/lessons/{{ e.lesson }}/texts">Тексты</a>{% endif %}
+  {% else %}
+    <a href="/extras">Дополнительные материалы</a>
+  {% endif %}
+</p>
+
+{% if e.kind == "exercise" %}
+  {% set topic = index.topic(e.topics[0]) if e.topics else none %}
+  <h1>{{ e.number }} — {{ topic.name if topic else "Без темы" }} — {{ e.description_ru }}</h1>
+  <p class="meta">
+    {{ PART_NAMES[e.part] if e.part else "Дополнительный материал" }}
+    {% if e.sheet_number %} · на листе: упр. {{ e.sheet_number }}{% endif %}
+    · {{ EXERCISE_TYPE_NAMES[e.type] }}
+    {% if e.status != "main" %}<mark class="badge">{{ STATUS_NAMES[e.status] }}</mark>{% endif %}
+  </p>
+  {% include "partials/exercise.html" %}
+{% else %}
+  <h1>{{ e.title }}</h1>
+  <article class="{{ e.kind }}" {% if e.kind == "text" %}lang="fr"{% endif %}>
+    {{ e.body | markdown(path) }}
+  </article>
+  {% if linked %}
+    <h2>Упражнения {{ "к тексту" if e.kind == "text" else "по этой теории" }}</h2>
+    <ul>{% for x in linked %}<li><a href="/elements/{{ x.id }}">{{ x.number }} — {{ x.description_ru }}</a></li>{% endfor %}</ul>
+  {% endif %}
+{% endif %}
+
+{% if e.needs_review.flag %}
+  <p>Требует проверки: {% with note = e.needs_review.note, item_id = none %}{% include "partials/review_badge.html" %}{% endwith %}</p>
+{% endif %}
+{% if show_origin %}
+  <p class="origin-line">Происхождение:
+    {% with origin = e.origin, detail = (e.sources | map(attribute="original") | select | join(", ")) %}{% include "partials/origin_badge.html" %}{% endwith %}
+  </p>
+{% endif %}
+{% include "partials/element_actions.html" %}
+{% include "partials/report_form.html" %}
+
+<details class="edit-block">
+  <summary>Темы: {% for t in e.topics %}{% set tp = index.topic(t) %}{% if tp %}<a class="chip" href="/topics/{{ tp.id }}">{{ tp.name }}</a>{% endif %}{% else %}без темы{% endfor %}</summary>
+  <form method="post" action="/elements/{{ e.id }}/topics">
+    <fieldset class="topic-choice">
+      {% for t in index.all_topics() %}
+        <label><input type="checkbox" name="topics" value="{{ t.id }}" {% if t.id in e.topics %}checked{% endif %}> {{ t.name }}</label>
+      {% endfor %}
+    </fieldset>
+    <div class="grid">
+      <label>Новая тема <input name="new_topic" placeholder="название"></label>
+      <label>Раздел
+        <select name="new_section">
+          {% for s in index.content.topics.sections %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+        </select>
+      </label>
+    </div>
+    <button type="submit">Сохранить темы</button>
+  </form>
+</details>
+{% endblock %}

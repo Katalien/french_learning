@@ -1,0 +1,15 @@
+# Встречалось в тексте урока 1, но в лексику впервые попало в уроке 2 — новое для урока 2.
+id: voc-eauaaaaa
+kind: vocab
+entry_type: word
+text: eau
+article: "l'"
+gender: f
+pos: nom
+translations:
+  - {text: вода, lesson: 2, origin: ai}
+lessons: [2]
+topics: [top-nourritu]
+origin: material
+sources:
+  - {file: lessons/002/sources/etre.docx, original: etre.docx}

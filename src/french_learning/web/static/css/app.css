@@ -1,0 +1,115 @@
+/* Стили поверх Pico CSS. Вёрстка «сначала телефон»: от 375 px без горизонтальной прокрутки. */
+
+:root {
+  --class-color: #2e7d32;
+  --homework-color: #6a1b9a;
+  --review-color: #b26a00;
+  --error-color: #c62828;
+}
+
+[x-cloak] { display: none !important; }
+
+html, body { overflow-x: hidden; }
+img { max-width: 100%; height: auto; }
+table { display: block; overflow-x: auto; }
+
+.site-header nav { flex-wrap: wrap; }
+.brand { font-weight: 700; text-decoration: none; }
+.breadcrumbs { font-size: 0.9rem; margin-bottom: 0.5rem; }
+.muted { color: var(--pico-muted-color); }
+.empty { color: var(--pico-muted-color); font-style: italic; }
+.small { padding: 0.25rem 0.75rem; font-size: 0.85rem; width: auto; }
+
+.quick-links { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.quick-links a { width: auto; }
+
+.lesson-card header a { text-decoration: none; }
+.lesson-card h2 { margin: 0; }
+
+.summary-date { margin-bottom: 0.25rem; color: var(--pico-muted-color); }
+.topics { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.chip {
+  display: inline-block;
+  padding: 0.1rem 0.6rem;
+  border-radius: 1rem;
+  background: var(--pico-secondary-background);
+  color: var(--pico-secondary-inverse);
+  font-size: 0.85rem;
+  text-decoration: none;
+  margin-right: 0.25rem;
+}
+.stats { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; margin: 0; }
+.stats li { list-style: none; margin: 0; }
+.review-count { color: var(--review-color); }
+.error-count, .error-count a { color: var(--error-color); }
+
+.sections { display: flex; gap: 0.5rem; margin: 1rem 0; flex-wrap: wrap; justify-content: flex-start; }
+.sections a { padding: 0.4rem 0.9rem; border-radius: 0.5rem; border: 1px solid var(--pico-muted-border-color); text-decoration: none; }
+.sections a[aria-current="page"] { background: var(--pico-primary-background); color: var(--pico-primary-inverse); }
+
+.section-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.75rem; }
+.section-card { display: flex; flex-direction: column; padding: 1rem; border-radius: 0.75rem; border: 1px solid var(--pico-muted-border-color); text-decoration: none; }
+.section-card span { color: var(--pico-muted-color); font-size: 0.9rem; }
+
+/* Вкладки «В классе» / «Домашка»: разный цвет, чтобы всегда было видно, что есть что (SC-003) */
+.part-tabs { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+.part-tab { flex: 1; text-align: center; padding: 0.5rem; border-radius: 0.5rem; border: 2px solid transparent; text-decoration: none; }
+.part-class { border-color: var(--class-color); color: var(--class-color); }
+.part-homework { border-color: var(--homework-color); color: var(--homework-color); }
+.part-tab.part-class[aria-selected="true"] { background: var(--class-color); color: #fff; }
+.part-tab.part-homework[aria-selected="true"] { background: var(--homework-color); color: #fff; }
+.task-list.part-class { border-left: 4px solid var(--class-color); padding-left: 0.75rem; }
+.task-list.part-homework { border-left: 4px solid var(--homework-color); padding-left: 0.75rem; }
+.exercises li { margin-bottom: 0.5rem; }
+.exercises small { display: block; }
+.badge { font-size: 0.75rem; padding: 0.05rem 0.4rem; border-radius: 0.3rem; }
+
+.meta { color: var(--pico-muted-color); }
+.instruction { font-weight: 600; }
+.items li { margin-bottom: 0.6rem; }
+.gap { display: inline-block; min-width: 4rem; border-bottom: 2px solid var(--pico-primary); margin: 0 0.2rem; }
+.gap.wide { min-width: 10rem; }
+.hint { color: var(--pico-muted-color); font-style: italic; }
+.review-mark { color: var(--review-color); cursor: help; }
+.reference { margin: 0.75rem 0; padding: 0.75rem; border-radius: 0.5rem; background: var(--pico-card-sectioning-background-color); }
+
+.exercise.with-source { display: grid; gap: 1rem; }
+@media (min-width: 900px) {
+  .exercise.with-source { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+}
+.exercise-source img { border: 1px solid var(--pico-muted-border-color); border-radius: 0.5rem; }
+
+.element-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1.5rem; }
+.fr { font-weight: 600; }
+.words li { margin-bottom: 0.25rem; }
+.data-error { border-left: 4px solid var(--error-color); }
+
+/* Правки и сообщения */
+.flash { padding: 0.6rem 0.9rem; border-radius: 0.5rem; background: #e8f5e9; color: #1b5e20; }
+.flash-error { background: #ffebee; color: var(--error-color); }
+.edit-block { margin: 0.75rem 0; }
+.edit-block summary { color: var(--pico-muted-color); font-size: 0.9rem; }
+.inline-form { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+.inline-form input, .inline-form button { width: auto; margin: 0; }
+.topic-choice { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; }
+.topic-list li, .elements li { margin-bottom: 0.4rem; }
+.count { color: var(--pico-muted-color); font-size: 0.85rem; }
+.element-row .kind { font-size: 0.75rem; text-transform: uppercase; color: var(--pico-muted-color); margin-right: 0.35rem; }
+.element-row small { display: block; }
+.toc { font-size: 0.95rem; margin-bottom: 1rem; }
+
+/* Доверие: происхождение и сомнения */
+.origin-toggle { margin: 0; }
+.origin-toggle button { margin: 0; }
+.origin-badge { font-size: 0.75rem; padding: 0.05rem 0.45rem; border-radius: 0.3rem; background: #e3f2fd; color: #0d47a1; }
+.origin-badge.origin-ai, .origin-badge.origin-service { background: #fff3e0; color: #e65100; }
+.original-instruction { font-size: 0.9rem; color: var(--pico-muted-color); }
+.review-badge { position: relative; }
+.review-toggle { all: unset; cursor: pointer; color: var(--review-color); padding: 0 0.2rem; }
+.review-note { display: block; margin: 0.35rem 0; padding: 0.5rem 0.75rem; border-left: 3px solid var(--review-color); background: #fff8e1; font-size: 0.9rem; }
+.review-note-inline { color: var(--review-color); font-size: 0.9rem; margin: 0.2rem 0 0.6rem; }
+.media-path { word-break: break-all; font-size: 0.8rem; }
+
+/* Шапка на узком экране: пункты меню переносятся, ничего не обрезается */
+.site-header nav ul { flex-wrap: wrap; }
+.site-header nav ul:last-child { margin-right: 0; }

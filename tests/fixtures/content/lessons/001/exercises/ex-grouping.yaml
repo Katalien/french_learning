@@ -1,0 +1,18 @@
+id: ex-grouping
+type: grouping
+kind: exercise
+lesson: 1
+origin: material
+answers_origin: ai
+sources:
+  - {file: lessons/001/sources/sheet.jpg, original: sheet.jpg}
+part: homework
+number: 4
+topics: [top-articles]
+description_ru: Распределить слова по роду
+instruction: {ru: Распределите слова по роду., original: Classez les mots., original_lang: fr, origin: ai}
+status: main
+groups: [masculin, féminin]
+items:
+  - {id: 1, word: chat, answer: masculin}
+  - {id: 2, word: maison, answer: féminin}

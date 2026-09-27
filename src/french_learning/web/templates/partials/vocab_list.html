@@ -1,0 +1,13 @@
+{# Лексика урока: новые и на повторение (FR-039) #}
+{% macro word_row(w) -%}
+  <li><span class="fr">{% if w.article %}{{ w.article }}{% if w.article != "l'" %} {% endif %}{% endif %}{{ w.text }}</span>
+    — {{ w.translations | map(attribute="text") | join(", ") }}</li>
+{%- endmacro %}
+{% if new_words %}
+  <h3>Новые слова</h3>
+  <ul class="words">{% for w in new_words %}{{ word_row(w) }}{% endfor %}</ul>
+{% endif %}
+{% if repeat_words %}
+  <h3>На повторение</h3>
+  <ul class="words">{% for w in repeat_words %}{{ word_row(w) }}{% endfor %}</ul>
+{% endif %}

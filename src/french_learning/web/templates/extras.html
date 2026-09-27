@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Дополнительные материалы{% endblock %}
+{% block content %}
+<h1>Дополнительные материалы</h1>
+<p class="muted">Материалы без урока: добавленные по ссылке из интернета или вручную.</p>
+{% if not elements %}<p class="empty">Дополнительных материалов пока нет.</p>{% endif %}
+<ul class="elements">
+  {% for e in elements %}{% include "partials/element_row.html" %}{% endfor %}
+</ul>
+{% endblock %}

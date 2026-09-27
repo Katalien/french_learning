@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Требует проверки{% endblock %}
+{% block content %}
+<h1>Требует проверки</h1>
+<p class="muted">Места, в которых агент не уверен. Откройте элемент, сверьте с оригиналом и отметьте проверенным
+  или сообщите об ошибке.</p>
+{% if not reviews %}<p class="empty">Всё проверено.</p>{% endif %}
+<ul class="elements">
+  {% for r in reviews %}
+    {% set e = r.element %}
+    <li>
+      <a href="/elements/{{ e.id }}">{{ e.description_ru if e.kind == "exercise" else (e.title if e.title is defined else e.text) }}</a>
+      {% if r.item_id %}<span class="muted">— пункт {{ r.item_id }}</span>{% endif %}
+      <small class="muted">{% if e.lesson %}Урок {{ e.lesson }}{% else %}дополнительный материал{% endif %}</small>
+      <p class="review-note-inline">⚠ {{ r.note }}</p>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

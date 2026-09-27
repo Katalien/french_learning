@@ -1,0 +1,18 @@
+id: ex-truefals
+type: true_false
+kind: exercise
+lesson: 1
+origin: material
+answers_origin: ai
+sources:
+  - {file: lessons/001/sources/sheet.jpg, original: sheet.jpg}
+part: class
+number: 3
+topics: [top-nourritu]
+description_ru: Верно или неверно по тексту
+instruction: {ru: "Верно или неверно?", original: "Vrai ou faux ?", original_lang: fr, origin: ai}
+status: main
+links: {text: tx-aucafeaa}
+items:
+  - {id: 1, statement: Paul commande un thé., answer: false}
+  - {id: 2, statement: La serveuse apporte de l'eau., answer: true}

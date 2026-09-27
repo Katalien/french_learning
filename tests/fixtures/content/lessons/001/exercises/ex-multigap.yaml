@@ -1,0 +1,17 @@
+id: ex-multigap
+type: multi_gap
+kind: exercise
+lesson: 1
+origin: material
+answers_origin: ai
+sources:
+  - {file: lessons/001/sources/sheet.jpg, original: sheet.jpg}
+part: homework
+number: 1
+sheet_number: a
+topics: [top-articles]
+description_ru: Вставить артикли в предложения
+instruction: {ru: Вставьте артикли., original: Fill in the articles., original_lang: en, origin: ai}
+status: main
+items:
+  - {id: 1, text: "{{1}} chat et {{2}} maison.", answers: {1: [le], 2: [la]}}

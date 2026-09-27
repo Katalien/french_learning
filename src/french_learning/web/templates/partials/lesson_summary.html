@@ -1,0 +1,17 @@
+{# Сводка урока (FR-031). Переменная: s — LessonSummary #}
+<div class="summary">
+  <p class="summary-date">{{ s.date | ru_date }}</p>
+  {% if s.topics %}
+  <p class="topics">
+    {% for t in s.topics %}<a class="chip" href="/topics/{{ t.id }}">{{ t.name }}</a>{% endfor %}
+  </p>
+  {% endif %}
+  <ul class="stats">
+    <li>Новых слов: <strong>{{ s.new_words }}</strong></li>
+    <li>Домашка: <strong>{{ s.homework_done }} из {{ s.homework_total }}</strong>
+      {% if s.homework_optional %}<span class="muted">+{{ plural(s.homework_optional, "необязательное", "необязательных", "необязательных") }}</span>{% endif %}
+    </li>
+    {% if s.needs_review %}<li class="review-count">⚠ Требует проверки: {{ s.needs_review }}</li>{% endif %}
+    {% if s.errors %}<li class="error-count"><a href="/problems">Ошибки в данных: {{ s.errors }}</a></li>{% endif %}
+  </ul>
+</div>

@@ -1,0 +1,17 @@
+id: ex-picturea
+type: picture
+kind: exercise
+lesson: 1
+part: homework
+number: 5
+topics: [top-maisonxx]
+description_ru: Что есть в сумке — по картинке
+instruction: {ru: "Опишите, что есть в сумке, по картинке.", original: "Qu'est-ce qu'il y a dans mon sac ?", original_lang: fr, origin: ai}
+status: main
+show_source: true
+origin: material
+answers_origin: ai
+sources:
+  - {file: lessons/001/sources/picture.jpg, original: picture.jpg}
+items:
+  - {id: 1, prompt: un stylo ✗, answers: ["Dans mon sac, il n'y a pas de stylo."]}

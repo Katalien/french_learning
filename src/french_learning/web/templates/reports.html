@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Сообщения об ошибках{% endblock %}
+{% block content %}
+<h1>Сообщения об ошибках</h1>
+<p class="muted">Сообщения разбирает агент: скажите ему в Claude Code «разбери сообщения об ошибках».</p>
+{% if not reports %}<p class="empty">Сообщений нет.</p>{% endif %}
+<table>
+  <thead><tr><th>Дата</th><th>Где</th><th>Что не так</th><th>Статус</th></tr></thead>
+  <tbody>
+    {% for r in reports %}
+      {% set e = index.element(r.element) %}
+      <tr>
+        <td>{{ r.created.date() | ru_date }}</td>
+        <td><a href="/elements/{{ r.element }}">{{ e.description_ru if e and e.kind == "exercise" else (e.title if e and e.title is defined else r.element) }}</a>{% if r.item %}, пункт {{ r.item }}{% endif %}</td>
+        <td>{{ r.comment }}{% if r.resolution %}<br><small class="muted">Ответ агента: {{ r.resolution }}</small>{% endif %}</td>
+        <td>{{ {"open": "не разобрано", "fixed": "исправлено", "rejected": "отклонено"}[r.status] }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

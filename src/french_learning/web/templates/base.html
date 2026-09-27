@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Французский{% endblock %} · French Learning</title>
+  <link rel="stylesheet" href="/static/vendor/pico.min.css">
+  <link rel="stylesheet" href="/static/css/app.css">
+  <script src="/static/vendor/htmx.min.js" defer></script>
+  <script src="/static/vendor/alpine.min.js" defer></script>
+</head>
+<body>
+  <header class="container site-header">
+    <nav>
+      <ul><li><a href="/" class="brand">🇫🇷 Французский</a></li></ul>
+      <ul>
+        <li><a href="/">Уроки</a></li>
+        <li><a href="/topics">Темы</a></li>
+        <li><a href="/extras">Доп. материалы</a></li>
+        <li><a href="/review">Проверка</a></li>
+        <li>
+          <form method="post" action="/settings/origin" class="origin-toggle">
+            {% set origin_on = request.cookies.get("show_origin") == "1" %}
+            <input type="hidden" name="show" value="{{ '0' if origin_on else '1' }}">
+            <button type="submit" class="outline small" title="Показать, что взято из материалов, а что создано ИИ">
+              Происхождение: {{ "вкл" if origin_on else "выкл" }}</button>
+          </form>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <main class="container">
+    {% if request.query_params.get("error") %}
+      <p class="flash flash-error" role="alert">Не сохранено: {{ request.query_params.get("error") }}</p>
+    {% elif request.query_params.get("notice") %}
+      <p class="flash" role="status">{{ request.query_params.get("notice") }}</p>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

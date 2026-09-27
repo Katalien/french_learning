@@ -1,0 +1,18 @@
+id: ex-transfor
+type: transform
+kind: exercise
+lesson: 1
+origin: material
+answers_origin: ai
+sources:
+  - {file: lessons/001/sources/sheet.jpg, original: sheet.jpg}
+part: homework
+number: 2
+topics: [top-etreverb]
+description_ru: Поставить в отрицание
+instruction: {ru: Поставьте предложения в отрицательную форму., original: Mettez au négatif., original_lang: fr, origin: ai}
+status: main
+reference: |
+  **ne** + глагол + **pas**: Je **ne** suis **pas**.
+items:
+  - {id: 1, prompt: Je suis fatiguée., answers: [Je ne suis pas fatiguée.]}

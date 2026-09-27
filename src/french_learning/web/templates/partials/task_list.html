@@ -1,0 +1,33 @@
+{# Вкладки «В классе» / «Домашка» и список упражнений (FR-022, FR-026, FR-032) #}
+{% set n = summary.number %}
+<div role="tablist" class="part-tabs">
+  {% for key in ("class", "homework") %}
+    <a role="tab" href="/lessons/{{ n }}/tasks?part={{ key }}"
+       hx-get="/lessons/{{ n }}/tasks?part={{ key }}" hx-target="#tasks" hx-push-url="true"
+       class="part-tab part-{{ key }}" {% if part == key %}aria-selected="true"{% endif %}>
+      {{ PART_NAMES[key] }}
+    </a>
+  {% endfor %}
+</div>
+
+<div class="task-list part-{{ part }}">
+  {% if not exercises %}
+    <p class="empty">
+      {% if has_reserve %}Основных заданий нет — все упражнения в резерве.
+      {% else %}Нет материалов.{% endif %}
+    </p>
+  {% endif %}
+  <ol class="exercises">
+    {% for e in exercises %}
+      {% set topic = index.topic(e.topics[0]) if e.topics else none %}
+      <li>
+        <a href="/elements/{{ e.id }}">{{ e.number }} — {{ topic.name if topic else "Без темы" }} — {{ e.description_ru }}</a>
+        {% if e.sheet_number %}<small class="muted">на листе: упр. {{ e.sheet_number }}</small>{% endif %}
+        {% if e.status == "optional" %}<mark class="badge">необязательное</mark>{% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+  {% if has_reserve %}
+    <p><a href="/lessons/{{ n }}/reserve">Резерв урока →</a></p>
+  {% endif %}
+</div>

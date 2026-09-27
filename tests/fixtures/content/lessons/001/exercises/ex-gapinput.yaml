@@ -1,0 +1,18 @@
+id: ex-gapinput
+type: gap_input
+kind: exercise
+lesson: 1
+origin: material
+answers_origin: ai
+sources:
+  - {file: lessons/001/sources/sheet.jpg, original: sheet.jpg}
+part: class
+number: 2
+sheet_number: "2"
+topics: [top-etreverb]
+description_ru: Поставить être в нужную форму
+instruction: {ru: Поставьте глагол в настоящее время., original: Conjuguez le verbe au présent., original_lang: fr, origin: ai}
+status: main
+items:
+  - {id: 1, text: "Je {{1}} étudiante.", hint: "(être)", answers: {1: [suis]}}
+  - {id: 2, text: "Nous {{1}} au café.", hint: "(être)", answers: {1: [sommes]}}
