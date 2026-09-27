@@ -44,7 +44,7 @@ def run_backup(db: ProgressDB, content_dir: Path, today: dt.date | None = None) 
     if changed:
         target.write_text(text, encoding="utf-8", newline="\n")
         result = ContentWriter(content_dir).commit_paths(
-            [BACKUP_PATH], f"Резервная копия прогресса {today.isoformat()}"
+            [BACKUP_PATH, ".gitignore"], f"Резервная копия прогресса {today.isoformat()}"
         )
     else:
         result = WriteResult(committed=False, pushed=False, warning=None)
