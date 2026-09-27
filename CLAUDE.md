@@ -50,7 +50,10 @@ SQLite для прогресса, pytest, ruff. Подробнее — конс�
 - Команды для навыков агента (`scan-lesson`, `store-source`, `new-ids`, `next-number`,
   `topics-list`, `vocab-find`, `stage-check`, `commit-staging`, `build-archive`,
   `reports-list`, `report-resolve`, `quality-sample`, `init-content`, `restore-progress`) —
-  `specs/002-add-lesson-skill/contracts/cli.md`.
+  `specs/002-add-lesson-skill/contracts/cli.md`; для тренажёров (`trainers-list`,
+  `trainer-context`, `mistakes-list`) — `specs/004-exercises-trainers/contracts/cli.md`.
+- `uv run french-learning serve --port 8010 --content-dir <демо>` — второй экземпляр на
+  демо-хранилище (для проверок, не трогает настоящий прогресс).
 
 ## Навыки агента
 
@@ -58,6 +61,9 @@ SQLite для прогресса, pytest, ruff. Подробнее — конс�
 - `/add-material <ссылка>` — материал из интернета в «Дополнительные материалы».
 - `/fix-reports` — разобрать сообщения об ошибках из приложения.
 - `/complete-words` — дополнить слова словаря с пометкой «нужно дополнить» (род, формы, спряжение).
+- `/generate-tasks <тренажёр> [N]` — пакет заданий для тренажёра (только по просьбе).
+- `/add-trainer <описание>` — новый тренажёр в каталоге `trainers.yaml`.
+- `/explain-mistakes [тренажёр | урок N]` — разбор ошибок в чате.
 - Общие правила разбора — `.claude/skills/_shared/content-rules.md`; формат контента —
   `docs/content-format.md`. Контент пишется только через черновик и `commit-staging`.
 
@@ -67,4 +73,7 @@ SQLite для прогресса, pytest, ruff. Подробнее — конс�
   (не в git). Резервная копия — `backups/progress.sql` в хранилище: коммит и отправка раз в день
   при работающем приложении и по кнопке; восстановление — `french-learning restore-progress`.
 - Проверка введённых ответов — `src/french_learning/practice/checking.py` (общая для словаря
-  и упражнений).
+  и упражнений); проверка упражнений по типам — `exercises/grading.py`.
+- Попытки упражнений (черновик, итог первой проверки, «исправлено» / «подсмотрен») —
+  `exercises/attempts.py`; ответы тренажёров и их расписание FSRS — `trainers/schedule.py`.
+  Всё в той же базе прогресса и её резервной копии.
