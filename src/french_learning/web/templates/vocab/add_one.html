@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{# Добавление по одному: серия слов до «Завершить» (009, правка приёмки).
+   Переменные: topic, lesson (выбранные ранее), added (записи этой серии), error #}
+{% block title %}Добавить по одному{% endblock %}
+{% block content %}
+<p class="crumbs"><a href="/vocab">Словарь</a> › <a href="/vocab/add">Добавить</a> › По одному</p>
+<div class="page-head">
+  <h1 class="grow">{% if added %}Добавить следующее{% else %}Добавить по одному{% endif %}</h1>
+  {% if added %}
+    <a href="/vocab?notice={{ ('Добавлено слов: ' ~ (added | length)) | urlencode }}" role="button" class="outline">Завершить</a>
+  {% endif %}
+</div>
+{% if error %}<p class="flash flash-error">Не сохранено: {{ error }}</p>{% endif %}
+
+<div class="add-one">
+  <section class="card">
+    <form method="post" action="/vocab/add" x-data="{ quick: '' }">
+      <input type="hidden" name="sequence" value="1">
+      <input type="hidden" name="added" value="{{ added | map(attribute='id') | join(',') }}">
+      <label>Одной строкой
+        <input name="quick" x-model="quick" lang="fr" placeholder="la, pomme - яблоко" autofocus autocomplete="off">
+        <small class="muted">Артикль, слово - перевод, перевод. Артикль можно неопределённый (un, une) — род
+          подставится по нему; если род не понять (l', les), его дополнит агент (<code>/complete-words</code>).</small>
+      </label>
+      <details class="edit-block">
+        <summary>Или заполнить по полям</summary>
+        <fieldset :disabled="quick.trim() !== ''">
+          <div class="grid-2">
+            <label>Артикль
+              <select name="article"><option value="">—</option>{% for a in ("le", "la", "l'", "les") %}<option value="{{ a }}">{{ a }}</option>{% endfor %}</select>
+            </label>
+            <label>Слово или фраза <input name="text" lang="fr"></label>
+          </div>
+          <label>Переводы (через запятую) <input name="translations"></label>
+        </fieldset>
+        <div class="grid-2">
+          <label>Вид <select name="entry_type">{% for key, name in kinds.items() %}<option value="{{ key }}">{{ name }}</option>{% endfor %}</select></label>
+          <label>Род <select name="gender"><option value="">—</option><option value="m">m</option><option value="f">f</option><option value="both">оба</option></select></label>
+        </div>
+      </details>
+      <div class="grid-2">
+        <label>Тема <select name="topic" required>{% for t in topics %}<option value="{{ t.id }}" {% if topic == t.id %}selected{% endif %}>{{ t.name }}</option>{% endfor %}</select></label>
+        <label>Урок (необязательно) <select name="lesson"><option value="">без урока</option>{% for l in lessons %}<option value="{{ l.number }}" {% if lesson == l.number | string %}selected{% endif %}>Урок {{ l.number }}</option>{% endfor %}</select></label>
+      </div>
+      <div class="btn-group">
+        <button type="submit">{% if added %}Добавить следующее{% else %}Добавить{% endif %}</button>
+        {% if added %}<a href="/vocab?notice={{ ('Добавлено слов: ' ~ (added | length)) | urlencode }}" role="button" class="outline">Завершить</a>{% endif %}
+      </div>
+    </form>
+  </section>
+
+  {% if added %}
+    <section class="card added-list">
+      <h2>Добавлено сейчас · {{ added | length }}</h2>
+      <ul class="word-rows">
+        {% for w in added | reverse %}
+          <li class="word-row"><span class="gbar g-{{ w.gender or 'none' }}"></span>
+            <span><a class="fr" href="/vocab/{{ w.id }}">{{ display_fr(w) }}</a> <span class="muted">— {{ w.translations | map(attribute="text") | join(", ") }}</span></span></li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}

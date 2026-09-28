@@ -41,6 +41,15 @@ def topics_page(request: Request, index: Index):
     return templates.TemplateResponse(request, "topics.html", context)
 
 
+def _default_tab(topic, tab: str, keys: list[str]) -> str:
+    """Выбранная вкладка; иначе у тем раздела «Лексика» — «Слова», у остальных — первая."""
+    if tab in keys:
+        return tab
+    if topic is not None and topic.section == "vocabulary" and "words" in keys:
+        return "words"
+    return keys[0] if keys else ""
+
+
 @router.get("/topics/{topic_id}")
 def topic_page(request: Request, topic_id: str, index: Index, tab: str = ""):
     if topic_id == "none":
@@ -57,7 +66,7 @@ def topic_page(request: Request, topic_id: str, index: Index, tab: str = ""):
         "topic": topic,
         "elements": elements,
         "tabs": tabs,
-        "current_tab": tab if tab in keys else (keys[0] if keys else ""),
+        "current_tab": _default_tab(topic, tab, keys),
         "all_topics": index.all_topics(),
         "show_origin": show_origin(request),
     }
@@ -84,7 +93,14 @@ def merge_topic(request: Request, topic_id: str, target: Annotated[str, Form()])
 
 @router.get("/extras")
 def extras_page(request: Request, index: Index):
-    context = {"index": index, "elements": index.extras(), "show_origin": show_origin(request)}
+    from french_learning.vocab.entries import display_fr
+
+    context = {
+        "index": index,
+        "elements": index.extras(),
+        "show_origin": show_origin(request),
+        "display_fr": display_fr,
+    }
     return templates.TemplateResponse(request, "extras.html", context)
 
 

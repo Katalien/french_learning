@@ -17,7 +17,13 @@ from french_learning.web.templating import templates
 
 router = APIRouter()
 
-SCOPES = {"all": "весь словарь", "lesson": "урок", "topic": "тема", "hard": "сложные"}
+SCOPES = {
+    "all": "весь словарь",
+    "lesson": "урок",
+    "topic": "тема",
+    "hard": "сложные",
+    "range": "диапазон",
+}
 
 
 def _sessions(request: Request) -> TrainerSessions:
@@ -48,7 +54,18 @@ def _scoped(questions: list[Question], params: dict, hard: set[str]) -> list[Que
         return [q for q in questions if params["topic"] in q.topics]
     if scope == "hard":
         return [q for q in questions if q.key in hard]
+    if scope == "range":
+        from french_learning.trainers.generators.numbers import in_range
+
+        low, high = int(params.get("low", 0)), int(params.get("high", 1000))
+        return [q for q in questions if in_range(q.key, low, high)]
     return questions
+
+
+def _number_ranges() -> dict:
+    from french_learning.trainers.generators.numbers import DEFAULT_RANGE, RANGES
+
+    return {"items": RANGES, "default": DEFAULT_RANGE}
 
 
 def _catalog_rows(request: Request, index: ContentIndex) -> list[dict]:
@@ -111,6 +128,7 @@ def trainer_setup(request: Request, trainer_id: str, index: Index):
         "lessons": lessons,
         "topics": [t for t in index.all_topics() if t.id in topics],
         "scopes": SCOPES,
+        "number_ranges": _number_ranges() if trainer.id == "numbers" else None,
         "portion": _sessions(request).portion_size(),
     }
     if trainer.source == "agent":
@@ -128,9 +146,17 @@ def trainer_start(
     scope: Annotated[str, Form()] = "all",
     lesson: Annotated[str, Form()] = "",
     topic: Annotated[str, Form()] = "",
+    range: Annotated[str, Form()] = "",
+    range_from: Annotated[str, Form()] = "",
+    range_to: Annotated[str, Form()] = "",
 ):
     trainer = _trainer(index, trainer_id)
     params = {"scope": scope if scope in SCOPES else "all", "lesson": lesson, "topic": topic}
+    if scope == "range" and trainer.id == "numbers":
+        from french_learning.trainers.generators.numbers import parse_range
+
+        low, high = parse_range(range, range_from, range_to)
+        params = {"scope": "range", "low": low, "high": high}
     if trainer.source == "agent":
         params = {"scope": "all", "pool": True}
     hard = request.app.state.trainer_schedule.hard_keys(trainer.id)

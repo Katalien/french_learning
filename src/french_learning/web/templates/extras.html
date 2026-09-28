@@ -1,10 +1,38 @@
 {% extends "base.html" %}
+{# Дополнительные материалы (001 FR-038): материалы и ссылки отдельно от лексики (009) #}
 {% block title %}Дополнительные материалы{% endblock %}
 {% block content %}
 <h1>Дополнительные материалы</h1>
-<p class="muted">Материалы без урока: добавленные по ссылке из интернета или вручную.</p>
+<p class="muted">Материалы без урока: добавленные по ссылке из интернета (<code>/add-material</code>) или вручную.</p>
+{% set materials = elements | rejectattr("kind", "equalto", "vocab") | list %}
+{% set words = elements | selectattr("kind", "equalto", "vocab") | list %}
 {% if not elements %}<p class="empty">Дополнительных материалов пока нет.</p>{% endif %}
-<ul class="elements plain-list card">
-  {% for e in elements %}{% include "partials/element_row.html" %}{% endfor %}
-</ul>
+<div class="extras-grid">
+  <section class="card" data-block="materials">
+    <h2>Материалы и ссылки</h2>
+    {% if materials %}
+      <ul class="plain-list">
+        {% for e in materials %}
+          {% set url = (e.sources | selectattr("url") | map(attribute="url") | first) if e.sources else none %}
+          <li class="extra-row">
+            <span><span class="chip">{{ KIND_NAMES[e.kind] }}</span>
+              <a href="/elements/{{ e.id }}">{{ e.description_ru if e.kind == "exercise" else e.title }}</a></span>
+            {% if url %}<a class="small muted source-link" href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ url | replace("https://", "") | replace("http://", "") | truncate(40) }}</a>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}<p class="empty">Нет.</p>{% endif %}
+  </section>
+  <section class="card" data-block="words">
+    <h2>Лексика без урока</h2>
+    {% if words %}
+      <ul class="word-rows">
+        {% for w in words %}
+          <li class="word-row"><span class="gbar g-{{ w.gender or 'none' }}"></span>
+            <span><a class="fr" href="/vocab/{{ w.id }}">{{ display_fr(w) }}</a> <span class="muted">— {{ w.translations | map(attribute="text") | join(", ") }}</span></span></li>
+        {% endfor %}
+      </ul>
+    {% else %}<p class="empty">Нет.</p>{% endif %}
+  </section>
+</div>
 {% endblock %}

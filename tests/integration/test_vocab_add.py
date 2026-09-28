@@ -17,8 +17,9 @@ def _git(content_root: Path):
 
 
 def test_add_page_has_both_forms(client):
-    html = client.get("/vocab/add").text
-    assert 'action="/vocab/add"' in html and 'action="/vocab/import"' in html
+    # 009: способы добавления — отдельными страницами
+    assert 'action="/vocab/add"' in client.get("/vocab/add/one").text
+    assert 'action="/vocab/import"' in client.get("/vocab/add/list").text
 
 
 def test_add_single_word_redirects_to_entry(client):

@@ -1,67 +1,19 @@
 {% extends "base.html" %}
+{# Добавить слова: выбор способа (009, правка приёмки) #}
 {% block title %}Добавить слова{% endblock %}
 {% block content %}
 <p class="crumbs"><a href="/vocab">Словарь</a> › Добавить</p>
 <h1>Добавить слова</h1>
-{% if error %}<p class="flash flash-error">Не сохранено: {{ error }}</p>{% endif %}
-
-{% if report %}
-  <article class="import-report">
-    <header><h2>Результат</h2></header>
-    <p>Добавлено: {{ report.added | length }}{% if report.added %} — {{ report.added | join(", ") }}{% endif %}</p>
-    <p>Объединено: {{ report.merged | length }}{% if report.merged %} — {{ report.merged | join(", ") }}{% endif %}
-      <small class="muted">(новые переводы добавлены к уже существующим словам)</small></p>
-    <p>Не распознано: {{ report.unrecognized | length }}</p>
-    {% if report.unrecognized %}
-      <ul>{% for u in report.unrecognized %}<li><code>{{ u.raw }}</code> — {{ u.reason }}</li>{% endfor %}</ul>
-      <p class="muted">Исправьте эти строки ниже и добавьте снова.</p>
-    {% endif %}
-    {% if report.result and report.result.warning %}<p class="muted">{{ report.result.warning }}</p>{% endif %}
-  </article>
-{% endif %}
-
-<section class="card">
-  <h2>Одно слово</h2>
-  <form method="post" action="/vocab/add" x-data="{ quick: '' }">
-    <label>Одной строкой
-      <input name="quick" x-model="quick" lang="fr" placeholder="la, pomme - яблоко" autofocus>
-      <small>Артикль, слово - перевод, перевод. Артикль можно неопределённый (un, une) — род
-        подставится по нему; если по артиклю род не понять (l', les), его дополнит агент
-        (<code>/complete-words</code>). Или заполните поля ниже по отдельности.</small>
-    </label>
-    <fieldset :disabled="quick.trim() !== ''">
-    <div class="grid">
-      <label>Артикль
-        <select name="article"><option value="">—</option>{% for a in ("le", "la", "l'", "les") %}<option value="{{ a }}">{{ a }}</option>{% endfor %}</select>
-      </label>
-      <label>Слово или фраза <input name="text" required lang="fr"></label>
-    </div>
-    <label>Переводы (через запятую) <input name="translations" required></label>
-    </fieldset>
-    <div class="grid">
-      <label>Вид <select name="entry_type">{% for key, name in kinds.items() %}<option value="{{ key }}">{{ name }}</option>{% endfor %}</select></label>
-      <label>Род <select name="gender"><option value="">—</option><option value="m">m</option><option value="f">f</option><option value="both">оба</option></select></label>
-    </div>
-    <div class="grid">
-      <label>Тема <select name="topic" required>{% for t in topics %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}</select></label>
-      <label>Урок (необязательно) <select name="lesson"><option value="">без урока</option>{% for l in lessons %}<option value="{{ l.number }}">Урок {{ l.number }}</option>{% endfor %}</select></label>
-    </div>
-    <button type="submit">Добавить</button>
-  </form>
-</section>
-
-<section class="card">
-  <h2>Списком</h2>
-  <p class="muted">По строке на слово: <code>французское — перевод, перевод</code>. Можно указать артикль
-    (<code>le chat</code>), род <code>(m)</code> / <code>(f)</code>, <code>(v)</code> — глагол, <code>(adj)</code>,
-    <code>(phr)</code> — фраза. Остальное дополнит агент по команде <code>/complete-words</code>.</p>
-  <form method="post" action="/vocab/import">
-    <textarea name="text" rows="10" lang="fr" placeholder="le chat — кот&#10;parler (v) — говорить&#10;Ça va ? — Как дела?">{{ list_text or "" }}</textarea>
-    <div class="grid">
-      <label>Тема <select name="topic" required>{% for t in topics %}<option value="{{ t.id }}" {% if topic == t.id %}selected{% endif %}>{{ t.name }}</option>{% endfor %}</select></label>
-      <label>Урок (необязательно) <select name="lesson"><option value="">без урока</option>{% for l in lessons %}<option value="{{ l.number }}">Урок {{ l.number }}</option>{% endfor %}</select></label>
-    </div>
-    <button type="submit">Добавить список</button>
-  </form>
-</section>
+<div class="mode-grid">
+  <a class="card link mode-card" href="/vocab/add/one">
+    <h2>По одному</h2>
+    <p class="muted">Строкой «артикль, слово - перевод» или по полям. После каждого слова сразу можно
+      добавить следующее — пока не нажмёте «Завершить».</p>
+  </a>
+  <a class="card link mode-card" href="/vocab/add/list">
+    <h2>Списком</h2>
+    <p class="muted">Вставьте сразу много слов — по строке на слово. Покажу, что добавлено,
+      что объединено и какие строки не распознаны.</p>
+  </a>
+</div>
 {% endblock %}
