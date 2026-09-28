@@ -45,7 +45,7 @@ SQLite для прогресса, pytest, ruff. Подробнее — конс�
 - `uv sync` — установить зависимости; `uv run pre-commit install` — git-хуки.
 - `uv run french-learning serve` — запустить приложение (http://127.0.0.1:8000). Пользователь
   запускает его ярлыком «French Learning» на рабочем столе (`scripts/windows/`: сервер в фоне,
-  журнал в `%LOCALAPPDATA%rench-learning`); перед `uv sync` фоновый сервер надо остановить
+  журнал в `%LOCALAPPDATA%\french-learning`); перед `uv sync` фоновый сервер надо остановить
   (ярлык «остановить» или `scripts/windows/stop-app.ps1`). Скрипты .ps1 — в UTF-8 с BOM
   (иначе Windows PowerShell 5.1 ломает русский текст).
 - `uv run french-learning validate-content` — проверить хранилище контента (вызывать перед
