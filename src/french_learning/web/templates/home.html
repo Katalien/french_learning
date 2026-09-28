@@ -13,9 +13,7 @@
         <h2>Урок {{ s.number }}</h2>
         <p class="muted small">{{ s.date | ru_date }} · новых слов: {{ s.new_words }}</p>
         {% if s.topics %}<p class="topics">{% for t in s.topics[:4] %}<span class="chip">{{ t.name }}</span>{% endfor %}{% if s.topics | length > 4 %}<span class="chip">+{{ s.topics | length - 4 }}</span>{% endif %}</p>{% endif %}
-        {% if s.needs_review or s.errors %}<p class="small">
-          {% if s.needs_review %}<span class="review-count">⚠ требует проверки: {{ s.needs_review }}</span>{% endif %}
-          {% if s.errors %}<span class="error-count">ошибки в данных: {{ s.errors }}</span>{% endif %}</p>{% endif %}
+        {% if s.errors %}<p class="small"><span class="error-count">ошибки в данных: {{ s.errors }}</span></p>{% endif %}
       </div>
     </a>
   {% endfor %}

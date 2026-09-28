@@ -10,7 +10,7 @@
 .topics { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .stats { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; margin: 0; }
 .stats li { list-style: none; margin: 0; }
-.review-count { color: var(--warn); }
+.review-count { color: var(--muted); }
 .error-count, .error-count a { color: var(--bad); }
 
 .sections { display: flex; gap: 0.5rem; margin: 1rem 0; flex-wrap: wrap; justify-content: flex-start; }
@@ -46,7 +46,19 @@
 @media (min-width: 900px) {
   .exercise.with-source { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
 }
-.exercise-source img { border: 1px solid var(--line); border-radius: 0.5rem; }
+.exercise-source { margin: 0; }
+.exercise-source img { border: 1px solid var(--line); border-radius: 0.5rem; display: block; }
+.picture-toggle { display: none; }
+/* картинка остаётся на месте, листаются только предложения (009, замечание 1) */
+@media (min-width: 900px) {
+  .exercise.with-source .exercise-source { position: sticky; top: 72px; max-height: calc(100vh - 96px); overflow-y: auto; }
+}
+@media (max-width: 899px) {
+  .exercise.with-source .exercise-source { position: sticky; top: 0; z-index: 3; background: var(--surface-solid);
+    padding: .4rem; border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+  .exercise.with-source .exercise-source img { max-height: 34vh; width: auto; margin: 0 auto; }
+  .picture-toggle { display: inline-flex; }
+}
 
 .element-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1.5rem; }
 .words li { margin-bottom: 0.25rem; }
@@ -66,19 +78,15 @@
 .origin-badge.origin-ai, .origin-badge.origin-service { background: var(--warn-soft); color: var(--warn); }
 .original-instruction { font-size: 0.9rem; color: var(--muted); }
 .review-badge { position: relative; }
-.review-toggle { all: unset; cursor: pointer; color: var(--warn); padding: 0 0.2rem; }
+.review-toggle { all: unset; cursor: pointer; color: var(--muted); opacity: .7; padding: 0 0.2rem; font-size: .85em; }
+.review-toggle:hover { opacity: 1; color: var(--warn); }
 .review-note { display: block; margin: 0.35rem 0; padding: 0.5rem 0.75rem; border-left: 3px solid var(--warn); background: var(--warn-soft); font-size: 0.9rem; }
-.review-note-inline { color: var(--warn); font-size: 0.9rem; margin: 0.2rem 0 0.6rem; }
+.review-note-inline { color: var(--muted); font-size: 0.9rem; margin: 0.2rem 0 0.6rem; }
 .media-path { word-break: break-all; font-size: 0.8rem; }
 
 /* Шапка на узком экране: пункты меню переносятся, ничего не обрезается */
 
 /* Карточки повторения; род — цветом и меткой (003) */
-.ratings { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
-.ratings button { flex: 1 1 8rem; }
-.rating-again { background: var(--bad); border-color: var(--bad); }
-.rating-hard { background: var(--warn); border-color: var(--warn); }
-.rating-good { background: var(--ok); border-color: var(--ok); }
 .practice-setup fieldset label { display: block; }
 
 /* Словарь */
@@ -100,14 +108,10 @@
 .conjugation { max-width: 20rem; }
 
 /* Ввод ответа */
-.answer-form input[name="answer"] { font-size: 1.3rem; text-align: center; }
 .symbol-panel { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; margin-bottom: 0.75rem; }
 .symbol { width: 2.4rem; padding: 0.3rem 0; margin: 0; font-size: 1.1rem; }
 .spelling-choice { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
 .spelling-choice button { width: auto; font-size: 1.2rem; }
-.verdict { font-size: 1.3rem; font-weight: 700; }
-.verdict-ok { color: var(--ok); }
-.verdict-wrong { color: var(--bad); }
 .entry-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .entry-actions form { margin: 0; }
 
@@ -289,3 +293,62 @@
   .split-layout.is-split { display: block; }
   .side-pane { position: fixed; inset: auto 0 0 0; top: 20vh; max-height: none; z-index: 35; border-radius: 16px 16px 0 0; }
 }
+
+/* Упражнения к теории / тексту — отдельный свёрнутый блок (009, замечание 3) */
+.linked-exercises { margin-top: 1.4rem; padding: .7rem 1rem; border-radius: var(--radius-sm); background: var(--surface-2);
+  font-family: var(--font); font-size: .93rem; }
+.linked-exercises summary { font-weight: 600; color: var(--muted); }
+.linked-exercises[open] summary { margin-bottom: .5rem; }
+
+/* Словарь строками (009) */
+.dict-filters { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: 1.1rem; }
+.dict-filters select { width: auto; margin: 0; min-width: 9rem; }
+.dict-rows { list-style: none; padding: .3rem 1rem; }
+.dict-row { display: flex; align-items: center; gap: .9rem; padding: .55rem .1rem; border-top: 1px solid var(--line); margin: 0; }
+.dict-row:first-child { border-top: 0; }
+.dict-word { flex: 1; min-width: 0; color: var(--text); }
+.dict-word:hover { text-decoration: none; }
+.dict-word:hover .fr { text-decoration: underline; }
+.dict-ru { color: var(--muted); }
+.dict-row .chip { margin: 0; white-space: nowrap; }
+.speak { min-height: 2rem; padding: .1rem .55rem; background: transparent; color: var(--muted); border: 1px solid transparent; }
+.speak:hover { filter: none; color: var(--primary-strong); border-color: var(--line); }
+@media (max-width: 600px) { .dict-row .chip { display: none; } }
+
+/* Карточка повторения (009, design.md): чистая, по центру, полоса рода 14 px */
+.flash-wrap { max-width: 540px; margin: 0 auto; }
+.flash-top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: .8rem; }
+.flash-top .crumbs { margin: 0; }
+.flashcard { position: relative; overflow: hidden; min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .5rem; text-align: center; padding: 2.4rem 1.6rem 1.8rem; border-radius: var(--radius-lg); background: var(--surface-solid);
+  border: 1px solid var(--line); border-top: 0; margin-bottom: 1.1rem; }
+.flashcard .stripe { position: absolute; top: 0; left: 0; right: 0; height: 14px; background: var(--line); }
+.flashcard.gender-m .stripe { background: var(--m); }
+.flashcard.gender-f .stripe { background: var(--f); }
+.flashcard.gender-both .stripe { background: linear-gradient(90deg, var(--m), var(--f)); }
+.gender-tag { font-size: .8rem; font-weight: 700; color: var(--muted); }
+.gender-m .gender-tag { color: var(--m); } .gender-f .gender-tag { color: var(--f); }
+.flashcard .question { font-size: 2.1rem; font-weight: 700; margin: 0; line-height: 1.2; }
+.flashcard .answer { font-size: 1.45rem; font-weight: 600; margin: 0; }
+.flashcard .hint { margin: 0; font-size: .9rem; }
+.flash-back { width: 100%; padding-top: 1rem; margin-top: .6rem; border-top: 1px dashed var(--line);
+  display: flex; flex-direction: column; align-items: center; gap: .4rem; animation: flip-in .45s cubic-bezier(.3, .7, .3, 1); transform-origin: top; }
+@keyframes flip-in { from { opacity: 0; transform: rotateX(-70deg); } to { opacity: 1; transform: none; } }
+.flash-back .example { margin: 0; }
+.flash-actions { display: flex; flex-direction: column; align-items: stretch; }
+.flash-actions .wide, .flash-actions button { width: 100%; min-height: 2.9rem; }
+.ratings { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; }
+.ratings button { min-height: 2.9rem; }
+.ratings .rating-again:hover { border-color: var(--bad); color: var(--bad); }
+.ratings .rating-hard:hover { border-color: var(--warn); color: var(--warn); }
+.ratings .rating-good:hover { border-color: var(--ok); color: var(--ok); }
+.flash-undo { text-align: center; margin-top: .8rem; }
+.verdict { font-size: 1.2rem; font-weight: 700; margin: 0; }
+.verdict-ok { color: var(--ok); } .verdict-wrong { color: var(--bad); }
+.summary-card { text-align: center; display: flex; flex-direction: column; align-items: center; gap: .6rem; padding: 2rem 1.5rem; }
+.rating-stats { list-style: none; padding: 0; display: flex; gap: .8rem; flex-wrap: wrap; justify-content: center; margin: .4rem 0 1rem; }
+.rating-stats li { display: flex; flex-direction: column; gap: .1rem; padding: .6rem 1rem; border-radius: var(--radius-sm); background: var(--surface-2); margin: 0; min-width: 6rem; }
+.rating-stats .rating-again strong { color: var(--bad); } .rating-stats .rating-good strong { color: var(--ok); }
+.btn-group.center { justify-content: center; }
+.answer-form input[name="answer"] { font-size: 1.25rem; text-align: center; }
+.flashcard .question[lang="fr"], .flashcard .answer[lang="fr"] { color: var(--fr); }

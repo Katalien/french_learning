@@ -125,8 +125,10 @@
     {{ e.body | markdown(path) }}
   </article>
   {% if linked %}
-    <h2>Упражнения {{ "к тексту" if e.kind == "text" else "по этой теории" }}</h2>
-    <ul class="plain-list">{% for x in linked %}<li><a href="/elements/{{ x.id }}">{{ x.description_ru }}</a><span class="small muted">{{ PART_NAMES[x.part] }} · № {{ x.number }}</span></li>{% endfor %}</ul>
+    <details class="linked-exercises">
+      <summary>Упражнения {{ "к тексту" if e.kind == "text" else "по этой теории" }} ({{ linked | length }})</summary>
+      <ul class="plain-list">{% for x in linked %}<li><a href="/elements/{{ x.id }}">{{ x.description_ru }}</a><span class="small muted">{{ PART_NAMES[x.part] }} · № {{ x.number }}</span></li>{% endfor %}</ul>
+    </details>
   {% endif %}
 {% endif %}
 

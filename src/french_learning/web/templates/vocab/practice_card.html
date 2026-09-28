@@ -1,40 +1,49 @@
 {% extends "base.html" %}
+{# Карточка повторения (009, design.md): «чистая», по центру, широкая полоса рода, круг прогресса #}
 {% block title %}Повторение{% endblock %}
 {% block content %}
-<p class="crumbs"><a href="/practice">Повторение</a> › {{ mode_name }} · {{ direction_name }}</p>
-<p class="muted">Карточка {{ progress.number }} из {{ progress.total }}</p>
+<div class="flash-wrap">
+  <div class="flash-top">
+    <p class="crumbs"><a href="/practice">Практика</a> › Повторение · {{ mode_name }} · {{ direction_name }}</p>
+    {% with done = progress.number, total = progress.total, label = progress.number ~ "/" ~ progress.total, size = "sm" %}{% include "partials/ring.html" %}{% endwith %}
+  </div>
 
-<article class="flashcard gender-{{ entry.gender or 'none' }}">
-  <p class="question" lang="{{ 'fr' if direction == 'fr_ru' else 'ru' }}">{{ question.text }}
-    {% if direction == 'fr_ru' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}</p>
-  {% if question.hint %}<p class="muted hint">{{ question.hint }}</p>{% endif %}
+  <article class="flashcard gender-{{ entry.gender or 'none' }}{% if shown or result is defined %} is-shown{% endif %}">
+    <span class="stripe"></span>
+    {% if entry.gender in ("m", "f") and direction == "fr_ru" %}<span class="gender-tag">{{ entry.gender }}</span>{% endif %}
+    <p class="question" lang="{{ 'fr' if direction == 'fr_ru' else 'ru' }}">{{ question.text }}</p>
+    {% if direction == 'fr_ru' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}
+    {% if question.hint %}<p class="muted hint">{{ question.hint }}</p>{% endif %}
 
-  {% if shown or result is defined %}
-    <hr>
-    <p class="answer" lang="{{ 'ru' if direction == 'fr_ru' else 'fr' }}">{{ answers | join(", ") }}
-      {% if direction == 'ru_fr' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}</p>
-  {% endif %}
+    {% if shown or result is defined %}
+      <div class="flash-back">
+        <p class="answer" lang="{{ 'ru' if direction == 'fr_ru' else 'fr' }}">{{ answers | join(", ") }}</p>
+        {% if direction == 'ru_fr' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}
+        {% if entry.examples %}<p class="example muted" lang="fr">{{ entry.examples[0].text }}</p>{% endif %}
+      </div>
+    {% endif %}
+  </article>
 
   {% block answer_area %}
     {% if params.method == "input" and not shown %}
-      {% include "vocab/partials/answer_input.html" %}
+      <div class="flash-actions">{% include "vocab/partials/answer_input.html" %}</div>
     {% elif not shown %}
-      <form method="post" action="/practice/{{ session_id }}/show">
-        <button type="submit">Показать</button>
+      <form method="post" action="/practice/{{ session_id }}/show" class="flash-actions">
+        <button type="submit" class="wide">Показать</button>
       </form>
     {% else %}
       <form method="post" action="/practice/{{ session_id }}/rate" class="ratings">
         {% for key, name in ratings.items() %}
-          <button type="submit" name="rating" value="{{ key }}" class="rating-{{ key }}">{{ name }}</button>
+          <button type="submit" name="rating" value="{{ key }}" class="outline rating-{{ key }}">{{ name }}</button>
         {% endfor %}
       </form>
     {% endif %}
   {% endblock %}
-</article>
 
-{% if can_undo %}
-  <form method="post" action="/practice/{{ session_id }}/undo">
-    <button type="submit" class="outline secondary small">Отменить последнюю оценку</button>
-  </form>
-{% endif %}
+  {% if can_undo %}
+    <form method="post" action="/practice/{{ session_id }}/undo" class="flash-undo">
+      <button type="submit" class="btn-text small">Отменить последнюю оценку</button>
+    </form>
+  {% endif %}
+</div>
 {% endblock %}

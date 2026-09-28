@@ -9,7 +9,7 @@
   {% with done = summary.homework_done, total = summary.homework_total, label = none, size = "" %}{% include "partials/ring.html" %}{% endwith %}
   <div class="grow">
     <h1>Урок {{ n }}</h1>
-    <p class="muted">{{ summary.date | ru_date }}{% if summary.needs_review %} · <span class="review-count">⚠ требует проверки: {{ summary.needs_review }}</span>{% endif %}</p>
+    <p class="muted">{{ summary.date | ru_date }}</p>
   </div>
   <button type="button" class="outline btn-icon" title="Настройки урока" aria-label="Настройки урока"
           @click="settings = !settings" :aria-expanded="settings">⚙</button>

@@ -20,10 +20,10 @@
         <div {% if kind == "text" %}lang="fr"{% endif %}>{{ t.body | markdown(index.element_path(t.id), t.id) }}</div>
         {% set exercises = index.linked_exercises(t.id) %}
         {% if exercises %}
-          <footer>
-            <strong>{{ "Упражнения к тексту" if kind == "text" else "Упражнения по этой теории" }}:</strong>
+          <details class="linked-exercises">
+            <summary>{{ "Упражнения к тексту" if kind == "text" else "Упражнения по этой теории" }} ({{ exercises | length }})</summary>
             <ul class="plain-list">{% for x in exercises %}<li><a href="/elements/{{ x.id }}">{{ x.description_ru }}</a><span class="small muted">{{ PART_NAMES[x.part] }} · № {{ x.number }}</span></li>{% endfor %}</ul>
-          </footer>
+          </details>
         {% endif %}
       </article>
     {% endfor %}

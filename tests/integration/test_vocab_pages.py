@@ -19,11 +19,13 @@ def test_dictionary_list_and_filters(client):
     assert links(client.get("/vocab?kind=verb").text) == set()
 
 
-def test_list_and_cards_views(client):
-    listing = re.sub(r"<[^>]+>", "", client.get("/vocab?view=list").text)
+def test_dictionary_rows(client):
+    # 009: словарь строками — полоса рода, слово, перевод, урок, озвучка
+    html = client.get("/vocab").text
+    listing = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", html))
     assert "la maison — дом" in listing
-    cards = client.get("/vocab?view=cards").text
-    assert 'class="entry-card gender-f"' in cards
+    assert 'class="gbar g-f"' in html and 'data-speak="la maison"' in html
+    assert 'href="/practice' not in html.split("</header>", 1)[1]  # повторение — в «Практике»
 
 
 def test_entry_page_gender_label_and_color(client):

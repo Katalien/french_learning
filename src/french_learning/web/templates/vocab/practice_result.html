@@ -1,22 +1,29 @@
 {% extends "base.html" %}
+{# Результат ввода ответа на карточке (003 FR-041; вид — 009) #}
 {% block title %}Повторение{% endblock %}
 {% block content %}
-<p class="crumbs"><a href="/practice">Повторение</a></p>
-<p class="muted">Карточка {{ progress.position }} из {{ progress.total }}</p>
-<article class="flashcard gender-{{ entry.gender or 'none' }}">
-  <p class="question" lang="{{ 'fr' if direction == 'fr_ru' else 'ru' }}">{{ question.text }}
-    {% if direction == 'fr_ru' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}</p>
-  <hr>
-  {% if ok %}
-    <p class="verdict verdict-ok">Верно ✅</p>
-  {% else %}
-    <p class="verdict verdict-wrong">Неверно ❌ <span class="muted">вы ввели: {{ given or "—" }}</span></p>
-  {% endif %}
-  <p class="answer" lang="{{ 'ru' if direction == 'fr_ru' else 'fr' }}">{{ answers | join(", ") }}
-    {% if direction == 'ru_fr' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}</p>
-  <a href="/practice/{{ session_id }}" role="button" autofocus>Дальше</a>
-</article>
-<form method="post" action="/practice/{{ session_id }}/undo">
-  <button type="submit" class="outline secondary small">Отменить эту оценку</button>
-</form>
+<div class="flash-wrap">
+  <div class="flash-top">
+    <p class="crumbs"><a href="/practice">Практика</a> › Повторение</p>
+    {% with done = progress.position, total = progress.total, label = progress.position ~ "/" ~ progress.total, size = "sm" %}{% include "partials/ring.html" %}{% endwith %}
+  </div>
+  <article class="flashcard gender-{{ entry.gender or 'none' }} is-shown">
+    <span class="stripe"></span>
+    <p class="question" lang="{{ 'fr' if direction == 'fr_ru' else 'ru' }}">{{ question.text }}</p>
+    {% if direction == 'fr_ru' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}
+    <div class="flash-back">
+      {% if ok %}
+        <p class="verdict verdict-ok">✓ Верно</p>
+      {% else %}
+        <p class="verdict verdict-wrong">✗ Неверно <span class="muted">вы ввели: {{ given or "—" }}</span></p>
+      {% endif %}
+      <p class="answer" lang="{{ 'ru' if direction == 'fr_ru' else 'fr' }}">{{ answers | join(", ") }}</p>
+      {% if direction == 'ru_fr' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}
+    </div>
+  </article>
+  <div class="flash-actions"><a href="/practice/{{ session_id }}" role="button" class="wide" autofocus>Дальше</a></div>
+  <form method="post" action="/practice/{{ session_id }}/undo" class="flash-undo">
+    <button type="submit" class="btn-text small">Отменить эту оценку</button>
+  </form>
+</div>
 {% endblock %}
