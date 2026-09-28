@@ -25,6 +25,10 @@ def element_page(request: Request, element_id: str, index: Index):
         "show_origin": show_origin(request),
         "linked": index.linked_exercises(element_id),
     }
+    if element.kind == "exercise":
+        context["neighbours"] = index.neighbours(element)
+    if element.lesson is not None:
+        context["lesson_tree"] = index.lesson_tree(element.lesson, request.app.state.progress)
     store = request.app.state.attempts
     if element.kind == "exercise" and store is not None:
         from french_learning.web.routes.exercises import solve_context

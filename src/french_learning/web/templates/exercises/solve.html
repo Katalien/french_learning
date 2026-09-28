@@ -138,7 +138,7 @@
     {% elif checked or (attempt and attempt.status == "saved") %}
       <div class="exercise-toolbar">
         <button type="button" class="outline" hx-post="{{ base }}/restart" hx-target="#exercise-solve" hx-swap="outerHTML">Решить заново</button>
-        <a href="{{ base }}/history" role="button" class="outline secondary">История попыток</a>
+        <a href="{{ base }}/history" role="button" class="outline">История попыток</a>
       </div>
     {% endif %}
   </div>

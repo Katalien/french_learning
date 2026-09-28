@@ -1,5 +1,6 @@
 """US3: «Не согласна с ответом» и статус упражнения (FR-030, FR-032)."""
 
+import re
 import subprocess
 from pathlib import Path
 
@@ -43,12 +44,12 @@ def test_disagree_needs_comment(client):
 
 def test_change_status_recounts_lesson(client):
     before = client.get("/lessons/1").text
-    total_before = int(before.split("Домашка: <strong>")[1].split(" из ")[1].split("<")[0])
+    total_before = int(re.search(r"Домашка</span><strong>\d+ из (\d+)", before)[1])
     page = client.get("/elements/ex-multigap").text
     assert 'name="status"' in page
     response = client.post("/exercises/ex-multigap/status", data={"status": "reserve"})
     assert response.url.path == "/elements/ex-multigap"
     after = client.get("/lessons/1").text
-    total_after = int(after.split("Домашка: <strong>")[1].split(" из ")[1].split("<")[0])
+    total_after = int(re.search(r"Домашка</span><strong>\d+ из (\d+)", after)[1])
     assert total_after == total_before - 1
     assert "ex-multigap" in client.get("/lessons/1/reserve").text

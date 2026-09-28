@@ -1,12 +1,16 @@
 {% extends "base.html" %}
+{# Страница элемента (009): путь, заголовок, «ⓘ» (происхождение) и «⚙» (настройки) за кнопками;
+   у упражнения — стрелки к соседям и меню урока «☰» (FR-021–FR-025) #}
 {% set e = element %}
 {% block title %}{{ e.title if e.title is defined else e.description_ru }}{% endblock %}
 {% block content %}
+<div x-data="{ info: false, settings: false, menu: false }">
+
 <p class="crumbs">
-  <a href="/lessons">Уроки</a> ›
   {% if e.lesson %}
-    <a href="/lessons/{{ e.lesson }}">Урок {{ e.lesson }}</a> ›
-    {% if e.kind == "exercise" %}<a href="/lessons/{{ e.lesson }}/tasks?part={{ e.part }}">{{ PART_NAMES[e.part] }}</a>
+    {% if lesson_tree %}<a href="#" class="menu-toggle" @click.prevent="menu = true">☰ Урок {{ e.lesson }}</a>{% else %}<a href="/lessons/{{ e.lesson }}">Урок {{ e.lesson }}</a>{% endif %}
+    ·
+    {% if e.kind == "exercise" %}<a href="/lessons/{{ e.lesson }}/tasks?part={{ e.part }}">{{ PART_NAMES[e.part] }}</a> · № {{ e.number }}{% if e.status == "reserve" %} · резерв{% endif %}
     {% elif e.kind == "theory" %}<a href="/lessons/{{ e.lesson }}/theory">Теория</a>
     {% else %}<a href="/lessons/{{ e.lesson }}/texts">Тексты</a>{% endif %}
   {% else %}
@@ -14,65 +18,117 @@
   {% endif %}
 </p>
 
+<header class="element-head">
+  <div class="grow">
+    <h1 {% if e.kind == "text" %}lang="fr"{% endif %}>{{ e.description_ru if e.kind == "exercise" else e.title }}</h1>
+    <p class="element-meta">
+      {% for t in e.topics %}{% set tp = index.topic(t) %}{% if tp %}<a class="chip" href="/topics/{{ tp.id }}">{{ tp.name }}</a>{% endif %}{% endfor %}
+      {% if e.kind == "exercise" %}<span class="chip">{{ EXERCISE_TYPE_NAMES[e.type] }}</span>
+        {% if e.status == "optional" %}<span class="chip">необязательное</span>{% endif %}{% endif %}
+      {% if e.needs_review.flag %}{% with note = e.needs_review.note, item_id = none, in_form = false %}{% include "partials/review_badge.html" %}{% endwith %}{% endif %}
+    </p>
+  </div>
+  <div class="btn-group">
+    <button type="button" class="outline btn-icon" title="Происхождение" aria-label="Происхождение" @click="info = !info; settings = false" :aria-expanded="info">ⓘ</button>
+    <button type="button" class="outline btn-icon" title="Настройки" aria-label="Настройки" @click="settings = !settings; info = false" :aria-expanded="settings">⚙</button>
+  </div>
+</header>
+
+{% if show_origin %}
+  <p class="origin-line">Происхождение:
+    {% with origin = e.origin, detail = (e.sources | map(attribute="original") | select | join(", ")) %}{% include "partials/origin_badge.html" %}{% endwith %}</p>
+{% endif %}
+
+<section id="exercise-origin" class="popover" x-show="info" x-cloak>
+  <dl>
+    <dt>{{ "Упражнение" if e.kind == "exercise" else "Материал" }}</dt>
+    <dd>{% with origin = e.origin, detail = (e.sources | map(attribute="original") | select | join(", ")) %}{% include "partials/origin_badge.html" %}{% endwith %}</dd>
+    {% if e.kind == "exercise" %}
+      <dt>Инструкция</dt>
+      <dd>{% with origin = e.instruction.origin, detail = none %}{% include "partials/origin_badge.html" %}{% endwith %}
+        {% if e.instruction.original != e.instruction.ru %}<span class="small muted" lang="{{ e.instruction.original_lang }}">оригинал: «{{ e.instruction.original }}»</span>{% endif %}</dd>
+      <dt>Ответы</dt>
+      <dd>{% with origin = e.answers_origin, detail = none %}{% include "partials/origin_badge.html" %}{% endwith %}</dd>
+    {% endif %}
+  </dl>
+</section>
+
+<section id="exercise-settings" class="popover" x-show="settings" x-cloak>
+  <dl>
+    {% if e.kind == "exercise" and solve_mode %}
+      <dt>Статус</dt>
+      <dd><form method="post" action="/exercises/{{ e.id }}/status">
+        <select name="status" onchange="this.form.requestSubmit()" aria-label="Статус упражнения" style="width:auto;margin:0">
+          {% for key, name in STATUS_NAMES.items() %}<option value="{{ key }}" {% if e.status == key %}selected{% endif %}>{{ name }}</option>{% endfor %}
+        </select></form></dd>
+    {% endif %}
+    {% if e.kind == "exercise" and e.sheet_number %}<dt>В материалах</dt><dd>на листе: упр. {{ e.sheet_number }}</dd>{% endif %}
+    {% if e.sources %}
+      <dt>Оригинал</dt>
+      <dd class="btn-group">{% for s in e.sources %}
+        {% if s.file %}<a href="/sources/{{ s.file }}" target="_blank" rel="noopener" role="button" class="outline small">Открыть оригинал{% if e.sources | length > 1 %} {{ loop.index }}{% endif %}</a>
+        {% elif s.url %}<a href="{{ s.url }}" target="_blank" rel="noopener noreferrer" role="button" class="outline small">Открыть источник</a>{% endif %}
+      {% endfor %}</dd>
+    {% endif %}
+  </dl>
+  <details class="edit-block">
+    <summary>Изменить темы</summary>
+    <form method="post" action="/elements/{{ e.id }}/topics">
+      <fieldset class="topic-choice">
+        {% for t in index.all_topics() %}
+          <label><input type="checkbox" name="topics" value="{{ t.id }}" {% if t.id in e.topics %}checked{% endif %}> {{ t.name }}</label>
+        {% endfor %}
+      </fieldset>
+      <div class="grid-2">
+        <label>Новая тема <input name="new_topic" placeholder="название"></label>
+        <label>Раздел
+          <select name="new_section">
+            {% for s in index.content.topics.sections %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+          </select>
+        </label>
+      </div>
+      <button type="submit" class="small">Сохранить темы</button>
+    </form>
+  </details>
+  {% include "partials/report_form.html" %}
+</section>
+
 {% if e.kind == "exercise" %}
-  {% set topic = index.topic(e.topics[0]) if e.topics else none %}
-  <h1>{{ e.number }} — {{ topic.name if topic else "Без темы" }} — {{ e.description_ru }}</h1>
-  <p class="meta">
-    {{ PART_NAMES[e.part] if e.part else "Дополнительный материал" }}
-    {% if e.sheet_number %} · на листе: упр. {{ e.sheet_number }}{% endif %}
-    · {{ EXERCISE_TYPE_NAMES[e.type] }}
-    {% if e.status != "main" %}<mark class="badge">{{ STATUS_NAMES[e.status] }}</mark>{% endif %}
-  </p>
   {% if solve_mode %}{% include "exercises/solve.html" %}{% else %}{% include "partials/exercise.html" %}{% endif %}
+  {% if neighbours %}
+    {% set prev, next = neighbours %}
+    {% if prev %}<a class="arrow prev" href="/elements/{{ prev.id }}" title="Предыдущее: {{ prev.description_ru }}" aria-label="Предыдущее упражнение">‹</a>
+    {% else %}<span class="arrow prev disabled" aria-hidden="true">‹</span>{% endif %}
+    {% if next %}<a class="arrow next" href="/elements/{{ next.id }}" title="Следующее: {{ next.description_ru }}" aria-label="Следующее упражнение">›</a>
+    {% else %}<span class="arrow next disabled" aria-hidden="true">›</span>{% endif %}
+  {% endif %}
 {% else %}
-  <h1>{{ e.title }}</h1>
-  <article class="{{ e.kind }}" {% if e.kind == "text" %}lang="fr"{% endif %}>
+  <article class="{{ e.kind }} reading" {% if e.kind == "text" %}lang="fr"{% endif %}>
     {{ e.body | markdown(path) }}
   </article>
   {% if linked %}
     <h2>Упражнения {{ "к тексту" if e.kind == "text" else "по этой теории" }}</h2>
-    <ul>{% for x in linked %}<li><a href="/elements/{{ x.id }}">{{ x.number }} — {{ x.description_ru }}</a></li>{% endfor %}</ul>
+    <ul class="plain-list">{% for x in linked %}<li><a href="/elements/{{ x.id }}">{{ x.description_ru }}</a><span class="small muted">{{ PART_NAMES[x.part] }} · № {{ x.number }}</span></li>{% endfor %}</ul>
   {% endif %}
 {% endif %}
 
-{% if e.needs_review.flag %}
-  <p>Требует проверки: {% with note = e.needs_review.note, item_id = none %}{% include "partials/review_badge.html" %}{% endwith %}</p>
+{% if lesson_tree %}
+  <div class="drawer-backdrop" x-show="menu" x-cloak @click="menu = false"></div>
+  <aside id="lesson-menu" class="drawer" x-show="menu" x-cloak x-transition.opacity @keydown.escape.window="menu = false" aria-label="Урок {{ e.lesson }}">
+    <div class="drawer-head"><a href="/lessons/{{ e.lesson }}"><strong>Урок {{ e.lesson }}</strong></a>
+      <button type="button" class="btn-text small" @click="menu = false" aria-label="Закрыть">✕</button></div>
+    {% if lesson_tree.theory %}<div class="drawer-group">Теория</div>
+      {% for t in lesson_tree.theory %}<a href="/elements/{{ t.id }}" {% if t.id == e.id %}aria-current="page"{% endif %}>{{ t.title }}</a>{% endfor %}{% endif %}
+    {% if lesson_tree.texts %}<div class="drawer-group">Тексты</div>
+      {% for t in lesson_tree.texts %}<a href="/elements/{{ t.id }}" lang="fr" {% if t.id == e.id %}aria-current="page"{% endif %}>{{ t.title }}</a>{% endfor %}{% endif %}
+    {% if lesson_tree.vocab %}<div class="drawer-group">Лексика</div><a href="/lessons/{{ e.lesson }}/vocab">Слова урока · {{ lesson_tree.vocab }}</a>{% endif %}
+    {% for part in ("class", "homework") %}{% if lesson_tree[part] %}
+      <div class="drawer-group">{{ PART_NAMES[part] }}</div>
+      {% for x, done in lesson_tree[part] %}<a href="/elements/{{ x.id }}" {% if x.id == e.id %}aria-current="page"{% endif %}><span>{{ x.number }}. {{ x.description_ru }}</span>{% if done %}<span class="done">✓</span>{% endif %}</a>{% endfor %}
+    {% endif %}{% endfor %}
+    {% if lesson_tree.reserve %}<div class="drawer-group">Резерв</div>
+      {% for x in lesson_tree.reserve %}<a href="/elements/{{ x.id }}" {% if x.id == e.id %}aria-current="page"{% endif %}>{{ x.description_ru }}</a>{% endfor %}{% endif %}
+  </aside>
 {% endif %}
-{% if show_origin %}
-  <p class="origin-line">Происхождение:
-    {% with origin = e.origin, detail = (e.sources | map(attribute="original") | select | join(", ")) %}{% include "partials/origin_badge.html" %}{% endwith %}
-  </p>
-{% endif %}
-{% include "partials/element_actions.html" %}
-{% if e.kind == "exercise" and solve_mode %}
-  <form method="post" action="/exercises/{{ e.id }}/status" class="status-form">
-    <label>Статус упражнения
-      <select name="status" onchange="this.form.requestSubmit()">
-        {% for key, name in STATUS_NAMES.items() %}<option value="{{ key }}" {% if e.status == key %}selected{% endif %}>{{ name }}</option>{% endfor %}
-      </select>
-    </label>
-    <noscript><button type="submit" class="small">Сохранить</button></noscript>
-  </form>
-{% endif %}
-{% include "partials/report_form.html" %}
-
-<details class="edit-block">
-  <summary>Темы: {% for t in e.topics %}{% set tp = index.topic(t) %}{% if tp %}<a class="chip" href="/topics/{{ tp.id }}">{{ tp.name }}</a>{% endif %}{% else %}без темы{% endfor %}</summary>
-  <form method="post" action="/elements/{{ e.id }}/topics">
-    <fieldset class="topic-choice">
-      {% for t in index.all_topics() %}
-        <label><input type="checkbox" name="topics" value="{{ t.id }}" {% if t.id in e.topics %}checked{% endif %}> {{ t.name }}</label>
-      {% endfor %}
-    </fieldset>
-    <div class="grid">
-      <label>Новая тема <input name="new_topic" placeholder="название"></label>
-      <label>Раздел
-        <select name="new_section">
-          {% for s in index.content.topics.sections %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
-        </select>
-      </label>
-    </div>
-    <button type="submit">Сохранить темы</button>
-  </form>
-</details>
+</div>
 {% endblock %}

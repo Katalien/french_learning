@@ -23,16 +23,16 @@ def test_lesson_page_has_sections(client):
 
 def test_homework_tab_titles_and_optional_mark(client):
     html = client.get("/lessons/1/tasks?part=homework").text
-    assert "1 — Артикли — Вставить артикли в предложения" in html
-    assert "на листе: упр. a" in html
-    assert re.search(r"3 — Артикли — Выбрать форму.*необязательное", html, re.S)
+    # 009: номер — один раз, заголовок — описание, тема и тип — второй строкой
+    assert re.search(r'class="num">1</span>.*?Вставить артикли в предложения.*?Артикли', html, re.S)
+    assert re.search(r"Выбрать форму.*?необязательное", html, re.S)
     assert "Рассказать о своём завтраке" not in html  # резерв
     assert 'href="/lessons/1/reserve"' in html
 
 
 def test_class_tab(client):
     html = client.get("/lessons/1/tasks?part=class").text
-    assert "1 — Артикли — Вставить определённый артикль" in html
+    assert re.search(r'class="num">1</span>.*?Вставить определённый артикль', html, re.S)
     assert "Спрягать" not in html  # это урок 2
 
 

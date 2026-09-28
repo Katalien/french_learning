@@ -18,6 +18,13 @@ def _lesson_or_404(index: ContentIndex, number: int):
     return lesson
 
 
+def _list_view(request: Request) -> str:
+    """Вид списка заданий из «Настроек» (009, FR-020a): rows | tiles."""
+    db = request.app.state.progress_db
+    value = db.get_setting("exercise_list_view") if db is not None else None
+    return value if value in ("rows", "tiles") else "rows"
+
+
 def _counts(index: ContentIndex, number: int) -> dict[str, int]:
     """Счётчики для панели разделов урока (009)."""
     new_words, repeat_words = index.lesson_vocabulary(number)
@@ -89,6 +96,7 @@ def lesson_tasks(
         exercises=visible,
         has_reserve=len(visible) < len(exercises),
         done={e.id for e in visible if request.app.state.progress.is_done(e.id)},
+        list_view=_list_view(request),
     )
     template = "partials/task_list.html" if request.headers.get("HX-Request") else "tasks.html"
     return templates.TemplateResponse(request, template, context)

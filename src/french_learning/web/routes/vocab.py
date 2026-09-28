@@ -491,6 +491,7 @@ def settings_page(request: Request, index: Index):
         "index": index,
         "portion_size": db.get_setting("portion_size"),
         "trainer_portion_size": db.get_setting("trainer_portion_size"),
+        "exercise_list_view": db.get_setting("exercise_list_view"),
         "directions": db.get_setting("directions"),
         "voice": db.get_setting("voice"),
         "voices": {key: name for key, (_code, name) in VOICES.items()},
@@ -505,6 +506,7 @@ def settings_save(
     index: Index,
     portion_size: Annotated[str, Form()] = "20",
     trainer_portion_size: Annotated[str, Form()] = "",
+    exercise_list_view: Annotated[str, Form()] = "",
     directions: Annotated[str, Form()] = "staged",
     voice: Annotated[str, Form()] = DEFAULT_VOICE,
 ):
@@ -520,6 +522,10 @@ def settings_save(
         if not trainer_portion_size.isdigit() or not 1 <= int(trainer_portion_size) <= 500:
             return _redirect("/settings?error=порция тренажёров — число от 1 до 500")
         db.set_setting("trainer_portion_size", str(int(trainer_portion_size)))
+    if exercise_list_view:
+        if exercise_list_view not in ("rows", "tiles"):
+            return _redirect("/settings?error=неизвестный вид списка заданий")
+        db.set_setting("exercise_list_view", exercise_list_view)
     db.set_setting("portion_size", str(int(portion_size)))
     db.set_setting("directions", directions)
     return _redirect("/settings?notice=Настройки сохранены.")

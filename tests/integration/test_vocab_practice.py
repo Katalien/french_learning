@@ -45,8 +45,8 @@ def test_lesson_practice_starts_whole_lesson(client):
     assert "из 2" in response.text
 
 
-def test_theory_page_has_practice_button(client):
-    assert 'href="/lessons/1/practice"' in client.get("/lessons/1/theory").text
+def test_vocab_section_has_practice_button(client):
+    assert 'href="/lessons/1/practice"' in client.get("/lessons/1/vocab").text  # 009
 
 
 def test_summary_after_last_card(client):
