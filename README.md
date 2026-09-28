@@ -38,6 +38,16 @@ uv run french-learning serve
 
 Приложение откроется по адресу http://127.0.0.1:8000 (доступно только с этого компьютера).
 
+### Ярлык на рабочем столе (Windows)
+
+```bash
+powershell -ExecutionPolicy Bypass -File scripts/windows/make-shortcuts.ps1
+```
+
+Создаёт ярлыки «French Learning» (запускает сервер в фоне, если он ещё не работает, и открывает
+приложение в браузере) и «French Learning — остановить». Журнал сервера —
+`%LOCALAPPDATA%rench-learning\server.log`. Иконка — `scripts/make_icon.py`.
+
 ## Словарь и повторение
 
 Вкладка «Словарь»: просмотр слов, добавление по одному и списком, повторение карточек
