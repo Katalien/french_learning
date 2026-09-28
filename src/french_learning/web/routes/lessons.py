@@ -30,6 +30,18 @@ def _context(request: Request, index: ContentIndex, number: int, **extra) -> dic
 
 
 @router.get("/")
+def today_page(request: Request, index: Index):
+    """Экран «Сегодня» (009, FR-003)."""
+    import datetime as dt
+
+    from french_learning.web.today import build_today
+
+    state = request.app.state
+    today = build_today(index, state.cards, state.sessions, state.progress, state.trainer_schedule)
+    context = {"index": index, "t": today, "today_date": dt.date.today()}
+    return templates.TemplateResponse(request, "today.html", context)
+
+
 @router.get("/lessons")
 def home(request: Request, index: Index):
     progress = request.app.state.progress
