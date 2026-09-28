@@ -19,7 +19,7 @@ contracts/ui-routes.md, quickstart.md, mockups/final.html
 ## Phase 1: Setup
 
 - [X] T001 Скачать шрифты Inter и Lora (woff2, кириллица + латиница, SIL OFL) в `src/french_learning/web/static/fonts/` вместе с `OFL.txt`; записать версии и источники в `static/vendor/VERSIONS.md` (research R2; скачивание — с согласия пользователя)
-- [ ] T002 [P] Демо-хранилище для ручной проверки (`demo-init`) дополнить: урок с двумя теориями и таблицей, медиа, упражнения обеих вкладок — только выдуманное содержимое в `tests/fixtures/content` (если фикстуре не хватает случаев quickstart)
+- [X] T002 [P] Не понадобилось: тесты US4 дописывают вторую теорию во временную копию образца (`tests/integration/test_reading.py`), общий образец не менялся
 
 ---
 
@@ -94,7 +94,7 @@ contracts/ui-routes.md, quickstart.md, mockups/final.html
 
 - [X] T028 [P] Все страницы на 375 px без горизонтальной прокрутки, светлая и тёмная тема (SC-006, FR-061)
 - [X] T029 [P] Документация: `README.md`, `CLAUDE.md`, `CHANGELOG.md`, `docs/roadmap.md`; правка конституции (PATCH): «синтез речи браузера» → «локальная нейросеть Piper» — после согласия пользователя
-- [ ] T030 Полный прогон: `ruff`, `check_no_content.py`, `pytest`
+- [X] T030 Полный прогон: `ruff`, `check_no_content.py`, `pytest`
 - [ ] T031 Приёмка по quickstart.md с пользователем
 - [ ] T032 После приёмки: статус 009 → ✅, релиз в CHANGELOG, слияние в `main`, отправка
 
