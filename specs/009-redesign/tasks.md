@@ -95,8 +95,8 @@ contracts/ui-routes.md, quickstart.md, mockups/final.html
 - [X] T028 [P] Все страницы на 375 px без горизонтальной прокрутки, светлая и тёмная тема (SC-006, FR-061)
 - [X] T029 [P] Документация: `README.md`, `CLAUDE.md`, `CHANGELOG.md`, `docs/roadmap.md`; правка конституции (PATCH): «синтез речи браузера» → «локальная нейросеть Piper» — после согласия пользователя
 - [X] T030 Полный прогон: `ruff`, `check_no_content.py`, `pytest`
-- [ ] T031 Приёмка по quickstart.md с пользователем
-- [ ] T032 После приёмки: статус 009 → ✅, релиз в CHANGELOG, слияние в `main`, отправка
+- [X] T031 Приёмка по quickstart.md с пользователем
+- [X] T032 После приёмки: статус 009 → ✅, релиз в CHANGELOG, слияние в `main`, отправка
 
 ---
 
