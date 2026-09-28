@@ -29,7 +29,7 @@
   <form method="post" action="/vocab/import">
     <textarea name="text" rows="12" lang="fr" placeholder="le chat — кот&#10;parler (v) — говорить&#10;Ça va ? — Как дела?">{{ list_text or "" }}</textarea>
     <div class="grid-2">
-      <label>Тема <select name="topic" required>{% for t in topics %}<option value="{{ t.id }}" {% if topic == t.id %}selected{% endif %}>{{ t.name }}</option>{% endfor %}</select></label>
+      <label>Тема <select name="topic"><option value="">без темы</option>{% for t in topics %}<option value="{{ t.id }}" {% if topic == t.id %}selected{% endif %}>{{ t.name }}</option>{% endfor %}</select></label>
       <label>Урок (необязательно) <select name="lesson"><option value="">без урока</option>{% for l in lessons %}<option value="{{ l.number }}" {% if lesson == l.number | string %}selected{% endif %}>Урок {{ l.number }}</option>{% endfor %}</select></label>
     </div>
     <button type="submit">Добавить список</button>

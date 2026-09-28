@@ -18,8 +18,8 @@
       <input type="hidden" name="sequence" value="1">
       <input type="hidden" name="added" value="{{ added | map(attribute='id') | join(',') }}">
       <label>Одной строкой
-        <input name="quick" x-model="quick" lang="fr" placeholder="la, pomme - яблоко" autofocus autocomplete="off">
-        <small class="muted">Артикль, слово - перевод, перевод. Артикль можно неопределённый (un, une) — род
+        <input name="quick" x-model="quick" lang="fr" placeholder="la pomme - яблоко" autofocus autocomplete="off">
+        <small class="muted">Артикль слово - перевод, перевод (например, <code>un arbre - дерево</code>). Артикль можно неопределённый (un, une) — род
           подставится по нему; если род не понять (l', les), его дополнит агент (<code>/complete-words</code>).</small>
       </label>
       <details class="edit-block">
@@ -39,7 +39,7 @@
         </div>
       </details>
       <div class="grid-2">
-        <label>Тема <select name="topic" required>{% for t in topics %}<option value="{{ t.id }}" {% if topic == t.id %}selected{% endif %}>{{ t.name }}</option>{% endfor %}</select></label>
+        <label>Тема <select name="topic"><option value="">без темы</option>{% for t in topics %}<option value="{{ t.id }}" {% if topic == t.id %}selected{% endif %}>{{ t.name }}</option>{% endfor %}</select></label>
         <label>Урок (необязательно) <select name="lesson"><option value="">без урока</option>{% for l in lessons %}<option value="{{ l.number }}" {% if lesson == l.number | string %}selected{% endif %}>Урок {{ l.number }}</option>{% endfor %}</select></label>
       </div>
       <div class="btn-group">

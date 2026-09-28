@@ -92,7 +92,7 @@ def merge_topic(request: Request, topic_id: str, target: Annotated[str, Form()])
 
 
 @router.get("/extras")
-def extras_page(request: Request, index: Index):
+def extras_page(request: Request, index: Index, tab: str = ""):
     from french_learning.vocab.entries import display_fr
 
     context = {
@@ -100,6 +100,7 @@ def extras_page(request: Request, index: Index):
         "elements": index.extras(),
         "show_origin": show_origin(request),
         "display_fr": display_fr,
+        "tab": tab,
     }
     return templates.TemplateResponse(request, "extras.html", context)
 

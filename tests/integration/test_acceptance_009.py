@@ -124,3 +124,38 @@ def test_review_rows(client):
 def test_report_rows(client):
     html = client.get("/reports").text
     assert 'class="review-row' in html and "<table" not in html.split("</header>", 1)[1]
+
+
+# --- вторая порция правок ---------------------------------------------------------------------
+
+
+def test_one_line_hint_without_comma(client):
+    html = client.get("/vocab/add/one").text
+    assert 'placeholder="la pomme - яблоко"' in html and "la, pomme" not in html
+
+
+@pytest.mark.usefixtures("git_repo")
+def test_word_without_topic(client, content_root):
+    html = client.get("/vocab/add/one").text
+    assert '<option value="">без темы</option>' in html
+    response = client.post("/vocab/add", data={"quick": "le beurre - масло", "topic": ""})
+    assert "/vocab/voc-" in str(response.url)
+    [path] = [
+        p for p in (content_root / "vocabulary").glob("*.yaml") if "beurre" in p.read_text("utf-8")
+    ]
+    assert "topics: []" in path.read_text("utf-8")
+    listed = client.post("/vocab/import", data={"text": "le sel — соль", "topic": ""}).text
+    assert "Добавлено: 1" in listed
+
+
+def test_element_rows_title_first(client):
+    html = client.get("/topics/top-articles?tab=exercises").text
+    row = html.split('class="element-row', 1)[1].split("</li>", 1)[0]
+    assert row.index('class="row-title"') < row.index('class="row-meta"')
+
+
+def test_extras_words_behind_tab(client):
+    html = client.get("/extras").text
+    assert "tab: 'materials'" in html
+    assert re.search(r"Лексика без урока<span class=\"count\">1</span>", html)
+    assert "tab: 'words'" in client.get("/extras?tab=words").text

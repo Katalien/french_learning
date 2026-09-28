@@ -1,30 +1,33 @@
 {% extends "base.html" %}
-{# Дополнительные материалы (001 FR-038): материалы и ссылки отдельно от лексики (009) #}
+{# Дополнительные материалы (001 FR-038; 009): вкладки «Материалы и ссылки» и «Лексика без урока» #}
 {% block title %}Дополнительные материалы{% endblock %}
 {% block content %}
 <h1>Дополнительные материалы</h1>
 <p class="muted">Материалы без урока: добавленные по ссылке из интернета (<code>/add-material</code>) или вручную.</p>
 {% set materials = elements | rejectattr("kind", "equalto", "vocab") | list %}
 {% set words = elements | selectattr("kind", "equalto", "vocab") | list %}
-{% if not elements %}<p class="empty">Дополнительных материалов пока нет.</p>{% endif %}
-<div class="extras-grid">
-  <section class="card" data-block="materials">
-    <h2>Материалы и ссылки</h2>
+{% set current = tab if tab in ("materials", "words") else "materials" %}
+<div x-data="{ tab: '{{ current }}' }">
+  <nav class="tabs" aria-label="Дополнительные материалы">
+    {% for key, name, items in (("materials", "Материалы и ссылки", materials), ("words", "Лексика без урока", words)) %}
+      <a href="?tab={{ key }}" @click.prevent="tab = '{{ key }}'; history.replaceState(null, '', '?tab={{ key }}')"
+         :class="{ on: tab === '{{ key }}' }" {% if key == current %}class="on"{% endif %}>{{ name }}<span class="count">{{ items | length }}</span></a>
+    {% endfor %}
+  </nav>
+  <section class="card" data-block="materials" x-show="tab === 'materials'" {% if current != "materials" %}x-cloak{% endif %}>
     {% if materials %}
       <ul class="plain-list">
         {% for e in materials %}
           {% set url = (e.sources | selectattr("url") | map(attribute="url") | first) if e.sources else none %}
-          <li class="extra-row">
-            <span><span class="chip">{{ KIND_NAMES[e.kind] }}</span>
-              <a href="/elements/{{ e.id }}">{{ e.description_ru if e.kind == "exercise" else e.title }}</a></span>
-            {% if url %}<a class="small muted source-link" href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ url | replace("https://", "") | replace("http://", "") | truncate(40) }}</a>{% endif %}
+          <li class="element-row">
+            <a class="row-title" href="/elements/{{ e.id }}">{{ e.description_ru if e.kind == "exercise" else e.title }}</a>
+            <span class="row-meta">{{ KIND_NAMES[e.kind] | lower }}{% if url %} · <a class="source-link" href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ url | replace("https://", "") | replace("http://", "") | truncate(40) }}</a>{% endif %}</span>
           </li>
         {% endfor %}
       </ul>
     {% else %}<p class="empty">Нет.</p>{% endif %}
   </section>
-  <section class="card" data-block="words">
-    <h2>Лексика без урока</h2>
+  <section class="card" data-block="words" x-show="tab === 'words'" {% if current != "words" %}x-cloak{% endif %}>
     {% if words %}
       <ul class="word-rows">
         {% for w in words %}
