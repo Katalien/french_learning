@@ -46,7 +46,7 @@ def _redirect(url: str) -> RedirectResponse:
     return RedirectResponse(url, status_code=303)
 
 
-@router.get("/practice")
+@router.get("/practice/setup")
 def practice_setup(request: Request, index: Index):
     _cards, sessions = _practice(request, index)
     context = {

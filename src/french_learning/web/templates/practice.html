@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{# «Практика» (009, FR-041): повторение слов, мои ошибки, тренажёры #}
+{% block title %}Практика{% endblock %}
+{% block content %}
+<h1>Практика</h1>
+<div class="practice-grid">
+  <section class="card" data-block="repeat">
+    <h2>Повторение слов</h2>
+    <div class="stat">
+      {% with done = due, total = due if due else 1, label = due, size = "" %}{% include "partials/ring.html" %}{% endwith %}
+      <p>{% if due %}<strong>{{ plural(due, "карточка", "карточки", "карточек") }}</strong> пора повторить{% else %}Всё повторено{% endif %}
+        <br><span class="small muted">в словаре {{ plural(total_words, "слово", "слова", "слов") }}</span></p>
+    </div>
+    <form method="post" action="/practice/start" class="btn-group">
+      <input type="hidden" name="mode" value="{{ 'today' if due else 'all' }}">
+      <button type="submit">{{ "Повторить" if due else "Повторить всё" }}</button>
+      <a href="/practice/setup" role="button" class="outline">Настроить</a>
+    </form>
+  </section>
+
+  <section class="card" data-block="mistakes">
+    <h2>Мои ошибки</h2>
+    <p>{% if mistakes %}<strong>{{ plural(mistakes, "пункт", "пункта", "пунктов") }}</strong> в упражнениях уроков{% else %}<span class="muted">Ошибок нет.</span>{% endif %}</p>
+    <a href="/mistakes" role="button" class="outline">{{ "Прорешать" if mistakes else "Открыть" }}</a>
+  </section>
+</div>
+
+<section data-block="trainers">
+  <h2 class="section-title">Тренажёры</h2>
+  <div class="trainer-grid">
+    {% for row in rows %}{% with t = row.trainer %}{% include "trainers/_card.html" %}{% endwith %}{% endfor %}
+  </div>
+  <p class="small muted">Задания для тренажёров с генерацией создаёт агент по вашей просьбе: <code>/generate-tasks</code>, новый тренажёр — <code>/add-trainer</code>.</p>
+</section>
+{% endblock %}

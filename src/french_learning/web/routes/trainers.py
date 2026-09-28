@@ -51,8 +51,7 @@ def _scoped(questions: list[Question], params: dict, hard: set[str]) -> list[Que
     return questions
 
 
-@router.get("/trainers")
-def trainers_page(request: Request, index: Index):
+def _catalog_rows(request: Request, index: ContentIndex) -> list[dict]:
     schedule = request.app.state.trainer_schedule
     rows = []
     for trainer in catalog(index):
@@ -65,9 +64,35 @@ def trainers_page(request: Request, index: Index):
                 "due": schedule.due_count(trainer.id, keys) if trainer.progress == "srs" else 0,
             }
         )
+    return rows
+
+
+@router.get("/trainers")
+def trainers_page(request: Request, index: Index):
+    rows = _catalog_rows(request, index)
     return templates.TemplateResponse(
         request, "trainers/catalog.html", {"index": index, "rows": rows}
     )
+
+
+@router.get("/practice")
+def practice_hub(request: Request, index: Index):
+    """«Практика» (009, FR-041): повторение слов, мои ошибки, тренажёры."""
+    from french_learning.exercises.mistakes import find_mistakes
+    from french_learning.vocab.sessions import SessionParams
+
+    state = request.app.state
+    state.cards.sync(index)
+    context = {
+        "index": index,
+        "due": state.sessions.count(index, SessionParams(mode="today")),
+        "total_words": sum(
+            1 for e in index.content.elements.values() if e.kind == "vocab" and not e.hidden
+        ),
+        "mistakes": len(find_mistakes(index, state.attempts)),
+        "rows": _catalog_rows(request, index),
+    }
+    return templates.TemplateResponse(request, "practice.html", context)
 
 
 @router.get("/trainers/{trainer_id}")

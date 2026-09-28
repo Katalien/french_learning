@@ -364,3 +364,9 @@
 .element-row { display: flex; flex-wrap: wrap; gap: .2rem .6rem; align-items: baseline; }
 .element-row .kind { font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
 .element-row small { flex-basis: 100%; }
+
+/* Практика (009) */
+.practice-grid { display: grid; gap: 1.1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 1.6rem; align-items: start; }
+.practice-grid .card { margin: 0; }
+.section-title { margin: .4rem 0 .9rem; }
+@media (max-width: 700px) { .practice-grid { grid-template-columns: 1fr; } }

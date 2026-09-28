@@ -11,7 +11,7 @@ def start(client, **form) -> str:
 
 
 def test_setup_page_shows_count(client):
-    html = client.get("/practice").text
+    html = client.get("/practice/setup").text  # 009: настройка переехала, /practice — хаб
     assert "Пора повторить сегодня" in html
     assert "Карточек к повторению: 4" in html
 
