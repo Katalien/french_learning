@@ -26,12 +26,13 @@ mark { background: var(--warn-soft); color: var(--warn); padding: 0 .3rem; borde
 
 /* формы */
 label { display: block; margin-bottom: .8rem; font-weight: 500; }
-input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select, textarea {
+/* :where — нулевая специфичность, чтобы стили экранов (поля в упражнении) легко переопределяли */
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select, textarea) {
   display: block; width: 100%; margin-top: .3rem; font: inherit; font-weight: 400; color: var(--text);
   background: var(--surface-solid); border: 1px solid var(--line); border-radius: var(--radius-sm);
   min-height: var(--control-h); padding: .45rem .7rem; transition: border-color .15s, box-shadow .15s; }
 textarea { resize: vertical; }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+:where(input, select, textarea):focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
 input[type="checkbox"], input[type="radio"] { accent-color: var(--primary); width: 1.05rem; height: 1.05rem; vertical-align: -.15rem; margin: 0 .35rem 0 0; }
 fieldset { border: 0; padding: 0; margin: 0 0 1rem; }
 legend { font-weight: 650; margin-bottom: .4rem; padding: 0; }
