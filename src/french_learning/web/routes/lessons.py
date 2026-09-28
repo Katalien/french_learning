@@ -18,10 +18,23 @@ def _lesson_or_404(index: ContentIndex, number: int):
     return lesson
 
 
+def _counts(index: ContentIndex, number: int) -> dict[str, int]:
+    """Счётчики для панели разделов урока (009)."""
+    new_words, repeat_words = index.lesson_vocabulary(number)
+    exercises = [e for e in index.elements(number, kind="exercise") if e.status != "reserve"]
+    return {
+        "theory": len(index.elements(number, kind="theory")),
+        "texts": len(index.elements(number, kind="text")),
+        "vocab": len(new_words) + len(repeat_words),
+        "tasks": len(exercises),
+    }
+
+
 def _context(request: Request, index: ContentIndex, number: int, **extra) -> dict:
     _lesson_or_404(index, number)
     return {
         "index": index,
+        "counts": _counts(index, number),
         "summary": index.lesson_summary(number, request.app.state.progress),
         "show_origin": show_origin(request),
         "materials_dir": request.app.state.settings.source_materials_dir,
@@ -93,17 +106,20 @@ def lesson_reserve(request: Request, number: int, index: Index):
 
 @router.get("/lessons/{number}/theory")
 def lesson_theory(request: Request, number: int, index: Index):
-    new_words, repeat_words = index.lesson_vocabulary(number)
     context = _context(
-        request,
-        index,
-        number,
-        section="theory",
-        theory=index.elements(number, kind="theory"),
-        new_words=new_words,
-        repeat_words=repeat_words,
+        request, index, number, section="theory", theory=index.elements(number, kind="theory")
     )
     return templates.TemplateResponse(request, "theory.html", context)
+
+
+@router.get("/lessons/{number}/vocab")
+def lesson_vocab(request: Request, number: int, index: Index):
+    """Раздел «Лексика» (009, FR-011)."""
+    new_words, repeat_words = index.lesson_vocabulary(number)
+    context = _context(
+        request, index, number, section="vocab", new_words=new_words, repeat_words=repeat_words
+    )
+    return templates.TemplateResponse(request, "lesson_vocab.html", context)
 
 
 @router.get("/lessons/{number}/texts")

@@ -1,6 +1,6 @@
 {% extends "lesson_base.html" %}
 {% block lesson_content %}
-{% if not theory and not new_words and not repeat_words %}
+{% if not theory %}
   <p class="empty">Нет материалов.</p>
 {% endif %}
 
@@ -24,11 +24,5 @@
   </article>
 {% endfor %}
 
-{% if new_words or repeat_words %}
-  <article class="vocab">
-    <header><h2>Лексика урока</h2></header>
-    <p><a href="/lessons/{{ summary.number }}/practice" role="button">Повторить лексику урока</a></p>
-    {% include "partials/vocab_list.html" %}
-  </article>
-{% endif %}
+
 {% endblock %}

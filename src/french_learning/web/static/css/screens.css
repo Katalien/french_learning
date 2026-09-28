@@ -184,3 +184,30 @@
   padding: .55rem 0; border-top: 1px solid var(--line); margin: 0; }
 .plain-list li:first-child { border-top: 0; padding-top: 0; }
 @media (max-width: 900px) { .today-grid { grid-template-columns: 1fr; } }
+
+/* Урок: панель разделов (009) */
+.lesson-page { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 1.6rem; align-items: start; }
+.lesson-page.side-closed { grid-template-columns: minmax(0, 1fr); }
+.lside { position: sticky; top: 72px; padding: .9rem .7rem; margin: 0; }
+.lside-head { display: flex; justify-content: space-between; align-items: center; margin: 0 .3rem .5rem; }
+.lside-head strong { font-size: .9rem; color: var(--muted); }
+.lside a.sec { display: flex; justify-content: space-between; padding: .5rem .7rem; border-radius: 8px; color: var(--text); font-weight: 600; }
+.lside a.sec:hover { background: var(--surface-2); text-decoration: none; }
+.lside a.sec[aria-current="page"] { background: var(--primary-soft); }
+.lside a.sec .muted { font-weight: 500; }
+.open-side { margin-bottom: 1rem; }
+.lesson-settings { width: 100%; }
+.section-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: .8rem; }
+.section-head h2 { margin: 0; }
+.overview-stats { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .8rem; margin: .8rem 0 0; }
+.overview-stats li { display: flex; flex-direction: column; gap: .15rem; padding: .7rem .9rem; border-radius: var(--radius-sm); background: var(--surface-2); margin: 0; }
+.overview-stats strong { font-size: 1.2rem; }
+.word-rows { list-style: none; padding: 0; margin: 0 0 1rem; }
+.word-row { display: flex; gap: .8rem; align-items: center; padding: .5rem .2rem; border-top: 1px solid var(--line); margin: 0; }
+.word-row:first-child { border-top: 0; }
+.gbar { flex: 0 0 5px; align-self: stretch; min-height: 1.6rem; border-radius: 3px; background: var(--line); }
+.gbar.g-m { background: var(--m); } .gbar.g-f { background: var(--f); } .gbar.g-both { background: linear-gradient(var(--m), var(--f)); }
+@media (max-width: 900px) {
+  .lesson-page { grid-template-columns: minmax(0, 1fr); }
+  .lside { position: static; }
+}

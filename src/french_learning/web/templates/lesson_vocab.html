@@ -1,0 +1,15 @@
+{% extends "lesson_base.html" %}
+{# «Лексика» урока (009, FR-011): новые слова, на повторение, повторение карточек урока #}
+{% block lesson_content %}
+{% if not new_words and not repeat_words %}
+  <p class="empty">Нет материалов.</p>
+{% else %}
+  <section class="card">
+    <div class="section-head">
+      <h2>Лексика урока</h2>
+      <a href="/lessons/{{ summary.number }}/practice" role="button">Повторить слова урока</a>
+    </div>
+    {% include "partials/vocab_list.html" %}
+  </section>
+{% endif %}
+{% endblock %}

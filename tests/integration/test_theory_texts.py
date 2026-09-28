@@ -17,11 +17,11 @@ def test_theory_page_links_to_related_exercises(client):
 
 
 def test_vocabulary_new_and_repeat(client):
-    html = client.get("/lessons/1/theory").text
+    html = client.get("/lessons/1/vocab").text  # 009: лексика — отдельный раздел
     assert "la maison" in html and "дом" in html
     assert "На повторение" not in html
 
-    html = client.get("/lessons/2/theory").text
+    html = client.get("/lessons/2/vocab").text
     new_part, repeat_part = html.split("На повторение")
     assert "l'eau" in new_part.replace("&#39;", "'")
     assert "le pain" in repeat_part
