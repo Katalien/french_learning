@@ -6,7 +6,7 @@
 <p class="muted">Задания, на которые вы отвечали неверно. Они остаются в пуле, пока не будут решены
   верно. Разобрать их можно с агентом: <code>/explain-mistakes {{ trainer.id }}</code></p>
 {% if not mistakes %}<p class="empty">Ошибок нет.</p>{% endif %}
-<ul class="mistakes">
+<ul class="mistakes plain-list card">
   {% for m in mistakes %}
     <li class="mistake">
       {% if m.question.instruction %}<small class="muted">{{ m.question.instruction }}</small><br>{% endif %}

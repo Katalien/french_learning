@@ -5,7 +5,7 @@
 <p class="muted">Места, в которых агент не уверен. Откройте элемент, сверьте с оригиналом и отметьте проверенным
   или сообщите об ошибке.</p>
 {% if not reviews %}<p class="empty">Всё проверено.</p>{% endif %}
-<ul class="elements">
+<ul class="elements plain-list card">
   {% for r in reviews %}
     {% set e = r.element %}
     <li>

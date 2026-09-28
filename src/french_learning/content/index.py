@@ -211,6 +211,21 @@ class ContentIndex:
     def topic_elements(self, topic_id: str) -> list[Any]:
         return sorted(self._by_topic.get(topic_id, []), key=_topic_sort_key)
 
+    def topic_tabs(self, elements: list[Any]) -> list[tuple[str, str, list[Any]]]:
+        """Вкладки страницы темы (009, FR-040): (ключ, название, элементы), только непустые."""
+        groups = [
+            ("theory", "Теория", "theory"),
+            ("texts", "Тексты", "text"),
+            ("exercises", "Задания", "exercise"),
+            ("words", "Слова", "vocab"),
+        ]
+        tabs = []
+        for key, name, kind in groups:
+            found = [e for e in elements if e.kind == kind]
+            if found:
+                tabs.append((key, name, found))
+        return tabs
+
     def untopiced_elements(self) -> list[Any]:
         return sorted(
             (e for e in self.content.elements.values() if not e.topics), key=_topic_sort_key

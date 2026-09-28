@@ -151,22 +151,24 @@
 .mistakes .mistake { margin-bottom: 1rem; }
 
 /* Тренажёры (004) */
-.trainer-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); margin-bottom: 1.5rem; }
-.trainer-card { display: flex; flex-direction: column; gap: 0.3rem; padding: 0.9rem 1rem; border-radius: 0.6rem;
-  border: 1px solid var(--line); text-decoration: none; color: inherit; }
-.trainer-card:hover { border-color: var(--primary); }
-.trainer-task { text-align: center; }
-.trainer-prompt { font-size: 1.6rem; font-weight: 700; margin: 0.5rem 0; }
-.trainer-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
-.trainer-buttons button { width: auto; flex: 0 0 auto; min-width: 4.5rem; margin: 0; font-size: 1.2rem; }
-.order-answer, .order-pool { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; min-height: 2.6rem; }
-.order-answer { border-bottom: 2px solid var(--primary); padding-bottom: 0.4rem; }
-.trainer-token { margin: 0; padding: 0.3rem 0.7rem; width: auto; }
-.trainer-setup fieldset label { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.trainer-grid { display: grid; gap: .9rem; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); margin-bottom: 1.5rem; }
+.trainer-card { display: flex; flex-direction: column; gap: .3rem; padding: 1rem 1.1rem; border-radius: var(--radius);
+  background: var(--surface); box-shadow: var(--shadow); color: inherit; transition: transform .2s; }
+.trainer-card:hover { transform: translateY(-2px); text-decoration: none; }
+.trainer-card strong { color: var(--text); }
+.trainer-task { text-align: center; padding: 2rem 1.5rem; }
+.trainer-prompt { font-size: 2rem; font-weight: 700; margin: .4rem 0; color: var(--fr); }
+.trainer-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr)); gap: .6rem; margin-top: 1rem; }
+.trainer-buttons button { min-height: 3rem; font-size: 1.15rem; }
+.order-answer, .order-pool { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; min-height: 2.6rem; }
+.order-answer { border-bottom: 2px solid var(--primary); padding-bottom: .4rem; margin-bottom: 1rem; }
+.trainer-token { min-height: 2.2rem; padding: .2rem .7rem; }
+.trainer-setup fieldset label { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
 .trainer-setup select { width: auto; margin: 0; }
 .trainer-score { font-size: 1.4rem; }
-.trainer-task .answer-form input[name="answer"] { max-width: 24rem; margin: 0 auto 0.75rem; display: block; }
+.trainer-task .answer-form input[name="answer"] { max-width: 24rem; margin: 0 auto .75rem; }
 .trainer-task .symbol-panel { justify-content: center; }
+.trainer-task .answer { font-size: 1.35rem; font-weight: 600; color: var(--fr); }
 .status-form { max-width: 20rem; margin-top: 1rem; }
 .stats-bar { display: inline-block; height: 0.6rem; background: var(--primary); border-radius: 0.3rem; }
 
@@ -352,3 +354,13 @@
 .btn-group.center { justify-content: center; }
 .answer-form input[name="answer"] { font-size: 1.25rem; text-align: center; }
 .flashcard .question[lang="fr"], .flashcard .answer[lang="fr"] { color: var(--fr); }
+.trainer-task > form.inline-form { display: block; margin-top: 1.2rem; }
+
+/* Темы (009) */
+.topic-sections { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); align-items: start; }
+.topic-sections .card { margin: 0; }
+.topic-list .count, .count { color: var(--muted); font-size: .85rem; }
+.topic-settings { width: 100%; }
+.element-row { display: flex; flex-wrap: wrap; gap: .2rem .6rem; align-items: baseline; }
+.element-row .kind { font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.element-row small { flex-basis: 100%; }

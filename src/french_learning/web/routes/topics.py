@@ -42,7 +42,7 @@ def topics_page(request: Request, index: Index):
 
 
 @router.get("/topics/{topic_id}")
-def topic_page(request: Request, topic_id: str, index: Index):
+def topic_page(request: Request, topic_id: str, index: Index, tab: str = ""):
     if topic_id == "none":
         topic, elements = None, index.untopiced_elements()
     else:
@@ -50,10 +50,14 @@ def topic_page(request: Request, topic_id: str, index: Index):
         if topic is None:
             raise not_found("Тема не найдена")
         elements = index.topic_elements(topic_id)
+    tabs = index.topic_tabs(elements)
+    keys = [key for key, _name, _items in tabs]
     context = {
         "index": index,
         "topic": topic,
         "elements": elements,
+        "tabs": tabs,
+        "current_tab": tab if tab in keys else (keys[0] if keys else ""),
         "all_topics": index.all_topics(),
         "show_origin": show_origin(request),
     }

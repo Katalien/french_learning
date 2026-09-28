@@ -4,7 +4,7 @@
 <h1>Мои ошибки</h1>
 <p class="muted">Пункты упражнений уроков, в которых последняя проверка была с ошибкой. Решите пункт
   верно — он уйдёт из списка; история попыток сохранится.</p>
-<form method="get" action="/mistakes" class="vocab-filters">
+<form method="get" action="/mistakes" class="dict-filters">
   <select name="lesson" aria-label="Урок" onchange="this.form.requestSubmit()">
     <option value="">все уроки</option>
     {% for l in lessons %}<option value="{{ l.number }}" {% if selected.lesson == l.number | string %}selected{% endif %}>Урок {{ l.number }}</option>{% endfor %}
@@ -16,7 +16,7 @@
   <noscript><button type="submit" class="small">Показать</button></noscript>
 </form>
 {% if not mistakes %}<p class="empty">Ошибок нет.</p>{% endif %}
-<ul class="mistakes">
+<ul class="mistakes plain-list card">
   {% for m in mistakes %}
     <li class="mistake">
       <a href="/elements/{{ m.exercise.id }}">Урок {{ m.exercise.lesson }} · упр. {{ m.exercise.number }}</a>, пункт {{ m.item.id }}

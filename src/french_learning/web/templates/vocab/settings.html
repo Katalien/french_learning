@@ -2,7 +2,7 @@
 {% block title %}Настройки{% endblock %}
 {% block content %}
 <h1>Настройки</h1>
-<form method="post" action="/settings">
+<form method="post" action="/settings" class="card settings-form">
   <label>Карточек за один подход (из словаря)
     <input type="number" name="portion_size" min="1" max="500" value="{{ portion_size }}">
   </label>

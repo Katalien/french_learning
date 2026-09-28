@@ -1,22 +1,25 @@
 {% extends "base.html" %}
+{# Темы по разделам (001 FR-035; вид — 009) #}
 {% block title %}Темы{% endblock %}
 {% block content %}
 <h1>Темы</h1>
-{% for group in sections %}
-  <section>
-    <h2>{{ group.section.name }}</h2>
-    {% if not group.topics %}<p class="empty">Тем пока нет.</p>{% endif %}
-    <ul class="topic-list">
-      {% for tc in group.topics %}
-        <li><a href="/topics/{{ tc.topic.id }}">{{ tc.topic.name }}</a> <span class="count">{{ tc.count }}</span></li>
-      {% endfor %}
-    </ul>
-  </section>
-{% endfor %}
-{% if untopiced %}
-  <section>
-    <h2>Без темы</h2>
-    <p><a href="/topics/none">Элементы без темы</a> <span class="count">{{ untopiced }}</span></p>
-  </section>
-{% endif %}
+<div class="topic-sections">
+  {% for group in sections %}
+    <section class="card">
+      <h2>{{ group.section.name }}</h2>
+      {% if not group.topics %}<p class="empty">Тем пока нет.</p>{% endif %}
+      <ul class="topic-list plain-list">
+        {% for tc in group.topics %}
+          <li><a href="/topics/{{ tc.topic.id }}">{{ tc.topic.name }}</a> <span class="count">{{ tc.count }}</span></li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endfor %}
+  {% if untopiced %}
+    <section class="card">
+      <h2>Без темы</h2>
+      <p><a href="/topics/none">Элементы без темы</a> <span class="count">{{ untopiced }}</span></p>
+    </section>
+  {% endif %}
+</div>
 {% endblock %}
