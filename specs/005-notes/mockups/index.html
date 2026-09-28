@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="ru" data-theme="light" data-place="under" data-icon="always" data-qind="chip">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Макет 005 — заметки</title>
+<!-- Макет для обсуждения (005). Текст, упражнение и заметки выдуманные, всё хранится только в памяти страницы. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#FDFCF8; --surface:rgba(255,255,255,.85); --solid:#fff; --surface-2:#F3F1FB; --text:#2C2F52; --muted:#6F739C; --line:#E2E0F2;
+  --primary:#838BCC; --primary-strong:#6B73B8; --primary-soft:#E9E7FA; --fr:#6D62BD; --ok:#2F7F5E; --ok-soft:#DBF2E8;
+  --imp:#D9822B; --imp-soft:#FFF1E0; --q:#4F8CC9; --q-soft:#E3F0FB; --danger:#B84A5A;
+  --grad: linear-gradient(120deg, #B8AEE3 0%, #838BCC 55%, #7FAED9 100%);
+  --page: radial-gradient(1200px 650px at 0% 0%, #F8D6FD 0%, transparent 60%), radial-gradient(1000px 650px at 100% 5%, #C9F1F4 0%, transparent 55%), #FDFCF8;
+  --pop-line:#C9C4EA; --pop-shadow: 0 10px 30px rgba(60,55,140,.22), 0 1px 3px rgba(60,55,140,.12);
+  --font: "Inter", system-ui, sans-serif; --reading: "Lora", Georgia, serif;
+}
+:root[data-theme="dark"] {
+  --bg:#1C1E33; --surface:rgba(40,43,70,.9); --solid:#282B46; --surface-2:#2E3152; --text:#ECEBFA; --muted:#A9ABCD; --line:#3B3F66;
+  --primary:#AAB1EE; --primary-strong:#C3C8F5; --primary-soft:#363B69; --fr:#C5BCF7; --ok:#82D6AE; --ok-soft:#23453A;
+  --imp:#F0A860; --imp-soft:#4A3520; --q:#86BBEE; --q-soft:#223A52; --danger:#F08A99;
+  --page: radial-gradient(1200px 600px at 0% 0%, #2F2548 0%, transparent 60%), radial-gradient(1000px 600px at 100% 10%, #1F3D48 0%, transparent 55%), #1C1E33;
+  --pop-line:#565B92; --pop-shadow: 0 10px 30px rgba(0,0,0,.55);
+}
+* { box-sizing: border-box; }
+html { background: var(--page); background-attachment: fixed; }
+body { margin: 0; font: 16px/1.55 var(--font); color: var(--text); min-height: 100vh; }
+button { font: inherit; cursor: pointer; color: inherit; }
+.muted { color: var(--muted); } .small { font-size: .85rem; }
+
+.mock { position: sticky; top: 0; z-index: 80; background: #1f2230; color: #e8e9f0; font: 13px/1.4 system-ui; padding: .45rem .8rem;
+  display: flex; flex-wrap: wrap; gap: .35rem .9rem; align-items: center; }
+.mock .grp { display: flex; gap: .25rem; align-items: center; flex-wrap: wrap; }
+.mock .lbl { color: #9aa0b8; }
+.mock button { background: #2d3144; color: #e8e9f0; border: 1px solid #3d4260; border-radius: 5px; padding: .2rem .5rem; font-size: 12px; }
+.mock button.on { background: #7E89CA; border-color: #7E89CA; color: #fff; }
+.mock .hint { color: #9aa0b8; width: 100%; }
+
+/* шапка приложения */
+.app-head { display: flex; align-items: center; gap: 1.2rem; padding: .7rem 1.5rem; border-bottom: 1px solid var(--line); background: var(--surface); backdrop-filter: blur(8px); position: relative; }
+.logo { font-weight: 700; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.nav a { color: var(--muted); text-decoration: none; margin-right: 1rem; font-weight: 500; }
+.nav a.on { color: var(--text); }
+.search { flex: 1; max-width: 280px; border: 1px solid var(--line); border-radius: 8px; padding: .3rem .6rem; color: var(--muted); font-size: .9rem; background: var(--bg); }
+.head-right { margin-left: auto; display: flex; gap: .5rem; align-items: center; position: relative; }
+.dots { border: 1px solid var(--line); background: var(--solid); border-radius: 8px; padding: .1rem .6rem; font-size: 1.1rem; position: relative; }
+.dots .dot { display: none; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 50%; background: var(--q); border: 2px solid var(--solid); }
+:root[data-qind="dot"] .dots.has-q .dot { display: block; }
+.qchip { display: none; border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; padding: .05rem .6rem; font-size: .85rem; }
+.qchip:hover { color: var(--q); border-color: var(--q); }
+:root[data-qind="chip"] .qchip.has-q { display: inline-block; }
+.menu { display: none; position: absolute; right: 0; top: 2.4rem; z-index: 60; width: 270px; background: var(--solid); border: 1px solid var(--pop-line);
+  border-radius: 12px; box-shadow: var(--pop-shadow); padding: .4rem 0; font-size: .92rem; }
+.menu.open { display: block; }
+.menu .it { display: flex; justify-content: space-between; padding: .45rem .9rem; color: var(--text); cursor: pointer; }
+.menu .it:hover { background: var(--surface-2); }
+.menu .it.dim { color: var(--muted); cursor: default; } .menu .it.dim:hover { background: none; }
+.menu .sep { border-top: 1px solid var(--line); margin: .3rem 0; }
+.badge { background: var(--q-soft); color: var(--q); border-radius: 999px; padding: 0 .5rem; font-size: .8rem; font-weight: 600; }
+
+/* урок */
+.layout { display: grid; grid-template-columns: 210px 1fr; gap: 1.5rem; max-width: 1180px; margin: 0 auto; padding: 1.4rem 1.5rem 5rem; }
+.side { font-size: .92rem; }
+.side .sec { color: var(--muted); font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; margin: 1rem 0 .3rem; }
+.side a { display: block; color: var(--text); text-decoration: none; padding: .25rem .6rem; border-radius: 7px; cursor: pointer; }
+.side a.on { background: var(--primary-soft); font-weight: 600; }
+.side a .cnt { color: var(--muted); font-size: .8rem; }
+.crumbs { font-size: .86rem; color: var(--muted); margin: 0; }
+.el-head { display: flex; align-items: center; gap: .5rem; margin: .15rem 0 .8rem; }
+.el-head h1 { margin: 0; font-size: 1.6rem; flex: 1; }
+.btn-icon { border: 1px solid var(--line); background: var(--solid); border-radius: 8px; width: 2.1rem; height: 2.1rem; padding: 0; display: inline-grid; place-items: center; position: relative; }
+.btn-icon:hover { border-color: var(--primary); }
+.btn-icon .n { position: absolute; top: -6px; right: -6px; min-width: 17px; height: 17px; border-radius: 9px; background: var(--primary); color: #fff; font-size: .68rem; font-weight: 700; display: grid; place-items: center; padding: 0 3px; }
+.note-btn.empty { opacity: .45; } .note-btn.empty:hover { opacity: 1; }
+:root[data-icon="has"] .note-btn.empty { display: none; }
+.el-menu-add { display: none; }
+:root[data-icon="has"] .el-menu-add { display: inline-grid; }
+
+.work { display: grid; grid-template-columns: 1fr; gap: 1.2rem; align-items: start; }
+:root[data-place="margin"] .work { grid-template-columns: minmax(0,1fr) 280px; }
+.card { background: var(--surface); border-radius: 14px; box-shadow: 0 4px 18px rgba(92,88,170,.12); padding: 1.3rem 1.5rem; backdrop-filter: blur(8px); }
+.reading { font-family: var(--reading); font-size: 1.1rem; line-height: 1.85; }
+.reading p { margin: 0 0 .9rem; }
+.ex-item { display: flex; gap: .6rem; align-items: baseline; padding: .35rem 0; font-family: var(--reading); font-size: 1.05rem; }
+.ex-item .num { color: var(--muted); font-family: var(--font); font-size: .85rem; width: 1.4rem; }
+.ex-item input { font: inherit; width: 7rem; border: 0; border-bottom: 1.5px solid var(--line); background: transparent; color: var(--fr); text-align: center; }
+.arrows { display: flex; justify-content: space-between; margin-top: 1rem; font-size: .9rem; }
+.arrows a { color: var(--muted); text-decoration: none; }
+
+/* привязка к фрагменту */
+mark.anchor { background: none; color: inherit; border-bottom: 1.5px dotted var(--primary); cursor: pointer; padding-bottom: 1px; }
+mark.anchor.q { border-bottom-color: var(--q); }
+mark.anchor.imp { border-bottom-color: var(--imp); }
+mark.anchor sup { font-family: var(--font); font-size: .62rem; color: var(--primary-strong); margin-left: 1px; }
+mark.anchor.q sup { color: var(--q); } mark.anchor.imp sup { color: var(--imp); }
+mark.anchor.flash, .note.flash { animation: flash 1.2s ease; }
+@keyframes flash { 0%,60% { background: var(--primary-soft); } 100% { background: transparent; } }
+
+/* заметки */
+.notes { display: none; margin: -.2rem 0 1rem; }
+.notes.open { display: block; }
+:root[data-place="margin"] .notes { display: block; margin: 0; position: sticky; top: 7rem; }
+:root[data-place="margin"] .notes .notes-head { display: flex; }
+.notes-head { display: none; justify-content: space-between; align-items: center; font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .4rem; }
+.important-strip { margin: -.2rem 0 1rem; }
+:root[data-place="margin"] .important-strip { display: none; }
+.note { background: var(--solid); border: 1px solid var(--line); border-left: 3px solid var(--primary); border-radius: 10px; padding: .55rem .75rem; margin-bottom: .5rem; font-size: .93rem; }
+.note.q { border-left-color: var(--q); }
+.note.imp { border-left-color: var(--imp); background: linear-gradient(90deg, var(--imp-soft), var(--solid) 60%); }
+.note.done { opacity: .65; border-left-color: var(--ok); background: var(--solid); }
+.note .top { display: flex; gap: .45rem; align-items: center; font-size: .78rem; color: var(--muted); }
+.note .top .kind { font-weight: 600; }
+.note.q .kind { color: var(--q); } .note.imp .kind { color: var(--imp); } .note.done .kind { color: var(--ok); }
+.note .top .acts { margin-left: auto; display: flex; gap: .15rem; }
+.note .top .acts button { border: 0; background: none; color: var(--muted); padding: 0 .2rem; font-size: .85rem; }
+.note .top .acts button:hover { color: var(--primary-strong); }
+.note .quote { font-family: var(--reading); font-style: italic; font-size: .82rem; color: var(--muted); cursor: pointer; margin-top: .15rem; }
+.note .quote:hover { color: var(--primary-strong); }
+.note .body { margin-top: .2rem; white-space: pre-wrap; }
+.note .answer { margin-top: .35rem; padding-top: .35rem; border-top: 1px dashed var(--line); white-space: pre-wrap; }
+.note .answer b { color: var(--ok); font-weight: 600; }
+.note .qbar { margin-top: .45rem; display: flex; gap: .4rem; }
+.note.collapsed .body, .note.collapsed .answer, .note.collapsed .qbar, .note.collapsed .quote { display: none; }
+.note.collapsed .top .preview { display: inline; }
+.note .top .preview { display: none; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 16rem; font-size: .85rem; }
+.add-row { display: flex; gap: .4rem; flex-wrap: wrap; }
+.chip-btn { border: 1px dashed var(--line); background: transparent; color: var(--muted); border-radius: 8px; padding: .2rem .6rem; font-size: .85rem; }
+.chip-btn:hover { color: var(--primary-strong); border-color: var(--primary); }
+.btn { border: 0; border-radius: 8px; padding: .35rem .9rem; font-weight: 600; background: var(--grad); color: #fff; font-size: .88rem; }
+.btn-o { border: 1px solid var(--line); border-radius: 8px; padding: .3rem .7rem; font-weight: 600; background: transparent; font-size: .85rem; }
+.btn-o:hover { border-color: var(--primary); }
+.btn-ok { border: 1px solid var(--ok); color: var(--ok); background: transparent; border-radius: 8px; padding: .2rem .6rem; font-size: .82rem; font-weight: 600; }
+
+/* форма */
+.nform { background: var(--solid); border: 1px solid var(--pop-line); border-radius: 10px; padding: .6rem .75rem; margin-bottom: .5rem; box-shadow: 0 4px 14px rgba(60,55,140,.1); }
+.nform .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.nform .seg button { border: 0; background: transparent; padding: .15rem .65rem; font-size: .85rem; color: var(--muted); }
+.nform .seg button.on { background: var(--primary-soft); color: var(--text); font-weight: 600; }
+.nform textarea { width: 100%; font: inherit; font-size: .93rem; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: .4rem .55rem; margin: .45rem 0; resize: vertical; min-height: 4em; }
+.nform textarea:focus { outline: 2px solid var(--primary-soft); border-color: var(--primary); }
+.nform .row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.nform .row .sp { flex: 1; }
+.nform label.imp { display: inline-flex; gap: .3rem; align-items: center; font-size: .85rem; color: var(--muted); cursor: pointer; }
+.nform .quote { font-family: var(--reading); font-style: italic; font-size: .82rem; color: var(--muted); }
+
+/* всплывающее меню выделения (как подсказка 006) */
+.pop { position: absolute; z-index: 50; width: 300px; background: var(--solid); border: 1px solid var(--pop-line); border-radius: 12px; box-shadow: var(--pop-shadow); padding: .7rem .85rem; font-size: .93rem; }
+.pop .src { font-weight: 700; color: var(--fr); }
+.pop .tr { margin: .2rem 0 .5rem; }
+.pop .acts { display: flex; gap: .35rem; flex-wrap: wrap; padding-top: .5rem; border-top: 1px solid var(--line); }
+
+/* панель вопросов */
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 380px; max-width: 100vw; background: var(--solid); box-shadow: -8px 0 30px rgba(60,55,140,.2); z-index: 90;
+  transform: translateX(105%); transition: transform .2s; padding: 1.1rem 1.2rem; overflow: auto; }
+.drawer.open { transform: none; }
+.drawer h2 { margin: 0 0 .2rem; font-size: 1.2rem; display: flex; justify-content: space-between; }
+.drawer h2 button { border: 0; background: none; color: var(--muted); }
+.drawer .grp-l { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 1rem 0 .35rem; }
+.drawer .goto { font-size: .8rem; color: var(--primary-strong); cursor: pointer; }
+
+.modal-bg { position: fixed; inset: 0; background: rgba(20,20,40,.35); z-index: 100; display: none; place-items: center; }
+.modal-bg.open { display: grid; }
+.modal { background: var(--solid); border-radius: 14px; box-shadow: var(--pop-shadow); padding: 1.1rem 1.3rem; width: 340px; }
+.modal .row { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .9rem; }
+.btn-danger { border: 0; border-radius: 8px; padding: .35rem .9rem; font-weight: 600; background: var(--danger); color: #fff; font-size: .88rem; }
+.toast { position: fixed; bottom: 1.2rem; left: 50%; transform: translateX(-50%); background: var(--solid); box-shadow: var(--pop-shadow); border-radius: 10px; padding: .55rem 1rem; display: none; z-index: 95; font-size: .9rem; }
+.page { display: none; } .page.on { display: block; }
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; } .side .sec { display: none; }
+  .side { display: flex; flex-wrap: wrap; gap: .3rem; } .side a { border: 1px solid var(--line); }
+  :root[data-place="margin"] .work { grid-template-columns: 1fr; }
+  .search, .nav { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="mock">
+  <div class="grp"><span class="lbl">Страница:</span><button data-go="text">текст</button><button data-go="ex">упражнение</button><button data-go="lesson">заметки к уроку</button></div>
+  <div class="grp"><span class="lbl">Где показывать заметки:</span><button data-set="place" data-val="under">под заголовком, по 📝</button><button data-set="place" data-val="margin">на полях справа, всегда</button></div>
+  <div class="grp"><span class="lbl">Значок 📝:</span><button data-set="icon" data-val="always">всегда (бледный, если пусто)</button><button data-set="icon" data-val="has">только если есть заметки</button></div>
+  <div class="grp"><span class="lbl">Напоминание о вопросах:</span><button data-set="qind" data-val="chip">«❓ 2» в шапке</button><button data-set="qind" data-val="dot">точка на «⋯»</button><button data-set="qind" data-val="menu">только пункт в «⋯»</button></div>
+  <div class="grp"><span class="lbl">Тема:</span><button data-set="theme" data-val="light">светлая</button><button data-set="theme" data-val="dark">тёмная</button></div>
+  <span class="hint">Попробуйте: щёлкнуть 📝; выделить фразу в тексте → «📝 Пометка» / «❓ Вопрос»; щёлкнуть подчёркнутый фрагмент; «✓ Ответ получен» у вопроса; «❓ 2» в шапке.</span>
+</div>
+
+<header class="app-head">
+  <span class="logo">French Learning</span>
+  <nav class="nav"><a class="on">Уроки</a><a>Словарь</a><a>Практика</a><a>Темы</a></nav>
+  <span class="search">Поиск…</span>
+  <div class="head-right">
+    <button class="qchip" id="qchip" title="Открытые вопросы к преподавателю">❓ <span class="qn">2</span></button>
+    <button class="dots" id="dots" title="Ещё">⋯<span class="dot"></span></button>
+    <div class="menu" id="menu">
+      <div class="it" id="menu-q">Вопросы к уроку <span class="badge qn">2</span></div>
+      <div class="sep"></div>
+      <div class="it dim">Мои ошибки</div><div class="it dim">Требует проверки</div><div class="it dim">Перевод при выделении ✓</div>
+      <div class="sep"></div><div class="it dim">Настройки</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="side">
+    <div class="sec">Урок 15</div>
+    <a data-page="lesson">📝 Заметки к уроку <span class="cnt" id="lesson-cnt"></span></a>
+    <div class="sec">Теория</div><a>Le passé composé avec être</a>
+    <div class="sec">Тексты</div><a data-page="text" class="on">Au marché</a>
+    <div class="sec">Упражнения</div><a data-page="ex">Упр. 4 — être или avoir</a><a>Упр. 5 — accord</a>
+  </aside>
+
+  <div>
+    <!-- Текст -->
+    <section class="page on" id="page-text" data-el="text">
+      <p class="crumbs">Уроки › Урок 15 › Тексты</p>
+      <div class="el-head"><h1 lang="fr">Au marché</h1>
+        <button class="btn-icon el-menu-add" title="Добавить заметку" data-add="text">＋</button>
+        <button class="btn-icon note-btn" data-toggle="text" title="Заметки">📝<span class="n"></span></button>
+        <button class="btn-icon" title="Происхождение">ⓘ</button><button class="btn-icon" title="Настройки">⚙</button></div>
+      <div class="important-strip" data-strip="text"></div>
+      <div class="work">
+        <div>
+          <div class="notes" data-notes="text"></div>
+          <article class="card reading" lang="fr" data-body="text">
+            <p>Le samedi matin, Claire va au marché avec sa sœur. Elles achètent des pommes, du fromage et une baguette.</p>
+            <p>Il y a beaucoup de monde. Claire mange une crêpe au chocolat pendant que sa sœur choisit des fleurs.</p>
+            <p>À midi, elles sont rentrées à la maison et elles ont préparé le déjeuner ensemble.</p>
+          </article>
+          <div class="arrows"><a>← Упр. 3</a><a>Упр. 4 →</a></div>
+        </div>
+        <div class="margin-col" data-margin="text"></div>
+      </div>
+    </section>
+
+    <!-- Упражнение -->
+    <section class="page" id="page-ex" data-el="ex">
+      <p class="crumbs">Уроки › Урок 15 › Упражнения</p>
+      <div class="el-head"><h1>Упр. 4 — être или avoir</h1>
+        <button class="btn-icon el-menu-add" title="Добавить заметку" data-add="ex">＋</button>
+        <button class="btn-icon note-btn" data-toggle="ex" title="Заметки">📝<span class="n"></span></button>
+        <button class="btn-icon" title="Происхождение">ⓘ</button><button class="btn-icon" title="Настройки">⚙</button></div>
+      <div class="important-strip" data-strip="ex"></div>
+      <div class="work">
+        <div>
+          <div class="notes" data-notes="ex"></div>
+          <article class="card" data-body="ex">
+            <p class="muted small" style="margin-top:0">Вставьте вспомогательный глагол в passé composé.</p>
+            <div class="ex-item" lang="fr"><span class="num">1.</span><span>Nous <input> allés au cinéma hier soir.</span></div>
+            <div class="ex-item" lang="fr"><span class="num">2.</span><span>Elle <input> monté les valises au troisième étage.</span></div>
+            <div class="ex-item" lang="fr"><span class="num">3.</span><span>Ils <input> descendus du train à Lyon.</span></div>
+            <div class="ex-item" lang="fr"><span class="num">4.</span><span>J'<input> sorti le chien ce matin.</span></div>
+            <p style="margin:.8rem 0 0"><button class="btn">Проверить</button></p>
+          </article>
+          <div class="arrows"><a>← Au marché</a><a>Упр. 5 →</a></div>
+        </div>
+        <div class="margin-col" data-margin="ex"></div>
+      </div>
+    </section>
+
+    <!-- Заметки к уроку -->
+    <section class="page" id="page-lesson" data-el="lesson">
+      <p class="crumbs">Уроки › Урок 15</p>
+      <div class="el-head"><h1>Заметки к уроку 15</h1></div>
+      <p class="muted small">Заметки, не привязанные к упражнению или тексту. Заметки элементов урока — ниже списком, со ссылками.</p>
+      <div class="notes open" data-notes="lesson" style="max-width:640px"></div>
+      <div id="lesson-others" style="max-width:640px"></div>
+    </section>
+  </div>
+</div>
+
+<aside class="drawer" id="drawer">
+  <h2>Вопросы к уроку <button id="drawer-x" title="Закрыть">✕</button></h2>
+  <p class="muted small" style="margin:0">Открытые вопросы из всех уроков — чтобы задать их преподавательнице. Ответили — отметьте «✓ Ответ получен».</p>
+  <div id="drawer-list"></div>
+  <p style="margin-top:1rem"><label class="small muted"><input type="checkbox" id="show-done"> показывать отвеченные</label></p>
+</aside>
+
+<div class="modal-bg" id="modal"><div class="modal"><b>Удалить заметку?</b><p class="muted small" id="modal-text" style="margin:.4rem 0 0"></p>
+  <div class="row"><button class="btn-o" id="m-cancel">Отмена</button><button class="btn-danger" id="m-ok">Удалить</button></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const root = document.documentElement;
+const EL_NAMES = {text: "Au marché", ex: "Упр. 4 — être или avoir", lesson: "урок целиком"};
+let seq = 10;
+const notes = [
+  {id: 1, el: "text", kind: "note", imp: false, quote: "elles sont rentrées", body: "rentrer → être, поэтому согласование: rentrées (они — женщины).", open: false},
+  {id: 2, el: "text", kind: "q", imp: false, quote: "pendant que", body: "pendant que и alors que — в чём разница?", answer: "", open: false},
+  {id: 3, el: "ex", kind: "note", imp: true, quote: "", body: "monter / descendre / sortir с прямым дополнением → avoir (elle a monté les valises). Я тут ошибаюсь каждый раз!", open: true},
+  {id: 4, el: "lesson", kind: "q", imp: false, quote: "", body: "Можно ли сказать « je suis allé » и « j'ai allé » — вторая форма совсем неправильная или разговорная?", answer: "", open: true},
+  {id: 5, el: "lesson", kind: "note", imp: false, quote: "", body: "Преподавательница: в устной речи passé simple не нужен, только узнавать в текстах.", open: true},
+  {id: 6, el: "ex", kind: "q", done: true, quote: "", body: "Почему в 3 — descendus, а не descendu?", answer: "Потому что с être согласуется с подлежащим: ils → -s.", open: false},
+];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const openQ = () => notes.filter(n => n.kind === "q" && !n.done);
+const openLists = new Set();
+
+/* ---------- отрисовка ---------- */
+function noteHTML(n, compact) {
+  const cls = ["note", n.kind === "q" ? "q" : "", n.imp ? "imp" : "", n.done ? "done" : "", (!n.open && !n.imp) || (compact && !n.open) ? "collapsed" : ""].join(" ");
+  const kind = n.done ? "✓ Вопрос · отвечен" : n.kind === "q" ? "❓ Вопрос" : n.imp ? "★ Важное" : "📝 Пометка";
+  const qbar = n.kind === "q" && !n.done ? `<div class="qbar"><button class="btn-ok" data-act="answer">✓ Ответ получен</button></div>` : "";
+  const ans = n.done && n.answer ? `<div class="answer"><b>Ответ:</b> ${esc(n.answer)}</div>` : "";
+  return `<div class="${cls}" data-id="${n.id}">
+    <div class="top"><span class="kind">${kind}</span><span class="preview">${esc(n.body)}</span>
+      <span class="acts"><button data-act="fold" title="Свернуть / развернуть">${n.open ? "▾" : "▸"}</button><button data-act="edit" title="Изменить">✎</button><button data-act="del" title="Удалить">🗑</button></span></div>
+    ${n.quote ? `<div class="quote" data-act="goto" title="Показать в тексте">к фрагменту: «${esc(n.quote)}»</div>` : ""}
+    <div class="body">${esc(n.body)}</div>${ans}${qbar}</div>`;
+}
+function addRow(el) {
+  return `<div class="add-row"><button class="chip-btn" data-new="note" data-el="${el}">+ Пометка</button><button class="chip-btn" data-new="q" data-el="${el}">+ Вопрос</button>
+    ${el !== "lesson" ? `<span class="small muted" style="align-self:center">или выделите фрагмент текста</span>` : ""}</div>`;
+}
+function render() {
+  const place = root.dataset.place;
+  for (const el of ["text", "ex", "lesson"]) {
+    const list = notes.filter(n => n.el === el);
+    const box = document.querySelector(`[data-notes="${el}"]`);
+    const margin = document.querySelector(`[data-margin="${el}"]`);
+    const strip = document.querySelector(`[data-strip="${el}"]`);
+    const html = `<div class="notes-head"><span>Заметки · ${list.length}</span></div>` + list.map(n => noteHTML(n, place === "margin")).join("") + addRow(el);
+    if (el === "lesson") { box.innerHTML = list.map(n => noteHTML(n)).join("") + addRow(el); continue; }
+    if (place === "margin") { margin.innerHTML = `<div class="notes">${html}</div>`; box.innerHTML = ""; box.classList.remove("open"); strip.innerHTML = ""; }
+    else {
+      margin.innerHTML = "";
+      box.innerHTML = html; box.classList.toggle("open", openLists.has(el));
+      // важные видны всегда, даже когда список свёрнут
+      strip.innerHTML = openLists.has(el) ? "" : list.filter(n => n.imp).map(n => noteHTML(n)).join("");
+    }
+    const btn = document.querySelector(`[data-toggle="${el}"]`);
+    btn.classList.toggle("empty", !list.length);
+    btn.querySelector(".n").textContent = list.length || "";
+    btn.querySelector(".n").style.display = list.length ? "" : "none";
+    btn.style.display = place === "margin" && root.dataset.icon === "has" ? "none" : "";
+  }
+  // фрагменты
+  document.querySelectorAll("mark.anchor").forEach(m => {
+    const n = notes.find(x => x.id == m.dataset.id);
+    if (!n) { m.replaceWith(...[...m.childNodes].filter(c => c.nodeName !== "SUP")); return; }
+    m.className = "anchor" + (n.kind === "q" && !n.done ? " q" : "") + (n.imp ? " imp" : "");
+    m.querySelector("sup").textContent = n.kind === "q" && !n.done ? "?" : "✎";
+  });
+  // счётчики
+  const q = openQ().length;
+  document.querySelectorAll(".qn").forEach(x => x.textContent = q);
+  document.getElementById("qchip").classList.toggle("has-q", q > 0);
+  document.getElementById("dots").classList.toggle("has-q", q > 0);
+  const lc = notes.filter(n => n.el === "lesson").length;
+  document.getElementById("lesson-cnt").textContent = lc ? `(${lc})` : "";
+  document.getElementById("lesson-others").innerHTML = `<div class="notes-head" style="display:flex;margin-top:1.2rem"><span>В элементах урока</span></div>` +
+    notes.filter(n => n.el !== "lesson").map(n => `<div class="small" style="padding:.2rem 0">${n.kind === "q" ? (n.done ? "✓" : "❓") : n.imp ? "★" : "📝"} <a style="color:var(--primary-strong);cursor:pointer" data-goto-el="${n.el}" data-goto-id="${n.id}">${esc(EL_NAMES[n.el])}</a> — ${esc(n.body.slice(0, 70))}${n.body.length > 70 ? "…" : ""}</div>`).join("");
+  renderDrawer();
+}
+function renderDrawer() {
+  const showDone = document.getElementById("show-done").checked;
+  const list = notes.filter(n => n.kind === "q" && (showDone || !n.done));
+  document.getElementById("drawer-list").innerHTML = list.length ? `<div class="grp-l">Урок 15</div>` + list.map(n =>
+    `<div>${noteHTML({...n, open: true})}<div class="goto" data-goto-el="${n.el}" data-goto-id="${n.id}" style="margin:-.3rem 0 .6rem .2rem">→ ${esc(EL_NAMES[n.el])}${n.quote ? " · «" + esc(n.quote) + "»" : ""}</div></div>`).join("")
+    : `<p class="muted">Открытых вопросов нет 🎉</p>`;
+}
+
+/* ---------- форма ---------- */
+function openForm(el, kind, quote, range, existing) {
+  document.querySelectorAll(".nform").forEach(f => f.remove());
+  if (root.dataset.place === "under") { openLists.add(el); render(); }
+  const host = root.dataset.place === "margin" && el !== "lesson" ? document.querySelector(`[data-margin="${el}"] .notes`) : document.querySelector(`[data-notes="${el}"]`);
+  const f = document.createElement("div"); f.className = "nform";
+  let k = existing ? existing.kind : kind;
+  f.innerHTML = `<div class="row"><span class="seg"><button data-k="note">📝 Пометка</button><button data-k="q">❓ Вопрос</button></span></div>
+    ${quote ? `<div class="quote" style="margin-top:.35rem">к фрагменту: «${esc(quote)}»</div>` : ""}
+    <textarea placeholder="${k === "q" ? "Что спросить у преподавательницы…" : "На что обратить внимание…"}">${existing ? esc(existing.body) : ""}</textarea>
+    ${existing && existing.kind === "q" ? `<textarea class="ans" placeholder="Ответ (если уже знаете)">${esc(existing.answer || "")}</textarea>` : ""}
+    <div class="row"><label class="imp"><input type="checkbox" ${existing && existing.imp ? "checked" : ""}> ★ важная (всегда на виду)</label><span class="sp"></span>
+      <button class="btn-o" data-f="cancel">Отмена</button><button class="btn" data-f="save">Сохранить</button></div>`;
+  const setK = v => { k = v; f.querySelectorAll("[data-k]").forEach(b => b.classList.toggle("on", b.dataset.k === k)); };
+  setK(k);
+  f.querySelectorAll("[data-k]").forEach(b => b.onclick = () => setK(b.dataset.k));
+  host.insertBefore(f, host.querySelector(".add-row"));
+  const ta = f.querySelector("textarea"); ta.focus();
+  f.querySelector('[data-f="cancel"]').onclick = () => f.remove();
+  f.querySelector('[data-f="save"]').onclick = () => {
+    const body = ta.value.trim(); if (!body) { ta.focus(); return; }
+    const imp = f.querySelector(".imp input").checked;
+    if (existing) {
+      Object.assign(existing, {body, kind: k, imp});
+      const a = f.querySelector(".ans"); if (a) { existing.answer = a.value.trim(); }
+    } else {
+      const n = {id: ++seq, el, kind: k, imp, quote: quote || "", body, answer: "", open: true};
+      notes.push(n);
+      if (range) wrapRange(range, n.id);
+    }
+    render(); toast(existing ? "Заметка изменена" : k === "q" ? "Вопрос записан — он появится в «Вопросах к уроку»" : "Пометка сохранена");
+  };
+}
+function wrapRange(range, id) {
+  const m = document.createElement("mark"); m.className = "anchor"; m.dataset.id = id;
+  try { range.surroundContents(m); } catch (e) { m.appendChild(range.extractContents()); range.insertNode(m); }
+  const sup = document.createElement("sup"); m.appendChild(sup);
+}
+
+/* ---------- действия ---------- */
+document.addEventListener("click", e => {
+  const t = e.target;
+  const tog = t.closest("[data-toggle]");
+  if (tog) { const el = tog.dataset.toggle; openLists.has(el) ? openLists.delete(el) : openLists.add(el); render(); return; }
+  const addb = t.closest("[data-add]"); if (addb) { openForm(addb.dataset.add, "note"); return; }
+  const nw = t.closest("[data-new]"); if (nw) { openForm(nw.dataset.el, nw.dataset.new); return; }
+  const gotoEl = t.closest("[data-goto-el]"); if (gotoEl) { goTo(gotoEl.dataset.gotoEl, +gotoEl.dataset.gotoId); document.getElementById("drawer").classList.remove("open"); return; }
+  const anchor = t.closest("mark.anchor"); if (anchor) { const n = notes.find(x => x.id == anchor.dataset.id); goTo(n.el, n.id); return; }
+  const act = t.closest("[data-act]");
+  if (act) {
+    const n = notes.find(x => x.id == act.closest(".note").dataset.id);
+    const a = act.dataset.act;
+    if (a === "fold") { n.open = !n.open; render(); }
+    if (a === "edit") openForm(n.el, n.kind, n.quote, null, n);
+    if (a === "goto") { const m = document.querySelector(`mark.anchor[data-id="${n.id}"]`); if (m) { m.scrollIntoView({block: "center", behavior: "smooth"}); m.classList.remove("flash"); void m.offsetWidth; m.classList.add("flash"); } }
+    if (a === "del") askDelete(n);
+    if (a === "answer") answerForm(act.closest(".note"), n);
+    return;
+  }
+  if (t.closest("#dots")) { document.getElementById("menu").classList.toggle("open"); return; }
+  if (t.closest("#menu-q") || t.closest("#qchip")) { document.getElementById("menu").classList.remove("open"); document.getElementById("drawer").classList.add("open"); return; }
+  if (t.closest("#drawer-x")) { document.getElementById("drawer").classList.remove("open"); return; }
+  const pg = t.closest("[data-page]"); if (pg) { showPage(pg.dataset.page); return; }
+  if (!t.closest(".menu")) document.getElementById("menu").classList.remove("open");
+});
+document.getElementById("show-done").onchange = renderDrawer;
+
+function answerForm(card, n) {
+  if (card.querySelector(".ansform")) return;
+  const d = document.createElement("div"); d.className = "ansform";
+  d.innerHTML = `<textarea class="ans" style="width:100%;margin:.4rem 0;font:inherit;font-size:.9rem;border:1px solid var(--line);border-radius:8px;padding:.35rem .5rem;background:var(--bg);color:var(--text)" placeholder="Ответ преподавательницы (можно не писать)"></textarea>
+    <div style="display:flex;gap:.4rem;justify-content:flex-end"><button class="btn-o" data-x>Отмена</button><button class="btn" data-ok>Закрыть вопрос</button></div>`;
+  card.querySelector(".qbar").replaceWith(d); d.querySelector("textarea").focus();
+  d.querySelector("[data-x]").onclick = () => render();
+  d.querySelector("[data-ok]").onclick = () => { n.done = true; n.answer = d.querySelector("textarea").value.trim(); n.open = false; render(); toast("Вопрос закрыт"); };
+}
+let toDelete = null;
+function askDelete(n) { toDelete = n; document.getElementById("modal-text").textContent = "«" + n.body.slice(0, 80) + (n.body.length > 80 ? "…" : "") + "»"; document.getElementById("modal").classList.add("open"); }
+document.getElementById("m-cancel").onclick = () => document.getElementById("modal").classList.remove("open");
+document.getElementById("m-ok").onclick = () => { notes.splice(notes.indexOf(toDelete), 1); document.getElementById("modal").classList.remove("open"); render(); toast("Заметка удалена"); };
+
+function showPage(p) {
+  document.querySelectorAll("[data-go]").forEach(b => b.classList.toggle("on", b.dataset.go === p));
+  document.querySelectorAll(".page").forEach(x => x.classList.toggle("on", x.id === "page-" + p));
+  document.querySelectorAll(".side a[data-page]").forEach(a => a.classList.toggle("on", a.dataset.page === p));
+}
+function goTo(el, id) {
+  showPage(el);
+  const n = notes.find(x => x.id === id); if (n) n.open = true;
+  if (root.dataset.place === "under" && el !== "lesson") openLists.add(el);
+  render();
+  const card = document.querySelector(`.page.on .note[data-id="${id}"]`);
+  const m = document.querySelector(`mark.anchor[data-id="${id}"]`);
+  const target = m || card;
+  if (target) { target.scrollIntoView({block: "center", behavior: "smooth"}); [m, card].forEach(x => { if (x) { x.classList.remove("flash"); void x.offsetWidth; x.classList.add("flash"); } }); }
+}
+
+/* ---------- выделение → подсказка 006 с кнопками заметок ---------- */
+let pop = null;
+function closePop() { if (pop) pop.remove(); pop = null; }
+document.addEventListener("mouseup", e => {
+  if (e.target.closest(".pop") || e.target.closest("input,textarea")) return;
+  setTimeout(() => {
+    const s = getSelection(); const txt = s.toString().trim();
+    const body = s.anchorNode && (s.anchorNode.nodeType === 3 ? s.anchorNode.parentElement : s.anchorNode).closest("[data-body]");
+    if (!txt || !body || s.rangeCount === 0) return;
+    const range = s.getRangeAt(0).cloneRange(); const rect = range.getBoundingClientRect();
+    closePop();
+    pop = document.createElement("div"); pop.className = "pop";
+    pop.innerHTML = `<div class="src">${esc(txt.length > 50 ? txt.slice(0, 50) + "…" : txt)}</div><div class="tr muted small">(перевод, 🔊 и «+ В словарь» — как в 006)</div>
+      <div class="acts"><button class="chip-btn" data-p="note">📝 Пометка</button><button class="chip-btn" data-p="q">❓ Вопрос</button></div>`;
+    document.body.appendChild(pop);
+    pop.style.top = (scrollY + rect.bottom + 8) + "px";
+    pop.style.left = Math.max(10, Math.min(scrollX + rect.left, scrollX + document.documentElement.clientWidth - pop.offsetWidth - 10)) + "px";
+    pop.querySelectorAll("[data-p]").forEach(b => b.onclick = () => { const el = body.dataset.body; closePop(); getSelection().removeAllRanges(); openForm(el, b.dataset.p, txt, range); });
+  }, 10);
+});
+document.addEventListener("mousedown", e => { if (pop && !pop.contains(e.target)) closePop(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { closePop(); document.getElementById("drawer").classList.remove("open"); document.getElementById("modal").classList.remove("open"); } });
+
+/* начальные привязки к фрагментам */
+function anchorText(el, phrase, id) {
+  const body = document.querySelector(`[data-body="${el}"]`);
+  const w = document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
+  while (w.nextNode()) { const i = w.currentNode.textContent.indexOf(phrase); if (i >= 0) { const r = document.createRange(); r.setStart(w.currentNode, i); r.setEnd(w.currentNode, i + phrase.length); wrapRange(r, id); return; } }
+}
+anchorText("text", "elles sont rentrées", 1);
+anchorText("text", "pendant que", 2);
+
+function toast(m) { const t = document.getElementById("toast"); t.textContent = m; t.style.display = "block"; clearTimeout(t._h); t._h = setTimeout(() => t.style.display = "none", 3000); }
+function markBtns() { document.querySelectorAll("[data-set]").forEach(b => b.classList.toggle("on", root.dataset[b.dataset.set] === b.dataset.val)); }
+document.querySelectorAll("[data-set]").forEach(b => b.addEventListener("click", ev => { ev.stopPropagation(); root.dataset[b.dataset.set] = b.dataset.val; markBtns(); render(); }));
+document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", ev => { ev.stopPropagation(); showPage(b.dataset.go); scrollTo(0, 0); }));
+markBtns(); render(); showPage("text");
+</script>
+</body>
+</html>
