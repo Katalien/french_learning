@@ -95,8 +95,6 @@ class VocabEditor:
     def _apply(
         self, lines: list[ParsedLine], topics: list[str], lesson: int | None
     ) -> tuple[dict, list, list, list]:
-        if not topics:
-            raise VocabError("выберите тему для новых слов")
         entries, paths = self._existing()
         files: dict[str, str] = {}
         added, merged, ids = [], [], []

@@ -46,7 +46,7 @@ def _redirect(url: str) -> RedirectResponse:
     return RedirectResponse(url, status_code=303)
 
 
-@router.get("/practice")
+@router.get("/practice/setup")
 def practice_setup(request: Request, index: Index):
     _cards, sessions = _practice(request, index)
     context = {
@@ -304,13 +304,41 @@ def _add_context(index: ContentIndex, **extra) -> dict:
         "topics": index.all_topics(),
         "lessons": index.lessons(),
         "kinds": {"word": "слово", "verb": "глагол", "phrase": "фраза"},
+        "display_fr": vocab_entries.display_fr,
         **extra,
     }
 
 
 @router.get("/vocab/add")
 def vocab_add_page(request: Request, index: Index):
+    """Выбор способа: по одному или списком (009)."""
     return templates.TemplateResponse(request, "vocab/add.html", _add_context(index))
+
+
+@router.get("/vocab/add/one")
+def vocab_add_one_page(
+    request: Request,
+    index: Index,
+    topic: str = "",
+    lesson: str = "",
+    added: str = "",
+    error: str = "",
+):
+    """Добавление по одному: серия слов до «Завершить»; тема и урок сохраняются (009)."""
+    entries = [index.element(i) for i in added.split(",") if i]
+    context = _add_context(
+        index,
+        topic=topic,
+        lesson=lesson,
+        added=[e for e in entries if e is not None and e.kind == "vocab"],
+        error=error,
+    )
+    return templates.TemplateResponse(request, "vocab/add_one.html", context)
+
+
+@router.get("/vocab/add/list")
+def vocab_add_list_page(request: Request, index: Index):
+    return templates.TemplateResponse(request, "vocab/add_list.html", _add_context(index))
 
 
 @router.post("/vocab/add")
@@ -325,6 +353,8 @@ def vocab_add(
     entry_type: Annotated[str, Form()] = "word",
     lesson: Annotated[str, Form()] = "",
     quick: Annotated[str, Form()] = "",
+    sequence: Annotated[str, Form()] = "",
+    added: Annotated[str, Form()] = "",
 ):
     from urllib.parse import urlencode
 
@@ -340,10 +370,18 @@ def vocab_add(
         "entry_type": entry_type,
         "pos": None,
     }
+
+    def back(**params) -> RedirectResponse:
+        """Серия «по одному» — назад к форме с сохранёнными темой, уроком и списком."""
+        base = {"topic": topic, "lesson": lesson, "added": added}
+        return _redirect("/vocab/add/one?" + urlencode({**base, **params}))
+
     if quick.strip():
         # одной строкой «артикль, слово - перевод»; род, выбранный в форме, важнее угаданного
         parsed = parse_line(1, quick)
         if isinstance(parsed, Unrecognized):
+            if sequence:
+                return back(error=parsed.reason)
             return _redirect("/vocab/add?" + urlencode({"error": parsed.reason}))
         word.update(
             text=parsed.text,
@@ -360,7 +398,12 @@ def vocab_add(
             lesson=int(lesson) if lesson else None,
         )
     except (VocabError, WriteError) as exc:
+        if sequence:
+            return back(error=str(exc))
         return _redirect("/vocab/add?" + urlencode({"error": str(exc)}))
+    if sequence:
+        ids = [i for i in added.split(",") if i and i != entry_id] + [entry_id]
+        return back(added=",".join(ids))
     notice = "Перевод добавлен к существующему слову." if merged else "Слово добавлено."
     return _redirect(f"/vocab/{entry_id}?" + urlencode({"notice": notice}))
 
@@ -382,10 +425,12 @@ def vocab_import(
         )
     except (VocabError, WriteError) as exc:
         return templates.TemplateResponse(
-            request, "vocab/add.html", _add_context(index, error=str(exc), list_text=text)
+            request, "vocab/add_list.html", _add_context(index, error=str(exc), list_text=text)
         )
     return templates.TemplateResponse(
-        request, "vocab/add.html", _add_context(index, report=report, topic=topic, lesson=lesson)
+        request,
+        "vocab/add_list.html",
+        _add_context(index, report=report, topic=topic, lesson=lesson),
     )
 
 
@@ -491,6 +536,7 @@ def settings_page(request: Request, index: Index):
         "index": index,
         "portion_size": db.get_setting("portion_size"),
         "trainer_portion_size": db.get_setting("trainer_portion_size"),
+        "exercise_list_view": db.get_setting("exercise_list_view"),
         "directions": db.get_setting("directions"),
         "voice": db.get_setting("voice"),
         "voices": {key: name for key, (_code, name) in VOICES.items()},
@@ -505,6 +551,7 @@ def settings_save(
     index: Index,
     portion_size: Annotated[str, Form()] = "20",
     trainer_portion_size: Annotated[str, Form()] = "",
+    exercise_list_view: Annotated[str, Form()] = "",
     directions: Annotated[str, Form()] = "staged",
     voice: Annotated[str, Form()] = DEFAULT_VOICE,
 ):
@@ -520,6 +567,10 @@ def settings_save(
         if not trainer_portion_size.isdigit() or not 1 <= int(trainer_portion_size) <= 500:
             return _redirect("/settings?error=порция тренажёров — число от 1 до 500")
         db.set_setting("trainer_portion_size", str(int(trainer_portion_size)))
+    if exercise_list_view:
+        if exercise_list_view not in ("rows", "tiles"):
+            return _redirect("/settings?error=неизвестный вид списка заданий")
+        db.set_setting("exercise_list_view", exercise_list_view)
     db.set_setting("portion_size", str(int(portion_size)))
     db.set_setting("directions", directions)
     return _redirect("/settings?notice=Настройки сохранены.")

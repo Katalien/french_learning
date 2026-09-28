@@ -1,40 +1,53 @@
 <!doctype html>
-<html lang="ru">
+{% set current = request.url.path %}
+<html lang="ru" data-theme="{{ ui_theme(request) }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Французский{% endblock %} · French Learning</title>
-  <link rel="stylesheet" href="/static/vendor/pico.min.css">
-  <link rel="stylesheet" href="/static/css/app.css?v={{ asset_version('css/app.css') }}">
+  {% for css in ("tokens", "base", "components", "screens") %}
+  <link rel="stylesheet" href="/static/css/{{ css }}.css?v={{ asset_version('css/' ~ css ~ '.css') }}">
+  {% endfor %}
   <script src="/static/vendor/htmx.min.js" defer></script>
   <script src="/static/vendor/alpine.min.js" defer></script>
   <script src="/static/js/speech.js?v={{ asset_version('js/speech.js') }}" defer></script>
   <script src="/static/js/symbols.js?v={{ asset_version('js/symbols.js') }}" defer></script>
 </head>
 <body>
-  <header class="container site-header">
-    <nav>
-      <ul><li><a href="/" class="brand">🇫🇷 Французский</a></li></ul>
-      <ul>
-        <li><a href="/">Уроки</a></li>
-        <li><a href="/vocab">Словарь</a></li>
-        <li><a href="/topics">Темы</a></li>
-        <li><a href="/trainers">Тренажёры</a></li>
-        <li><a href="/mistakes">Мои ошибки</a></li>
-        <li><a href="/extras">Доп. материалы</a></li>
-        <li><a href="/review">Проверка</a></li>
-        <li>
-          <form method="post" action="/settings/origin" class="origin-toggle">
-            {% set origin_on = request.cookies.get("show_origin") == "1" %}
-            <input type="hidden" name="show" value="{{ '0' if origin_on else '1' }}">
-            <button type="submit" class="outline small" title="Показать, что взято из материалов, а что создано ИИ">
-              Происхождение: {{ "вкл" if origin_on else "выкл" }}</button>
-          </form>
-        </li>
-      </ul>
+  <header class="topbar">
+    <a href="/" class="brand">Français <small>· мой курс</small></a>
+    <nav class="mainnav" aria-label="Разделы">
+      {% for href, name in (("/lessons", "Уроки"), ("/vocab", "Словарь"), ("/practice", "Практика"), ("/topics", "Темы")) %}
+        <a href="{{ href }}" {% if current == href or current.startswith(href ~ "/") %}aria-current="page"{% endif %}>{{ name }}</a>
+      {% endfor %}
     </nav>
+    <div class="more" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
+      <button type="button" class="outline btn-icon" @click="open = !open" :aria-expanded="open" aria-label="Ещё" title="Ещё">⋯</button>
+      <div class="more-menu" x-show="open" x-cloak>
+        <a href="/extras">Дополнительные материалы</a>
+        {% set nav_badges = nav_counts(request) %}
+        <a href="/review">Требует проверки{% if nav_badges.review %} <span class="chip">{{ nav_badges.review }}</span>{% endif %}</a>
+        <a href="/reports">Сообщения об ошибках{% if nav_badges.reports %} <span class="chip">{{ nav_badges.reports }}</span>{% endif %}</a>
+        <a href="/settings">Настройки</a>
+        <hr>
+        {% set origin_on = request.cookies.get("show_origin") == "1" %}
+        <form method="post" action="/settings/origin" class="row">
+          <span>Происхождение</span>
+          <input type="hidden" name="show" value="{{ '0' if origin_on else '1' }}">
+          <span class="segmented"><button type="submit" class="{{ '' if origin_on else 'on' }}" {% if not origin_on %}disabled{% endif %}>скрыто</button><button type="submit" class="{{ 'on' if origin_on else '' }}" {% if origin_on %}disabled{% endif %}>везде</button></span>
+        </form>
+        <form method="post" action="/settings/theme" class="row">
+          <span>Оформление</span>
+          <span class="segmented">
+            {% for key, name in (("light", "светлое"), ("dark", "тёмное"), ("system", "как в системе")) %}
+              <button type="submit" name="theme" value="{{ key }}" class="{{ 'on' if ui_theme(request) == key else '' }}">{{ name }}</button>
+            {% endfor %}
+          </span>
+        </form>
+      </div>
+    </div>
   </header>
-  <main class="container">
+  <main class="page">
     {% if request.query_params.get("error") %}
       <p class="flash flash-error" role="alert">Не сохранено: {{ request.query_params.get("error") }}</p>
     {% elif request.query_params.get("notice") %}

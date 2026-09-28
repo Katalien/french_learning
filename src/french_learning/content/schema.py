@@ -185,7 +185,12 @@ class ElementBase(Model):
     def _common_rules(self) -> ElementBase:
         if self.lesson is not None and self.part is None and getattr(self, "kind", None) != "vocab":
             raise ValueError("part обязательно, если указан lesson")
-        if not self.topics and not self.needs_review.flag:
+        # у слова тема необязательна (009); у остальных — тема или пометка «требует проверки»
+        if (
+            not self.topics
+            and not self.needs_review.flag
+            and getattr(self, "kind", None) != "vocab"
+        ):
             raise ValueError("нужна хотя бы одна тема (topics) или пометка needs_review")
         if not self.sources and self.origin != "user":
             raise ValueError("sources обязательны, кроме элементов с origin: user")

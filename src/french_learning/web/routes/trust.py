@@ -32,6 +32,18 @@ def toggle_origin(request: Request, show: Annotated[str, Form()] = "0"):
     return response
 
 
+THEMES = ("light", "dark", "system")
+
+
+@router.post("/settings/theme")
+def set_theme(request: Request, theme: Annotated[str, Form()] = "system"):
+    """Оформление: светлое / тёмное / как в системе — cookie браузера (009, FR-004)."""
+    response = RedirectResponse(_back(request), status_code=303)
+    value = theme if theme in THEMES else "system"
+    response.set_cookie("theme", value, max_age=10 * 365 * 24 * 3600)
+    return response
+
+
 @router.get("/review")
 def review_page(request: Request, index: Index):
     return templates.TemplateResponse(

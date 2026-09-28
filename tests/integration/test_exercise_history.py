@@ -48,5 +48,5 @@ def test_mistakes_list_filter_and_solve_item(client):
     assert 'id="item-1"' in client.get("/exercises/ex-gapchoic/history").text
 
 
-def test_mistakes_link_in_navigation(client):
-    assert 'href="/mistakes"' in client.get("/").text
+def test_mistakes_reachable_from_practice(client):
+    assert 'href="/practice"' in client.get("/lessons").text  # «Мои ошибки» — в «Практике»

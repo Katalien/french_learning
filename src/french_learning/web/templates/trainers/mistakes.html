@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Ошибки — {{ trainer.name }}{% endblock %}
 {% block content %}
-<p class="breadcrumbs"><a href="/trainers">Тренажёры</a> › <a href="/trainers/{{ trainer.id }}">{{ trainer.name }}</a> › Ошибки</p>
+<p class="crumbs"><a href="/trainers">Тренажёры</a> › <a href="/trainers/{{ trainer.id }}">{{ trainer.name }}</a> › Ошибки</p>
 <h1>Ошибки</h1>
 <p class="muted">Задания, на которые вы отвечали неверно. Они остаются в пуле, пока не будут решены
   верно. Разобрать их можно с агентом: <code>/explain-mistakes {{ trainer.id }}</code></p>
 {% if not mistakes %}<p class="empty">Ошибок нет.</p>{% endif %}
-<ul class="mistakes">
+<ul class="mistakes plain-list card">
   {% for m in mistakes %}
     <li class="mistake">
       {% if m.question.instruction %}<small class="muted">{{ m.question.instruction }}</small><br>{% endif %}

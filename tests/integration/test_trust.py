@@ -24,20 +24,29 @@ def git_repo(content_root: Path):
         subprocess.run(["git", "-C", str(content_root), *args], check=True, capture_output=True)
 
 
+def without_info(html: str) -> str:
+    """Страница без панели «ⓘ» (009: там происхождение доступно всегда, по кнопке)."""
+    start = html.index('<section id="exercise-origin"')
+    end = html.index("</section>", start)
+    return html[:start] + html[end:]
+
+
 def test_origin_hidden_by_default(client):
     html = client.get("/elements/ex-gapchoic").text
-    assert "origin-badge" not in html
+    assert "origin-badge" not in without_info(html)
+    assert "origin-badge" in html  # по кнопке «ⓘ»
 
 
 def test_origin_toggle_shows_labels_everywhere(client):
     client.post("/settings/origin", data={"show": "1"})
     for element_id in ELEMENT_IDS:
-        assert "origin-badge" in client.get(f"/elements/{element_id}").text, element_id
+        page = client.get(f"/elements/{element_id}").text
+        assert "origin-badge" in without_info(page), element_id
     html = client.get("/elements/ex-gapchoic").text
     assert "Complétez avec le, la, l" in html  # оригинальная формулировка
     assert "перевод: создано ИИ" in html
     client.post("/settings/origin", data={"show": "0"})
-    assert "origin-badge" not in client.get("/elements/ex-gapchoic").text
+    assert "origin-badge" not in without_info(client.get("/elements/ex-gapchoic").text)
 
 
 def test_review_badge_explains_doubt(client):
@@ -61,11 +70,11 @@ def test_mark_verified_removes_badge(client):
 
 @pytest.mark.usefixtures("git_repo")
 def test_report_shows_reminder_and_counter(client):
-    before = client.get("/").text
-    assert "Сообщения об ошибках: 1" in before
+    counter = 'Сообщения об ошибках <span class="chip">{}</span>'
+    assert counter.format(1) in client.get("/lessons").text  # меню «⋯»
     response = client.post("/elements/ex-gapinput/report", data={"item": "1", "comment": "не так"})
     assert "разбери сообщения об ошибках" in response.text
-    assert "Сообщения об ошибках: 2" in client.get("/").text
+    assert counter.format(2) in client.get("/lessons").text
 
 
 def test_reports_page_open_first(client):

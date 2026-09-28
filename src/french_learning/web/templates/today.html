@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Сегодня{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Bonjour !</h1>
+  <p class="muted">{{ today_date | ru_date }} — {% if t.empty %}на сегодня всё сделано.{% else %}вот что ждёт сегодня.{% endif %}</p>
+</section>
+
+{% if t.empty %}
+  <div class="card today-empty">
+    <p><strong>На сегодня всё.</strong> Карточек и домашки на сегодня нет, тренажёры повторены.</p>
+    <div class="btn-group">
+      <a href="/lessons" role="button" class="outline">Открыть уроки</a>
+      <a href="/practice" role="button" class="outline">Потренироваться</a>
+    </div>
+  </div>
+{% else %}
+<div class="today-grid">
+  <section class="card">
+    <h2>Повторение слов</h2>
+    {% if t.due %}
+      <div class="stat">
+        {% with done = t.due, total = t.due, label = t.due, size = "" %}{% include "partials/ring.html" %}{% endwith %}
+        <div>
+          <p><strong>{{ plural(t.due, "карточка", "карточки", "карточек") }}</strong> пора повторить</p>
+          {% if t.new %}<p class="small muted">из них новых: {{ t.new }}</p>{% endif %}
+          {% if t.due_ru_fr %}<p class="small muted">в обратную сторону (RU → FR): {{ t.due_ru_fr }}</p>{% endif %}
+        </div>
+      </div>
+      <form method="post" action="/practice/start" class="btn-group">
+        <input type="hidden" name="mode" value="today">
+        <input type="hidden" name="direction" value="{{ 'fr_ru' if t.due_fr_ru else 'ru_fr' }}">
+        <button type="submit">Повторить</button>
+      </form>
+    {% else %}
+      <p class="muted">Все карточки повторены.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Домашка</h2>
+    {% if t.homework %}
+      <ul class="plain-list">
+        {% for lesson in t.homework %}
+          {% for e in lesson.exercises %}
+            <li>
+              <a href="/elements/{{ e.id }}">{{ e.description_ru }}</a>
+              <span class="small muted">Урок {{ lesson.number }} · № {{ e.number }}</span>
+            </li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">Домашка последних уроков сделана.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Тренажёры</h2>
+    {% if t.trainers %}
+      <ul class="plain-list">
+        {% for tr in t.trainers %}
+          <li><a href="/trainers/{{ tr.id }}">{{ tr.name }}</a> <span class="chip">пора: {{ tr.due }}</span></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">Вопросов на сегодня нет.</p>
+    {% endif %}
+  </section>
+</div>
+{% endif %}
+{% endblock %}

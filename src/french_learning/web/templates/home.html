@@ -1,24 +1,23 @@
 {% extends "base.html" %}
 {% block title %}Уроки{% endblock %}
 {% block content %}
-<nav class="quick-links">
-  <a href="/topics" role="button" class="outline">Темы</a>
-  <a href="/extras" role="button" class="outline">Дополнительные материалы</a>
-  <a href="/review" role="button" class="outline">Требует проверки: {{ index.needs_review() | length }}</a>
-  <a href="/reports" role="button" class="outline">Сообщения об ошибках: {{ index.open_reports_count() }}</a>
-</nav>
-
 <h1>Уроки</h1>
 {% if not summaries %}
-  <p class="empty">Уроков пока нет. Попросите агента добавить урок.</p>
+  <p class="empty">Уроков пока нет. Попросите агента добавить урок: <code>/add-lesson</code>.</p>
 {% endif %}
-{% for s in summaries %}
-  <article class="lesson-card">
-    <header><a href="/lessons/{{ s.number }}"><h2>Урок {{ s.number }}</h2></a></header>
-    {% include "partials/lesson_summary.html" %}
-  </article>
-{% endfor %}
-
+<div class="lesson-grid">
+  {% for s in summaries %}
+    <a class="card link lesson-card" href="/lessons/{{ s.number }}">
+      {% with done = s.homework_done, total = s.homework_total, label = none, size = "" %}{% include "partials/ring.html" %}{% endwith %}
+      <div>
+        <h2>Урок {{ s.number }}</h2>
+        <p class="muted small">{{ s.date | ru_date }} · новых слов: {{ s.new_words }}</p>
+        {% if s.topics %}<p class="topics">{% for t in s.topics[:4] %}<span class="chip">{{ t.name }}</span>{% endfor %}{% if s.topics | length > 4 %}<span class="chip">+{{ s.topics | length - 4 }}</span>{% endif %}</p>{% endif %}
+        {% if s.errors %}<p class="small"><span class="error-count">ошибки в данных: {{ s.errors }}</span></p>{% endif %}
+      </div>
+    </a>
+  {% endfor %}
+</div>
 {% if index.errors %}
   <p class="error-count"><a href="/problems">Ошибки в данных: {{ index.errors | length }}</a></p>
 {% endif %}

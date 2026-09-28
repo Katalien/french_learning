@@ -6,7 +6,7 @@ def test_theory_page_renders_table_image_and_toc(client):
     assert "<table>" in html
     assert 'src="/sources/lessons/001/sources/scheme.png"' in html
     # 3 заголовка → оглавление со ссылками на них
-    assert 'class="toc"' in html
+    assert 'class="reading-toc' in html  # 009: оглавление раздела
     assert 'href="#th-articles-1"' in html and 'id="th-articles-1"' in html
     assert "Элизия" in html
 
@@ -17,11 +17,11 @@ def test_theory_page_links_to_related_exercises(client):
 
 
 def test_vocabulary_new_and_repeat(client):
-    html = client.get("/lessons/1/theory").text
+    html = client.get("/lessons/1/vocab").text  # 009: лексика — отдельный раздел
     assert "la maison" in html and "дом" in html
     assert "На повторение" not in html
 
-    html = client.get("/lessons/2/theory").text
+    html = client.get("/lessons/2/vocab").text
     new_part, repeat_part = html.split("На повторение")
     assert "l'eau" in new_part.replace("&#39;", "'")
     assert "le pain" in repeat_part

@@ -4,15 +4,14 @@ import re
 
 
 def test_home_lists_lessons_newest_first_with_summaries(client):
-    html = client.get("/").text
+    html = client.get("/lessons").text
     positions = [html.index(f'href="/lessons/{n}"') for n in (4, 2, 1)]
     assert positions == sorted(positions)
     assert "1 сентября 2026" in html
     assert "дата не указана" in html
     assert "0 из 4" in html  # домашка урока 1
-    assert "+1 необязательное" in html
-    assert 'href="/topics"' in html
-    assert 'href="/extras"' in html
+    assert 'href="/topics"' in html  # шапка
+    assert 'href="/extras"' in html  # меню «⋯»
 
 
 def test_lesson_page_has_sections(client):
@@ -24,16 +23,16 @@ def test_lesson_page_has_sections(client):
 
 def test_homework_tab_titles_and_optional_mark(client):
     html = client.get("/lessons/1/tasks?part=homework").text
-    assert "1 — Артикли — Вставить артикли в предложения" in html
-    assert "на листе: упр. a" in html
-    assert re.search(r"3 — Артикли — Выбрать форму.*необязательное", html, re.S)
+    # 009: номер — один раз, заголовок — описание, тема и тип — второй строкой
+    assert re.search(r'class="num">1</span>.*?Вставить артикли в предложения.*?Артикли', html, re.S)
+    assert re.search(r"Выбрать форму.*?необязательное", html, re.S)
     assert "Рассказать о своём завтраке" not in html  # резерв
     assert 'href="/lessons/1/reserve"' in html
 
 
 def test_class_tab(client):
     html = client.get("/lessons/1/tasks?part=class").text
-    assert "1 — Артикли — Вставить определённый артикль" in html
+    assert re.search(r'class="num">1</span>.*?Вставить определённый артикль', html, re.S)
     assert "Спрягать" not in html  # это урок 2
 
 

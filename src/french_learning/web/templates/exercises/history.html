@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}История — {{ e.description_ru }}{% endblock %}
 {% block content %}
-<p class="breadcrumbs"><a href="/elements/{{ e.id }}">← {{ e.number }} — {{ e.description_ru }}</a></p>
+<p class="crumbs"><a href="/elements/{{ e.id }}">← {{ e.number }} — {{ e.description_ru }}</a></p>
 <h1>История попыток</h1>
 {% if not attempts %}<p class="empty">Проверенных попыток пока нет.</p>{% endif %}
 {% for a in attempts %}

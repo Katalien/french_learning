@@ -1,19 +1,24 @@
 {% extends "base.html" %}
+{# Требует проверки (001 FR-041; вид — 009): заголовок, где, пояснение — каждое на своей строке #}
 {% block title %}Требует проверки{% endblock %}
 {% block content %}
 <h1>Требует проверки</h1>
 <p class="muted">Места, в которых агент не уверен. Откройте элемент, сверьте с оригиналом и отметьте проверенным
   или сообщите об ошибке.</p>
-{% if not reviews %}<p class="empty">Всё проверено.</p>{% endif %}
-<ul class="elements">
+{% if not reviews %}<p class="empty">Всё проверено.</p>{% else %}
+<ul class="review-list">
   {% for r in reviews %}
     {% set e = r.element %}
-    <li>
-      <a href="/elements/{{ e.id }}">{{ e.description_ru if e.kind == "exercise" else (e.title if e.title is defined else e.text) }}</a>
-      {% if r.item_id %}<span class="muted">— пункт {{ r.item_id }}</span>{% endif %}
-      <small class="muted">{% if e.lesson %}Урок {{ e.lesson }}{% else %}дополнительный материал{% endif %}</small>
-      <p class="review-note-inline">⚠ {{ r.note }}</p>
+    <li class="review-row card">
+      <a class="row-title" href="/elements/{{ e.id }}">{{ e.description_ru if e.kind == "exercise" else (e.title if e.title is defined else e.text) }}</a>
+      <span class="row-meta">
+        <span class="chip">{{ KIND_NAMES[e.kind] }}</span>
+        {% if e.lesson %}<span class="chip">Урок {{ e.lesson }}{% if e.kind == "exercise" %} · {{ PART_NAMES[e.part] | lower }} · № {{ e.number }}{% endif %}</span>{% else %}<span class="chip">доп. материал</span>{% endif %}
+        {% if r.item_id %}<span class="chip">пункт {{ r.item_id }}</span>{% endif %}
+      </span>
+      <p class="row-note">{{ r.note }}</p>
     </li>
   {% endfor %}
 </ul>
+{% endif %}
 {% endblock %}

@@ -2,7 +2,7 @@
 {% set e = entry %}
 {% block title %}{{ display_fr(e) }}{% endblock %}
 {% block content %}
-<p class="breadcrumbs"><a href="/vocab">Словарь</a> › {{ display_fr(e) }}</p>
+<p class="crumbs"><a href="/vocab">Словарь</a> › {{ display_fr(e) }}</p>
 
 <article class="entry gender-{{ e.gender or 'none' }}">
   <header>

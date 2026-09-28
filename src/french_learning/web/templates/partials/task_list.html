@@ -1,34 +1,35 @@
-{# Вкладки «В классе» / «Домашка» и список упражнений (FR-022, FR-026, FR-032) #}
+{# Вкладки «В классе» / «Домашка» и список упражнений (FR-022, FR-026, FR-032; 009 FR-020, FR-020a).
+   Номер — один раз, заголовок — описание, тема и тип — второй строкой. Вид: list_view = rows | tiles #}
 {% set n = summary.number %}
-<div role="tablist" class="part-tabs">
-  {% for key in ("class", "homework") %}
-    <a role="tab" href="/lessons/{{ n }}/tasks?part={{ key }}"
-       hx-get="/lessons/{{ n }}/tasks?part={{ key }}" hx-target="#tasks" hx-push-url="true"
-       class="part-tab part-{{ key }}" {% if part == key %}aria-selected="true"{% endif %}>
-      {{ PART_NAMES[key] }}
-    </a>
-  {% endfor %}
+<div class="tasks-head">
+  <div role="tablist" class="segmented part-tabs">
+    {% for key in ("class", "homework") %}
+      <a role="tab" href="/lessons/{{ n }}/tasks?part={{ key }}"
+         hx-get="/lessons/{{ n }}/tasks?part={{ key }}" hx-target="#tasks" hx-push-url="true"
+         class="part-{{ key }}" {% if part == key %}aria-selected="true"{% endif %}>{{ PART_NAMES[key] }}</a>
+    {% endfor %}
+  </div>
+  {% if has_reserve %}<a href="/lessons/{{ n }}/reserve" class="small">Резерв урока →</a>{% endif %}
 </div>
 
-<div class="task-list part-{{ part }}">
-  {% if not exercises %}
-    <p class="empty">
-      {% if has_reserve %}Основных заданий нет — все упражнения в резерве.
-      {% else %}Нет материалов.{% endif %}
-    </p>
-  {% endif %}
-  <ol class="exercises">
-    {% for e in exercises %}
-      {% set topic = index.topic(e.topics[0]) if e.topics else none %}
-      <li>
-        <a href="/elements/{{ e.id }}">{{ e.number }} — {{ topic.name if topic else "Без темы" }} — {{ e.description_ru }}</a>
-        {% if e.sheet_number %}<small class="muted">на листе: упр. {{ e.sheet_number }}</small>{% endif %}
-        {% if e.status == "optional" %}<mark class="badge">необязательное</mark>{% endif %}
-        {% if done and e.id in done %}<span class="done-mark" title="выполнено">✓ выполнено</span>{% endif %}
-      </li>
-    {% endfor %}
-  </ol>
-  {% if has_reserve %}
-    <p><a href="/lessons/{{ n }}/reserve">Резерв урока →</a></p>
-  {% endif %}
+{% if not exercises %}
+  <p class="empty">
+    {% if has_reserve %}Основных заданий нет — все упражнения в резерве.
+    {% else %}Нет материалов.{% endif %}
+  </p>
+{% endif %}
+{% set view = list_view or "rows" %}
+<div class="ex-list {{ view }}">
+  {% for e in exercises %}
+    {% set topic = index.topic(e.topics[0]) if e.topics else none %}
+    {% set is_done = done and e.id in done %}
+    <a class="ex-item{% if view == 'tiles' %} card link{% endif %}" href="/elements/{{ e.id }}">
+      <span class="num{% if is_done %} done{% endif %}">{{ e.number }}</span>
+      <span class="ex-text">
+        <span class="ex-title">{{ e.description_ru }}</span>
+        <span class="ex-meta">{{ topic.name if topic else "без темы" }} · {{ EXERCISE_TYPE_NAMES[e.type] }}{% if e.status == "optional" %} · необязательное{% endif %}</span>
+      </span>
+      {% if is_done %}<span class="done-mark" title="выполнено">✓ выполнено</span>{% endif %}
+    </a>
+  {% endfor %}
 </div>

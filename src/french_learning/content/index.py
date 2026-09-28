@@ -115,6 +115,49 @@ class ContentIndex:
         ]
         return sorted(found, key=_sort_key)
 
+    # --- переходы и дерево урока (009) -------------------------------------------------------
+
+    def neighbours(self, exercise: Any) -> tuple[Any | None, Any | None]:
+        """Предыдущее и следующее упражнение: та же вкладка урока (без резерва; резервное —
+        среди резервных), для «Доп. материалов» — среди упражнений раздела."""
+        if exercise.lesson is None:
+            siblings = [e for e in self.extras() if e.kind == "exercise"]
+        else:
+            reserve = exercise.status == "reserve"
+            siblings = [
+                e
+                for e in self.elements(exercise.lesson, part=exercise.part, kind="exercise")
+                if (e.status == "reserve") == reserve
+            ]
+        ids = [e.id for e in siblings]
+        if exercise.id not in ids:
+            return None, None
+        at = ids.index(exercise.id)
+        before = siblings[at - 1] if at > 0 else None
+        after = siblings[at + 1] if at + 1 < len(siblings) else None
+        return before, after
+
+    def lesson_tree(self, number: int, progress: Any) -> dict[str, Any]:
+        """Содержание урока для меню «☰ Урок»: элементы разделов и выполненные задания."""
+        new_words, repeat_words = self.lesson_vocabulary(number)
+        exercises = self.elements(number, kind="exercise")
+
+        def part(name: str) -> list[tuple[Any, bool]]:
+            return [
+                (e, progress.is_done(e.id))
+                for e in exercises
+                if e.part == name and e.status != "reserve"
+            ]
+
+        return {
+            "theory": self.elements(number, kind="theory"),
+            "texts": self.elements(number, kind="text"),
+            "vocab": len(new_words) + len(repeat_words),
+            "class": part("class"),
+            "homework": part("homework"),
+            "reserve": [e for e in exercises if e.status == "reserve"],
+        }
+
     def lesson_errors(self, lesson: int) -> list[LoadError]:
         prefix = f"lessons/{lesson:03d}/"
         return [e for e in self.content.errors if e.path.startswith(prefix) and not e.warning]
@@ -167,6 +210,21 @@ class ContentIndex:
 
     def topic_elements(self, topic_id: str) -> list[Any]:
         return sorted(self._by_topic.get(topic_id, []), key=_topic_sort_key)
+
+    def topic_tabs(self, elements: list[Any]) -> list[tuple[str, str, list[Any]]]:
+        """Вкладки страницы темы (009, FR-040): (ключ, название, элементы), только непустые."""
+        groups = [
+            ("theory", "Теория", "theory"),
+            ("texts", "Тексты", "text"),
+            ("exercises", "Задания", "exercise"),
+            ("words", "Слова", "vocab"),
+        ]
+        tabs = []
+        for key, name, kind in groups:
+            found = [e for e in elements if e.kind == kind]
+            if found:
+                tabs.append((key, name, found))
+        return tabs
 
     def untopiced_elements(self) -> list[Any]:
         return sorted(

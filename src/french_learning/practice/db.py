@@ -21,6 +21,7 @@ DEFAULT_SETTINGS = {
     "directions": "staged",
     "voice": "siwis",
     "trainer_portion_size": "20",
+    "exercise_list_view": "rows",
 }
 
 _SCHEMA = """

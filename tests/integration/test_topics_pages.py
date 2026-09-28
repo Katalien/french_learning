@@ -1,5 +1,6 @@
 """US3: темы, дополнительные материалы, правки тем и даты (FR-012–FR-014, FR-035, FR-038)."""
 
+import re
 import subprocess
 from pathlib import Path
 
@@ -74,3 +75,25 @@ def test_change_element_topics_with_new_topic(client):
 def test_duplicate_topic_name_shows_message(client):
     response = client.post("/topics/top-etreverb/rename", data={"name": "артикли"})
     assert "уже есть" in response.text
+
+
+# --- 009 US5: вкладки по видам -----------------------------------------------------------------
+
+
+def test_topic_tabs_with_counts(client):
+    html = client.get("/topics/top-articles").text
+    tabs = html.split('class="tabs topic-tabs"', 1)[1].split("</nav>", 1)[0]
+    assert "Теория" in tabs and "Задания" in tabs
+    assert "Тексты" not in tabs  # у темы нет текстов — вкладки нет
+    assert re.search(r'Задания<span class="count">\d+</span>', tabs)
+    words = client.get("/topics/top-maisonxx?tab=words").text
+    assert "tab: 'words'" in words
+    panel = words.split('data-tab="words"', 1)[1].split("</section>", 1)[0]
+    assert 'action="/practice/start"' in panel and 'name="mode" value="topic"' in panel
+    assert 'name="topic" value="top-maisonxx"' in panel and "Повторить слова темы" in panel
+
+
+def test_topic_default_tab_first_nonempty(client):
+    html = client.get("/topics/top-maisonxx").text  # только слова и упражнение «по картинке»
+    first = re.search(r"tab: '(\w+)'", html)[1]
+    assert first in ("exercises", "words")

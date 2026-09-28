@@ -2,10 +2,15 @@
 {% block title %}Настройки{% endblock %}
 {% block content %}
 <h1>Настройки</h1>
-<form method="post" action="/settings">
+<form method="post" action="/settings" class="card settings-form">
   <label>Карточек за один подход (из словаря)
     <input type="number" name="portion_size" min="1" max="500" value="{{ portion_size }}">
   </label>
+  <fieldset>
+    <legend>Вид списка заданий</legend>
+    <label><input type="radio" name="exercise_list_view" value="rows" {% if exercise_list_view != "tiles" %}checked{% endif %}> список</label>
+    <label><input type="radio" name="exercise_list_view" value="tiles" {% if exercise_list_view == "tiles" %}checked{% endif %}> плитки</label>
+  </fieldset>
   <label>Заданий за один подход в тренажёрах
     <input type="number" name="trainer_portion_size" min="1" max="500" value="{{ trainer_portion_size }}">
   </label>

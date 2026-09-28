@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.get("/elements/{element_id}")
-def element_page(request: Request, element_id: str, index: Index):
+def element_page(request: Request, element_id: str, index: Index, fragment: int = 0):
     element = index.element(element_id)
     if element is None:
         error = index.content.error_for(element_id)
@@ -18,6 +18,14 @@ def element_page(request: Request, element_id: str, index: Index):
         return templates.TemplateResponse(
             request, "element_error.html", {"index": index, "error": error}, status_code=200
         )
+    if fragment:
+        if element.kind not in ("theory", "text"):
+            raise not_found("Рядом можно открыть только теорию или текст")
+        return templates.TemplateResponse(
+            request,
+            "element_fragment.html",
+            {"element": element, "path": index.element_path(element_id)},
+        )
     context = {
         "index": index,
         "element": element,
@@ -25,6 +33,10 @@ def element_page(request: Request, element_id: str, index: Index):
         "show_origin": show_origin(request),
         "linked": index.linked_exercises(element_id),
     }
+    if element.kind == "exercise":
+        context["neighbours"] = index.neighbours(element)
+    if element.lesson is not None:
+        context["lesson_tree"] = index.lesson_tree(element.lesson, request.app.state.progress)
     store = request.app.state.attempts
     if element.kind == "exercise" and store is not None:
         from french_learning.web.routes.exercises import solve_context

@@ -101,3 +101,47 @@ def test_store_rebuilds_when_files_change(clean_content_root: Path):
     second = store.get()
     assert second is not first
     assert second.element("ex-gapinput").description_ru.startswith("Спрягать")
+
+
+# --- 009: соседние упражнения и дерево урока -------------------------------------------------
+
+
+def ids_or_none(elements):
+    return [e.id if e else None for e in elements]
+
+
+def test_neighbours_within_lesson_tab(clean_content_root: Path):
+    index = ContentIndex(load_content(clean_content_root))
+    el = index.element
+    assert ids_or_none(index.neighbours(el("ex-gapchoic"))) == [None, "ex-gapinput"]
+    assert ids_or_none(index.neighbours(el("ex-gapinput"))) == ["ex-gapchoic", "ex-truefals"]
+    assert ids_or_none(index.neighbours(el("ex-choicecf"))) == ["ex-truefals", None]
+    # домашка: резерв (ex-openansw) пропускается, необязательное — нет
+    assert ids_or_none(index.neighbours(el("ex-picturea"))) == ["ex-grouping", None]
+    assert ids_or_none(index.neighbours(el("ex-transfor"))) == ["ex-multigap", "ex-twoforms"]
+    # резервное открывается среди резервных
+    assert ids_or_none(index.neighbours(el("ex-openansw"))) == [None, None]
+
+
+def test_lesson_tree(clean_content_root: Path):
+    index = ContentIndex(load_content(clean_content_root))
+
+    class Done:
+        def is_done(self, exercise_id):
+            return exercise_id == "ex-multigap"
+
+    tree = index.lesson_tree(1, Done())
+    assert [t.id for t in tree["theory"]] == ["th-articles"]
+    assert [t.id for t in tree["texts"]] == ["tx-aucafeaa"]
+    assert tree["vocab"] == 2  # maison, pain
+    assert [(e.id, done) for e, done in tree["homework"]][:2] == [
+        ("ex-multigap", True),
+        ("ex-transfor", False),
+    ]
+    assert [e.id for e, _d in tree["class"]] == [
+        "ex-gapchoic",
+        "ex-gapinput",
+        "ex-truefals",
+        "ex-choicecf",
+    ]
+    assert [e.id for e in tree["reserve"]] == ["ex-openansw"]

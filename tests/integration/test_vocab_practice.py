@@ -11,7 +11,7 @@ def start(client, **form) -> str:
 
 
 def test_setup_page_shows_count(client):
-    html = client.get("/practice").text
+    html = client.get("/practice/setup").text  # 009: настройка переехала, /practice — хаб
     assert "Пора повторить сегодня" in html
     assert "Карточек к повторению: 4" in html
 
@@ -45,8 +45,8 @@ def test_lesson_practice_starts_whole_lesson(client):
     assert "из 2" in response.text
 
 
-def test_theory_page_has_practice_button(client):
-    assert 'href="/lessons/1/practice"' in client.get("/lessons/1/theory").text
+def test_vocab_section_has_practice_button(client):
+    assert 'href="/lessons/1/practice"' in client.get("/lessons/1/vocab").text  # 009
 
 
 def test_summary_after_last_card(client):
@@ -55,3 +55,11 @@ def test_summary_after_last_card(client):
         client.post(f"/practice/{session}/show")
         html = client.post(f"/practice/{session}/rate", data={"rating": "good"}).text
     assert "Готово" in html
+
+
+def test_card_flips_on_click(client):
+    """009: ответ открывается нажатием на карточку, отдельной кнопки «Показать» нет."""
+    html = client.get(start(client)).text
+    assert 'class="flashcard' in html and "flippable" in html
+    assert 'id="show-form"' in html and "requestSubmit" in html
+    assert ">Показать</button>" not in html

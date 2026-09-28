@@ -344,3 +344,18 @@ def test_report_may_point_to_batch():
         }
     )
     assert report.element == "tb-abcdefgh"
+
+
+def test_vocab_may_have_no_topic():
+    # 009: у слова темы может не быть (у остальных элементов тема или «требует проверки» нужны)
+    entry = schema.VocabEntry.model_validate(
+        {
+            "id": "voc-abcdefgh",
+            "kind": "vocab",
+            "entry_type": "word",
+            "text": "chat",
+            "translations": [{"text": "кот", "origin": "user"}],
+            "origin": "user",
+        }
+    )
+    assert entry.topics == []

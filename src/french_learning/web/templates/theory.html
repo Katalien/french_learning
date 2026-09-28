@@ -1,34 +1,4 @@
 {% extends "lesson_base.html" %}
 {% block lesson_content %}
-{% if not theory and not new_words and not repeat_words %}
-  <p class="empty">Нет материалов.</p>
-{% endif %}
-
-{% for t in theory %}
-  <article class="theory">
-    <header><h2><a href="/elements/{{ t.id }}">{{ t.title }}</a></h2></header>
-    {% set contents = t.body | toc %}
-    {% if contents %}
-      <nav class="toc" aria-label="Содержание">
-        <ol>{% for level, title in contents %}<li class="toc-{{ level }}"><a href="#{{ t.id }}-{{ loop.index }}">{{ title }}</a></li>{% endfor %}</ol>
-      </nav>
-    {% endif %}
-    {{ t.body | markdown(index.element_path(t.id), t.id) }}
-    {% set exercises = index.linked_exercises(t.id) %}
-    {% if exercises %}
-      <footer>
-        <strong>Упражнения по этой теории:</strong>
-        <ul>{% for x in exercises %}<li><a href="/elements/{{ x.id }}">{{ PART_NAMES[x.part] }}, {{ x.number }} — {{ x.description_ru }}</a></li>{% endfor %}</ul>
-      </footer>
-    {% endif %}
-  </article>
-{% endfor %}
-
-{% if new_words or repeat_words %}
-  <article class="vocab">
-    <header><h2>Лексика урока</h2></header>
-    <p><a href="/lessons/{{ summary.number }}/practice" role="button">Повторить лексику урока</a></p>
-    {% include "partials/vocab_list.html" %}
-  </article>
-{% endif %}
+{% with items = theory, kind = "theory" %}{% include "partials/reading.html" %}{% endwith %}
 {% endblock %}

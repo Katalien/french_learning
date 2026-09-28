@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ trainer.name }}{% endblock %}
 {% block content %}
-<p class="breadcrumbs"><a href="/trainers">Тренажёры</a> › {{ trainer.name }}</p>
+<p class="crumbs"><a href="/trainers">Тренажёры</a> › {{ trainer.name }}</p>
 {% if total == 0 %}
   <h1>Заданий нет</h1>
   <p>Для выбранных условий заданий нет.

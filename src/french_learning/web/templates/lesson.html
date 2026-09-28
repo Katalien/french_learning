@@ -1,16 +1,17 @@
 {% extends "lesson_base.html" %}
+{# «Обзор» урока (009): темы и счётчики, без кнопок изменения #}
 {% block lesson_content %}
-<div class="section-cards">
-  <a class="section-card" href="/lessons/{{ n }}/theory">
-    <strong>Теория</strong><span>правила, таблицы, лексика</span>
-  </a>
-  <a class="section-card" href="/lessons/{{ n }}/texts">
-    <strong>Тексты</strong><span>тексты для чтения</span>
-  </a>
-  <a class="section-card" href="/lessons/{{ n }}/tasks?part=class">
-    <strong>Задания</strong><span>в классе и домашка</span>
-  </a>
-</div>
-
-{% include "partials/media_list.html" %}
+<section class="card">
+  <h2>Обзор</h2>
+  {% if summary.topics %}
+    <p class="topics">{% for t in summary.topics %}<a class="chip" href="/topics/{{ t.id }}">{{ t.name }}</a>{% endfor %}</p>
+  {% endif %}
+  <ul class="overview-stats">
+    <li><span class="muted">Домашка</span><strong>{{ summary.homework_done }} из {{ summary.homework_total }}</strong>
+      {% if summary.homework_optional %}<span class="small muted">+{{ plural(summary.homework_optional, "необязательное", "необязательных", "необязательных") }}</span>{% endif %}</li>
+    <li><span class="muted">Новых слов</span><strong>{{ summary.new_words }}</strong></li>
+    <li><span class="muted">Теория · тексты</span><strong>{{ counts.theory }} · {{ counts.texts }}</strong></li>
+    <li><span class="muted">Упражнений</span><strong>{{ counts.tasks }}</strong></li>
+  </ul>
+</section>
 {% endblock %}

@@ -1,0 +1,57 @@
+/* Базовые стили (009): сброс, типографика, формы, таблицы. Вёрстка от 375 px. */
+
+*, *::before, *::after { box-sizing: border-box; }
+[x-cloak] { display: none !important; }
+html { background: var(--page); background-attachment: fixed; -webkit-text-size-adjust: 100%; }
+body { margin: 0; font-family: var(--font); font-size: 16px; line-height: 1.55; color: var(--text);
+  overflow-x: hidden; min-height: 100vh; }
+img { max-width: 100%; height: auto; }
+
+h1, h2, h3, h4 { line-height: 1.25; margin: 0 0 .6rem; font-weight: 700; }
+h1 { font-size: 1.7rem; } h2 { font-size: 1.25rem; font-weight: 650; } h3 { font-size: 1.05rem; font-weight: 650; }
+p, ul, ol, dl, table, pre, blockquote { margin: 0 0 .8rem; }
+ul, ol { padding-left: 1.3rem; }
+li { margin-bottom: .2rem; }
+a { color: var(--primary-strong); text-decoration: none; }
+a:hover { text-decoration: underline; }
+strong { font-weight: 650; }
+small { font-size: .85rem; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 1.2rem 0; }
+code, pre { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: .88em; }
+code { background: var(--surface-2); padding: .1rem .35rem; border-radius: 5px; }
+pre { background: var(--surface-2); padding: .8rem 1rem; border-radius: var(--radius-sm); overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote { margin-left: 0; padding: .4rem 1rem; border-left: 3px solid var(--primary); color: var(--muted); }
+mark { background: var(--warn-soft); color: var(--warn); padding: 0 .3rem; border-radius: 4px; }
+
+/* формы */
+label { display: block; margin-bottom: .8rem; font-weight: 500; }
+/* :where — нулевая специфичность, чтобы стили экранов (поля в упражнении) легко переопределяли */
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select, textarea) {
+  display: block; width: 100%; margin-top: .3rem; font: inherit; font-weight: 400; color: var(--text);
+  background: var(--surface-solid); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  min-height: var(--control-h); padding: .45rem .7rem; transition: border-color .15s, box-shadow .15s; }
+textarea { resize: vertical; }
+:where(input, select, textarea):focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--primary); width: 1.05rem; height: 1.05rem; vertical-align: -.15rem; margin: 0 .35rem 0 0; }
+fieldset { border: 0; padding: 0; margin: 0 0 1rem; }
+legend { font-weight: 650; margin-bottom: .4rem; padding: 0; }
+fieldset label { font-weight: 400; margin-bottom: .45rem; }
+details > summary { cursor: pointer; }
+
+/* таблицы: визуально отделены от текста, прокрутка внутри на узком экране (FR-031) */
+.table-wrap { overflow-x: auto; margin: 1rem 0 1.3rem; }
+table { border-collapse: separate; border-spacing: 0; width: 100%; font-family: var(--font); font-size: .93rem;
+  border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface-solid); }
+th { background: var(--primary-soft); text-align: left; padding: .55rem .8rem; font-weight: 650; }
+td { padding: .5rem .8rem; border-top: 1px solid var(--line); vertical-align: top; }
+tr:nth-child(even) td { background: var(--surface-2); }
+.table-wrap table { margin: 0; }
+
+/* французский и примеры (design.md) */
+.fr, [lang="fr"] .fr { color: var(--fr); font-weight: 600; }
+.example, em { font-style: italic; }
+.muted { color: var(--muted); }
+.empty { color: var(--muted); font-style: italic; }
+.small { font-size: .85rem; }
+.nowrap { white-space: nowrap; }

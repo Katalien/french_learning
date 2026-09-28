@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Дополнить слова{% endblock %}
 {% block content %}
-<p class="breadcrumbs"><a href="/vocab">Словарь</a> › Дополнить</p>
+<p class="crumbs"><a href="/vocab">Словарь</a> › Дополнить</p>
 <h1>Дополнить слова</h1>
 <p>Нужно дополнить: {{ items | length }}</p>
 {% if items %}
   <p>Род, формы и спряжение заполнит агент. Откройте Claude Code в папке проекта и напишите:</p>
   <pre>/complete-words</pre>
   <p class="muted">Агент заполнит только эти записи и пометит заполненное как «создано ИИ».</p>
-  <ul class="words">
+  <ul class="words plain-list card">
     {% for e in items %}<li><a href="/vocab/{{ e.id }}"><span class="fr" lang="fr">{{ display_fr(e) }}</span></a> — {{ e.translations | map(attribute="text") | join(", ") }}</li>{% endfor %}
   </ul>
 {% else %}

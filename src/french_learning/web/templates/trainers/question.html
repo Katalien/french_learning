@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 {% block title %}{{ trainer.name }}{% endblock %}
 {% block content %}
-<p class="breadcrumbs"><a href="/trainers/{{ trainer.id }}">{{ trainer.name }}</a> · задание {{ answered + 1 }} из {{ total }}</p>
+<div class="flash-wrap">
+<div class="flash-top">
+  <p class="crumbs"><a href="/practice">Практика</a> › <a href="/trainers/{{ trainer.id }}">{{ trainer.name }}</a></p>
+  {% with done = answered + 1, total = total, label = (answered + 1) ~ "/" ~ total, size = "sm" %}{% include "partials/ring.html" %}{% endwith %}
+</div>
 
-<article class="trainer-task">
+<article class="card trainer-task">
   {% if q.instruction %}<p class="instruction">{{ q.instruction }}</p>{% endif %}
   {% if q.mode == "gaps" %}
     {% set gap_values = given if given is mapping else {} %}
@@ -74,5 +78,6 @@
     <button type="submit" class="outline secondary small">Показать ответ</button>
   </form>
 </article>
-<p><a href="/trainers/{{ trainer.id }}">Закончить</a> <small class="muted">— ответы уже сохранены</small></p>
+<p class="flash-undo"><a href="/trainers/{{ trainer.id }}">Закончить</a> <small class="muted">— ответы уже сохранены</small></p>
+</div>
 {% endblock %}

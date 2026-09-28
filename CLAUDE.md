@@ -25,6 +25,11 @@
 Python 3.12 + uv, FastAPI, серверные шаблоны + HTMX + Alpine.js (локально, без сборки),
 SQLite для прогресса, pytest, ruff. Подробнее — конституция, раздел Constraints.
 
+Оформление (009) — своя система на CSS-переменных, без CSS-библиотек:
+`web/static/css/tokens.css` (палитра «Перелив», светлая / тёмная тема, шрифты),
+`base.css`, `components.css`, `screens.css`; шрифты Inter и Lora лежат в `web/static/fonts/`.
+Выбор дизайна и макеты — `specs/009-redesign/design.md`, `mockups/final.html`.
+
 ## Критичные правила
 
 - НИКОГДА не коммить материалы уроков, распознанный контент и личные данные в этот

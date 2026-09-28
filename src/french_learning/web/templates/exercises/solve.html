@@ -3,9 +3,13 @@
 {% set source = e.sources[0] if e.sources is defined and e.sources else none %}
 {% set checked = attempt and attempt.checked %}
 {% set text_input = e.type in ("gap_input", "multi_gap", "transform", "picture", "open") %}
-<div id="exercise-solve" class="exercise solve{% if e.show_source is defined and e.show_source %} with-source{% endif %}" x-data="{ reference: false }">
+<div id="exercise-solve" class="exercise solve{% if e.show_source is defined and e.show_source %} with-source{% endif %}" x-data="{ reference: false, picture: true }">
   {% if e.show_source is defined and e.show_source and source and source.file %}
-    <figure class="exercise-source"><img src="/sources/{{ source.file }}" alt="Исходный лист упражнения"></figure>
+    <figure class="exercise-source" :class="{ collapsed: !picture }">
+      <button type="button" class="btn-text small picture-toggle" @click="picture = !picture"
+              x-text="picture ? 'Свернуть картинку' : 'Показать картинку'">Свернуть картинку</button>
+      <img src="/sources/{{ source.file }}" alt="Исходный лист упражнения" x-show="picture">
+    </figure>
   {% endif %}
 
   <div class="exercise-body">
@@ -138,7 +142,7 @@
     {% elif checked or (attempt and attempt.status == "saved") %}
       <div class="exercise-toolbar">
         <button type="button" class="outline" hx-post="{{ base }}/restart" hx-target="#exercise-solve" hx-swap="outerHTML">Решить заново</button>
-        <a href="{{ base }}/history" role="button" class="outline secondary">История попыток</a>
+        <a href="{{ base }}/history" role="button" class="outline">История попыток</a>
       </div>
     {% endif %}
   </div>

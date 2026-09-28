@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Повторение{% endblock %}
 {% block content %}
-<p class="breadcrumbs"><a href="/vocab">Словарь</a> › Повторение</p>
-<h1>Повторение</h1>
+<p class="crumbs"><a href="/practice">Практика</a> › Настройка повторения</p>
+<h1>Настройка повторения</h1>
 <p>Карточек к повторению: {{ today_count }} <span class="muted">(сегодня, французский → русский)</span></p>
 
-<form method="post" action="/practice/start" class="practice-setup" x-data="{ mode: 'today' }">
+<form method="post" action="/practice/start" class="card practice-setup" x-data="{ mode: 'today' }">
   <fieldset>
     <legend>Что повторять</legend>
     {% for key, name in modes.items() %}

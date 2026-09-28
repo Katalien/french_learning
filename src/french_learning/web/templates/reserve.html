@@ -3,12 +3,14 @@
 <h2>Резерв</h2>
 <p class="muted">Эти упражнения отложены: они не показываются в заданиях и не учитываются в домашке.</p>
 {% if not exercises %}<p class="empty">Нет материалов.</p>{% endif %}
-<ol class="exercises">
+<div class="ex-list rows">
   {% for e in exercises %}
     {% set topic = index.topic(e.topics[0]) if e.topics else none %}
-    <li>
-      <a href="/elements/{{ e.id }}">{{ PART_NAMES[e.part] }}, {{ e.number }} — {{ topic.name if topic else "Без темы" }} — {{ e.description_ru }}</a>
-    </li>
+    <a class="ex-item" href="/elements/{{ e.id }}">
+      <span class="num">{{ e.number }}</span>
+      <span class="ex-text"><span class="ex-title">{{ e.description_ru }}</span>
+        <span class="ex-meta">{{ PART_NAMES[e.part] }} · {{ topic.name if topic else "без темы" }}</span></span>
+    </a>
   {% endfor %}
-</ol>
+</div>
 {% endblock %}

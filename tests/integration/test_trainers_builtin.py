@@ -19,7 +19,7 @@ def test_catalog_lists_builtin_and_own(client):
     html = client.get("/trainers").text
     for name in ("Артикли", "Спряжение", "Числа", "Собери предложение", "Отрицание"):
         assert name in html
-    assert 'href="/trainers"' in client.get("/").text  # вкладка в навигации
+    assert 'href="/practice"' in client.get("/lessons").text  # тренажёры — в «Практике»
 
 
 def test_setup_page_and_missing_data(client):

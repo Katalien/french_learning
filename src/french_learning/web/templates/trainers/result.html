@@ -1,18 +1,22 @@
 {% extends "base.html" %}
 {% block title %}{{ trainer.name }}{% endblock %}
 {% block content %}
-<p class="breadcrumbs"><a href="/trainers/{{ trainer.id }}">{{ trainer.name }}</a> · задание {{ answered }} из {{ total }}</p>
-<article class="trainer-task">
+<div class="flash-wrap">
+<div class="flash-top">
+  <p class="crumbs"><a href="/practice">Практика</a> › <a href="/trainers/{{ trainer.id }}">{{ trainer.name }}</a></p>
+  {% with done = answered, total = total, label = answered ~ "/" ~ total, size = "sm" %}{% include "partials/ring.html" %}{% endwith %}
+</div>
+<article class="card trainer-task">
   {% if q %}
     {% if q.mode != "gaps" %}<p class="trainer-prompt" lang="fr">{{ q.prompt }}</p>{% endif %}
     {% if q.hint %}<p class="muted hint">{{ q.hint }}</p>{% endif %}
   {% endif %}
   {% if result %}
-    <p class="verdict verdict-ok">Верно ✅</p>
+    <p class="verdict verdict-ok">✓ Верно</p>
   {% elif revealed %}
     <p class="verdict verdict-wrong">Ответ</p>
   {% else %}
-    <p class="verdict verdict-wrong">Неверно ❌ <span class="muted">вы ответили: {{ given or "—" }}</span></p>
+    <p class="verdict verdict-wrong">✗ Неверно <span class="muted">вы ответили: {{ given or "—" }}</span></p>
   {% endif %}
   {% if q %}
     <p class="answer" lang="fr">{{ q.full or q.answers[0] }}
@@ -27,6 +31,7 @@
       </details>
     {% endif %}
   {% endif %}
-  <a href="/trainers/s/{{ session_id }}" role="button" autofocus>Дальше</a>
 </article>
+<div class="flash-actions"><a href="/trainers/s/{{ session_id }}" role="button" class="wide" autofocus>Дальше</a></div>
+</div>
 {% endblock %}

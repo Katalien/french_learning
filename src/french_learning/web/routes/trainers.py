@@ -17,7 +17,13 @@ from french_learning.web.templating import templates
 
 router = APIRouter()
 
-SCOPES = {"all": "весь словарь", "lesson": "урок", "topic": "тема", "hard": "сложные"}
+SCOPES = {
+    "all": "весь словарь",
+    "lesson": "урок",
+    "topic": "тема",
+    "hard": "сложные",
+    "range": "диапазон",
+}
 
 
 def _sessions(request: Request) -> TrainerSessions:
@@ -48,11 +54,21 @@ def _scoped(questions: list[Question], params: dict, hard: set[str]) -> list[Que
         return [q for q in questions if params["topic"] in q.topics]
     if scope == "hard":
         return [q for q in questions if q.key in hard]
+    if scope == "range":
+        from french_learning.trainers.generators.numbers import in_range
+
+        low, high = int(params.get("low", 0)), int(params.get("high", 1000))
+        return [q for q in questions if in_range(q.key, low, high)]
     return questions
 
 
-@router.get("/trainers")
-def trainers_page(request: Request, index: Index):
+def _number_ranges() -> dict:
+    from french_learning.trainers.generators.numbers import DEFAULT_RANGE, RANGES
+
+    return {"items": RANGES, "default": DEFAULT_RANGE}
+
+
+def _catalog_rows(request: Request, index: ContentIndex) -> list[dict]:
     schedule = request.app.state.trainer_schedule
     rows = []
     for trainer in catalog(index):
@@ -65,9 +81,35 @@ def trainers_page(request: Request, index: Index):
                 "due": schedule.due_count(trainer.id, keys) if trainer.progress == "srs" else 0,
             }
         )
+    return rows
+
+
+@router.get("/trainers")
+def trainers_page(request: Request, index: Index):
+    rows = _catalog_rows(request, index)
     return templates.TemplateResponse(
         request, "trainers/catalog.html", {"index": index, "rows": rows}
     )
+
+
+@router.get("/practice")
+def practice_hub(request: Request, index: Index):
+    """«Практика» (009, FR-041): повторение слов, мои ошибки, тренажёры."""
+    from french_learning.exercises.mistakes import find_mistakes
+    from french_learning.vocab.sessions import SessionParams
+
+    state = request.app.state
+    state.cards.sync(index)
+    context = {
+        "index": index,
+        "due": state.sessions.count(index, SessionParams(mode="today")),
+        "total_words": sum(
+            1 for e in index.content.elements.values() if e.kind == "vocab" and not e.hidden
+        ),
+        "mistakes": len(find_mistakes(index, state.attempts)),
+        "rows": _catalog_rows(request, index),
+    }
+    return templates.TemplateResponse(request, "practice.html", context)
 
 
 @router.get("/trainers/{trainer_id}")
@@ -86,6 +128,7 @@ def trainer_setup(request: Request, trainer_id: str, index: Index):
         "lessons": lessons,
         "topics": [t for t in index.all_topics() if t.id in topics],
         "scopes": SCOPES,
+        "number_ranges": _number_ranges() if trainer.id == "numbers" else None,
         "portion": _sessions(request).portion_size(),
     }
     if trainer.source == "agent":
@@ -103,9 +146,17 @@ def trainer_start(
     scope: Annotated[str, Form()] = "all",
     lesson: Annotated[str, Form()] = "",
     topic: Annotated[str, Form()] = "",
+    range: Annotated[str, Form()] = "",
+    range_from: Annotated[str, Form()] = "",
+    range_to: Annotated[str, Form()] = "",
 ):
     trainer = _trainer(index, trainer_id)
     params = {"scope": scope if scope in SCOPES else "all", "lesson": lesson, "topic": topic}
+    if scope == "range" and trainer.id == "numbers":
+        from french_learning.trainers.generators.numbers import parse_range
+
+        low, high = parse_range(range, range_from, range_to)
+        params = {"scope": "range", "low": low, "high": high}
     if trainer.source == "agent":
         params = {"scope": "all", "pool": True}
     hard = request.app.state.trainer_schedule.hard_keys(trainer.id)

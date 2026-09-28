@@ -30,7 +30,7 @@ def test_missing_folder_is_not_configured(tmp_path: Path):
 def test_home_page_ok(content_root: Path):
     response = client_for(content_root).get("/")
     assert response.status_code == 200
-    assert '<html lang="ru">' in response.text
+    assert '<html lang="ru"' in response.text
 
 
 def test_problems_page_lists_broken_file(content_root: Path):
@@ -41,7 +41,7 @@ def test_problems_page_lists_broken_file(content_root: Path):
 
 def test_vendor_files_served(content_root: Path):
     client = client_for(content_root)
-    for name in ("htmx.min.js", "alpine.min.js", "pico.min.css"):
+    for name in ("htmx.min.js", "alpine.min.js"):
         assert client.get(f"/static/vendor/{name}").status_code == 200
 
 

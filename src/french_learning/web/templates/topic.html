@@ -1,31 +1,64 @@
 {% extends "base.html" %}
+{# Страница темы (009, FR-040): вкладки по видам со счётчиками, пустые скрыты #}
 {% block title %}{{ topic.name if topic else "Без темы" }}{% endblock %}
 {% block content %}
-<p class="breadcrumbs"><a href="/topics">Темы</a> › {{ topic.name if topic else "Без темы" }}</p>
-<h1>{{ topic.name if topic else "Без темы" }}</h1>
+<p class="crumbs"><a href="/topics">Темы</a> › {{ topic.name if topic else "Без темы" }}</p>
+<div class="page-head" x-data="{ edit: false }">
+  <h1 class="grow">{{ topic.name if topic else "Без темы" }}</h1>
+  {% if topic %}
+    <button type="button" class="outline btn-icon" title="Изменить тему" aria-label="Изменить тему" @click="edit = !edit">⚙</button>
+    <section class="popover topic-settings" x-show="edit" x-cloak>
+      <form method="post" action="/topics/{{ topic.id }}/rename">
+        <label>Новое название <input name="name" value="{{ topic.name }}" required></label>
+        <button type="submit" class="small">Переименовать везде</button>
+      </form>
+      <hr>
+      <form method="post" action="/topics/{{ topic.id }}/merge">
+        <label>Объединить с темой (эта тема исчезнет, её материалы перейдут в выбранную)
+          <select name="target" required>
+            {% for t in all_topics if t.id != topic.id %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+          </select>
+        </label>
+        <button type="submit" class="small outline">Объединить</button>
+      </form>
+    </section>
+  {% endif %}
+</div>
 
-{% if not elements %}<p class="empty">Нет материалов.</p>{% endif %}
-<ul class="elements">
-  {% for e in elements %}{% include "partials/element_row.html" %}{% endfor %}
-</ul>
-
-{% if topic %}
-  <details class="edit-block">
-    <summary>Изменить тему</summary>
-    <form method="post" action="/topics/{{ topic.id }}/rename">
-      <label>Новое название
-        <input name="name" value="{{ topic.name }}" required>
-      </label>
-      <button type="submit">Переименовать везде</button>
-    </form>
-    <form method="post" action="/topics/{{ topic.id }}/merge">
-      <label>Объединить с темой (эта тема исчезнет, её материалы перейдут в выбранную)
-        <select name="target" required>
-          {% for t in all_topics if t.id != topic.id %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
-        </select>
-      </label>
-      <button type="submit" class="secondary">Объединить</button>
-    </form>
-  </details>
+{% if not tabs %}
+  <p class="empty">Нет материалов.</p>
+{% else %}
+<div x-data="{ tab: '{{ current_tab }}' }">
+  <nav class="tabs topic-tabs" aria-label="Материалы темы">
+    {% for key, name, items in tabs %}
+      <a href="?tab={{ key }}" @click.prevent="tab = '{{ key }}'; history.replaceState(null, '', '?tab={{ key }}')"
+         :class="{ on: tab === '{{ key }}' }" {% if key == current_tab %}class="on"{% endif %}>{{ name }}<span class="count">{{ items | length }}</span></a>
+    {% endfor %}
+  </nav>
+  {% for key, name, items in tabs %}
+    <section data-tab="{{ key }}" x-show="tab === '{{ key }}'" {% if key != current_tab %}x-cloak{% endif %}>
+      {% if key == "words" %}
+        {% if topic %}
+          <form method="post" action="/practice/start" class="section-head">
+            <span class="muted">{{ plural(items | length, "слово", "слова", "слов") }}</span>
+            <input type="hidden" name="mode" value="topic">
+            <input type="hidden" name="topic" value="{{ topic.id }}">
+            <button type="submit">Повторить слова темы</button>
+          </form>
+        {% endif %}
+        <ul class="word-rows card">
+          {% for w in items %}
+            <li class="word-row"><span class="gbar g-{{ w.gender or 'none' }}"></span>
+              <span><a class="fr" href="/vocab/{{ w.id }}">{{ display_fr(w) }}</a> <span class="muted">— {{ w.translations | map(attribute="text") | join(", ") }}</span></span></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <ul class="elements plain-list card">
+          {% for e in items %}{% include "partials/element_row.html" %}{% endfor %}
+        </ul>
+      {% endif %}
+    </section>
+  {% endfor %}
+</div>
 {% endif %}
 {% endblock %}
