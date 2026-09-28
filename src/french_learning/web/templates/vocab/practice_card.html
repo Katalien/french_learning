@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Повторение{% endblock %}
 {% block content %}
-<p class="breadcrumbs"><a href="/practice">Повторение</a> › {{ mode_name }} · {{ direction_name }}</p>
+<p class="crumbs"><a href="/practice">Повторение</a> › {{ mode_name }} · {{ direction_name }}</p>
 <p class="muted">Карточка {{ progress.number }} из {{ progress.total }}</p>
 
 <article class="flashcard gender-{{ entry.gender or 'none' }}">

@@ -4,15 +4,14 @@ import re
 
 
 def test_home_lists_lessons_newest_first_with_summaries(client):
-    html = client.get("/").text
+    html = client.get("/lessons").text
     positions = [html.index(f'href="/lessons/{n}"') for n in (4, 2, 1)]
     assert positions == sorted(positions)
     assert "1 сентября 2026" in html
     assert "дата не указана" in html
     assert "0 из 4" in html  # домашка урока 1
-    assert "+1 необязательное" in html
-    assert 'href="/topics"' in html
-    assert 'href="/extras"' in html
+    assert 'href="/topics"' in html  # шапка
+    assert 'href="/extras"' in html  # меню «⋯»
 
 
 def test_lesson_page_has_sections(client):

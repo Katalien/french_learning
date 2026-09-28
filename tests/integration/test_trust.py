@@ -61,11 +61,11 @@ def test_mark_verified_removes_badge(client):
 
 @pytest.mark.usefixtures("git_repo")
 def test_report_shows_reminder_and_counter(client):
-    before = client.get("/").text
-    assert "Сообщения об ошибках: 1" in before
+    counter = 'Сообщения об ошибках <span class="chip">{}</span>'
+    assert counter.format(1) in client.get("/lessons").text  # меню «⋯»
     response = client.post("/elements/ex-gapinput/report", data={"item": "1", "comment": "не так"})
     assert "разбери сообщения об ошибках" in response.text
-    assert "Сообщения об ошибках: 2" in client.get("/").text
+    assert counter.format(2) in client.get("/lessons").text
 
 
 def test_reports_page_open_first(client):

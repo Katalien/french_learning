@@ -30,6 +30,7 @@ def _context(request: Request, index: ContentIndex, number: int, **extra) -> dic
 
 
 @router.get("/")
+@router.get("/lessons")
 def home(request: Request, index: Index):
     progress = request.app.state.progress
     summaries = [index.lesson_summary(lesson.number, progress) for lesson in index.lessons()]

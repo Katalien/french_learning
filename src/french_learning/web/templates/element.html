@@ -2,8 +2,8 @@
 {% set e = element %}
 {% block title %}{{ e.title if e.title is defined else e.description_ru }}{% endblock %}
 {% block content %}
-<p class="breadcrumbs">
-  <a href="/">Уроки</a> ›
+<p class="crumbs">
+  <a href="/lessons">Уроки</a> ›
   {% if e.lesson %}
     <a href="/lessons/{{ e.lesson }}">Урок {{ e.lesson }}</a> ›
     {% if e.kind == "exercise" %}<a href="/lessons/{{ e.lesson }}/tasks?part={{ e.part }}">{{ PART_NAMES[e.part] }}</a>

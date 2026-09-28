@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ topic.name if topic else "Без темы" }}{% endblock %}
 {% block content %}
-<p class="breadcrumbs"><a href="/topics">Темы</a> › {{ topic.name if topic else "Без темы" }}</p>
+<p class="crumbs"><a href="/topics">Темы</a> › {{ topic.name if topic else "Без темы" }}</p>
 <h1>{{ topic.name if topic else "Без темы" }}</h1>
 
 {% if not elements %}<p class="empty">Нет материалов.</p>{% endif %}

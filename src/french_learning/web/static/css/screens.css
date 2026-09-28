@@ -1,0 +1,175 @@
+/* Стили экранов (перенесены из app.css 001–004 на токены 009; переоформляются поэкранно). */
+
+.quick-links { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.quick-links a { width: auto; }
+
+.lesson-card header a { text-decoration: none; }
+.lesson-card h2 { margin: 0; }
+
+.summary-date { margin-bottom: 0.25rem; color: var(--muted); }
+.topics { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.stats { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; margin: 0; }
+.stats li { list-style: none; margin: 0; }
+.review-count { color: var(--warn); }
+.error-count, .error-count a { color: var(--bad); }
+
+.sections { display: flex; gap: 0.5rem; margin: 1rem 0; flex-wrap: wrap; justify-content: flex-start; }
+.sections a { padding: 0.4rem 0.9rem; border-radius: 0.5rem; border: 1px solid var(--line); text-decoration: none; }
+.sections a[aria-current="page"] { background: var(--primary-soft); color: var(--text); }
+
+.section-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.75rem; }
+.section-card { display: flex; flex-direction: column; padding: 1rem; border-radius: 0.75rem; border: 1px solid var(--line); text-decoration: none; }
+.section-card span { color: var(--muted); font-size: 0.9rem; }
+
+/* Вкладки «В классе» / «Домашка»: разный цвет, чтобы всегда было видно, что есть что (SC-003) */
+.part-tabs { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+.part-tab { flex: 1; text-align: center; padding: 0.5rem; border-radius: 0.5rem; border: 2px solid transparent; text-decoration: none; }
+.part-class { border-color: var(--class-ink); color: var(--class-ink); }
+.part-homework { border-color: var(--home-ink); color: var(--home-ink); }
+.part-tab.part-class[aria-selected="true"] { background: var(--class); color: var(--class-ink); }
+.part-tab.part-homework[aria-selected="true"] { background: var(--home); color: var(--home-ink); }
+.task-list.part-class { border-left: 4px solid var(--class-ink); padding-left: 0.75rem; }
+.task-list.part-homework { border-left: 4px solid var(--home-ink); padding-left: 0.75rem; }
+.exercises li { margin-bottom: 0.5rem; }
+.exercises small { display: block; }
+
+.meta { color: var(--muted); }
+.instruction { font-weight: 600; }
+.items li { margin-bottom: 0.6rem; }
+.gap { display: inline-block; min-width: 4rem; border-bottom: 2px solid var(--primary); margin: 0 0.2rem; }
+.gap.wide { min-width: 10rem; }
+.hint { color: var(--muted); font-style: italic; }
+.review-mark { color: var(--warn); cursor: help; }
+.reference { margin: 0.75rem 0; padding: 0.75rem; border-radius: 0.5rem; background: var(--surface-2); }
+
+.exercise.with-source { display: grid; gap: 1rem; }
+@media (min-width: 900px) {
+  .exercise.with-source { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+}
+.exercise-source img { border: 1px solid var(--line); border-radius: 0.5rem; }
+
+.element-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1.5rem; }
+.words li { margin-bottom: 0.25rem; }
+.data-error { border-left: 4px solid var(--bad); }
+
+/* Правки и сообщения */
+.edit-block { margin: 0.75rem 0; }
+.edit-block summary { color: var(--muted); font-size: 0.9rem; }
+.topic-choice { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; }
+.topic-list li, .elements li { margin-bottom: 0.4rem; }
+.element-row .kind { font-size: 0.75rem; text-transform: uppercase; color: var(--muted); margin-right: 0.35rem; }
+.element-row small { display: block; }
+.toc { font-size: 0.95rem; margin-bottom: 1rem; }
+
+/* Доверие: происхождение и сомнения */
+.origin-badge { font-size: 0.75rem; padding: 0.05rem 0.45rem; border-radius: 0.3rem; background: var(--m-soft); color: var(--m); }
+.origin-badge.origin-ai, .origin-badge.origin-service { background: var(--warn-soft); color: var(--warn); }
+.original-instruction { font-size: 0.9rem; color: var(--muted); }
+.review-badge { position: relative; }
+.review-toggle { all: unset; cursor: pointer; color: var(--warn); padding: 0 0.2rem; }
+.review-note { display: block; margin: 0.35rem 0; padding: 0.5rem 0.75rem; border-left: 3px solid var(--warn); background: var(--warn-soft); font-size: 0.9rem; }
+.review-note-inline { color: var(--warn); font-size: 0.9rem; margin: 0.2rem 0 0.6rem; }
+.media-path { word-break: break-all; font-size: 0.8rem; }
+
+/* Шапка на узком экране: пункты меню переносятся, ничего не обрезается */
+
+/* Карточки повторения; род — цветом и меткой (003) */
+.ratings { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+.ratings button { flex: 1 1 8rem; }
+.rating-again { background: var(--bad); border-color: var(--bad); }
+.rating-hard { background: var(--warn); border-color: var(--warn); }
+.rating-good { background: var(--ok); border-color: var(--ok); }
+.practice-setup fieldset label { display: block; }
+
+/* Словарь */
+.vocab-filters { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.vocab-filters select, .vocab-filters button { width: auto; margin: 0; }
+.entry-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.6rem; }
+.entry-card { display: flex; flex-direction: column; padding: 0.7rem; border-radius: 0.6rem; border: 1px solid var(--line); border-left: 5px solid var(--line); text-decoration: none; }
+.entry-card.gender-m, .entry.gender-m { border-left-color: var(--m); }
+.entry-card.gender-f, .entry.gender-f { border-left-color: var(--f); }
+.entry-card.gender-both, .entry.gender-both { border-left-color: var(--primary); }
+.entry { border-left: 6px solid var(--line); }
+.entry-fr { font-weight: 700; }
+.entry-ru { color: var(--muted); font-size: 0.9rem; }
+.gender-label { font-size: 0.7rem; font-weight: 700; padding: 0.05rem 0.35rem; border-radius: 0.3rem; color: var(--surface-solid); background: var(--muted); vertical-align: middle; align-self: flex-start; }
+.gender-m .gender-label { background: var(--m); }
+.gender-f .gender-label { background: var(--f); }
+.translations { font-size: 1.2rem; }
+.speak { padding: 0.1rem 0.5rem; vertical-align: middle; }
+.conjugation { max-width: 20rem; }
+
+/* Ввод ответа */
+.answer-form input[name="answer"] { font-size: 1.3rem; text-align: center; }
+.symbol-panel { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; margin-bottom: 0.75rem; }
+.symbol { width: 2.4rem; padding: 0.3rem 0; margin: 0; font-size: 1.1rem; }
+.spelling-choice { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.spelling-choice button { width: auto; font-size: 1.2rem; }
+.verdict { font-size: 1.3rem; font-weight: 700; }
+.verdict-ok { color: var(--ok); }
+.verdict-wrong { color: var(--bad); }
+.entry-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.entry-actions form { margin: 0; }
+
+/* Выполнение упражнений (004) */
+.solve-items > li { margin-bottom: 1rem; line-height: 2.4; }
+.solve-items .answer-field {
+  display: inline-block; width: auto; min-width: 5rem; max-width: 100%;
+  margin: 0 0.2rem; padding: 0.15rem 0.4rem; height: auto; vertical-align: baseline;
+}
+.solve-items input.answer-field:not(.wide) { width: 7.5rem; }
+.solve-items select.answer-field { min-width: 5.5rem; padding-right: 2rem; }
+.solve-items input.answer-field.wide { width: 100%; display: block; margin: 0.25rem 0; }
+.solve-items textarea.answer-field { width: 100%; }
+.answer-field.field-correct { border-color: var(--ok); background-color: var(--ok-soft); }
+.answer-field.field-wrong { border-color: var(--bad); background-color: var(--bad-soft); }
+.answer-field.field-choose { border-color: var(--warn); }
+.mark-ok { color: var(--ok); font-weight: 700; margin-left: 0.2rem; }
+.mark-wrong { color: var(--bad); font-weight: 700; margin-left: 0.2rem; }
+.tf-choice label, .choice-options label, .spelling-choice label { display: inline-flex; gap: 0.3rem; margin-right: 1rem; line-height: 1.6; }
+.choice-options { line-height: 1.6; }
+.spelling-choice { display: block; line-height: 1.6; }
+.item-actions { line-height: 1.5; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: baseline; }
+.item-actions button { margin: 0; }
+.correct-answer { margin: 0; }
+.disagree { width: 100%; margin: 0; }
+.disagree summary { font-size: 0.85rem; color: var(--muted); }
+.new-words { display: block; color: var(--muted); line-height: 1.5; }
+.solve-buttons { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+.solve-summary { font-weight: 700; }
+.solve-form .symbol-panel { justify-content: flex-start; position: sticky; top: 0; z-index: 2;
+  background: var(--bg); padding: 0.3rem 0; }
+.exercise-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+.exercise-toolbar form { margin: 0; }
+.done-mark { color: var(--ok); font-size: 0.85rem; margin-left: 0.4rem; }
+.attempt header { font-size: 0.95rem; }
+.history-items li { margin-bottom: 0.3rem; }
+.mistakes .mistake { margin-bottom: 1rem; }
+
+/* Тренажёры (004) */
+.trainer-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); margin-bottom: 1.5rem; }
+.trainer-card { display: flex; flex-direction: column; gap: 0.3rem; padding: 0.9rem 1rem; border-radius: 0.6rem;
+  border: 1px solid var(--line); text-decoration: none; color: inherit; }
+.trainer-card:hover { border-color: var(--primary); }
+.trainer-task { text-align: center; }
+.trainer-prompt { font-size: 1.6rem; font-weight: 700; margin: 0.5rem 0; }
+.trainer-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.trainer-buttons button { width: auto; flex: 0 0 auto; min-width: 4.5rem; margin: 0; font-size: 1.2rem; }
+.order-answer, .order-pool { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; min-height: 2.6rem; }
+.order-answer { border-bottom: 2px solid var(--primary); padding-bottom: 0.4rem; }
+.trainer-token { margin: 0; padding: 0.3rem 0.7rem; width: auto; }
+.trainer-setup fieldset label { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.trainer-setup select { width: auto; margin: 0; }
+.trainer-score { font-size: 1.4rem; }
+.trainer-task .answer-form input[name="answer"] { max-width: 24rem; margin: 0 auto 0.75rem; display: block; }
+.trainer-task .symbol-panel { justify-content: center; }
+.status-form { max-width: 20rem; margin-top: 1rem; }
+.stats-bar { display: inline-block; height: 0.6rem; background: var(--primary); border-radius: 0.3rem; }
+
+/* Список уроков (009) */
+.lesson-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.lesson-card { display: flex; gap: 1rem; align-items: flex-start; }
+.lesson-card h2 { margin-bottom: .15rem; }
+.lesson-card p { margin-bottom: .4rem; }
+.lesson-card .topics .chip { font-weight: 500; }
+@media (max-width: 400px) { .lesson-grid { grid-template-columns: 1fr; } }

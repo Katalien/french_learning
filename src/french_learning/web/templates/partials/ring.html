@@ -1,0 +1,6 @@
+{# Круг прогресса. Переменные: done, total, label (подпись внутри), size ("" | "sm") #}
+{% set pct = (100 * done / total) if total else 0 %}
+<span class="ring {{ size or '' }}" role="img" aria-label="{{ done }} из {{ total }}">
+  <svg viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="15.9" stroke-width="3.4"/><circle class="fg" cx="18" cy="18" r="15.9" stroke-width="3.4" stroke-dasharray="{{ '%.1f' | format(pct) }} 100"/></svg>
+  <span>{{ label if label is defined and label else (done ~ "/" ~ total) }}</span>
+</span>

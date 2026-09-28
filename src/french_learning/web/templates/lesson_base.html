@@ -2,7 +2,7 @@
 {% set n = summary.number %}
 {% block title %}Урок {{ n }}{% endblock %}
 {% block content %}
-<p class="breadcrumbs"><a href="/">Уроки</a> › Урок {{ n }}</p>
+<p class="crumbs"><a href="/lessons">Уроки</a> › Урок {{ n }}</p>
 <h1>Урок {{ n }}</h1>
 {% with s = summary %}{% include "partials/lesson_summary.html" %}{% endwith %}
 <details class="edit-block">

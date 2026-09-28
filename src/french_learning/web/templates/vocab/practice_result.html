@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Повторение{% endblock %}
 {% block content %}
-<p class="breadcrumbs"><a href="/practice">Повторение</a></p>
+<p class="crumbs"><a href="/practice">Повторение</a></p>
 <p class="muted">Карточка {{ progress.position }} из {{ progress.total }}</p>
 <article class="flashcard gender-{{ entry.gender or 'none' }}">
   <p class="question" lang="{{ 'fr' if direction == 'fr_ru' else 'ru' }}">{{ question.text }}

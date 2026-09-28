@@ -1,0 +1,80 @@
+/* Токены оформления (009, design.md): палитра «Перелив», светлая и тёмная тема, шрифты.
+   Тема: <html data-theme="light|dark|system">; «system» следует настройке ОС. */
+
+@font-face { font-family: "Inter"; src: url("../fonts/InterVariable.woff2") format("woff2");
+  font-weight: 100 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("../fonts/InterVariable-Italic.woff2") format("woff2");
+  font-weight: 100 900; font-style: italic; font-display: swap; }
+@font-face { font-family: "Lora"; src: url("../fonts/Lora.ttf") format("truetype");
+  font-weight: 400 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Lora"; src: url("../fonts/Lora-Italic.ttf") format("truetype");
+  font-weight: 400 700; font-style: italic; font-display: swap; }
+
+:root {
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --reading: "Lora", Georgia, "Times New Roman", serif;
+  --radius: 10px; --radius-sm: 7px; --radius-lg: 16px;
+  --control-h: 2.45rem;
+
+  /* светлая тема */
+  --bg: #FDFCF8; --surface: rgba(255, 255, 255, .8); --surface-solid: #FFFFFF; --surface-2: #F3F1FB;
+  --text: #2C2F52; --muted: #6F739C; --line: #E2E0F2;
+  --primary: #838BCC; --primary-strong: #6B73B8; --primary-ink: #FFFFFF; --primary-soft: #E9E7FA;
+  --primary-gradient: linear-gradient(120deg, #B8AEE3 0%, #838BCC 55%, #7FAED9 100%);
+  --m: #4F7BBF; --m-soft: #DCE9F8; --f: #C45AAC; --f-soft: #FDE3F6;
+  --class: #C7F3F6; --class-ink: #226068; --home: #E6DEFA; --home-ink: #54479A;
+  --ok: #2F7F5E; --ok-soft: #DBF2E8; --bad: #B0456A; --bad-soft: #FBE1EC;
+  --warn: #9A6212; --warn-soft: #FDF0D8;
+  --fr: #6D62BD; --ring: #B8AEE3;
+  --hero: linear-gradient(135deg, #FADCFE 0%, #C7F3F6 35%, #FEFDF9 55%, #A4C6E9 80%, #B8AEE3 100%);
+  --page: radial-gradient(1200px 650px at 0% 0%, #F8D6FD 0%, transparent 60%),
+          radial-gradient(1000px 650px at 100% 5%, #C9F1F4 0%, transparent 55%),
+          radial-gradient(900px 700px at 60% 100%, #DCD6F7 0%, transparent 60%), #FDFCF8;
+  --shadow: 0 4px 18px rgba(92, 88, 170, .12);
+  --shadow-sm: 0 1px 4px rgba(92, 88, 170, .10);
+  --header-bg: rgba(255, 255, 255, .6);
+  color-scheme: light;
+}
+
+/* тёмная тема: тёмно-синяя, не чёрная */
+@media (prefers-color-scheme: dark) { :root[data-theme="system"] { --dark: 1; } }
+:root[data-theme="dark"] { --dark: 1; }
+
+:root[data-theme="dark"] {
+  --bg: #1C1E33; --surface: rgba(40, 43, 70, .85); --surface-solid: #282B46; --surface-2: #2E3152;
+  --text: #ECEBFA; --muted: #A9ABCD; --line: #3B3F66;
+  --primary: #AAB1EE; --primary-strong: #C3C8F5; --primary-ink: #1C1E33; --primary-soft: #363B69;
+  --primary-gradient: linear-gradient(120deg, #C7BDF3 0%, #AAB1EE 55%, #9CC7EE 100%);
+  --m: #93B7EC; --m-soft: #2B3C5E; --f: #F0A3DA; --f-soft: #523A5A;
+  --class: #27484F; --class-ink: #B0EAEE; --home: #3B3566; --home-ink: #D2C9F7;
+  --ok: #82D6AE; --ok-soft: #23453A; --bad: #F2A0BF; --bad-soft: #522F43;
+  --warn: #F0C27A; --warn-soft: #4A3A22;
+  --fr: #C5BCF7; --ring: #A99FE2;
+  --hero: linear-gradient(135deg, #4B3462 0%, #25505A 40%, #2B2E4E 60%, #34507A 80%, #463E7A 100%);
+  --page: radial-gradient(1200px 600px at 0% 0%, #2F2548 0%, transparent 60%),
+          radial-gradient(1000px 600px at 100% 10%, #1F3D48 0%, transparent 55%), #1C1E33;
+  --shadow: 0 4px 18px rgba(0, 0, 0, .4);
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, .35);
+  --header-bg: rgba(28, 30, 51, .65);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    --bg: #1C1E33; --surface: rgba(40, 43, 70, .85); --surface-solid: #282B46; --surface-2: #2E3152;
+    --text: #ECEBFA; --muted: #A9ABCD; --line: #3B3F66;
+    --primary: #AAB1EE; --primary-strong: #C3C8F5; --primary-ink: #1C1E33; --primary-soft: #363B69;
+    --primary-gradient: linear-gradient(120deg, #C7BDF3 0%, #AAB1EE 55%, #9CC7EE 100%);
+    --m: #93B7EC; --m-soft: #2B3C5E; --f: #F0A3DA; --f-soft: #523A5A;
+    --class: #27484F; --class-ink: #B0EAEE; --home: #3B3566; --home-ink: #D2C9F7;
+    --ok: #82D6AE; --ok-soft: #23453A; --bad: #F2A0BF; --bad-soft: #522F43;
+    --warn: #F0C27A; --warn-soft: #4A3A22;
+    --fr: #C5BCF7; --ring: #A99FE2;
+    --hero: linear-gradient(135deg, #4B3462 0%, #25505A 40%, #2B2E4E 60%, #34507A 80%, #463E7A 100%);
+    --page: radial-gradient(1200px 600px at 0% 0%, #2F2548 0%, transparent 60%),
+            radial-gradient(1000px 600px at 100% 10%, #1F3D48 0%, transparent 55%), #1C1E33;
+    --shadow: 0 4px 18px rgba(0, 0, 0, .4);
+    --shadow-sm: 0 1px 4px rgba(0, 0, 0, .35);
+    --header-bg: rgba(28, 30, 51, .65);
+    color-scheme: dark;
+  }
+}

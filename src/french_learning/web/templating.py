@@ -73,6 +73,21 @@ def gap_parts(text: str) -> list[tuple[str, str]]:
     return [("text" if i % 2 == 0 else "gap", part) for i, part in enumerate(parts) if part]
 
 
+def ui_theme(request) -> str:
+    """Тема оформления из cookie (009): light / dark / system."""
+    value = request.cookies.get("theme")
+    return value if value in ("light", "dark", "system") else "system"
+
+
+def nav_counts(request) -> dict[str, int]:
+    """Счётчики для меню «⋯»: «требует проверки» и открытые сообщения об ошибках."""
+    store = getattr(request.app.state, "store", None)
+    if store is None:
+        return {"review": 0, "reports": 0}
+    index = store.get()
+    return {"review": len(index.needs_review()), "reports": index.open_reports_count()}
+
+
 def answer_text(fields: dict) -> str:
     """Ответ пункта для истории и «Моих ошибок»: значения полей через « · »."""
     values = []
@@ -132,4 +147,6 @@ env.globals.update(
     asset_version=asset_version,
     display_fr=display_fr,
     correct_answers=correct_answers,
+    ui_theme=ui_theme,
+    nav_counts=nav_counts,
 )
