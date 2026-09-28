@@ -19,7 +19,7 @@ contracts/ui-routes.md, quickstart.md, mockups/final.html
 ## Phase 1: Setup
 
 - [X] T001 Скачать шрифты Inter и Lora (woff2, кириллица + латиница, SIL OFL) в `src/french_learning/web/static/fonts/` вместе с `OFL.txt`; записать версии и источники в `static/vendor/VERSIONS.md` (research R2; скачивание — с согласия пользователя)
-- [X] T002 [P] Демо-хранилище для ручной проверки (`demo-init`) дополнить: урок с двумя теориями и таблицей, медиа, упражнения обеих вкладок — только выдуманное содержимое в `tests/fixtures/content` (если фикстуре не хватает случаев quickstart)
+- [ ] T002 [P] Демо-хранилище для ручной проверки (`demo-init`) дополнить: урок с двумя теориями и таблицей, медиа, упражнения обеих вкладок — только выдуманное содержимое в `tests/fixtures/content` (если фикстуре не хватает случаев quickstart)
 
 ---
 
