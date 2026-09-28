@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.get("/elements/{element_id}")
-def element_page(request: Request, element_id: str, index: Index):
+def element_page(request: Request, element_id: str, index: Index, fragment: int = 0):
     element = index.element(element_id)
     if element is None:
         error = index.content.error_for(element_id)
@@ -17,6 +17,14 @@ def element_page(request: Request, element_id: str, index: Index):
             raise not_found(f"Элемент {element_id} не найден")
         return templates.TemplateResponse(
             request, "element_error.html", {"index": index, "error": error}, status_code=200
+        )
+    if fragment:
+        if element.kind not in ("theory", "text"):
+            raise not_found("Рядом можно открыть только теорию или текст")
+        return templates.TemplateResponse(
+            request,
+            "element_fragment.html",
+            {"element": element, "path": index.element_path(element_id)},
         )
     context = {
         "index": index,

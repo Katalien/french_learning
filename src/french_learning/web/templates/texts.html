@@ -1,17 +1,4 @@
 {% extends "lesson_base.html" %}
 {% block lesson_content %}
-{% if not texts %}<p class="empty">Нет материалов.</p>{% endif %}
-{% for t in texts %}
-  <article class="text">
-    <header><h2 lang="fr"><a href="/elements/{{ t.id }}">{{ t.title }}</a></h2></header>
-    <div lang="fr">{{ t.body | markdown(index.element_path(t.id)) }}</div>
-    {% set exercises = index.linked_exercises(t.id) %}
-    {% if exercises %}
-      <footer>
-        <strong>Упражнения к тексту:</strong>
-        <ul>{% for x in exercises %}<li><a href="/elements/{{ x.id }}">{{ PART_NAMES[x.part] }}, {{ x.number }} — {{ x.description_ru }}</a></li>{% endfor %}</ul>
-      </footer>
-    {% endif %}
-  </article>
-{% endfor %}
+{% with items = texts, kind = "text" %}{% include "partials/reading.html" %}{% endwith %}
 {% endblock %}

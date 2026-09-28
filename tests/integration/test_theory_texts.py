@@ -6,7 +6,7 @@ def test_theory_page_renders_table_image_and_toc(client):
     assert "<table>" in html
     assert 'src="/sources/lessons/001/sources/scheme.png"' in html
     # 3 заголовка → оглавление со ссылками на них
-    assert 'class="toc"' in html
+    assert 'class="reading-toc' in html  # 009: оглавление раздела
     assert 'href="#th-articles-1"' in html and 'id="th-articles-1"' in html
     assert "Элизия" in html
 

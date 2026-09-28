@@ -135,6 +135,7 @@ env.filters.update(
     toc=toc,
     gap_parts=gap_parts,
     answer_text=answer_text,
+    headings=headings,
 )
 env.globals.update(
     PART_NAMES=PART_NAMES,

@@ -1,0 +1,32 @@
+{# Раздел «Теория» / «Тексты» урока (009, FR-030): слева закреплённое оглавление всех элементов
+   раздела и их подзаголовков, справа элементы подряд. Переменные: items, kind ("theory" | "text") #}
+{% if not items %}
+  <p class="empty">Нет материалов.</p>
+{% else %}
+<div class="reading-layout">
+  <nav class="reading-toc card" aria-label="Оглавление">
+    {% for t in items %}
+      <a class="toc-title" href="#{{ t.id }}" {% if kind == "text" %}lang="fr"{% endif %}>{{ t.title }}</a>
+      {% set heads = t.body | headings %}
+      {% if heads %}
+        <div class="toc-heads">{% for level, title in heads %}<a class="toc-{{ level }}" href="#{{ t.id }}-{{ loop.index }}">{{ title }}</a>{% endfor %}</div>
+      {% endif %}
+    {% endfor %}
+  </nav>
+  <div class="reading-items">
+    {% for t in items %}
+      <article class="{{ kind }} reading" id="{{ t.id }}">
+        <header><h2 {% if kind == "text" %}lang="fr"{% endif %}><a href="/elements/{{ t.id }}">{{ t.title }}</a></h2></header>
+        <div {% if kind == "text" %}lang="fr"{% endif %}>{{ t.body | markdown(index.element_path(t.id), t.id) }}</div>
+        {% set exercises = index.linked_exercises(t.id) %}
+        {% if exercises %}
+          <footer>
+            <strong>{{ "Упражнения к тексту" if kind == "text" else "Упражнения по этой теории" }}:</strong>
+            <ul class="plain-list">{% for x in exercises %}<li><a href="/elements/{{ x.id }}">{{ x.description_ru }}</a><span class="small muted">{{ PART_NAMES[x.part] }} · № {{ x.number }}</span></li>{% endfor %}</ul>
+          </footer>
+        {% endif %}
+      </article>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}

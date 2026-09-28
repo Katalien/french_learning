@@ -257,3 +257,35 @@
   .arrow { position: static; transform: none; display: inline-grid; width: 3rem; height: 2.6rem; margin: 1rem .3rem 0 0; }
   .grid-2 { grid-template-columns: 1fr; }
 }
+
+/* Теория и тексты: оглавление раздела (009, FR-030) */
+.reading-layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+.reading-toc { position: sticky; top: 72px; max-height: calc(100vh - 96px); overflow-y: auto; padding: .9rem 1rem; margin: 0; font-size: .9rem; }
+.reading-toc .toc-title { display: block; font-weight: 700; color: var(--text); margin: .6rem 0 .2rem; }
+.reading-toc .toc-title:first-child { margin-top: 0; }
+.reading-toc .toc-heads a { display: block; color: var(--muted); padding: .12rem 0 .12rem .75rem; border-left: 2px solid var(--line); }
+.reading-toc .toc-heads a.toc-3 { padding-left: 1.4rem; }
+.reading-toc a:hover { color: var(--primary-strong); text-decoration: none; }
+.reading { font-family: var(--reading); font-size: 1.04rem; line-height: 1.65; }
+.reading h1, .reading h2, .reading h3, .reading header, .reading footer, .reading table { font-family: var(--font); }
+.reading h2 { margin-top: 1.3rem; }
+.reading header h2 { margin-top: 0; }
+.reading-items article { scroll-margin-top: 80px; }
+.reading [id] { scroll-margin-top: 80px; }
+@media (max-width: 900px) {
+  .reading-layout { grid-template-columns: minmax(0, 1fr); }
+  .reading-toc { position: static; max-height: none; }
+}
+
+/* Теория рядом с упражнением (009, FR-032) */
+.beside-buttons { margin: 0 0 .8rem; }
+.split-layout.is-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; align-items: start; }
+.side-pane { position: sticky; top: 72px; max-height: calc(100vh - 96px); overflow-y: auto; margin: 0; background: var(--surface-solid); }
+.side-close { float: right; }
+.side-pane-head { display: flex; justify-content: space-between; align-items: baseline; gap: .8rem; margin-bottom: .6rem; font-family: var(--font); }
+.drawer-row { display: flex; align-items: center; gap: .2rem; }
+.drawer-row a { flex: 1; }
+@media (max-width: 900px) {
+  .split-layout.is-split { display: block; }
+  .side-pane { position: fixed; inset: auto 0 0 0; top: 20vh; max-height: none; z-index: 35; border-radius: 16px 16px 0 0; }
+}

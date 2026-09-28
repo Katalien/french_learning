@@ -61,8 +61,12 @@ def render_markdown(text: str, image_base: str, heading_prefix: str | None = Non
                 else:
                     child.attrSet("src", url)
     html = _md.renderer.render(tokens, _md.options, {})
-    return nh3.clean(
+    clean = nh3.clean(
         html, tags=_ALLOWED_TAGS, attributes=_ALLOWED_ATTRIBUTES, url_schemes={"http", "https"}
+    )
+    # таблица отделена от текста и прокручивается внутри себя на узком экране (009, FR-031)
+    return clean.replace("<table>", '<div class="table-wrap"><table>').replace(
+        "</table>", "</table></div>"
     )
 
 
