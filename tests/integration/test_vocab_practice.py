@@ -55,3 +55,11 @@ def test_summary_after_last_card(client):
         client.post(f"/practice/{session}/show")
         html = client.post(f"/practice/{session}/rate", data={"rating": "good"}).text
     assert "Готово" in html
+
+
+def test_card_flips_on_click(client):
+    """009: ответ открывается нажатием на карточку, отдельной кнопки «Показать» нет."""
+    html = client.get(start(client)).text
+    assert 'class="flashcard' in html and "flippable" in html
+    assert 'id="show-form"' in html and "requestSubmit" in html
+    assert ">Показать</button>" not in html

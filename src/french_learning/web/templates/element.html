@@ -4,7 +4,7 @@
 {% set e = element %}
 {% block title %}{{ e.title if e.title is defined else e.description_ru }}{% endblock %}
 {% block content %}
-<div x-data="{ info: false, settings: false, menu: false, split: false }">
+<div x-data="{ info: false, settings: false, menu: false, split: false, shown: '' }">
 
 <p class="crumbs">
   {% if e.lesson %}
@@ -94,14 +94,17 @@
 </section>
 
 {% if e.kind == "exercise" %}
-  {% macro beside(target_id, label) -%}
-    <button type="button" class="outline small" hx-get="/elements/{{ target_id }}?fragment=1" hx-target="#side-pane-content"
-            @click="split = true">{{ label }}</button>
+  {% macro beside(target_id, label, hide) -%}
+    <button type="button" class="outline small" x-show="!split || shown !== '{{ target_id }}'"
+            hx-get="/elements/{{ target_id }}?fragment=1" hx-target="#side-pane-content"
+            @click="split = true; shown = '{{ target_id }}'">{{ label }}</button>
+    <button type="button" class="outline small" x-show="split && shown === '{{ target_id }}'" x-cloak
+            @click="split = false">{{ hide }}</button>
   {%- endmacro %}
   {% if e.links.theory or e.links.text %}
     <p class="btn-group beside-buttons">
-      {% if e.links.theory %}{{ beside(e.links.theory, "Теория рядом") }}{% endif %}
-      {% if e.links.text %}{{ beside(e.links.text, "Текст рядом") }}{% endif %}
+      {% if e.links.theory %}{{ beside(e.links.theory, "Теория рядом", "Скрыть теорию") }}{% endif %}
+      {% if e.links.text %}{{ beside(e.links.text, "Текст рядом", "Скрыть текст") }}{% endif %}
     </p>
   {% endif %}
   <div class="split-layout" :class="{ 'is-split': split }">
@@ -109,7 +112,8 @@
       {% if solve_mode %}{% include "exercises/solve.html" %}{% else %}{% include "partials/exercise.html" %}{% endif %}
     </div>
     <aside class="side-pane card" x-show="split" x-cloak aria-label="Теория или текст рядом">
-      <button type="button" class="btn-text small side-close" @click="split = false" aria-label="Закрыть">✕ закрыть</button>
+      <div class="side-pane-bar"><span class="small muted">Рядом с упражнением</span>
+        <button type="button" class="outline small" @click="split = false" aria-label="Закрыть теорию">✕ Закрыть</button></div>
       <div id="side-pane-content"><p class="muted">Загрузка…</p></div>
     </aside>
   </div>
@@ -139,10 +143,10 @@
       <button type="button" class="btn-text small" @click="menu = false" aria-label="Закрыть">✕</button></div>
     {% if lesson_tree.theory %}<div class="drawer-group">Теория</div>
       {% for t in lesson_tree.theory %}<div class="drawer-row"><a href="/elements/{{ t.id }}" {% if t.id == e.id %}aria-current="page"{% endif %}>{{ t.title }}</a>
-        {% if e.kind == "exercise" %}<button type="button" class="btn-text small" hx-get="/elements/{{ t.id }}?fragment=1" hx-target="#side-pane-content" @click="split = true; menu = false">рядом</button>{% endif %}</div>{% endfor %}{% endif %}
+        {% if e.kind == "exercise" %}<button type="button" class="btn-text small" hx-get="/elements/{{ t.id }}?fragment=1" hx-target="#side-pane-content" @click="split = true; shown = '{{ t.id }}'; menu = false">рядом</button>{% endif %}</div>{% endfor %}{% endif %}
     {% if lesson_tree.texts %}<div class="drawer-group">Тексты</div>
       {% for t in lesson_tree.texts %}<div class="drawer-row"><a href="/elements/{{ t.id }}" lang="fr" {% if t.id == e.id %}aria-current="page"{% endif %}>{{ t.title }}</a>
-        {% if e.kind == "exercise" %}<button type="button" class="btn-text small" hx-get="/elements/{{ t.id }}?fragment=1" hx-target="#side-pane-content" @click="split = true; menu = false">рядом</button>{% endif %}</div>{% endfor %}{% endif %}
+        {% if e.kind == "exercise" %}<button type="button" class="btn-text small" hx-get="/elements/{{ t.id }}?fragment=1" hx-target="#side-pane-content" @click="split = true; shown = '{{ t.id }}'; menu = false">рядом</button>{% endif %}</div>{% endfor %}{% endif %}
     {% if lesson_tree.vocab %}<div class="drawer-group">Лексика</div><a href="/lessons/{{ e.lesson }}/vocab">Слова урока · {{ lesson_tree.vocab }}</a>{% endif %}
     {% for part in ("class", "homework") %}{% if lesson_tree[part] %}
       <div class="drawer-group">{{ PART_NAMES[part] }}</div>

@@ -287,7 +287,6 @@
 .beside-buttons { margin: 0 0 .8rem; }
 .split-layout.is-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; align-items: start; }
 .side-pane { position: sticky; top: 72px; max-height: calc(100vh - 96px); overflow-y: auto; margin: 0; background: var(--surface-solid); }
-.side-close { float: right; }
 .side-pane-head { display: flex; justify-content: space-between; align-items: baseline; gap: .8rem; margin-bottom: .6rem; font-family: var(--font); }
 .drawer-row { display: flex; align-items: center; gap: .2rem; }
 .drawer-row a { flex: 1; }
@@ -375,3 +374,18 @@
 .symbol-panel .symbol { width: 2.3rem; min-height: 2.3rem; padding: 0; font-size: 1.05rem; font-weight: 500;
   background: var(--surface-solid); color: var(--text); border: 1px solid var(--line); }
 .symbol-panel .symbol:hover { filter: none; border-color: var(--primary); color: var(--primary-strong); }
+
+/* Закрыть «рядом» — всегда видно: закреплённая шапка панели (009, замечание приёмки) */
+.side-pane { padding-top: 0; }
+.side-pane-bar { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: .8rem;
+  margin: 0 -1.25rem .6rem; padding: .7rem 1.25rem; background: var(--surface-solid); border-bottom: 1px solid var(--line); }
+/* Картинка листа — справа от упражнения (замечание приёмки) */
+@media (min-width: 900px) {
+  .exercise.with-source .exercise-source { order: 2; }
+  .exercise.with-source .exercise-body { order: 1; }
+}
+/* Карточка переворачивается нажатием */
+.flashcard.flippable { cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.flashcard.flippable:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.flashcard.flippable:focus-visible { outline: 3px solid var(--primary-soft); }
+.flip-hint { margin: .6rem 0 0; }

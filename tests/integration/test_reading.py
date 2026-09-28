@@ -70,3 +70,9 @@ def test_lesson_menu_offers_side_by_side(client):
     html = client.get("/elements/ex-gapchoic").text
     menu = html.split('id="lesson-menu"', 1)[1].split("</aside>", 1)[0]
     assert 'hx-get="/elements/th-articles?fragment=1"' in menu
+
+
+def test_side_pane_can_be_closed(client):
+    html = client.get("/elements/ex-gapchoic").text
+    assert "Скрыть теорию" in html and "✕ Закрыть" in html
+    assert 'class="side-pane-bar"' in html

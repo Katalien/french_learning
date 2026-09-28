@@ -8,12 +8,17 @@
     {% with done = progress.number, total = progress.total, label = progress.number ~ "/" ~ progress.total, size = "sm" %}{% include "partials/ring.html" %}{% endwith %}
   </div>
 
-  <article class="flashcard gender-{{ entry.gender or 'none' }}{% if shown or result is defined %} is-shown{% endif %}">
+  {% set flip = params.method != "input" and not shown and result is not defined %}
+  <article class="flashcard gender-{{ entry.gender or 'none' }}{% if shown or result is defined %} is-shown{% endif %}{% if flip %} flippable{% endif %}"
+    {% if flip %}role="button" tabindex="0" title="Показать ответ" aria-label="Показать ответ"
+    onclick="if (!event.target.closest('.speak')) document.getElementById('show-form').requestSubmit()"
+    onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); document.getElementById('show-form').requestSubmit(); }"{% endif %}>
     <span class="stripe"></span>
     {% if entry.gender in ("m", "f") and direction == "fr_ru" %}<span class="gender-tag">{{ entry.gender }}</span>{% endif %}
     <p class="question" lang="{{ 'fr' if direction == 'fr_ru' else 'ru' }}">{{ question.text }}</p>
     {% if direction == 'fr_ru' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}
     {% if question.hint %}<p class="muted hint">{{ question.hint }}</p>{% endif %}
+    {% if flip %}<p class="flip-hint small muted">Показать ответ — нажмите на карточку</p>{% endif %}
 
     {% if shown or result is defined %}
       <div class="flash-back">
@@ -28,9 +33,7 @@
     {% if params.method == "input" and not shown %}
       <div class="flash-actions">{% include "vocab/partials/answer_input.html" %}</div>
     {% elif not shown %}
-      <form method="post" action="/practice/{{ session_id }}/show" class="flash-actions">
-        <button type="submit" class="wide">Показать</button>
-      </form>
+      <form method="post" action="/practice/{{ session_id }}/show" id="show-form" hidden></form>
     {% else %}
       <form method="post" action="/practice/{{ session_id }}/rate" class="ratings">
         {% for key, name in ratings.items() %}
