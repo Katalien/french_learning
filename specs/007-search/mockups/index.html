@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="ru" data-theme="light" data-entry="bar" data-results="dropdown" data-snippets="on" data-translation="on">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Макет 007 — поиск</title>
+<!-- Макет для обсуждения (spec 007). Содержимое выдуманное. Стиль — «Перелив» (009). -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#FDFCF8; --surface:rgba(255,255,255,.85); --solid:#fff; --surface-2:#F3F1FB; --text:#2C2F52; --muted:#6F739C; --line:#E2E0F2;
+  --primary:#838BCC; --primary-strong:#6B73B8; --primary-soft:#E9E7FA; --fr:#6D62BD; --m:#4F7BBF; --f:#C45AAC;
+  --mark:#FFE9A8; --mark-ink:#5A4300;
+  --grad: linear-gradient(120deg, #B8AEE3 0%, #838BCC 55%, #7FAED9 100%);
+  --page: radial-gradient(1200px 650px at 0% 0%, #F8D6FD 0%, transparent 60%), radial-gradient(1000px 650px at 100% 5%, #C9F1F4 0%, transparent 55%), #FDFCF8;
+  --shadow: 0 4px 18px rgba(92,88,170,.14);
+  --font: "Inter", system-ui, sans-serif; --reading: "Lora", Georgia, serif;
+}
+:root[data-theme="dark"] {
+  --bg:#1C1E33; --surface:rgba(40,43,70,.9); --solid:#282B46; --surface-2:#2E3152; --text:#ECEBFA; --muted:#A9ABCD; --line:#3B3F66;
+  --primary:#AAB1EE; --primary-strong:#C3C8F5; --primary-soft:#363B69; --fr:#C5BCF7; --m:#93B7EC; --f:#F0A3DA;
+  --mark:#6A5520; --mark-ink:#FFE9A8;
+  --page: radial-gradient(1200px 600px at 0% 0%, #2F2548 0%, transparent 60%), radial-gradient(1000px 600px at 100% 10%, #1F3D48 0%, transparent 55%), #1C1E33;
+  --shadow: 0 4px 18px rgba(0,0,0,.45);
+}
+* { box-sizing: border-box; }
+html { background: var(--page); background-attachment: fixed; }
+body { margin: 0; font: 16px/1.55 var(--font); color: var(--text); min-height: 100vh; }
+a { color: var(--primary-strong); text-decoration: none; } a:hover { text-decoration: underline; }
+button { font: inherit; cursor: pointer; }
+mark { background: var(--mark); color: var(--mark-ink); border-radius: 3px; padding: 0 .1rem; }
+.fr { color: var(--fr); font-weight: 600; }
+.muted { color: var(--muted); } .small { font-size: .85rem; }
+
+/* панель макета */
+.mock { position: sticky; top: 0; z-index: 60; background: #1f2230; color: #e8e9f0; font: 13px/1.4 system-ui; padding: .45rem .8rem;
+  display: flex; flex-wrap: wrap; gap: .35rem .9rem; align-items: center; }
+.mock .grp { display: flex; gap: .25rem; align-items: center; flex-wrap: wrap; }
+.mock .lbl { color: #9aa0b8; }
+.mock button { background: #2d3144; color: #e8e9f0; border: 1px solid #3d4260; border-radius: 5px; padding: .2rem .5rem; font-size: 12px; }
+.mock button.on { background: #7E89CA; border-color: #7E89CA; color: #fff; }
+.mock .hint { color: #9aa0b8; width: 100%; }
+
+/* шапка */
+.topbar { position: sticky; top: 38px; z-index: 50; display: flex; align-items: center; gap: 1.2rem; padding: .65rem 2rem;
+  background: rgba(255,255,255,.62); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+:root[data-theme="dark"] .topbar { background: rgba(28,30,51,.7); }
+.brand { font-weight: 800; color: var(--text); }
+.brand small { font-weight: 500; color: var(--muted); }
+.nav { display: flex; gap: .2rem; }
+.nav a { padding: .4rem .75rem; border-radius: 8px; color: var(--muted); font-weight: 600; }
+.nav a:hover { background: var(--surface-2); text-decoration: none; color: var(--text); }
+.right { margin-left: auto; display: flex; align-items: center; gap: .5rem; }
+.icon-btn { width: 2.4rem; height: 2.4rem; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--text); font-size: 1.05rem; }
+.icon-btn:hover { border-color: var(--primary); }
+.search-box { position: relative; }
+.search-input { width: 300px; height: 2.4rem; border-radius: 10px; border: 1px solid var(--line); background: var(--solid); color: var(--text);
+  padding: 0 .8rem 0 2.1rem; font: inherit; transition: width .2s, box-shadow .15s; }
+.search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); width: 380px; }
+.search-box::before { content: "🔍"; position: absolute; left: .65rem; top: 50%; transform: translateY(-50%); font-size: .85rem; opacity: .6; }
+:root[data-entry="icon"] .bar-box { display: none; }
+:root[data-entry="bar"] .icon-open { display: none; }
+
+/* раскрывающаяся строка (вариант «значок») */
+.search-sheet { display: none; position: sticky; top: 97px; z-index: 45; padding: .9rem 2rem; background: var(--solid); box-shadow: var(--shadow);
+  border-bottom: 1px solid var(--line); animation: drop .18s ease; }
+.search-sheet.open { display: block; }
+.search-sheet .search-input, .search-sheet .search-input:focus { width: 100%; height: 2.8rem; font-size: 1.05rem; }
+@keyframes drop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+/* область и фильтры */
+.scope-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-top: .6rem; }
+.seg { display: inline-flex; background: var(--surface-2); border-radius: 9px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: transparent; color: var(--muted); padding: .25rem .75rem; border-radius: 7px; font-weight: 600; font-size: .88rem; }
+.seg button.on { background: var(--solid); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+select { font: inherit; font-size: .88rem; height: 2rem; border-radius: 8px; border: 1px solid var(--line); background: var(--solid); color: var(--text); padding: 0 .5rem; }
+
+/* выпадающая панель результатов */
+.dropdown { display: none; position: absolute; right: 0; top: calc(100% + .5rem); width: 520px; max-height: 70vh; overflow-y: auto;
+  background: var(--solid); border-radius: 12px; box-shadow: var(--shadow); padding: .9rem 1rem; z-index: 55; animation: drop .15s ease; }
+.dropdown.open { display: block; }
+.search-sheet .dropdown { position: static; width: 100%; max-height: 60vh; box-shadow: none; padding: .6rem 0 0; }
+
+/* группы */
+.group { margin-bottom: 1rem; }
+.group h3 { margin: .2rem 0 .4rem; font-size: .76rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); display: flex; gap: .4rem; }
+.group h3 .n { background: var(--surface-2); border-radius: 5px; padding: 0 .35rem; }
+.res { display: flex; gap: .7rem; align-items: baseline; padding: .45rem .55rem; border-radius: 8px; cursor: pointer; }
+.res:hover, .res:focus { background: var(--surface-2); }
+.gbar { flex: 0 0 4px; align-self: stretch; border-radius: 2px; background: var(--line); }
+.gbar.m { background: var(--m); } .gbar.f { background: var(--f); }
+.res .body { flex: 1; min-width: 0; }
+.res .meta { color: var(--muted); font-size: .8rem; white-space: nowrap; }
+.tr { color: var(--muted); }
+:root[data-translation="off"] .tr { display: none; }
+.snip { display: block; color: var(--muted); font-size: .86rem; font-family: var(--reading); margin-top: .1rem; }
+:root[data-snippets="off"] .snip { display: none; }
+.more { display: inline-block; margin: .2rem .55rem; font-size: .85rem; }
+.all-link { display: block; text-align: center; padding: .6rem; border-top: 1px solid var(--line); margin-top: .4rem; font-weight: 600; }
+.empty { color: var(--muted); padding: .6rem .55rem; }
+
+/* страница */
+main { max-width: 1100px; margin: 0 auto; padding: 1.8rem 2rem 4rem; }
+.card { background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); padding: 1.1rem 1.3rem; margin-bottom: 1rem; backdrop-filter: blur(8px); }
+.page-search { display: none; }
+:root[data-view="page"] .page-search { display: block; }
+:root[data-view="page"] .page-other { display: none; }
+.page-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); align-items: start; }
+.page-grid .card { margin: 0; }
+:root[data-results="tabs"] .page-grid { display: block; }
+.tabs { display: none; gap: .2rem; border-bottom: 1px solid var(--line); margin: 1rem 0; }
+:root[data-results="tabs"] .tabs { display: flex; }
+.tabs a { padding: .55rem 1rem; color: var(--muted); font-weight: 600; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
+.tabs a.on { color: var(--text); border-bottom-color: var(--primary); }
+.tabs .n { color: var(--muted); font-weight: 500; margin-left: .3rem; font-size: .85rem; }
+:root[data-results="tabs"] .page-grid .card { display: none; }
+:root[data-results="tabs"] .page-grid .card.on { display: block; }
+.btn { border: 0; border-radius: 8px; padding: .45rem 1rem; font-weight: 600; background: var(--grad); color: #fff; }
+.btn-outline { background: transparent; color: var(--text); border: 1px solid var(--line); }
+
+/* теория с подсветкой */
+.theory { display: none; }
+:root[data-view="theory"] .theory { display: block; }
+:root[data-view="theory"] .page-other, :root[data-view="theory"] .page-search { display: none; }
+.reading { font-family: var(--reading); font-size: 1.04rem; line-height: 1.7; }
+.hl-bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .55rem 1rem; border-radius: 10px;
+  background: var(--primary-soft); margin-bottom: 1rem; font-size: .9rem; }
+.reading mark.current { outline: 2px solid var(--primary); }
+.no-hl mark { background: none; color: inherit; outline: none; }
+
+@media (max-width: 900px) {
+  .topbar { padding: .6rem 1rem; flex-wrap: wrap; } .nav { order: 3; width: 100%; }
+  .search-input, .search-input:focus { width: 100%; } .bar-box { flex: 1; }
+  .dropdown { position: fixed; left: .5rem; right: .5rem; width: auto; top: 150px; }
+  .page-grid { grid-template-columns: 1fr; } main { padding: 1.2rem 1rem 3rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="mock">
+  <div class="grp"><span class="lbl">А. Вход:</span><button data-set="entry" data-val="bar">строка в шапке</button><button data-set="entry" data-val="icon">значок → строка</button></div>
+  <div class="grp"><span class="lbl">Б. Результаты:</span><button data-set="results" data-val="dropdown">панель под строкой</button><button data-set="results" data-val="page">страница: группы блоками</button><button data-set="results" data-val="tabs">страница: вкладки</button></div>
+  <div class="grp"><span class="lbl">В. Фрагмент теории:</span><button data-set="snippets" data-val="on">да</button><button data-set="snippets" data-val="off">нет</button></div>
+  <div class="grp"><span class="lbl">Г. Перевод у слов:</span><button data-set="translation" data-val="on">да</button><button data-set="translation" data-val="off">нет</button></div>
+  <div class="grp"><span class="lbl">Тема:</span><button data-set="theme" data-val="light">светлая</button><button data-set="theme" data-val="dark">тёмная</button></div>
+  <span class="hint">Попробуйте: <b>mais</b>, <b>дом</b>, <b>ete</b>, <b>il y a</b>, <b>francais</b>, <b>mang</b>, <b>h aspire</b>, <b>peut etre</b>. Нажмите на результат из теории — откроется страница с подсветкой.</span>
+</div>
+
+<header class="topbar">
+  <a class="brand" href="#" onclick="go('home')">Français <small>· мой курс</small></a>
+  <nav class="nav"><a href="#">Уроки</a><a href="#">Словарь</a><a href="#">Практика</a><a href="#">Темы</a></nav>
+  <div class="right">
+    <div class="search-box bar-box">
+      <input class="search-input" id="q-bar" placeholder="Поиск: слово, тема, правило" autocomplete="off">
+      <div class="dropdown" id="dd-bar"></div>
+    </div>
+    <button class="icon-btn icon-open" title="Поиск" onclick="toggleSheet()">🔍</button>
+    <button class="icon-btn" title="Ещё">⋯</button>
+  </div>
+</header>
+
+<div class="search-sheet" id="sheet">
+  <div class="search-box"><input class="search-input" id="q-sheet" placeholder="Поиск: слово, тема, правило" autocomplete="off"></div>
+  <div class="scope-row" id="scope-sheet"></div>
+  <div class="dropdown" id="dd-sheet"></div>
+</div>
+
+<main>
+  <section class="page-other">
+    <div class="card">
+      <h2 style="margin-top:0">Какая-то страница приложения</h2>
+      <p class="muted">Поиск открывается отсюда и с любой другой страницы. Начните печатать в строке поиска
+        (или нажмите 🔍 в варианте «значок → строка»). Под строкой — область «Всё · Словарь · Теория · Темы» и фильтры.</p>
+    </div>
+  </section>
+
+  <section class="page-search">
+    <h1 style="margin:0 0 .4rem">Поиск: «<span id="page-q"></span>»</h1>
+    <div class="scope-row" id="scope-page"></div>
+    <nav class="tabs" id="page-tabs"></nav>
+    <div class="page-grid" id="page-grid"></div>
+  </section>
+
+  <section class="theory">
+    <p class="small muted"><a href="#" onclick="go('back')">← к результатам</a> · Урок 14 › Теория</p>
+    <div class="hl-bar" id="hl-bar"><span>Найдено на странице: <b id="hl-count">0</b> · «<span id="hl-q"></span>»</span>
+      <span><button class="btn-outline btn" onclick="nextMark()">Следующее ↓</button> <button class="btn-outline btn" onclick="clearHl()">Снять подсветку</button></span></div>
+    <article class="card reading" id="theory-body"></article>
+  </section>
+</main>
+
+<script>
+const root = document.documentElement;
+const DATA = {
+  words: [
+    {fr: "la maison", ru: "дом", g: "f", lessons: [13], topic: "Дом"},
+    {fr: "la mangue", ru: "манго", g: "f", lessons: [14], topic: "Еда и напитки"},
+    {fr: "manger", ru: "есть, кушать", g: "", lessons: [14], topic: "Еда и напитки"},
+    {fr: "l'été", ru: "лето", g: "m", lessons: [12], topic: "Времена года"},
+    {fr: "le français", ru: "французский язык", g: "m", lessons: [12], topic: ""},
+    {fr: "peut-être", ru: "может быть", g: "", lessons: [13], topic: ""},
+    {fr: "l'eau", ru: "вода", g: "f", lessons: [14], topic: "Еда и напитки"},
+    {fr: "le fromage", ru: "сыр", g: "m", lessons: [14], topic: "Еда и напитки"},
+    {fr: "la boulangerie", ru: "булочная", g: "f", lessons: [13], topic: "Дом"},
+    {fr: "le héros", ru: "герой", g: "m", lessons: [12], topic: ""},
+    {fr: "avoir faim", ru: "быть голодным", g: "", lessons: [14], topic: "Еда и напитки"},
+    {fr: "la maisonnette", ru: "домик", g: "f", lessons: [13], topic: "Дом"},
+  ],
+  topics: [
+    {name: "Дом", section: "Лексика", lessons: [13]},
+    {name: "Еда и напитки", section: "Лексика", lessons: [14]},
+    {name: "Партитивные артикли", section: "Грамматика", lessons: [14]},
+    {name: "Конструкция il y a", section: "Грамматика", lessons: [14]},
+    {name: "Времена года", section: "Лексика", lessons: [12]},
+  ],
+  theory: [
+    {title: "Конструкция il y a", lesson: 14, topic: "Конструкция il y a", paras: [
+      "«Il y a» — безличная конструкция: «il» не обозначает конкретное лицо. Прямого аналога в русском нет.",
+      "Il y a une table dans la maison. — В доме есть стол. Il y a des livres sur l'étagère.",
+      "Отрицание: il n'y a pas de… — Il n'y a pas de pain à la maison.",
+      "Прошедшее время: il y avait — «было, имелось». Il y avait un chat dans le jardin.",
+      "Il y a + период времени = «… назад»: il y a deux ans — два года назад."]},
+    {title: "Партитивные артикли", lesson: 14, topic: "Партитивные артикли", paras: [
+      "Партитивный артикль (article partitif) обозначает неопределённое количество: du pain, de la confiture, de l'eau.",
+      "Je mange du fromage et de la mangue. Tu bois de l'eau ?",
+      "После отрицания — de / d' : Je ne mange pas de fromage. Il n'y a pas d'eau.",
+      "С глаголами вкуса (aimer, adorer) — определённый артикль: J'aime le fromage."]},
+    {title: "Определённые артикли и h", lesson: 12, topic: "", paras: [
+      "Перед гласной и h muet — элизия: l'été, l'eau, l'hôtel.",
+      "Перед h aspiré элизии нет: le héros, la hache. Это нужно запоминать.",
+      "Le français est une belle langue. L'été à la maison est chaud."]},
+  ],
+};
+
+/* нормализация: регистр, акценты, œ/æ, апострофы, дефисы, ё */
+function norm(s) {
+  return s.toLowerCase().replace(/œ/g, "oe").replace(/æ/g, "ae").replace(/ё/g, "е")
+    .normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[’ʼ‘`´]/g, "'");
+}
+function tokens(s) {  // слова с позициями в исходной строке
+  const out = []; const re = /[\p{L}\p{N}]+/gu; let m;
+  while ((m = re.exec(s))) out.push({t: norm(m[0]), start: m.index, end: m.index + m[0].length});
+  return out;
+}
+const ARTICLES = new Set(["le", "la", "les", "l", "un", "une", "des", "du", "de", "d"]);
+function qtokens(q) { return tokens(q).map(x => x.t); }
+/* совпадение фразы: слова подряд, последнее — по началу */
+function findIn(text, q, skipArticles) {
+  const toks = tokens(text); const hits = [];
+  if (!q.length) return hits;
+  for (let i = 0; i + q.length <= toks.length; i++) {
+    let ok = true;
+    for (let j = 0; j < q.length; j++) {
+      const t = toks[i + j].t, w = q[j];
+      if (j < q.length - 1 ? t !== w : !t.startsWith(w)) { ok = false; break; }
+    }
+    if (ok) hits.push({start: toks[i].start, end: toks[i + q.length - 1].end});
+  }
+  if (skipArticles && q.length === 1 && ARTICLES.has(q[0])) return hits.filter(() => false);
+  return hits;
+}
+function mark(text, hits) {
+  let out = "", pos = 0;
+  for (const h of hits) { out += esc(text.slice(pos, h.start)) + "<mark>" + esc(text.slice(h.start, h.end)) + "</mark>"; pos = h.end; }
+  return out + esc(text.slice(pos));
+}
+function esc(s) { return s.replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c])); }
+function snippet(text, h) {
+  const a = Math.max(0, h.start - 50), b = Math.min(text.length, h.end + 60);
+  return (a > 0 ? "… " : "") + mark(text.slice(a, b), [{start: h.start - a, end: h.end - a}]) + (b < text.length ? " …" : "");
+}
+
+let state = {q: "", scope: "all", lesson: "", topic: ""};
+function search() {
+  const q = qtokens(state.q);
+  const res = {words: [], topics: [], theory: []};
+  if (state.q.replace(/[^\p{L}\p{N}]/gu, "").length < 2) return null;
+  const lessonOk = ls => !state.lesson || ls.includes(+state.lesson);
+  const topicOk = t => !state.topic || t === state.topic;
+  if (state.scope === "all" || state.scope === "words")
+    for (const w of DATA.words) {
+      if (!lessonOk(w.lessons) || !topicOk(w.topic)) continue;
+      const hf = findIn(w.fr, q, true), hr = findIn(w.ru, q, false);
+      if (hf.length || hr.length) res.words.push({...w, hf, hr, starts: (hf[0] || hr[0]).start === 0 || hf.some(h => h.start > 0 && ARTICLES.has(norm(w.fr.slice(0, h.start)).replace(/[' ]/g, "")))});
+    }
+  if (state.scope === "all" || state.scope === "topics")
+    for (const t of DATA.topics) {
+      if (!lessonOk(t.lessons) || (state.topic && t.name !== state.topic)) continue;
+      const h = findIn(t.name, q, true);
+      if (h.length) res.topics.push({...t, h});
+    }
+  if (state.scope === "all" || state.scope === "theory")
+    for (const t of DATA.theory) {
+      if (!lessonOk([t.lesson]) || !topicOk(t.topic)) continue;
+      const ht = findIn(t.title, q, false); let count = ht.length, first = null;
+      for (const p of t.paras) { const h = findIn(p, q, false); count += h.length; if (h.length && !first) first = {p, h: h[0]}; }
+      if (count) res.theory.push({...t, ht, count, first});
+    }
+  res.words.sort((a, b) => b.starts - a.starts);
+  res.theory.sort((a, b) => (b.ht.length > 0) - (a.ht.length > 0));
+  return res;
+}
+const GROUPS = [["words", "Слова"], ["topics", "Темы"], ["theory", "Теория"]];
+function item(kind, r, i) {
+  if (kind === "words") return `<div class="res" tabindex="0"><span class="gbar ${r.g}"></span><span class="body"><span class="fr">${mark(r.fr, r.hf)}</span> <span class="tr">— ${mark(r.ru, r.hr)}</span></span><span class="meta">урок ${r.lessons.join(", ")}</span></div>`;
+  if (kind === "topics") return `<div class="res" tabindex="0"><span class="body">${mark(r.name, r.h)}</span><span class="meta">${r.section}</span></div>`;
+  return `<div class="res" tabindex="0" onclick="openTheory(${DATA.theory.indexOf(DATA.theory.find(t => t.title === r.title))})"><span class="body">${mark(r.title, r.ht)}
+    ${r.first ? `<span class="snip">${snippet(r.first.p, r.first.h)}</span>` : ""}</span><span class="meta">урок ${r.lesson} · ${r.count} ${r.count === 1 ? "совпадение" : "совп."}</span></div>`;
+}
+function scopeRow(id) {
+  const el = document.getElementById(id); if (!el) return;
+  const scopes = [["all", "Всё"], ["words", "Словарь"], ["theory", "Теория"], ["topics", "Темы"]];
+  el.innerHTML = `<span class="seg">${scopes.map(([k, n]) => `<button class="${state.scope === k ? "on" : ""}" onclick="setScope('${k}')">${n}</button>`).join("")}</span>
+    <select onchange="state.lesson=this.value;render()"><option value="">все уроки</option>${[14, 13, 12].map(n => `<option value="${n}" ${state.lesson == n ? "selected" : ""}>Урок ${n}</option>`).join("")}</select>
+    <select onchange="state.topic=this.value;render()"><option value="">все темы</option>${DATA.topics.map(t => `<option ${state.topic === t.name ? "selected" : ""}>${t.name}</option>`).join("")}</select>`;
+}
+function setScope(k) { state.scope = k; render(); }
+function dropdownHTML(res, limit) {
+  if (!res) return `<div class="empty">Введите хотя бы 2 буквы.</div>`;
+  const groups = GROUPS.filter(([k]) => res[k].length);
+  if (!groups.length) return `<div class="empty">Ничего не найдено.</div>`;
+  return groups.map(([k, n]) => `<div class="group"><h3>${n} <span class="n">${res[k].length}</span></h3>${res[k].slice(0, limit).map((r, i) => item(k, r, i)).join("")}
+    ${res[k].length > limit ? `<a class="more" href="#" onclick="openPage('${k}')">Показать все (${res[k].length}) →</a>` : ""}</div>`).join("")
+    + (root.dataset.results === "dropdown" ? `<a class="all-link" href="#" onclick="openPage('all')">Все результаты на отдельной странице →</a>` : "");
+}
+let tab = "words";
+function render() {
+  const res = search();
+  const inSheet = root.dataset.entry === "icon";
+  const dd = document.getElementById(inSheet ? "dd-sheet" : "dd-bar");
+  document.getElementById(inSheet ? "dd-bar" : "dd-sheet").classList.remove("open");
+  if (root.dataset.results === "dropdown" || root.dataset.view !== "page") {
+    const scope = inSheet ? "" : `<div class="scope-row" id="scope-dd"></div>`;
+    dd.innerHTML = scope + (state.q ? dropdownHTML(res, 3) : `<div class="empty">Начните печатать — ищу в словаре, темах и теории.</div>`);
+    dd.classList.toggle("open", focused || inSheet);
+    scopeRow("scope-dd"); scopeRow("scope-sheet");
+    if (root.dataset.results !== "dropdown" && state.q && res && root.dataset.view !== "theory") openPage("all", true);
+  }
+  if (root.dataset.view === "page") renderPage(res);
+}
+function renderPage(res) {
+  document.getElementById("page-q").textContent = state.q;
+  scopeRow("scope-page");
+  const grid = document.getElementById("page-grid"), tabs = document.getElementById("page-tabs");
+  if (!res) { grid.innerHTML = `<p class="muted">Введите хотя бы 2 буквы.</p>`; tabs.innerHTML = ""; return; }
+  const groups = GROUPS.filter(([k]) => res[k].length);
+  if (!groups.length) { grid.innerHTML = `<p class="muted">Ничего не найдено.</p>`; tabs.innerHTML = ""; return; }
+  if (!groups.some(([k]) => k === tab)) tab = groups[0][0];
+  tabs.innerHTML = groups.map(([k, n]) => `<a class="${k === tab ? "on" : ""}" onclick="tab='${k}';render()">${n}<span class="n">${res[k].length}</span></a>`).join("");
+  grid.innerHTML = groups.map(([k, n]) => `<div class="card ${k === tab ? "on" : ""}"><div class="group"><h3>${n} <span class="n">${res[k].length}</span></h3>${res[k].map((r, i) => item(k, r, i)).join("")}</div></div>`).join("");
+}
+function openPage(k, silent) { root.dataset.view = "page"; if (k !== "all") tab = k; document.querySelectorAll(".dropdown").forEach(d => d.classList.remove("open")); if (!silent) render(); else renderPage(search()); }
+function go(where) { if (where === "back") root.dataset.view = state.q && root.dataset.results !== "dropdown" ? "page" : ""; else root.dataset.view = ""; render(); }
+
+/* теория с подсветкой */
+let marks = [], cur = -1;
+function openTheory(i) {
+  const t = DATA.theory[i]; const q = qtokens(state.q);
+  document.getElementById("theory-body").classList.remove("no-hl");
+  document.getElementById("theory-body").innerHTML = `<h2 style="font-family:var(--font);margin-top:0">${esc(t.title)}</h2>` + t.paras.map(p => `<p>${mark(p, findIn(p, q, false))}</p>`).join("");
+  root.dataset.view = "theory"; document.querySelectorAll(".dropdown").forEach(d => d.classList.remove("open"));
+  document.getElementById("sheet").classList.remove("open");
+  marks = [...document.querySelectorAll("#theory-body mark")]; cur = -1;
+  document.getElementById("hl-count").textContent = marks.length; document.getElementById("hl-q").textContent = state.q;
+  document.getElementById("hl-bar").style.display = "flex";
+  nextMark();
+}
+function nextMark() { if (!marks.length) return; marks.forEach(m => m.classList.remove("current")); cur = (cur + 1) % marks.length; marks[cur].classList.add("current"); marks[cur].scrollIntoView({block: "center", behavior: "smooth"}); }
+function clearHl() { document.getElementById("theory-body").classList.add("no-hl"); document.getElementById("hl-bar").style.display = "none"; }
+
+/* ввод */
+let focused = false;
+for (const id of ["q-bar", "q-sheet"]) {
+  const input = document.getElementById(id);
+  input.addEventListener("input", () => { state.q = input.value; if (root.dataset.view === "theory") root.dataset.view = ""; render(); });
+  input.addEventListener("focus", () => { focused = true; render(); });
+}
+document.addEventListener("click", e => {
+  if (!e.target.closest(".search-box") && !e.target.closest(".dropdown") && !e.target.closest(".search-sheet")) { focused = false; document.getElementById("dd-bar").classList.remove("open"); }
+});
+function toggleSheet() {
+  const s = document.getElementById("sheet"); s.classList.toggle("open");
+  if (s.classList.contains("open")) { state.scope = "all"; state.lesson = ""; state.topic = ""; document.getElementById("q-sheet").focus(); render(); }
+}
+function mark_() { document.querySelectorAll("[data-set]").forEach(b => b.classList.toggle("on", root.dataset[b.dataset.set] === b.dataset.val)); }
+document.querySelectorAll("[data-set]").forEach(b => b.addEventListener("click", () => {
+  root.dataset[b.dataset.set] = b.dataset.val; mark_();
+  if (b.dataset.set === "results" && b.dataset.val === "dropdown" && root.dataset.view === "page") root.dataset.view = "";
+  if (b.dataset.set === "entry") { document.getElementById("sheet").classList.remove("open"); document.getElementById("q-bar").value = document.getElementById("q-sheet").value = state.q; }
+  render();
+}));
+mark_(); render();
+</script>
+</body>
+</html>
