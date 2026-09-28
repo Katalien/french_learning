@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru" data-theme="light" data-trigger="select" data-sentence="none" data-voice="popup" data-auto="on">
+<html lang="ru" data-theme="light" data-trigger="select" data-sentence="none" data-voice="popup" data-auto="on" data-add="now">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -76,6 +76,14 @@ h1 { margin: .2rem 0 1rem; }
 .pop .lemma { color: var(--muted); font-size: .88rem; margin: .2rem 0; }
 .pop .in-dict { display: inline-block; background: var(--ok-soft); color: var(--ok); border-radius: 6px; padding: 0 .45rem; font-size: .8rem; font-weight: 600; }
 .pop .actions { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .55rem; }
+.pop form { margin-top: .5rem; display: grid; gap: .4rem; }
+.pop form label { display: grid; gap: .1rem; font-size: .78rem; color: var(--muted); }
+.pop form input, .pop form textarea { font: inherit; font-size: .92rem; color: var(--text); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 7px; padding: .3rem .5rem; width: 100%; }
+.pop form textarea { font-family: var(--reading); font-style: italic; font-size: .85rem; resize: vertical; min-height: 3.2em; }
+.pop form input:focus, .pop form textarea:focus { outline: 2px solid var(--primary-soft); border-color: var(--primary); }
+.pop form .row { display: flex; gap: .4rem; justify-content: flex-end; }
+.pop .src-lesson { font-size: .75rem; color: var(--muted); }
 .pop .example { color: var(--muted); font-size: .82rem; font-family: var(--reading); font-style: italic; margin-top: .35rem; }
 .say { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 6px; padding: 0 .45rem; }
 .toast { position: fixed; bottom: 1.2rem; left: 50%; transform: translateX(-50%); background: var(--solid); box-shadow: var(--shadow);
@@ -104,6 +112,7 @@ h1 { margin: .2rem 0 1rem; }
   <div class="grp"><span class="lbl">А. Как вызвать перевод:</span><button data-set="trigger" data-val="select">выделить мышью</button><button data-set="trigger" data-val="dbl">двойной щелчок по слову</button><button data-set="trigger" data-val="both">оба</button></div>
   <div class="grp"><span class="lbl">Б. Перевод предложения:</span><button data-set="sentence" data-val="none">только выделением</button><button data-set="sentence" data-val="hover">кнопка ⇄ у предложения при наведении</button></div>
   <div class="grp"><span class="lbl">В. Озвучка:</span><button data-set="voice" data-val="popup">🔊 только в подсказке</button><button data-set="voice" data-val="sentence">+ 🔊 у предложения</button><button data-set="voice" data-val="player">+ «Слушать текст»</button></div>
+  <div class="grp"><span class="lbl">«+ В словарь»:</span><button data-set="add" data-val="now">а) сразу сохранить</button><button data-set="add" data-val="form">б) форма с проверкой</button></div>
   <div class="grp"><span class="lbl">Граница подсказки:</span><button id="b-new" class="on">новая</button><button id="b-old">как было</button></div>
   <div class="grp"><span class="lbl">Тема:</span><button data-set="theme" data-val="light">светлая</button><button data-set="theme" data-val="dark">тёмная</button></div>
   <span class="hint">Попробуйте: выделить <b>achètent</b>, <b>du fromage</b>, <b>Il y a</b>, целое предложение или абзац; дважды щёлкнуть по <b>choisit</b> или <b>maison</b>. Озвучка — настоящая, из запущенного приложения.</span>
@@ -206,7 +215,27 @@ function showPop(sel, rect, sentence) {
   pop.querySelector(".x").onclick = closePop;
   pop.querySelector(".say").onclick = () => say(sel);
   const a = pop.querySelector("#add");
-  if (a) a.onclick = () => { added.add(nl); toast(`Добавлено: ${lemma} — ${SVC[nl] || tr}; пример сохранён в карточке`); closePop(); };
+  const trFinal = MY[nl] || SVC[nl] || tr;
+  const markAdded = (word, t) => {
+    added.add(norm(word)); added.add(nl);
+    pop.querySelector(".actions").innerHTML = `<button class="say">🔊</button><span class="in-dict">✓ в словаре: ${esc(t)}</span>`;
+    pop.querySelector(".say").onclick = () => say(sel);
+    pop.querySelector(".example")?.remove(); pop.querySelector("form")?.remove();
+    toast(`Добавлено: ${word} — ${t}. Пример и «урок 15» — в карточке, без темы`);
+  };
+  if (a) a.onclick = () => {
+    if (root.dataset.add === "now") return markAdded(lemma, trFinal);
+    a.style.display = "none"; pop.querySelector(".example")?.remove();
+    const f = document.createElement("form");
+    f.innerHTML = `<label>Слово<input name="w" value="${esc(lemma)}"></label>
+      <label>Перевод<input name="t" value="${esc(trFinal)}"></label>
+      <label>Пример<textarea name="e" rows="2">${esc(sentence)}</textarea></label>
+      <div class="src-lesson">Источник: урок 15 · без темы</div>
+      <div class="row"><button type="button" class="btn-o" id="cancel">Отмена</button><button class="btn">Сохранить</button></div>`;
+    pop.appendChild(f); f.w.focus(); f.w.select();
+    f.querySelector("#cancel").onclick = closePop;
+    f.onsubmit = e => { e.preventDefault(); markAdded(f.w.value.trim(), f.t.value.trim()); };
+  };
 }
 function selectionPop() {
   const s = window.getSelection(); const t = s.toString().replace(/\s*[⇄🔊]\s*/g, " ").trim();

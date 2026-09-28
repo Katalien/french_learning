@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain — 1 (скрытые слова), + вопросы /speckit.clarify
+- [x] No [NEEDS CLARIFICATION] markers remain (уточнено 2026-09-29)
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic
