@@ -974,7 +974,7 @@ function icoHTML(kind) {
   return set === "emoji" ? (kind === "note" ? "📝" : "❓") : ICONS[set][kind];
 }
 function iconize(scope = document.body, refresh = false) {   // заменить эмодзи в интерфейсе на значки выбранного набора
-  const w = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT, {acceptNode: n => n.parentElement.closest(".mock, script, style, textarea, .toast") ? NodeFilter.FILTER_REJECT : /📝|❓/.test(n.textContent) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP});
+  const w = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT, {acceptNode: n => n.parentElement.closest(".mock, script, style, textarea, .toast, .ico") ? NodeFilter.FILTER_REJECT : /📝|❓/.test(n.textContent) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP});
   const list = []; while (w.nextNode()) list.push(w.currentNode);
   for (const t of list) {
     const frag = document.createDocumentFragment();
@@ -987,7 +987,7 @@ function iconize(scope = document.body, refresh = false) {   // заменить
   if (refresh) scope.querySelectorAll(".ico").forEach(i => i.innerHTML = icoHTML(i.dataset.k));
 }
 // всё, что дорисовывается позже (формы, поле, подсказки), тоже получает значки
-new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) { const el = n.nodeType === 1 ? n : n.parentElement; if (el && /📝|❓/.test(n.textContent || "")) iconize(el); } })
+new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) { const el = n.nodeType === 1 ? n : n.parentElement; if (el && !el.closest(".ico") && /📝|❓/.test(n.textContent || "")) iconize(el); } })
   .observe(document.body, {childList: true, subtree: true});
 let exChecked = false;
 
