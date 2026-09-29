@@ -611,3 +611,10 @@ mark.note-anchor.pending { background: var(--note-hl); border-bottom-style: soli
 .search-page-form { display: grid; gap: .6rem; }
 .search-page-form input[type="search"] { margin: 0; }
 .search-page .search-group { background: var(--surface); border-radius: var(--radius); padding: .8rem 1rem; margin-bottom: 1rem; }
+mark.search-hit.current { background: var(--ring); outline: 2px solid var(--primary); }
+.search-bar { position: sticky; top: 64px; z-index: 15; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem;
+  margin: 0 0 .8rem; padding: .45rem .8rem; background: var(--surface-solid); border: 1px solid var(--pop-line);
+  border-radius: 10px; box-shadow: var(--shadow); font-size: .88rem; }
+.search-bar .sp { flex: 1; }
+.search-bar .q { color: var(--fr); font-weight: 600; }
+@media (max-width: 760px) { .search-bar { position: static; } }

@@ -113,3 +113,19 @@ def test_topic_filter(index):
     assert set(ids(articles, "theory")) == {"th-articles", "th-extrarul"}
     assert ids(articles, "topics") == ["top-articles"]
     assert ids(search(index, Query("дом", topic="top-articles")), "topics") == []
+
+
+# --- US4: фрагмент у теории (T020–T021) -------------------------------------------------------
+
+
+def test_theory_snippet_around_first_match(index):
+    result = search(index, Query("h aspire")).groups["theory"]
+    assert not result  # в образце «h придыхательным», не «aspiré»
+    extra = search(index, Query("придыхательным")).groups["theory"][0]
+    assert extra.id == "th-extrarul" and extra.count == 1
+    assert ("придыхательным", True) in extra.snippet
+
+
+def test_theory_title_only_match_has_no_snippet(index):
+    result = search(index, Query("демо", scope="theory")).groups["theory"]
+    assert all(r.snippet is None or any(hit for _p, hit in r.snippet) for r in result)

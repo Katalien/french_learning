@@ -115,3 +115,19 @@ def test_result_links(client):
     assert re.search(r'href="/elements/th-articles\?hl=%D0%B0%D1%80', html)
     assert 'href="/vocab/voc-maisonaa"' in panel(client, q="maison")
     assert 'href="/topics/top-maisonxx"' in panel(client, q="дом")
+
+
+# --- US4 ---------------------------------------------------------------------------------------
+
+
+def test_panel_shows_snippet_with_mark_and_more(client):
+    html = panel(client, q="les")
+    assert re.search(r'class="search-snippet">.*<mark>les</mark>', html, re.S)
+    assert "ещё 1" in html
+
+
+def test_highlight_script_on_pages(client):
+    # подсветку ?hl= делает браузер (research R8); сервер отдаёт страницу как обычно
+    html = client.get("/elements/th-articles", params={"hl": "les"}).text
+    assert "/static/js/search.js" in html
+    assert 'data-note-container="th-articles"' in html

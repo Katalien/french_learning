@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from french_learning.search.index import Doc, SearchIndex
-from french_learning.search.text import find, query_tokens
+from french_learning.search.text import find, query_tokens, snippet
 
 SCOPES = ("all", "words", "theory", "topics")
 GROUPS = {"words": "word", "topics": "topic", "theory": "theory"}  # порядок показа
@@ -76,6 +76,9 @@ def _match(doc: Doc, words: list[str], show_translation: bool) -> Result | None:
         result.rank = (0 if "fr" in matched else 1, title)
     elif doc.kind == "theory":
         result.count = len(hits.get("text", []))
+        if result.count:  # фрагмент вокруг первого совпадения в тексте (FR-012)
+            text = next(f for f in doc.fields if f.name == "text")
+            result.snippet = snippet(text.text, text.tokens, hits["text"][0], len(words))
         result.rank = (0 if "title" in matched else 1, -doc.lesson_order, title)
     else:
         result.rank = (title,)

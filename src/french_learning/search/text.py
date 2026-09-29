@@ -61,3 +61,24 @@ def find(doc: Sequence[Token | str], query: Sequence[str]) -> list[int]:
         ):
             found.append(i)
     return found
+
+
+SNIPPET_BEFORE = 8  # слов до совпадения
+SNIPPET_AFTER = 12  # слов после — вместе около 20 (FR-012)
+
+
+def snippet(text: str, toks: Sequence[Token], at: int, size: int) -> list[tuple[str, bool]]:
+    """Фрагмент исходного текста вокруг совпадения: кусочки (текст, найдено), «…» по краям."""
+    first = max(0, at - SNIPPET_BEFORE)
+    last = min(len(toks), at + size + SNIPPET_AFTER)
+    # у края текста — до самого края (точка после последнего слова не теряется)
+    start = toks[first].start if first > 0 else 0
+    end = toks[last - 1].end if last < len(toks) else len(text)
+    hit_start, hit_end = toks[at].start, toks[at + size - 1].end
+    head = ("…" if first > 0 else "") + _flat(text[start:hit_start])
+    tail = _flat(text[hit_end:end]) + ("…" if last < len(toks) else "")
+    return [(head, False), (_flat(text[hit_start:hit_end]), True), (tail, False)]
+
+
+def _flat(part: str) -> str:
+    return part.replace("\n", " ")

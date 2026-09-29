@@ -2,7 +2,7 @@
 
 import pytest
 
-from french_learning.search.text import find, normalize, query_tokens, tokens
+from french_learning.search.text import find, normalize, query_tokens, snippet, tokens
 
 
 def norms(text):
@@ -61,3 +61,33 @@ def test_phrase_words_in_a_row_last_by_start():
 
 def test_find_accepts_token_objects():
     assert find(tokens("peut-être"), ["peut", "etre"]) == [0]
+
+
+# --- US4: фрагмент вокруг совпадения (T020) --------------------------------------------------
+
+
+def test_snippet_marks_match_in_original_text():
+    text = "Перед гласной и h muet — элизия: l'été, l'eau."
+    toks = tokens(text)
+    at = find(toks, ["ete"])[0]
+    parts = snippet(text, toks, at, 1)
+    assert ("été", True) in parts
+    assert "".join(p for p, _ in parts) == text  # короткий текст — целиком, без «…»
+
+
+def test_snippet_about_twenty_words_with_ellipses():
+    words = [f"mot{n}" for n in range(60)]
+    text = " ".join(words)
+    toks = tokens(text)
+    parts = snippet(text, toks, 30, 2)
+    joined = "".join(p for p, _ in parts)
+    assert joined.startswith("…") and joined.endswith("…")
+    assert [p for p, hit in parts if hit] == ["mot30 mot31"]
+    assert 18 <= len(joined.strip("…").split()) <= 24
+
+
+def test_snippet_collapses_line_breaks():
+    text = "Формы\nle, l'\nla, l'"
+    toks = tokens(text)
+    parts = snippet(text, toks, find(toks, ["la"])[0], 1)
+    assert "\n" not in "".join(p for p, _ in parts)
