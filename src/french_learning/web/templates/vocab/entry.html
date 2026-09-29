@@ -17,7 +17,7 @@
       {% if e.hidden %} · <mark class="badge">скрыто</mark>{% endif %}
     </p>
   </header>
-  <p class="translations">{{ e.translations | map(attribute="text") | join(", ") }}</p>
+  <p class="translations">{% for t in e.translations %}{{ t.text }}{% if show_origin %} {% with origin = t.origin, detail = none %}{% include "partials/origin_badge.html" %}{% endwith %}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}</p>
 
   <details class="entry-extra">
     <summary>Подробнее</summary>
@@ -42,7 +42,8 @@
     {% if e.notes %}<h3>Заметки</h3><p>{{ e.notes }}</p>{% endif %}
     <h3>Уроки</h3>
     <p>{% if e.lessons %}{{ e.lessons | join(", ") }}{% else %}добавлено вручную{% endif %}</p>
-    {% if e.examples %}<h3>Пример</h3><p lang="fr">{{ e.examples[0].text }}</p>{% endif %}
+    {% if e.examples %}<h3>{{ "Примеры" if e.examples | length > 1 else "Пример" }}</h3>
+      {% for x in e.examples %}<p class="entry-example"><span lang="fr">{{ x.text }}</span>{% if x.lesson %} <small class="muted">урок {{ x.lesson }}</small>{% endif %}</p>{% endfor %}{% endif %}
     <h3>Повторения</h3>
     <p>{% if history %}{{ history | length }} (последнее: {{ history[-1].reviewed_at[:10] }}){% else %}ещё не было{% endif %}</p>
   </details>

@@ -112,3 +112,72 @@ def test_delete_only_own_entries(repo: Path):
     editor(repo).delete("voc-chataaaa")
     assert "chat" not in vocab(repo)
     assert load_content(repo).errors == []
+
+
+# --- 006: добавление из текста (research R7, FR-012–FR-014) ----------------------------------
+
+
+def test_add_word_from_text_with_example_and_service_origin(repo: Path):
+    entry_id, merged = editor(repo).add_word(
+        text="acheter",
+        translations=["покупать"],
+        topics=[],
+        entry_type="verb",
+        example="Elles achètent des pommes.",
+        source_lesson=15,
+        translation_origin="service",
+    )
+    assert not merged
+    entry = vocab(repo)["acheter"]
+    assert entry.id == entry_id and entry.entry_type == "verb"
+    assert entry.origin == "user"
+    assert [(t.text, t.lesson, t.origin) for t in entry.translations] == [
+        ("покупать", 15, "service")
+    ]
+    assert [(e.text, e.lesson) for e in entry.examples] == [("Elles achètent des pommes.", 15)]
+    assert entry.lessons == [] and entry.topics == []  # не слово преподавателя, без темы
+    assert entry.needs_completion
+    assert load_content(repo).errors == []
+
+
+def test_add_noun_from_text_keeps_gender(repo: Path):
+    # FR-012: род у существительного — как при быстром вводе (003), если определён
+    editor(repo).add_word(
+        text="crêpe",
+        translations=["блин"],
+        topics=[],
+        article="la",
+        gender="f",
+        example="Claire mange une crêpe.",
+        translation_origin="service",
+    )
+    entry = vocab(repo)["crêpe"]
+    assert (entry.article, entry.gender, entry.pos) == ("la", "f", "nom")
+
+
+def test_add_again_is_not_a_duplicate_and_example_added_once(repo: Path):
+    words = dict(text="acheter", translations=["покупать"], topics=[], entry_type="verb")
+    first, _ = editor(repo).add_word(
+        **words, example="Elles achètent des pommes.", source_lesson=15
+    )
+    again, merged = editor(repo).add_word(**words, example="Il achète du pain.", source_lesson=16)
+    third, _ = editor(repo).add_word(**words, example="Il achète du pain.", source_lesson=16)
+    assert merged and first == again == third
+    entry = vocab(repo)["acheter"]
+    assert [e.text for e in entry.examples] == ["Elles achètent des pommes.", "Il achète du pain."]
+    assert len(entry.translations) == 1
+    assert len([e for e in vocab(repo).values() if e.text == "acheter"]) == 1
+
+
+def test_phrase_from_text_without_example_duplicate(repo: Path):
+    editor(repo).add_word(
+        text="Il y a beaucoup de monde.",
+        translations=["Много народу."],
+        topics=[],
+        entry_type="phrase",
+        example=None,
+        translation_origin="service",
+    )
+    entry = vocab(repo)["Il y a beaucoup de monde."]
+    assert entry.entry_type == "phrase" and entry.examples == []
+    assert not entry.needs_completion

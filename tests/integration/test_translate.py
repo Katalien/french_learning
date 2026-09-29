@@ -107,3 +107,91 @@ def test_html_flag_and_script(client):
     assert "/static/js/translate.js" in html
     client.cookies.set("translate", "0")
     assert re.search(r'<html[^>]*data-translate="0"', client.get("/lessons").text)
+
+
+# --- «+ В словарь» из текста (US2, T022) -----------------------------------------------------
+
+
+@pytest.fixture
+def git_repo(content_root):
+    import subprocess
+
+    for args in (
+        ["init", "-q"],
+        ["add", "-A"],
+        ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "init"],
+    ):
+        subprocess.run(["git", "-C", str(content_root), *args], check=True, capture_output=True)
+    return content_root
+
+
+def add(client, **payload):
+    return client.post("/vocab/from-text", json=payload)
+
+
+def vocab_file(root, entry_id):
+    import yaml
+
+    return yaml.safe_load((root / "vocabulary" / f"{entry_id}.yaml").read_text(encoding="utf-8"))
+
+
+def test_add_verb_from_text(client, fake, git_repo):
+    sentence = "Elles achètent des pommes, du fromage et une baguette."
+    response = add(client, text="achètent", sentence=sentence, lesson=1)
+    assert response.status_code == 201
+    data = response.json()
+    assert (data["text"], data["translation"], data["merged"]) == ("acheter", "покупают", False)
+    saved = vocab_file(git_repo, data["id"])
+    assert saved["entry_type"] == "verb" and saved["text"] == "acheter"
+    assert saved["translations"] == [{"text": "покупают", "lesson": 1, "origin": "service"}]
+    assert saved["examples"] == [{"text": sentence, "lesson": 1}]
+    assert saved["topics"] == [] and "lessons" not in saved
+    # после добавления подсказка показывает «✓ в словаре»
+    again = get(client, "achètent").json()
+    assert again["entry"]["id"] == data["id"] and again["can_add"] is False
+
+
+def test_add_noun_gets_gender_from_article_before(client, fake, git_repo):
+    data = add(
+        client, text="crêpe", sentence="Claire mange une crêpe au chocolat.", lesson=1
+    ).json()
+    saved = vocab_file(git_repo, data["id"])
+    assert (saved["text"], saved["article"], saved["gender"]) == ("crêpe", "la", "f")
+
+
+def test_add_phrase_and_sentence(client, fake, git_repo):
+    phrase = add(client, text="il y a", sentence="Il y a beaucoup de monde.").json()
+    assert vocab_file(git_repo, phrase["id"])["entry_type"] == "phrase"
+    sentence = "Il y a beaucoup de monde."
+    whole = add(client, text=sentence, sentence=sentence).json()
+    saved = vocab_file(git_repo, whole["id"])
+    assert saved["entry_type"] == "phrase" and "examples" not in saved  # пример не дублируется
+
+
+def test_add_twice_is_merged(client, fake, git_repo):
+    first = add(client, text="achètent", sentence="Elles achètent des pommes.").json()
+    second = add(client, text="achète", sentence="Il achète du pain.")
+    assert second.status_code == 201
+    assert second.json()["merged"] is True and second.json()["id"] == first["id"]
+    saved = vocab_file(git_repo, first["id"])
+    assert [e["text"] for e in saved["examples"]] == [
+        "Elles achètent des pommes.",
+        "Il achète du pain.",
+    ]
+
+
+def test_add_rejected(client, fake, git_repo):
+    assert add(client, text="Il y a du monde. Claire mange.", sentence="").status_code == 422
+    assert add(client, text="", sentence="").status_code == 422
+    assert add(client, text="кот", sentence="").status_code == 422
+    client.app.state.translation.translator = lambda: FakeTranslator(fail=True)
+    assert add(client, text="baguette", sentence="").status_code == 422
+
+
+def test_entry_page_shows_example_lesson_and_service_origin(client, fake, git_repo):
+    data = add(client, text="achètent", sentence="Elles achètent des pommes.", lesson=1).json()
+    html = client.get(f"/vocab/{data['id']}").text
+    assert "Elles achètent des pommes." in html and "урок 1" in html
+    assert "внешний сервис" not in html
+    client.cookies.set("show_origin", "1")
+    assert "внешний сервис" in client.get(f"/vocab/{data['id']}").text

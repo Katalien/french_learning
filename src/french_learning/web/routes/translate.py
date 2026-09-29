@@ -6,10 +6,16 @@ API — contracts/translate-api.md. Ошибки — `{"error": "…"}`. Во в
 
 from __future__ import annotations
 
+import re
+from typing import Any
+
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
+from french_learning.translate.lemma import add_as
+from french_learning.translate.normalize import has_cyrillic, is_multi_sentence, normalize_key
 from french_learning.translate.providers import Translator, make_translator
+from french_learning.translate.service import find_entry
 from french_learning.vocab.entries import vocab_entries
 from french_learning.web.deps import Index
 
@@ -40,3 +46,68 @@ def translate(request: Request, index: Index, q: str = ""):
     except ValueError as error:
         return _error(422, str(error))
     return result.to_dict()
+
+
+def _word_before(text: str, sentence: str) -> str | None:
+    """Слово прямо перед выделенным в предложении — для рода по артиклю (une crêpe)."""
+    at = sentence.casefold().find(text.casefold())
+    if at <= 0:
+        return None
+    words = re.findall(r"[\w'’]+", sentence[:at])
+    return words[-1] if words else None
+
+
+@router.post("/vocab/from-text")
+async def vocab_from_text(request: Request, index: Index):
+    """«+ В словарь» из подсказки: слово в начальной форме или фраза как есть, с переводом,
+    предложением-примером и уроком; без темы (FR-012–FR-014, data-model)."""
+    from french_learning.content.writer import WriteError
+    from french_learning.vocab.edits import VocabEditor, VocabError
+
+    try:
+        payload: Any = await request.json()
+    except ValueError:
+        payload = None
+    if not isinstance(payload, dict):
+        return _error(422, "ожидался JSON-объект")
+    text = " ".join(str(payload.get("text") or "").split())
+    sentence = " ".join(str(payload.get("sentence") or "").split())
+    lesson = payload.get("lesson")
+    lesson = lesson if isinstance(lesson, int) and lesson > 0 else None
+    if not text or has_cyrillic(text):
+        return _error(422, "в словарь добавляется французский текст")
+    if is_multi_sentence(text):
+        return _error(422, "абзац в словарь не добавляется — выделите слово, фразу или предложение")
+
+    entries = vocab_entries(index)
+    result = request.app.state.translation.translate(text, entries)
+    if result.translation is None:
+        return _error(422, result.error or "перевода нет")
+    target = add_as(text, before=_word_before(text, sentence))
+    existing = find_entry(entries, text, target.text, result.lemma)
+    translations = [t.text for t in existing.translations] if existing else [result.translation]
+    origin = "service" if result.source in ("service", "cache") else "user"
+    same_as_sentence = normalize_key(text) == normalize_key(sentence)
+    try:
+        entry_id, merged = VocabEditor(request.app.state.settings.content_dir).add_word(
+            text=existing.text if existing else target.text,
+            translations=translations,
+            topics=[],
+            article=None if existing else target.article,
+            gender=None if existing else target.gender,
+            entry_type=existing.entry_type if existing else target.entry_type,
+            example=sentence if sentence and not same_as_sentence else None,
+            source_lesson=lesson,
+            translation_origin=origin,
+        )
+    except (VocabError, WriteError) as error:
+        return _error(422, str(error))
+    return JSONResponse(
+        {
+            "id": entry_id,
+            "text": existing.text if existing else target.text,
+            "translation": ", ".join(translations),
+            "merged": merged,
+        },
+        status_code=201,
+    )

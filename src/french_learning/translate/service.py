@@ -75,6 +75,8 @@ class TranslationService:
             translation = translator.translate(text)
         except (TranslationUnavailable, TranslatorNotConfigured):
             return None, "none"
+        if text[:1].islower() and translation[:1].isupper():
+            translation = translation[:1].lower() + translation[1:]  # MyMemory: «Официант»
         self.cache.put(text, translation, translator.name)
         return translation, "service"
 

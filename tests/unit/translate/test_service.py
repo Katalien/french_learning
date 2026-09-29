@@ -162,3 +162,10 @@ def test_to_dict_has_contract_fields(cache):
         "can_add",
         "add_as",
     }
+
+
+def test_service_capital_letter_follows_selection(cache):
+    # MyMemory часто пишет перевод с заглавной — для строчного слова это лишнее
+    translator = FakeTranslator({"serveuse": "Официантка", "Bonjour": "Здравствуйте"})
+    assert service(cache, translator).translate("serveuse", []).translation == "официантка"
+    assert service(cache, translator).translate("Bonjour", []).translation == "Здравствуйте"
