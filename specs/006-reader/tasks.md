@@ -83,7 +83,7 @@ contracts/translate-api.md, contracts/ui-routes.md, quickstart.md, mockups/index
 
 - [X] T032 Проверка quickstart §6 (начальная форма, SC-005) и §7 (тема, 375 px)
 - [X] T033 [P] ruff, весь pytest; `CLAUDE.md` проекта (пакет `translate/`, `translate.js`, ключ DeepL в `.env`); `.env.example`
-- [ ] T034 Показ пользователю частями (перевод → в словарь → настройки), приёмка; CHANGELOG, ✅ в дорожной карте, слияние в main
+- [X] T034 Показ пользователю частями (перевод → в словарь → настройки), приёмка; CHANGELOG, ✅ в дорожной карте, слияние в main
 
 ---
 
