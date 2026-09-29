@@ -500,6 +500,21 @@ mark.note-anchor.pending { background: var(--note-hl); border-bottom-style: soli
 .sel-pop { position: absolute; z-index: 50; background: var(--surface-solid); border: 1px solid var(--pop-line); border-radius: 12px;
   box-shadow: var(--pop-shadow); padding: 3px; font-family: var(--font); max-width: calc(100vw - 16px); }
 .sel-strip { display: flex; gap: 2px; }
+/* перевод в подсказке (006, макет: белая карточка с тонкой лавандовой рамкой) */
+.tr-sec { width: 320px; max-width: calc(100vw - 24px); padding: .5rem .65rem .45rem; font-size: .93rem; }
+.tr-sec + .sel-strip { border-top: 1px solid var(--line); margin-top: 2px; padding-top: 2px; }
+.tr-head { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+.tr-src { font-weight: 700; color: var(--fr); overflow-wrap: anywhere; }
+.tr-close { border: 0; background: none; color: var(--muted); padding: 0 .2rem; min-height: 0; font-size: .95rem; cursor: pointer; }
+.tr-close:hover { color: var(--text); background: none; }
+.tr-text { margin: .3rem 0 .15rem; font-size: 1rem; overflow-wrap: anywhere; }
+.tr-error { color: var(--muted); font-size: .9rem; }
+.tr-lemma { color: var(--muted); font-size: .86rem; margin: .1rem 0; }
+.tr-lemma [lang="fr"] { color: var(--fr); }
+.tr-acts { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin-top: .4rem; }
+.tr-acts .speak { min-height: 1.9rem; }
+.tr-add { min-height: 1.9rem; }
+.tr-in-dict { display: inline-block; background: var(--ok-soft); color: var(--ok); border-radius: 6px; padding: .05rem .5rem; font-size: .82rem; font-weight: 600; }
 .sel-strip button { display: inline-flex; align-items: center; gap: .3rem; border: 0; background: none; border-radius: 8px; padding: .3rem .55rem;
   font-size: .82rem; color: var(--muted); cursor: pointer; }
 .sel-strip button:hover { background: var(--surface-2); color: var(--text); }

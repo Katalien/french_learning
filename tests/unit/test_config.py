@@ -31,3 +31,11 @@ def test_missing_content_dir_is_not_configured(monkeypatch, tmp_path: Path):
     assert not Settings(_env_file=None).content_configured
     monkeypatch.setenv("CONTENT_DIR", str(tmp_path / "missing"))
     assert not Settings(_env_file=None).content_configured
+
+
+def test_deepl_key_from_environment(monkeypatch):
+    # 006, research R3: ключ DeepL — только из окружения / .env, по умолчанию не задан
+    monkeypatch.delenv("DEEPL_API_KEY", raising=False)
+    assert Settings(_env_file=None).deepl_api_key is None
+    monkeypatch.setenv("DEEPL_API_KEY", "test-key:fx")
+    assert Settings(_env_file=None).deepl_api_key == "test-key:fx"

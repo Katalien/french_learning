@@ -33,4 +33,29 @@
   </fieldset>
   <button type="submit">Сохранить</button>
 </form>
+
+{# Перевод при выделении (006, T030) #}
+<form method="post" action="/settings/translator" class="card settings-form">
+  <h2>Перевод при выделении</h2>
+  <fieldset>
+    <legend>Сервис перевода</legend>
+    {% for key, name in translators.items() %}
+      <label><input type="radio" name="translator" value="{{ key }}" {% if translator == key %}checked{% endif %}> {{ name }}</label>
+    {% endfor %}
+    <p class="small muted">Ключ DeepL: {% if deepl_key_set %}ключ задан{% else %}ключ не задан — укажите
+      <code>DEEPL_API_KEY=…</code> в файле <code>.env</code> приложения и перезапустите его{% endif %}.
+      Ключ хранится только в <code>.env</code>, не в базе и не в репозиториях.</p>
+  </fieldset>
+  <label>Почта для MyMemory (необязательно — больше переводов в день)
+    <input type="email" name="mymemory_email" value="{{ mymemory_email }}" placeholder="не указана">
+  </label>
+  <p class="small muted">Если указать почту, она уйдёт в сервис перевода вместе с каждым запросом.
+    Во внешний сервис передаётся только выделенный фрагмент, не текст урока.</p>
+  <button type="submit">Сохранить</button>
+</form>
+<form method="post" action="/settings/translations/clear" class="card settings-form">
+  <p>Сохранённых переводов: {{ translations_count }}
+    <span class="small muted">— повторное выделение берёт перевод отсюда, без обращения к сервису.</span></p>
+  <button type="submit" class="outline" {% if not translations_count %}disabled{% endif %}>Очистить сохранённые переводы</button>
+</form>
 {% endblock %}

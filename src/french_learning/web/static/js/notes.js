@@ -573,7 +573,8 @@
 
   // полоска «пометка · вопрос» в подсказке выделения (секция 005)
   function selectionSection(ctx) {
-    if (!state.notes || !document.querySelector("[data-notes-json]")) return null;
+    // только внутри контейнера заметок (элемент урока); перевод (006) работает и вне его
+    if (!ctx.noteContainer || !document.querySelector("[data-notes-json]")) return null;
     const strip = document.createElement("div");
     strip.className = "sel-strip";
     if (state.rebind) {

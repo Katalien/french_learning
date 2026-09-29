@@ -1,6 +1,6 @@
 <!doctype html>
 {% set current = request.url.path %}
-<html lang="ru" data-theme="{{ ui_theme(request) }}">
+<html lang="ru" data-theme="{{ ui_theme(request) }}" data-translate="{{ '0' if request.cookies.get('translate') == '0' else '1' }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,6 +14,7 @@
   <script src="/static/js/speech.js?v={{ asset_version('js/speech.js') }}" defer></script>
   <script src="/static/js/symbols.js?v={{ asset_version('js/symbols.js') }}" defer></script>
   <script src="/static/js/selection.js?v={{ asset_version('js/selection.js') }}" defer></script>
+  <script src="/static/js/translate.js?v={{ asset_version('js/translate.js') }}" defer></script>
   <script src="/static/js/notes.js?v={{ asset_version('js/notes.js') }}" defer></script>
 </head>
 <body>
@@ -49,6 +50,12 @@
           <span>Происхождение</span>
           <input type="hidden" name="show" value="{{ '0' if origin_on else '1' }}">
           <span class="segmented"><button type="submit" class="{{ '' if origin_on else 'on' }}" {% if not origin_on %}disabled{% endif %}>скрыто</button><button type="submit" class="{{ 'on' if origin_on else '' }}" {% if origin_on %}disabled{% endif %}>везде</button></span>
+        </form>
+        {% set translate_on = request.cookies.get("translate") != "0" %}
+        <form method="post" action="/settings/translate" class="row">
+          <span>Перевод при выделении</span>
+          <input type="hidden" name="show" value="{{ '0' if translate_on else '1' }}">
+          <span class="segmented"><button type="submit" class="{{ '' if translate_on else 'on' }}" {% if not translate_on %}disabled{% endif %}>выкл</button><button type="submit" class="{{ 'on' if translate_on else '' }}" {% if translate_on %}disabled{% endif %}>вкл</button></span>
         </form>
         <form method="post" action="/settings/theme" class="row">
           <span>Оформление</span>

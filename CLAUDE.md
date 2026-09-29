@@ -36,6 +36,15 @@ SQLite для прогресса, pytest, ruff. Подробнее — конс�
 и `static/js/notes.js` (отметки фрагментов по цитате с контекстом, поле, окна). Разметка
 заметки в `notes.js` и `partials/note_item.html` должна совпадать.
 
+Перевод при выделении (006) — пакет `translate/` (`normalize.py` — ключ и проверки,
+`providers.py` — MyMemory / DeepL через `urllib`, `lemma.py` — начальная форма simplemma и вид
+записи, `cache.py` — запас `translations` в базе прогресса (схема v4), `service.py` — порядок
+«словарь → запас → сервис»), маршруты `web/routes/translate.py` (`/translate`,
+`/vocab/from-text`, настройки). В браузере — секция `static/js/translate.js` в общей подсказке
+`selection.js`; зоны перевода — `[data-note-container]`, `[data-translate]`, `[lang="fr"]`.
+Ключ DeepL — только `DEEPL_API_KEY` в `.env` (не в базе: база уходит в резервную копию).
+Во внешний сервис уходит только выделенное и его начальная форма; в тестах сеть подменяется.
+
 ## Критичные правила
 
 - НИКОГДА не коммить материалы уроков, распознанный контент и личные данные в этот

@@ -120,7 +120,7 @@
   <div class="notes-layout" data-notes-layout {% if with_notes %}data-notes-element="{{ e.id }}"{% endif %}>
   <div class="notes-main">
   <div class="split-layout" :class="{ 'is-split': split }">
-    <div class="split-main" {% if with_notes %}data-note-container="{{ e.id }}"{% endif %}>
+    <div class="split-main" data-translate {% if e.lesson %}data-lesson="{{ e.lesson }}"{% endif %} {% if with_notes %}data-note-container="{{ e.id }}"{% endif %}>
       {% if solve_mode %}{% include "exercises/solve.html" %}{% else %}{% include "partials/exercise.html" %}{% endif %}
     </div>
     <aside class="side-pane card" x-show="split" x-cloak aria-label="Теория или текст рядом">
@@ -142,7 +142,7 @@
 {% else %}
   <div class="notes-layout" data-notes-layout {% if with_notes %}data-notes-element="{{ e.id }}"{% endif %}>
   <div class="notes-main">
-  <article class="{{ e.kind }} reading" {% if e.kind == "text" %}lang="fr"{% endif %} {% if with_notes %}data-note-container="{{ e.id }}"{% endif %}>
+  <article class="{{ e.kind }} reading" data-translate {% if e.lesson %}data-lesson="{{ e.lesson }}"{% endif %} {% if e.kind == "text" %}lang="fr"{% endif %} {% if with_notes %}data-note-container="{{ e.id }}"{% endif %}>
     {{ e.body | markdown(path) }}
   </article>
   </div>
