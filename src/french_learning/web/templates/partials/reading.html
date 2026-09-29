@@ -1,9 +1,12 @@
 {# Раздел «Теория» / «Тексты» урока (009, FR-030): слева закреплённое оглавление всех элементов
-   раздела и их подзаголовков, справа элементы подряд. Переменные: items, kind ("theory" | "text") #}
+   раздела и их подзаголовков, справа элементы подряд. Переменные: items, kind ("theory" | "text").
+   Заметки (005, макет v8): кнопки «＋» и заметок над карточкой каждого элемента, поле справа снаружи
+   карточки; пока открыто поле, оглавление свёрнуто в полоску «≡» #}
+{% set with_notes = notes_json is defined %}
 {% if not items %}
   <p class="empty">Нет материалов.</p>
 {% else %}
-<div class="reading-layout">
+<div class="reading-layout" {% if with_notes %}data-notes-collapse{% endif %}>
   <nav class="reading-toc card" aria-label="Оглавление">
     {% for t in items %}
       <a class="toc-title" href="#{{ t.id }}" {% if kind == "text" %}lang="fr"{% endif %}>{{ t.title }}</a>
@@ -13,21 +16,34 @@
       {% endif %}
     {% endfor %}
   </nav>
+  {% if with_notes %}<button type="button" class="reading-toc-mini card" data-notes-close-all title="Оглавление свёрнуто, пока открыто поле заметок. Щёлкните — закрыть заметки и вернуть оглавление" aria-label="Показать оглавление">≡<span>Оглавление</span></button>{% endif %}
   <div class="reading-items">
     {% for t in items %}
-      <article class="{{ kind }} reading" id="{{ t.id }}">
-        <header><h2 {% if kind == "text" %}lang="fr"{% endif %}><a href="/elements/{{ t.id }}">{{ t.title }}</a></h2></header>
-        <div {% if kind == "text" %}lang="fr"{% endif %} {% if notes_json is defined %}data-note-container="{{ t.id }}"{% endif %}>{{ t.body | markdown(index.element_path(t.id), t.id) }}</div>
-        {% set exercises = index.linked_exercises(t.id) %}
-        {% if exercises %}
-          <details class="linked-exercises">
-            <summary>{{ "Упражнения к тексту" if kind == "text" else "Упражнения по этой теории" }} ({{ exercises | length }})</summary>
-            <ul class="plain-list">{% for x in exercises %}<li><a href="/elements/{{ x.id }}">{{ x.description_ru }}</a><span class="small muted">{{ PART_NAMES[x.part] }} · № {{ x.number }}</span></li>{% endfor %}</ul>
-          </details>
-        {% endif %}
-      </article>
+      <section class="reading-item" id="{{ t.id }}">
+        <header class="reading-head"><h2 {% if kind == "text" %}lang="fr"{% endif %}><a href="/elements/{{ t.id }}">{{ t.title }}</a></h2>
+          {% if with_notes %}<span class="btn-group">
+            <button type="button" class="outline btn-icon" data-notes-add="{{ t.id }}" title="Заметка ко всему {{ 'тексту' if kind == 'text' else 'разделу теории' }}" aria-label="Добавить заметку">＋</button>
+            <button type="button" class="outline btn-icon notes-toggle empty" data-notes-toggle="{{ t.id }}" data-count="0" title="Все заметки" aria-label="Заметки" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#i-note"/></svg><span class="n"></span></button>
+          </span>{% endif %}</header>
+        {% if with_notes %}<div class="notes-important" data-notes-important="{{ t.id }}"></div>{% endif %}
+        <div class="notes-layout" data-notes-layout {% if with_notes %}data-notes-element="{{ t.id }}"{% endif %}>
+          <div class="notes-main">
+            <article class="{{ kind }} reading">
+              <div {% if kind == "text" %}lang="fr"{% endif %} {% if with_notes %}data-note-container="{{ t.id }}"{% endif %}>{{ t.body | markdown(index.element_path(t.id), t.id) }}</div>
+              {% set exercises = index.linked_exercises(t.id) %}
+              {% if exercises %}
+                <details class="linked-exercises">
+                  <summary>{{ "Упражнения к тексту" if kind == "text" else "Упражнения по этой теории" }} ({{ exercises | length }})</summary>
+                  <ul class="plain-list">{% for x in exercises %}<li><a href="/elements/{{ x.id }}">{{ x.description_ru }}</a><span class="small muted">{{ PART_NAMES[x.part] }} · № {{ x.number }}</span></li>{% endfor %}</ul>
+                </details>
+              {% endif %}
+            </article>
+          </div>
+          {% if with_notes %}<aside class="notes-margin" data-notes-margin data-kind="{{ kind }}" hidden aria-label="Заметки"></aside>{% endif %}
+        </div>
+      </section>
     {% endfor %}
   </div>
 </div>
-{% if notes_json is defined %}<script type="application/json" id="notes-data" data-notes-json>{{ notes_json | safe }}</script>{% endif %}
+{% if with_notes %}<script type="application/json" id="notes-data" data-notes-json>{{ notes_json | safe }}</script>{% endif %}
 {% endif %}

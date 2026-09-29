@@ -274,11 +274,26 @@
 .reading h1, .reading h2, .reading h3, .reading header, .reading footer, .reading table { font-family: var(--font); }
 .reading h2 { margin-top: 1.3rem; }
 .reading header h2 { margin-top: 0; }
-.reading-items article { scroll-margin-top: 80px; }
+.reading-item { scroll-margin-top: 80px; margin-bottom: 1.8rem; }
+.reading-item article { margin: 0; }
+.reading-head { display: flex; align-items: center; gap: .75rem; margin-bottom: .6rem; }
+.reading-head h2 { flex: 1; margin: 0; font-size: 1.3rem; }
+.reading-head h2 a { color: var(--text); }
+/* заметки (005, макет v8): пока открыто поле, оглавление свёрнуто в полоску «≡» */
+.reading-toc-mini { display: none; }
+.reading-layout.notes-open { grid-template-columns: 44px minmax(0, 1fr); }
+.reading-layout.notes-open .reading-toc { display: none; }
+.reading-layout.notes-open .reading-toc-mini { display: flex; position: sticky; top: 72px; flex-direction: column; align-items: center; gap: .4rem;
+  width: 44px; margin: 0; padding: .6rem 0; border: 0; font-size: .8rem; color: var(--muted); cursor: pointer; }
+.reading-toc-mini span { writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: .05em; }
+.reading-toc-mini:hover { color: var(--primary-strong); }
 .reading [id] { scroll-margin-top: 80px; }
 @media (max-width: 900px) {
   .reading-layout { grid-template-columns: minmax(0, 1fr); }
   .reading-toc { position: static; max-height: none; }
+  .reading-layout.notes-open { grid-template-columns: minmax(0, 1fr); }
+  .reading-layout.notes-open .reading-toc { display: block; }
+  .reading-layout.notes-open .reading-toc-mini { display: none; }
 }
 
 /* Теория рядом с упражнением (009, FR-032) */
