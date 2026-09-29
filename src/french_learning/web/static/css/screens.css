@@ -589,3 +589,32 @@ mark.note-anchor.pending { background: var(--note-hl); border-bottom-style: soli
 .note-acts button, .sel-strip button, .note-form .tg, .note-form .btn-sm, .q-box, .fold2, .note-add, .q-badge,
 .note-lost button { min-height: 0; }
 .note-form .btn-sm { padding: 0 .7rem; }
+
+/* поиск: область, фильтры, группы результатов (007) */
+.search-controls { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-bottom: .5rem; }
+.search-controls .segmented label { display: inline-flex; align-items: center; cursor: pointer; padding: .15rem .6rem; font-size: .82rem; }
+.search-controls .segmented input { position: absolute; opacity: 0; pointer-events: none; }
+.search-controls .segmented label.on, .search-controls .segmented label:has(input:checked) { background: var(--primary-soft); color: var(--text); font-weight: 600; }
+.search-controls select { width: auto; margin: 0; min-height: 1.9rem; padding: .1rem .5rem; font-size: .82rem; }
+.search-group { margin: .5rem 0 .2rem; }
+.search-group h3 { margin: 0 0 .25rem; font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.search-group h3 .count { font-weight: 400; margin-left: .3rem; }
+.search-list { list-style: none; margin: 0; padding: 0; }
+.search-item { padding: .3rem .35rem; border-radius: 7px; font-size: .92rem; }
+.search-item:hover { background: var(--surface-2); }
+.search-item [lang="fr"] { color: var(--fr); font-weight: 600; }
+.search-snippet { margin: .15rem 0 0; font-size: .84rem; color: var(--muted); line-height: 1.45; }
+.search-snippet mark, mark.search-hit { background: var(--primary-soft); color: var(--text); border-radius: 3px; padding: 0 .1em; }
+.search-more, .search-all { display: inline-block; font-size: .82rem; margin: .15rem .35rem; }
+.search-all { display: block; border-top: 1px solid var(--line); margin: .5rem 0 0; padding-top: .45rem; }
+.search-empty { color: var(--muted); margin: .4rem .2rem; }
+.search-page-form { display: grid; gap: .6rem; }
+.search-page-form input[type="search"] { margin: 0; }
+.search-page .search-group { background: var(--surface); border-radius: var(--radius); padding: .8rem 1rem; margin-bottom: 1rem; }
+mark.search-hit.current { background: var(--ring); outline: 2px solid var(--primary); }
+.search-bar { position: sticky; top: 64px; z-index: 15; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem;
+  margin: 0 0 .8rem; padding: .45rem .8rem; background: var(--surface-solid); border: 1px solid var(--pop-line);
+  border-radius: 10px; box-shadow: var(--shadow); font-size: .88rem; }
+.search-bar .sp { flex: 1; }
+.search-bar .q { color: var(--fr); font-weight: 600; }
+@media (max-width: 760px) { .search-bar { position: static; } }

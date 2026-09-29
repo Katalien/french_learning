@@ -1,0 +1,17 @@
+{# Область и фильтры поиска (007, FR-009). Поля входят в форму поиска: в шапке — через HTMX,
+   на странице результатов — отправкой формы. Переменные: query, scope_names, lessons, topics #}
+<div class="search-controls">
+  <span class="segmented" role="radiogroup" aria-label="Где искать">
+    {% for key, name in scope_names.items() %}
+      <label class="{{ 'on' if query.scope == key else '' }}"><input type="radio" name="scope" value="{{ key }}" {% if query.scope == key %}checked{% endif %}>{{ name }}</label>
+    {% endfor %}
+  </span>
+  <select name="lesson" aria-label="Урок">
+    <option value="">все уроки</option>
+    {% for l in lessons %}<option value="{{ l.number }}" {% if query.lesson == l.number %}selected{% endif %}>урок {{ l.number }}</option>{% endfor %}
+  </select>
+  <select name="topic" aria-label="Тема">
+    <option value="">все темы</option>
+    {% for t in topics %}<option value="{{ t.id }}" {% if query.topic == t.id %}selected{% endif %}>{{ t.name }}</option>{% endfor %}
+  </select>
+</div>

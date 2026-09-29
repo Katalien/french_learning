@@ -1,0 +1,4 @@
+{# Панель под строкой поиска в шапке (007, HTMX-фрагмент /search/panel) #}
+{% include "search/_controls.html" %}
+<div class="search-results">{% include "search/_groups.html" %}</div>
+{% if results.total %}<a class="search-all" href="{{ search_link() }}">Все результаты ({{ results.total }})</a>{% endif %}
