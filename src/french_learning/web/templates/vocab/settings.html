@@ -31,6 +31,8 @@
     {% if voices_missing %}<p class="muted">Голоса ещё не скачаны: выполните в терминале
       <code>uv run french-learning tts-download</code> (около 130 МБ, один раз).</p>{% endif %}
   </fieldset>
+  <label class="check"><input type="checkbox" name="search_translations" value="1" {% if search_translations %}checked{% endif %}>
+    Показывать перевод у найденных слов в поиске</label>
   <button type="submit">Сохранить</button>
 </form>
 

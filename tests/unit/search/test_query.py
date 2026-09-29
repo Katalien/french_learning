@@ -129,3 +129,71 @@ def test_theory_snippet_around_first_match(index):
 def test_theory_title_only_match_has_no_snippet(index):
     result = search(index, Query("демо", scope="theory")).groups["theory"]
     assert all(r.snippet is None or any(hit for _p, hit in r.snippet) for r in result)
+
+
+# --- SC-001, SC-002: скорость и контрольные запросы (T026) ------------------------------------
+
+
+def _synthetic_index():
+    import random
+
+    from french_learning.search.index import Doc, SearchIndex, _field
+
+    rng = random.Random(7)
+    syllables = ["ma", "son", "pre", "tre", "cha", "lu", "ven", "dor", "fê", "té", "ou", "ré"]
+
+    def word():
+        return "".join(rng.choice(syllables) for _ in range(rng.randint(2, 4)))
+
+    docs = []
+    for n in range(5000):
+        text = f"le {word()}"
+        docs.append(
+            Doc("word", f"w{n}", text, f"/vocab/w{n}", [_field("fr", text), _field("ru", "слово")])
+        )
+    for lesson in range(1, 51):
+        body = " ".join(word() for _ in range(1500))
+        docs.append(
+            Doc(
+                "theory",
+                f"t{lesson}",
+                f"Правило {lesson}",
+                f"/elements/t{lesson}",
+                [_field("title", f"Правило {lesson}"), _field("text", body)],
+                lessons={lesson},
+                lesson_order=lesson,
+            )
+        )
+    return SearchIndex(docs, {})
+
+
+def test_search_is_fast_on_large_content():
+    import time
+
+    index = _synthetic_index()
+    for q in ("ma", "maison", "fe te", "правило 4"):
+        start = time.perf_counter()
+        search(index, Query(q))
+        assert time.perf_counter() - start < 0.1, q  # SC-001: с запасом до 0,3 с
+
+
+@pytest.mark.parametrize(
+    ("q", "group", "expected"),
+    [
+        ("MAISON", "words", "voc-maisonaa"),  # регистр
+        ("maisons", "words", None),  # формы слова не ищутся
+        ("mais", "words", "voc-maisonaa"),  # начало слова
+        ("eau", "words", "voc-eauaaaaa"),  # апостроф
+        ("l'eau", "words", "voc-eauaaaaa"),
+        ("l’eau", "words", "voc-eauaaaaa"),
+        ("etre", "topics", "top-etreverb"),  # диакритика
+        ("ÊTRE", "topics", "top-etreverb"),
+        ("вода", "words", "voc-eauaaaaa"),  # русский
+        ("хлеб", "words", "voc-painaaaa"),
+        ("носовые зву", "topics", "top-nasalson"),  # фраза, последнее — по началу
+        ("le chat", "words", "voc-chataaaa"),
+    ],
+)
+def test_control_queries(index, q, group, expected):
+    found = ids(search(index, Query(q)), group)
+    assert (expected in found) if expected else not found

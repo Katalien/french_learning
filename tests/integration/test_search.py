@@ -131,3 +131,20 @@ def test_highlight_script_on_pages(client):
     html = client.get("/elements/th-articles", params={"hl": "les"}).text
     assert "/static/js/search.js" in html
     assert 'data-note-container="th-articles"' in html
+
+
+# --- настройка «перевод у найденных слов» (T023) ---------------------------------------------
+
+
+def test_translation_setting(client):
+    db = client.app.state.progress_db
+    assert db.get_setting("search_translations") == "1"
+    settings = client.get("/settings").text
+    assert re.search(r'name="search_translations"[^>]*checked', settings)
+    form = {"portion_size": "20", "directions": "staged", "voice": "siwis"}
+    client.post("/settings", data=form)  # флажок снят — в форме его нет
+    assert db.get_setting("search_translations") == "0"
+    assert "— дом" not in panel(client, q="maison")
+    client.post("/settings", data={**form, "search_translations": "1"})
+    assert db.get_setting("search_translations") == "1"
+    assert "— дом" in panel(client, q="maison")

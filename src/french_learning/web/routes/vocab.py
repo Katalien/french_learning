@@ -541,6 +541,7 @@ def settings_page(request: Request, index: Index):
         "voice": db.get_setting("voice"),
         "voices": {key: name for key, (_code, name) in VOICES.items()},
         "voices_missing": not request.app.state.speaker.available(db.get_setting("voice")),
+        "search_translations": db.get_setting("search_translations") != "0",
     }
     from french_learning.web.routes.translate import settings_context
 
@@ -557,6 +558,7 @@ def settings_save(
     exercise_list_view: Annotated[str, Form()] = "",
     directions: Annotated[str, Form()] = "staged",
     voice: Annotated[str, Form()] = DEFAULT_VOICE,
+    search_translations: Annotated[str, Form()] = "0",
 ):
     db = request.app.state.progress_db
     if not portion_size.isdigit() or not 1 <= int(portion_size) <= 500:
@@ -576,6 +578,7 @@ def settings_save(
         db.set_setting("exercise_list_view", exercise_list_view)
     db.set_setting("portion_size", str(int(portion_size)))
     db.set_setting("directions", directions)
+    db.set_setting("search_translations", "1" if search_translations == "1" else "0")
     return _redirect("/settings?notice=Настройки сохранены.")
 
 

@@ -25,6 +25,7 @@ DEFAULT_SETTINGS = {
     "trainer_portion_size": "20",
     "exercise_list_view": "rows",
     "translator": "mymemory",
+    "search_translations": "1",
 }
 
 _SCHEMA = """
