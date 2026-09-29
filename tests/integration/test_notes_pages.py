@@ -90,6 +90,19 @@ def test_header_buttons_and_important(client):
     assert "ВАЖНО: être" in strip and "обычная" not in strip
 
 
+def test_reading_sections_have_buttons_per_element(client):
+    # в разделах «Тексты» и «Теория» урока у каждого элемента свои «＋», «📝 N» и поле справа
+    for section, element_id in (("texts", "tx-aucafeaa"), ("theory", "th-articles")):
+        html = client.get(f"/lessons/1/{section}").text
+        assert f'data-notes-add="{element_id}"' in html
+        assert f'data-notes-toggle="{element_id}"' in html
+        assert f'data-notes-important="{element_id}"' in html
+        assert re.search(rf'data-notes-layout data-notes-element="{element_id}"', html)
+        assert "data-notes-margin" in html
+        # пока открыто поле, оглавление сворачивается; «≡» закрывает поля (макет v8)
+        assert "data-notes-collapse" in html and "data-notes-close-all" in html
+
+
 # --- US5: страница «Заметки к уроку» ----------------------------------------------------------
 
 

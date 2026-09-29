@@ -6,8 +6,7 @@
   const state = {
     notes: new Map(), // id → заметка элементов этой страницы
     lost: new Set(), // якорь не найден в тексте
-    element: null, // основной элемент страницы элемента
-    open: false, // поле справа
+    open: new Set(), // элементы с открытым полем справа
     float: null, // открытая по щелчку заметка
     rebind: null, // заметка, которую привязывают заново
   };
@@ -223,29 +222,44 @@
     </div>`;
   }
 
-  // --- страница элемента: кнопка, важные, поле справа ----------------------------------------
+  // --- элементы страницы: кнопки, важные, поле справа -----------------------------------------
+  // На странице элемента он один; в разделах урока «Теория» и «Тексты» — несколько подряд.
+  // Кнопки и полоска важных связаны с элементом значением атрибута (data-notes-toggle="id").
 
-  const layout = () => document.querySelector("[data-notes-layout][data-notes-element]");
-  const elementNotes = () => [...state.notes.values()].filter((n) => n.element_id === state.element);
+  const sel = (attr, id) => `[${attr}="${CSS.escape(id)}"]`;
+  const layouts = () => [...document.querySelectorAll("[data-notes-layout][data-notes-element]")];
+  const layoutOf = (id) => document.querySelector(`[data-notes-layout]${sel("data-notes-element", id)}`);
+  const marginOf = (id) => layoutOf(id)?.querySelector("[data-notes-margin]");
+  const elementOf = (node) => node.closest("[data-notes-layout][data-notes-element]")?.dataset.notesElement;
+  const elementNotes = (id) => [...state.notes.values()].filter((n) => n.element_id === id);
 
   function renderElement() {
-    if (!state.element) return;
-    const notes = elementNotes();
-    const toggle = document.querySelector("[data-notes-toggle]");
+    layouts().forEach((box) => renderOne(box.dataset.notesElement));
+    // разделы «Теория» и «Тексты»: пока открыто поле, оглавление свёрнуто (макет v8)
+    document.querySelectorAll("[data-notes-collapse]").forEach((node) => {
+      const open = [...node.querySelectorAll("[data-notes-margin]")].some((m) => !m.hidden);
+      node.classList.toggle("notes-open", open);
+    });
+  }
+
+  function renderOne(id) {
+    const notes = elementNotes(id);
+    const open = state.open.has(id);
+    const toggle = document.querySelector(sel("data-notes-toggle", id));
     if (toggle) {
       toggle.dataset.count = notes.length;
       toggle.querySelector(".n").textContent = notes.length || "";
       toggle.classList.toggle("empty", !notes.length);
-      toggle.setAttribute("aria-expanded", String(state.open));
+      toggle.setAttribute("aria-expanded", String(open));
     }
-    const strip = document.querySelector("[data-notes-important]");
+    const strip = document.querySelector(sel("data-notes-important", id));
     if (strip) strip.innerHTML = notes.filter((n) => n.important).map((n) => noteHTML(n)).join("");
-    const box = layout();
+    const box = layoutOf(id);
     const margin = box?.querySelector("[data-notes-margin]");
     if (!margin) return;
-    box.classList.toggle("with-margin", state.open);
-    margin.hidden = !state.open;
-    if (!state.open) {
+    box.classList.toggle("with-margin", open);
+    margin.hidden = !open;
+    if (!open) {
       margin.innerHTML = "";
       return;
     }
@@ -264,13 +278,14 @@
       (frag.length ? `<div class="note-cap" data-cap="frag">К фрагментам</div>` : "") +
       frag.map((n) => noteHTML(n, { withId: true }).replace('class="note-item', 'data-anchored="1" class="note-item')).join("") +
       `<button type="button" class="note-add" data-note-act="add-whole">+ заметка</button>`;
-    requestAnimationFrame(layoutMargin);
+    requestAnimationFrame(() => layoutMargin(margin));
   }
 
+  const layoutMargins = () => state.open.forEach((id) => layoutMargin(marginOf(id)));
+
   // заметки к фрагментам — на уровне своих строк, остальные — сверху, без наложений
-  function layoutMargin() {
-    const margin = layout()?.querySelector("[data-notes-margin]");
-    if (!margin || !state.open) return;
+  function layoutMargin(margin) {
+    if (!margin || margin.hidden) return;
     const items = [...margin.children];
     if (!wide()) {
       items.forEach((node) => (node.style.top = ""));
@@ -311,8 +326,8 @@
     closeFloat();
     const ids = idsAt(mark).filter((id) => state.notes.has(id));
     if (!ids.length) return;
-    const margin = layout()?.querySelector("[data-notes-margin]");
-    if (state.open && margin && !margin.hidden) {
+    const margin = marginOf(elementOf(mark) || "");
+    if (margin && !margin.hidden) {
       // поле открыто — подсветить заметки на поле
       ids.forEach((id) => {
         const item = margin.querySelector(`[data-note-id="${id}"]`);
@@ -444,7 +459,8 @@
         save();
       } else if (event.key === "Escape") form.remove();
     });
-    if (after.closest("[data-notes-margin]")) requestAnimationFrame(layoutMargin);
+    const margin = after.closest("[data-notes-margin]");
+    if (margin) requestAnimationFrame(() => layoutMargin(margin));
   }
 
   function confirmDelete(note) {
@@ -506,7 +522,7 @@
     const id = Number(item?.dataset.noteId);
     const action = button.dataset.noteAct;
     const inRegion = Boolean(item?.closest("[data-notes-region]"));
-    if (action === "add-whole") return addWhole(button);
+    if (action === "add-whole") return addWhole(button, elementOf(button));
     const note = await noteById(id);
     if (action === "answer") {
       const row = item.querySelector(".qi-row") || item;
@@ -542,13 +558,15 @@
     }
   }
 
-  function addWhole(at) {
+  function addWhole(at, elementId) {
+    if (!elementId) return;
     openForm({
       at,
       onSave: async (values) => {
-        const saved = await api("POST", "/notes", { ...values, element_id: state.element });
+        const saved = await api("POST", "/notes", { ...values, element_id: elementId });
         remember(saved);
-        toast(state.open || saved.important ? "Заметка сохранена" : "Заметка сохранена — видна по кнопке заметок");
+        const shown = state.open.has(elementId) || saved.important;
+        toast(shown ? "Заметка сохранена" : "Заметка сохранена — видна по кнопке заметок");
       },
     });
   }
@@ -614,7 +632,6 @@
   }
 
   function init() {
-    state.element = layout()?.dataset.notesElement || null;
     if (loadData()) placeAnchors();
     renderElement();
     const hash = window.location.hash.match(/^#note-(\d+)$/);
@@ -625,7 +642,7 @@
         mark.scrollIntoView({ block: "center" });
         showFloat(mark);
       } else if (!note.important) {
-        state.open = true;
+        state.open.add(note.element_id);
         renderElement();
         requestAnimationFrame(() => {
           const item = document.getElementById(`note-${note.id}`);
@@ -646,15 +663,23 @@
       act(button);
       return;
     }
-    if (event.target.closest("[data-notes-toggle]")) {
-      state.open = !state.open;
+    const toggle = event.target.closest("[data-notes-toggle]");
+    if (toggle) {
+      const id = toggle.dataset.notesToggle;
+      if (!state.open.delete(id)) state.open.add(id);
+      closeFloat();
+      renderElement();
+      return;
+    }
+    if (event.target.closest("[data-notes-close-all]")) {
+      state.open.clear();
       closeFloat();
       renderElement();
       return;
     }
     const add = event.target.closest("[data-notes-add]");
     if (add) {
-      addWhole(add);
+      addWhole(add, add.dataset.notesAdd);
       return;
     }
     const mark = event.target.closest("mark.note-anchor:not(.pending)");
@@ -697,7 +722,7 @@
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
       closeFloat();
-      layoutMargin();
+      layoutMargins();
     }, 120);
   });
 

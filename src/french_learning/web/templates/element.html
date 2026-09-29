@@ -32,8 +32,8 @@
   </div>
   <div class="btn-group">
     {% if with_notes %}
-      <button type="button" class="outline btn-icon" data-notes-add title="Заметка ко всему {{ 'упражнению' if e.kind == 'exercise' else ('тексту' if e.kind == 'text' else 'разделу теории') }}" aria-label="Добавить заметку">＋</button>
-      <button type="button" class="outline btn-icon notes-toggle {% if not element_notes %}empty{% endif %}" data-notes-toggle data-count="{{ element_notes | length }}" title="Все заметки" aria-label="Заметки" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#i-note"/></svg><span class="n">{{ element_notes | length or "" }}</span></button>
+      <button type="button" class="outline btn-icon" data-notes-add="{{ e.id }}" title="Заметка ко всему {{ 'упражнению' if e.kind == 'exercise' else ('тексту' if e.kind == 'text' else 'разделу теории') }}" aria-label="Добавить заметку">＋</button>
+      <button type="button" class="outline btn-icon notes-toggle {% if not element_notes %}empty{% endif %}" data-notes-toggle="{{ e.id }}" data-count="{{ element_notes | length }}" title="Все заметки" aria-label="Заметки" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#i-note"/></svg><span class="n">{{ element_notes | length or "" }}</span></button>
     {% endif %}
     <button type="button" class="outline btn-icon" title="Происхождение" aria-label="Происхождение" @click="info = !info; settings = false" :aria-expanded="info">ⓘ</button>
     <button type="button" class="outline btn-icon" title="Настройки" aria-label="Настройки" @click="settings = !settings; info = false" :aria-expanded="settings">⚙</button>
@@ -41,7 +41,7 @@
 </header>
 
 {% if with_notes %}
-<div class="notes-important" data-notes-important>{% for n in element_notes if n.important %}{{ note_item(n) }}{% endfor %}</div>
+<div class="notes-important" data-notes-important="{{ e.id }}">{% for n in element_notes if n.important %}{{ note_item(n) }}{% endfor %}</div>
 {% endif %}
 
 {% if show_origin %}
