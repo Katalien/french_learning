@@ -357,7 +357,7 @@ mark.anchor:hover, mark.anchor.hl { background: var(--note-hl); }
   <div class="grp"><span class="lbl">Перевод при выделении (006):</span><button data-set="tr" data-val="on">включён</button><button data-set="tr" data-val="off">выключен в «⋯»</button>
     <span class="lbl" style="margin-left:.5rem">когда перевода нет:</span><button data-set="off" data-val="strip">полоска из двух значков</button><button data-set="off" data-val="none">ничего (только «＋»)</button></div>
   <div class="grp"><span class="lbl">Тема:</span><button data-set="theme" data-val="light">светлая</button><button data-set="theme" data-val="dark">тёмная</button></div>
-  <span class="hint"><b>К вопросу 2:</b> выделите фразу в тексте с переводом «включён» и «выключен»; на странице «упражнение» перевода нет, пока не нажата «Проверить». <b>Значки</b> меняются везде: шапка, кнопки, подсказка, страница урока.<br>Enter — сохранить, Shift+Enter — новая строка. Щёлкните отмеченный фрагмент — откроется его заметка.</span>
+  <span class="hint"><b>К вопросу 2:</b> выделите фразу в тексте с переводом «включён» и «выключен». <b>Значки</b> меняются везде: шапка, кнопки, подсказка, страница урока.<br>Enter — сохранить, Shift+Enter — новая строка. Щёлкните отмеченный фрагмент — откроется его заметка.</span>
 </div>
 
 <header class="app-head">
@@ -417,7 +417,7 @@ mark.anchor:hover, mark.anchor.hl { background: var(--note-hl); }
             <div class="ex-item" lang="fr"><span class="num">2.</span><span>Elle <input> monté les valises au troisième étage.</span></div>
             <div class="ex-item" lang="fr"><span class="num">3.</span><span>Ils <input> descendus du train à Lyon.</span></div>
             <div class="ex-item" lang="fr"><span class="num">4.</span><span>J'<input> sorti le chien ce matin.</span></div>
-            <p style="margin:.8rem 0 0"><button class="btn" id="ex-check" style="height:2rem;font-size:.9rem;padding:0 1rem">Проверить</button><span class="ex-state" id="ex-state">ответ не проверен — перевод при выделении недоступен</span></p>
+            <p style="margin:.8rem 0 0"><button class="btn" id="ex-check" style="height:2rem;font-size:.9rem;padding:0 1rem">Проверить</button></p>
           </article>
           <div class="arrows"><a>← Au marché</a><a>Упр. 5 →</a></div>
         </div>
@@ -910,7 +910,7 @@ function selectionPop() {
     if (!txt || !body || !s.rangeCount) return;
     const range = s.getRangeAt(0).cloneRange(); const rect = range.getBoundingClientRect();
     closePop();
-    const trOk = root.dataset.tr === "on" && !(body.dataset.body === "ex" && !exChecked);
+    const trOk = root.dataset.tr === "on";   // перевод отключается только в «⋯» (в упражнениях тоже работает)
     if (!trOk && root.dataset.off === "none") return;   // без перевода подсказки нет — заметка только через «＋»
     pop = document.createElement("div");
     if (trOk) {
@@ -990,7 +990,7 @@ function iconize(scope = document.body, refresh = false) {   // заменить
 new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) { const el = n.nodeType === 1 ? n : n.parentElement; if (el && /📝|❓/.test(n.textContent || "")) iconize(el); } })
   .observe(document.body, {childList: true, subtree: true});
 let exChecked = false;
-document.getElementById("ex-check").addEventListener("click", () => { exChecked = true; document.getElementById("ex-state").textContent = "ответ проверен — перевод при выделении снова доступен"; });
+
 function toast(m) { const t = document.getElementById("toast"); t.textContent = m; t.style.display = "block"; clearTimeout(t._h); t._h = setTimeout(() => t.style.display = "none", 2500); }
 function markBtns() { document.querySelectorAll("[data-set]").forEach(b => b.classList.toggle("on", root.dataset[b.dataset.set] === b.dataset.val)); }
 document.querySelectorAll("[data-set]").forEach(b => b.addEventListener("click", ev => { ev.stopPropagation(); root.dataset[b.dataset.set] = b.dataset.val; markBtns(); floatId = null; renderAll(); }));
