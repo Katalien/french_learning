@@ -18,14 +18,16 @@ def element_page(request: Request, element_id: str, index: Index, fragment: int 
         return templates.TemplateResponse(
             request, "element_error.html", {"index": index, "error": error}, status_code=200
         )
+    from french_learning.web.routes.notes import element_notes, notes_json
+
+    with_notes = element.lesson is not None and request.app.state.notes is not None
     if fragment:
         if element.kind not in ("theory", "text"):
             raise not_found("Рядом можно открыть только теорию или текст")
-        return templates.TemplateResponse(
-            request,
-            "element_fragment.html",
-            {"element": element, "path": index.element_path(element_id)},
-        )
+        side = {"element": element, "path": index.element_path(element_id)}
+        if with_notes:
+            side["notes_json"] = notes_json(request, [element_id], "side", element.lesson)
+        return templates.TemplateResponse(request, "element_fragment.html", side)
     context = {
         "index": index,
         "element": element,
@@ -33,6 +35,9 @@ def element_page(request: Request, element_id: str, index: Index, fragment: int 
         "show_origin": show_origin(request),
         "linked": index.linked_exercises(element_id),
     }
+    if with_notes:
+        context["notes_json"] = notes_json(request, [element_id], "element", element.lesson)
+        context["element_notes"] = element_notes(request, element_id)
     if element.kind == "exercise":
         context["neighbours"] = index.neighbours(element)
     if element.lesson is not None:

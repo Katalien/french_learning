@@ -46,7 +46,8 @@
         ("theory", "Теория", "/lessons/" ~ n ~ "/theory", counts.theory),
         ("texts", "Тексты", "/lessons/" ~ n ~ "/texts", counts.texts),
         ("vocab", "Лексика", "/lessons/" ~ n ~ "/vocab", counts.vocab),
-        ("tasks", "Задания", "/lessons/" ~ n ~ "/tasks?part=class", counts.tasks)) %}
+        ("tasks", "Задания", "/lessons/" ~ n ~ "/tasks?part=class", counts.tasks),
+        ("notes", "Заметки", "/lessons/" ~ n ~ "/notes", counts.notes)) %}
       <a class="sec" href="{{ href }}" {% if section == key %}aria-current="page"{% endif %}>{{ name }}{% if count is not none %}<span class="muted">{{ count }}</span>{% endif %}</a>
     {% endfor %}
   </aside>

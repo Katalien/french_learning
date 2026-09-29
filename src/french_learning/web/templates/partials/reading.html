@@ -17,7 +17,7 @@
     {% for t in items %}
       <article class="{{ kind }} reading" id="{{ t.id }}">
         <header><h2 {% if kind == "text" %}lang="fr"{% endif %}><a href="/elements/{{ t.id }}">{{ t.title }}</a></h2></header>
-        <div {% if kind == "text" %}lang="fr"{% endif %}>{{ t.body | markdown(index.element_path(t.id), t.id) }}</div>
+        <div {% if kind == "text" %}lang="fr"{% endif %} {% if notes_json is defined %}data-note-container="{{ t.id }}"{% endif %}>{{ t.body | markdown(index.element_path(t.id), t.id) }}</div>
         {% set exercises = index.linked_exercises(t.id) %}
         {% if exercises %}
           <details class="linked-exercises">
@@ -29,4 +29,5 @@
     {% endfor %}
   </div>
 </div>
+{% if notes_json is defined %}<script type="application/json" id="notes-data" data-notes-json>{{ notes_json | safe }}</script>{% endif %}
 {% endif %}

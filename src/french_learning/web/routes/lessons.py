@@ -39,9 +39,12 @@ def _counts(index: ContentIndex, number: int) -> dict[str, int]:
 
 def _context(request: Request, index: ContentIndex, number: int, **extra) -> dict:
     _lesson_or_404(index, number)
+    counts = _counts(index, number)
+    notes = request.app.state.notes
+    counts["notes"] = notes.lesson_counts().get(number, 0) if notes is not None else 0
     return {
         "index": index,
-        "counts": _counts(index, number),
+        "counts": counts,
         "summary": index.lesson_summary(number, request.app.state.progress),
         "show_origin": show_origin(request),
         "materials_dir": request.app.state.settings.source_materials_dir,
@@ -112,10 +115,22 @@ def lesson_reserve(request: Request, number: int, index: Index):
     )
 
 
+def _reading_notes(request: Request, items: list, number: int) -> str:
+    from french_learning.web.routes.notes import notes_json
+
+    return notes_json(request, [e.id for e in items], page="reading", lesson=number)
+
+
 @router.get("/lessons/{number}/theory")
 def lesson_theory(request: Request, number: int, index: Index):
+    theory = index.elements(number, kind="theory")
     context = _context(
-        request, index, number, section="theory", theory=index.elements(number, kind="theory")
+        request,
+        index,
+        number,
+        section="theory",
+        theory=theory,
+        notes_json=_reading_notes(request, theory, number),
     )
     return templates.TemplateResponse(request, "theory.html", context)
 
@@ -132,7 +147,13 @@ def lesson_vocab(request: Request, number: int, index: Index):
 
 @router.get("/lessons/{number}/texts")
 def lesson_texts(request: Request, number: int, index: Index):
+    texts = index.elements(number, kind="text")
     context = _context(
-        request, index, number, section="texts", texts=index.elements(number, kind="text")
+        request,
+        index,
+        number,
+        section="texts",
+        texts=texts,
+        notes_json=_reading_notes(request, texts, number),
     )
     return templates.TemplateResponse(request, "texts.html", context)
