@@ -1,6 +1,6 @@
 <!doctype html>
 {% set current = request.url.path %}
-<html lang="ru" data-theme="{{ ui_theme(request) }}">
+<html lang="ru" data-theme="{{ ui_theme(request) }}" data-translate="{{ '0' if request.cookies.get('translate') == '0' else '1' }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,6 +14,7 @@
   <script src="/static/js/speech.js?v={{ asset_version('js/speech.js') }}" defer></script>
   <script src="/static/js/symbols.js?v={{ asset_version('js/symbols.js') }}" defer></script>
   <script src="/static/js/selection.js?v={{ asset_version('js/selection.js') }}" defer></script>
+  <script src="/static/js/translate.js?v={{ asset_version('js/translate.js') }}" defer></script>
   <script src="/static/js/notes.js?v={{ asset_version('js/notes.js') }}" defer></script>
 </head>
 <body>

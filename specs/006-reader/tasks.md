@@ -42,13 +42,13 @@ contracts/translate-api.md, contracts/ui-routes.md, quickstart.md, mockups/index
 
 ## Phase 3: User Story 1 — перевод выделенного (P1) 🎯
 
-- [ ] T013 [P] [US1] Тесты `tests/integration/test_translate.py`: `GET /translate` — из словаря, из запаса, из (подменённого) сервиса, «недоступен», кириллица → 422, пусто → 422, > 500 → error; внешний сервис получает только `q`
-- [ ] T014 [US1] `web/routes/translate.py` (`/translate`), подключение сервиса в `app.state` — тесты T013 проходят
-- [ ] T015 [P] [US1] Тесты разметки: `data-translate` на теории, упражнении, доп. материале, словаре, карточке, теме, тренажёре; `<html data-translate="1">` по умолчанию и `"0"` при cookie; `translate.js` подключён
-- [ ] T016 [US1] Шаблоны: `data-translate` на французских блоках; `base.html` — атрибут и скрипт — тесты T015 проходят
-- [ ] T017 [US1] `selection.js`: зоны `[data-note-container], [data-translate], [lang="fr"]`, `ctx.zone` / `ctx.noteContainer`, ✕ в подсказке; `notes.js` — секция 005 по `ctx.noteContainer` (регрессия 005 — quickstart 005 §1 и вкладки урока «Тексты» / «Теория» из 0.6.1: кнопки заметок у каждого элемента, поле справа)
-- [ ] T018 [US1] `static/js/translate.js`: секция перевода по макету (загрузка → перевод, форма, 🔊 `data-speak`, сообщения), стили подсказки; без перевода при кириллице и выключенном переключателе
-- [ ] T019 [US1] Проверка quickstart §1
+- [X] T013 [P] [US1] Тесты `tests/integration/test_translate.py`: `GET /translate` — из словаря, из запаса, из (подменённого) сервиса, «недоступен», кириллица → 422, пусто → 422, > 500 → error; внешний сервис получает только `q`
+- [X] T014 [US1] `web/routes/translate.py` (`/translate`), подключение сервиса в `app.state` — тесты T013 проходят
+- [X] T015 [P] [US1] Тесты разметки: `data-translate` на теории, упражнении, доп. материале, словаре, карточке, теме, тренажёре; `<html data-translate="1">` по умолчанию и `"0"` при cookie; `translate.js` подключён
+- [X] T016 [US1] Шаблоны: `data-translate` на французских блоках; `base.html` — атрибут и скрипт — тесты T015 проходят
+- [X] T017 [US1] `selection.js`: зоны `[data-note-container], [data-translate], [lang="fr"]`, `ctx.zone` / `ctx.noteContainer`, ✕ в подсказке; `notes.js` — секция 005 по `ctx.noteContainer` (регрессия 005 — quickstart 005 §1 и вкладки урока «Тексты» / «Теория» из 0.6.1: кнопки заметок у каждого элемента, поле справа)
+- [X] T018 [US1] `static/js/translate.js`: секция перевода по макету (загрузка → перевод, форма, 🔊 `data-speak`, сообщения), стили подсказки; без перевода при кириллице и выключенном переключателе
+- [X] T019 [US1] Проверка quickstart §1
 
 ---
 

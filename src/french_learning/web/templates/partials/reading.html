@@ -28,7 +28,7 @@
         {% if with_notes %}<div class="notes-important" data-notes-important="{{ t.id }}"></div>{% endif %}
         <div class="notes-layout" data-notes-layout {% if with_notes %}data-notes-element="{{ t.id }}"{% endif %}>
           <div class="notes-main">
-            <article class="{{ kind }} reading">
+            <article class="{{ kind }} reading" data-translate {% if t.lesson %}data-lesson="{{ t.lesson }}"{% endif %}>
               <div {% if kind == "text" %}lang="fr"{% endif %} {% if with_notes %}data-note-container="{{ t.id }}"{% endif %}>{{ t.body | markdown(index.element_path(t.id), t.id) }}</div>
               {% set exercises = index.linked_exercises(t.id) %}
               {% if exercises %}

@@ -1,17 +1,25 @@
-// Подсказка у выделенного текста в элементах урока (005, research R5).
+// Подсказка у выделенного текста (005, 006; research R5 005, research R1 006).
 // Содержимое подсказки собирается из «секций», которые регистрируют функции приложения:
-// 005 — полоска «пометка · вопрос», 006 добавит перевод. Работает только внутри
-// контейнеров [data-note-container]; выделение через границу двух элементов не считается.
+// 006 — перевод (translate.js), 005 — полоска «пометка · вопрос» (notes.js).
+// Зона выделения — контейнер заметок, блок [data-translate] или французский [lang="fr"];
+// выделение через границу двух зон не считается.
 (() => {
-  const CONTAINER = "[data-note-container]";
+  const ZONES = "[data-note-container], [data-translate]";
+  const NOTES = "[data-note-container]";
   const IGNORE = "input, textarea, select, button, .note-form, .sel-pop";
+  const BLOCK = "p, li, td, th, h1, h2, h3, h4, blockquote, dd, dt, figcaption, article, section, div";
   const sections = [];
   let pop = null;
+  let anchor = null; // место выделения в координатах документа
   let timer = null;
 
   const isWord = (ch) => ch !== undefined && /[\p{L}\p{M}\p{N}'’-]/u.test(ch);
   const elementOf = (node) => (node && node.nodeType === Node.TEXT_NODE ? node.parentElement : node);
-  const containerOf = (node) => elementOf(node)?.closest(CONTAINER) || null;
+  const zoneOf = (node) => {
+    const el = elementOf(node);
+    return el?.closest(ZONES) || el?.closest('[lang="fr"]') || null;
+  };
+  const notesOf = (node) => elementOf(node)?.closest(NOTES) || null;
 
   // выделение, начатое или законченное посреди слова, расширяется до целых слов (006, FR-002)
   function expand(range) {
@@ -31,22 +39,63 @@
     return r;
   }
 
+  // предложение (или предложения) вокруг выделения — пример для словаря (006, research R7)
+  function sentenceAround(range, zone) {
+    const block = elementOf(range.startContainer).closest(BLOCK) || zone;
+    const scope = block.contains(range.endContainer) ? block : zone;
+    const before = document.createRange();
+    before.setStart(scope, 0);
+    before.setEnd(range.startContainer, range.startOffset);
+    const whole = scope.textContent;
+    const start = before.toString().length;
+    const end = start + range.toString().length;
+    const head = whole.slice(0, start);
+    const cut = Math.max(...[".", "!", "?", "…", "\n"].map((c) => head.lastIndexOf(c)));
+    const tail = whole.slice(end).search(/[.!?…]|\n/);
+    const stop = tail === -1 ? whole.length : end + tail + 1;
+    return whole.slice(cut + 1, stop).replace(/\s+/g, " ").trim().slice(0, 500);
+  }
+
   function current() {
     const sel = window.getSelection();
     if (!sel || sel.isCollapsed || !sel.rangeCount) return null;
     const range = sel.getRangeAt(0);
-    const container = containerOf(range.startContainer);
-    if (!container || container !== containerOf(range.endContainer)) return null;
+    const zone = zoneOf(range.startContainer);
+    if (!zone || zone !== zoneOf(range.endContainer)) return null;
     if (elementOf(range.commonAncestorContainer)?.closest(IGNORE)) return null;
     const expanded = expand(range);
     const text = expanded.toString().replace(/\s+/g, " ").trim();
     if (!text) return null;
-    return { range: expanded, text, container, elementId: container.dataset.noteContainer };
+    const notes = notesOf(range.startContainer);
+    const noteContainer = notes && notes === notesOf(range.endContainer) ? notes : null;
+    return {
+      range: expanded,
+      text,
+      zone,
+      noteContainer,
+      container: noteContainer, // имя из 005
+      elementId: noteContainer?.dataset.noteContainer,
+      lesson: Number(zone.closest("[data-lesson]")?.dataset.lesson) || null,
+      sentence: () => sentenceAround(expanded, zone),
+    };
   }
 
   function close() {
     if (pop) pop.remove();
     pop = null;
+  }
+
+  // под выделением, а если снизу не хватает места — над ним; не шире и не левее экрана
+  function place() {
+    if (!pop || !anchor) return;
+    const width = document.documentElement.clientWidth;
+    const height = pop.offsetHeight;
+    const below = anchor.bottom + 8;
+    const above = anchor.top - height - 8;
+    const fitsBelow = below + height <= window.scrollY + window.innerHeight;
+    pop.style.top = `${fitsBelow || above < window.scrollY ? below : above}px`;
+    const left = Math.min(anchor.left, window.scrollX + width - pop.offsetWidth - 8);
+    pop.style.left = `${Math.max(window.scrollX + 8, left)}px`;
   }
 
   function show() {
@@ -62,10 +111,12 @@
     parts.forEach((part) => pop.appendChild(part));
     document.body.appendChild(pop);
     const rect = ctx.range.getBoundingClientRect();
-    const width = document.documentElement.clientWidth;
-    pop.style.top = `${window.scrollY + rect.bottom + 8}px`;
-    const left = Math.min(window.scrollX + rect.left, window.scrollX + width - pop.offsetWidth - 8);
-    pop.style.left = `${Math.max(8, left)}px`;
+    anchor = {
+      top: rect.top + window.scrollY,
+      bottom: rect.bottom + window.scrollY,
+      left: rect.left + window.scrollX,
+    };
+    place();
   }
 
   document.addEventListener("mouseup", (event) => {
@@ -96,5 +147,6 @@
       sections.push(section);
     },
     close,
+    place, // секция изменилась (например, пришёл перевод) — поправить место подсказки
   };
 })();

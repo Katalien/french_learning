@@ -10,6 +10,7 @@ from french_learning.web.routes import (
     speech,
     topics,
     trainers,
+    translate,
     trust,
     vocab,
 )
@@ -24,6 +25,7 @@ ALL = [
     speech.router,
     topics.router,
     trainers.router,
+    translate.router,
     trust.router,
     vocab.router,
 ]
