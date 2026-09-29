@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     port: int = 8000
     # Модели голосов и кеш озвучки — вне обоих репозиториев (большие файлы, не контент).
     tts_dir: Path = Path.home() / ".french-learning" / "tts"
+    # Ключ DeepL (006, research R3) — только здесь: не в базе прогресса и не в контенте,
+    # потому что база уходит в резервную копию.
+    deepl_api_key: str | None = None
 
     @property
     def content_configured(self) -> bool:

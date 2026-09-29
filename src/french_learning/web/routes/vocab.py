@@ -12,7 +12,7 @@ from french_learning.practice.checking import FRENCH_SYMBOLS
 from french_learning.practice.tts import DEFAULT_VOICE, VOICES
 from french_learning.vocab import entries as vocab_entries
 from french_learning.vocab.sessions import SessionParams
-from french_learning.web.deps import Index, not_found
+from french_learning.web.deps import Index, not_found, show_origin
 from french_learning.web.templating import templates
 
 router = APIRouter()
@@ -542,6 +542,9 @@ def settings_page(request: Request, index: Index):
         "voices": {key: name for key, (_code, name) in VOICES.items()},
         "voices_missing": not request.app.state.speaker.available(db.get_setting("voice")),
     }
+    from french_learning.web.routes.translate import settings_context
+
+    context.update(settings_context(request))
     return templates.TemplateResponse(request, "vocab/settings.html", context)
 
 
@@ -592,5 +595,6 @@ def vocab_entry(request: Request, entry_id: str, index: Index):
         "history": cards.history(entry_id),
         "pos_names": vocab_entries.POS_NAMES,
         "kind_names": vocab_entries.KIND_NAMES,
+        "show_origin": show_origin(request),
     }
     return templates.TemplateResponse(request, "vocab/entry.html", context)

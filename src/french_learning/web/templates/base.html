@@ -1,6 +1,6 @@
 <!doctype html>
 {% set current = request.url.path %}
-<html lang="ru" data-theme="{{ ui_theme(request) }}">
+<html lang="ru" data-theme="{{ ui_theme(request) }}" data-translate="{{ '0' if request.cookies.get('translate') == '0' else '1' }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,8 +13,17 @@
   <script src="/static/vendor/alpine.min.js" defer></script>
   <script src="/static/js/speech.js?v={{ asset_version('js/speech.js') }}" defer></script>
   <script src="/static/js/symbols.js?v={{ asset_version('js/symbols.js') }}" defer></script>
+  <script src="/static/js/selection.js?v={{ asset_version('js/selection.js') }}" defer></script>
+  <script src="/static/js/translate.js?v={{ asset_version('js/translate.js') }}" defer></script>
+  <script src="/static/js/notes.js?v={{ asset_version('js/notes.js') }}" defer></script>
 </head>
 <body>
+  {# значки заметок «облачка-комментарии» (005, research R6) #}
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-note" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 15a2 2 0 0 1-2 2H8l-4.5 4V5.5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"/><path d="M8 8.5h8M8 12.5h5"/></g></symbol>
+    <symbol id="i-question" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20.2A9 9 0 1 0 3.8 16.1L2.5 21.5z"/><path d="M9.2 9a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.8-2.8 2.8"/><path d="M12 17h.01"/></g></symbol>
+  </svg>
+  {% set nav_badges = nav_counts(request) %}
   <header class="topbar">
     <a href="/" class="brand">Français <small>· мой курс</small></a>
     <nav class="mainnav" aria-label="Разделы">
@@ -22,11 +31,16 @@
         <a href="{{ href }}" {% if current == href or current.startswith(href ~ "/") %}aria-current="page"{% endif %}>{{ name }}</a>
       {% endfor %}
     </nav>
+    {% if request.app.state.notes is not none %}
+      <button type="button" class="q-badge" data-questions-count="{{ nav_badges.questions }}" {% if not nav_badges.questions %}hidden{% endif %} x-data
+              hx-get="/questions" hx-target="#questions-body" @click="$dispatch('questions-open')"
+              title="Открытые вопросы к преподавательнице" aria-label="Открытые вопросы: {{ nav_badges.questions }}">
+        <svg class="icon" aria-hidden="true"><use href="#i-question"/></svg><span>{{ nav_badges.questions }}</span></button>
+    {% endif %}
     <div class="more" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
       <button type="button" class="outline btn-icon" @click="open = !open" :aria-expanded="open" aria-label="Ещё" title="Ещё">⋯</button>
       <div class="more-menu" x-show="open" x-cloak>
         <a href="/extras">Дополнительные материалы</a>
-        {% set nav_badges = nav_counts(request) %}
         <a href="/review">Требует проверки{% if nav_badges.review %} <span class="chip">{{ nav_badges.review }}</span>{% endif %}</a>
         <a href="/reports">Сообщения об ошибках{% if nav_badges.reports %} <span class="chip">{{ nav_badges.reports }}</span>{% endif %}</a>
         <a href="/settings">Настройки</a>
@@ -36,6 +50,12 @@
           <span>Происхождение</span>
           <input type="hidden" name="show" value="{{ '0' if origin_on else '1' }}">
           <span class="segmented"><button type="submit" class="{{ '' if origin_on else 'on' }}" {% if not origin_on %}disabled{% endif %}>скрыто</button><button type="submit" class="{{ 'on' if origin_on else '' }}" {% if origin_on %}disabled{% endif %}>везде</button></span>
+        </form>
+        {% set translate_on = request.cookies.get("translate") != "0" %}
+        <form method="post" action="/settings/translate" class="row">
+          <span>Перевод при выделении</span>
+          <input type="hidden" name="show" value="{{ '0' if translate_on else '1' }}">
+          <span class="segmented"><button type="submit" class="{{ '' if translate_on else 'on' }}" {% if not translate_on %}disabled{% endif %}>выкл</button><button type="submit" class="{{ 'on' if translate_on else '' }}" {% if translate_on %}disabled{% endif %}>вкл</button></span>
         </form>
         <form method="post" action="/settings/theme" class="row">
           <span>Оформление</span>
@@ -56,5 +76,13 @@
     {% endif %}
     {% block content %}{% endblock %}
   </main>
+  <div x-data="{ open: false }" @questions-open.window="open = true" @keydown.escape.window="open = false">
+    <div class="drawer-backdrop" x-show="open" x-cloak @click="open = false"></div>
+    <aside class="drawer q-drawer" x-show="open" x-cloak aria-label="Вопросы к преподавательнице">
+      <div class="drawer-head"><strong>Вопросы к преподавательнице</strong>
+        <button type="button" class="btn-text small" @click="open = false" aria-label="Закрыть">✕</button></div>
+      <div id="questions-body"><p class="muted">Загрузка…</p></div>
+    </aside>
+  </div>
 </body>
 </html>

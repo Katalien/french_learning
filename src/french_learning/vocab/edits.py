@@ -24,6 +24,19 @@ class VocabError(Exception):
 
 
 @dataclass
+class FromText:
+    """Добавление из текста (006, research R7): пример и урок, откуда слово, происхождение.
+
+    Урок пишется в перевод и пример, но не в `lessons` — иначе слово попало бы в «Лексику
+    урока» как слово преподавателя.
+    """
+
+    example: str | None = None
+    lesson: int | None = None
+    origin: str = "user"
+
+
+@dataclass
 class ImportReport:
     added: list[str] = field(default_factory=list)
     merged: list[str] = field(default_factory=list)
@@ -52,8 +65,15 @@ class VocabEditor:
     # --- добавление --------------------------------------------------------------------------
 
     def _new_data(
-        self, entry_id: str, line: ParsedLine, topics: list[str], lesson: int | None
+        self,
+        entry_id: str,
+        line: ParsedLine,
+        topics: list[str],
+        lesson: int | None,
+        source: FromText | None = None,
     ) -> dict:
+        source = source or FromText()
+        where = lesson or source.lesson
         data: dict[str, Any] = {
             "id": entry_id,
             "kind": "vocab",
@@ -67,33 +87,50 @@ class VocabEditor:
         if line.pos:
             data["pos"] = line.pos
         data["translations"] = [
-            {"text": t, **({"lesson": lesson} if lesson else {}), "origin": "user"}
+            {"text": t, **({"lesson": where} if where else {}), "origin": source.origin}
             for t in line.translations
         ]
         if lesson:
             data["lessons"] = [lesson]
+        if source.example:
+            data["examples"] = [{"text": source.example, **({"lesson": where} if where else {})}]
         data["topics"] = topics
         data["origin"] = "user"
         data["needs_completion"] = line.needs_completion
         return data
 
-    def _merged_data(self, path: str, line: ParsedLine, lesson: int | None) -> tuple[dict, bool]:
+    def _merged_data(
+        self, path: str, line: ParsedLine, lesson: int | None, source: FromText | None = None
+    ) -> tuple[dict, bool]:
+        source = source or FromText()
+        where = lesson or source.lesson
         data = yaml.safe_load((self.root / path).read_text(encoding="utf-8"))
         known = {t["text"].casefold() for t in data.get("translations", [])}
         changed = False
         for text in line.translations:
             if text.casefold() not in known:
                 data["translations"].append(
-                    {"text": text, **({"lesson": lesson} if lesson else {}), "origin": "user"}
+                    {"text": text, **({"lesson": where} if where else {}), "origin": source.origin}
                 )
                 changed = True
+        examples = data.get("examples", [])
+        if source.example and source.example.casefold() not in {
+            e["text"].casefold() for e in examples
+        }:
+            examples.append({"text": source.example, **({"lesson": where} if where else {})})
+            data["examples"] = examples
+            changed = True
         if lesson and lesson not in data.get("lessons", []):
             data.setdefault("lessons", []).append(lesson)
             changed = True
         return data, changed
 
     def _apply(
-        self, lines: list[ParsedLine], topics: list[str], lesson: int | None
+        self,
+        lines: list[ParsedLine],
+        topics: list[str],
+        lesson: int | None,
+        source: FromText | None = None,
     ) -> tuple[dict, list, list, list]:
         entries, paths = self._existing()
         files: dict[str, str] = {}
@@ -102,14 +139,14 @@ class VocabEditor:
         for line in lines:
             match = next((e for e in entries if self._same(e, line)), None)
             if match is not None:
-                data, _changed = self._merged_data(paths[match.id], line, lesson)
+                data, _changed = self._merged_data(paths[match.id], line, lesson, source)
                 files[paths[match.id]] = _dump_yaml(data)
                 merged.append(line.text)
                 ids.append(match.id)
                 continue
             entry_id = next(fresh)
             files[f"vocabulary/{entry_id}.yaml"] = _dump_yaml(
-                self._new_data(entry_id, line, topics, lesson)
+                self._new_data(entry_id, line, topics, lesson, source)
             )
             added.append(line.text)
             ids.append(entry_id)
@@ -126,7 +163,11 @@ class VocabEditor:
         entry_type: str = "word",
         pos: str | None = None,
         lesson: int | None = None,
+        example: str | None = None,
+        source_lesson: int | None = None,
+        translation_origin: str = "user",
     ) -> tuple[str, bool]:
+        """`example`, `source_lesson`, `translation_origin` — добавление из текста (006)."""
         translations = [t.strip() for t in translations if t.strip()]
         if not text.strip() or not translations:
             raise VocabError("нужны французское слово и хотя бы один перевод")
@@ -142,7 +183,8 @@ class VocabEditor:
             pos=pos or ("nom" if article else None),
             needs_completion=entry_type != "phrase",
         )
-        files, added, _merged, ids = self._apply([line], topics, lesson)
+        source = FromText(example=example, lesson=source_lesson, origin=translation_origin)
+        files, added, _merged, ids = self._apply([line], topics, lesson, source)
         label = "добавлено" if added else "дополнено"
         self.writer.save_files(files, f"Словарь: {label} «{line.text}»")
         return ids[0], not added

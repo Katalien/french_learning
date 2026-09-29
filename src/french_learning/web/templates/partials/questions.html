@@ -1,0 +1,10 @@
+{# Панель открытых вопросов всех уроков (005, FR-014); загружается HTMX по значку в шапке #}
+{% from "partials/note_item.html" import q_row %}
+<div data-notes-region data-refresh="/questions">
+  {% for lesson, items in groups %}
+    <div class="q-group"><a href="/lessons/{{ lesson }}/notes">Урок {{ lesson }}</a></div>
+    <div class="items">{% for n in items %}{{ q_row(n, show_lesson=true) }}{% endfor %}</div>
+  {% else %}
+    <p class="muted">Открытых вопросов нет.</p>
+  {% endfor %}
+</div>

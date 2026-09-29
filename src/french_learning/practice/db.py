@@ -1,6 +1,8 @@
 """База прогресса: SQLite в `CONTENT_DIR/.progress/progress.sqlite` (data-model 003 и 004).
 
-Версия 2 (004) добавляет попытки упражнений и тренажёры; миграция — только новые таблицы.
+Версия 2 (004) добавляет попытки упражнений и тренажёры, версия 3 (005) — заметки,
+версия 4 (006) — запас переводов;
+миграции — только новые таблицы.
 
 Папка `.progress/` исключена из git хранилища; резервная копия — `backups/progress.sql`
 (см. `practice/backup.py`).
@@ -14,7 +16,7 @@ from pathlib import Path
 
 from french_learning.agent.storage import ensure_progress_ignored
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 4
 
 DEFAULT_SETTINGS = {
     "portion_size": "20",
@@ -22,6 +24,7 @@ DEFAULT_SETTINGS = {
     "voice": "siwis",
     "trainer_portion_size": "20",
     "exercise_list_view": "rows",
+    "translator": "mymemory",
 }
 
 _SCHEMA = """
@@ -91,6 +94,22 @@ create table if not exists trainer_answers (
     session_id text
 );
 create index if not exists trainer_answers_key on trainer_answers (trainer_id, key, id);
+create table if not exists notes (
+    id integer primary key autoincrement,
+    kind text not null check (kind in ('note', 'question')),
+    body text not null check (length(trim(body)) > 0),
+    important integer not null default 0,
+    answered integer not null default 0,
+    answer text,
+    lesson integer not null,
+    element_id text,
+    element_title text,
+    anchor text,
+    created_at text not null,
+    updated_at text not null
+);
+create index if not exists notes_lesson on notes (lesson, element_id);
+create index if not exists notes_open_questions on notes (kind, answered);
 create table if not exists trainer_sessions (
     id text primary key,
     trainer_id text not null,
@@ -99,6 +118,14 @@ create table if not exists trainer_sessions (
     position integer not null default 0,
     correct integer not null default 0,
     created_at text not null
+);
+create table if not exists translations (
+    key text not null,
+    direction text not null,
+    text text not null,
+    service text not null,
+    created_at text not null,
+    primary key (key, direction)
 );
 """
 

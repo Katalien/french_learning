@@ -30,6 +30,21 @@ SQLite для прогресса, pytest, ruff. Подробнее — конс�
 `base.css`, `components.css`, `screens.css`; шрифты Inter и Lora лежат в `web/static/fonts/`.
 Выбор дизайна и макеты — `specs/009-redesign/design.md`, `mockups/final.html`.
 
+Заметки (005) — пакет `notes/` (`store.py` — хранение и правила, `grouping.py` — страница
+«Заметки к уроку»), таблица `notes` в базе прогресса (схема v3), JSON API `web/routes/notes.py`.
+В браузере — `static/js/selection.js` (подсказка у выделения с секциями; 006 добавит перевод)
+и `static/js/notes.js` (отметки фрагментов по цитате с контекстом, поле, окна). Разметка
+заметки в `notes.js` и `partials/note_item.html` должна совпадать.
+
+Перевод при выделении (006) — пакет `translate/` (`normalize.py` — ключ и проверки,
+`providers.py` — MyMemory / DeepL через `urllib`, `lemma.py` — начальная форма simplemma и вид
+записи, `cache.py` — запас `translations` в базе прогресса (схема v4), `service.py` — порядок
+«словарь → запас → сервис»), маршруты `web/routes/translate.py` (`/translate`,
+`/vocab/from-text`, настройки). В браузере — секция `static/js/translate.js` в общей подсказке
+`selection.js`; зоны перевода — `[data-note-container]`, `[data-translate]`, `[lang="fr"]`.
+Ключ DeepL — только `DEEPL_API_KEY` в `.env` (не в базе: база уходит в резервную копию).
+Во внешний сервис уходит только выделенное и его начальная форма; в тестах сеть подменяется.
+
 ## Критичные правила
 
 - НИКОГДА не коммить материалы уроков, распознанный контент и личные данные в этот

@@ -274,11 +274,26 @@
 .reading h1, .reading h2, .reading h3, .reading header, .reading footer, .reading table { font-family: var(--font); }
 .reading h2 { margin-top: 1.3rem; }
 .reading header h2 { margin-top: 0; }
-.reading-items article { scroll-margin-top: 80px; }
+.reading-item { scroll-margin-top: 80px; margin-bottom: 1.8rem; }
+.reading-item article { margin: 0; }
+.reading-head { display: flex; align-items: center; gap: .75rem; margin-bottom: .6rem; }
+.reading-head h2 { flex: 1; margin: 0; font-size: 1.3rem; }
+.reading-head h2 a { color: var(--text); }
+/* заметки (005, макет v8): пока открыто поле, оглавление свёрнуто в полоску «≡» */
+.reading-toc-mini { display: none; }
+.reading-layout.notes-open { grid-template-columns: 44px minmax(0, 1fr); }
+.reading-layout.notes-open .reading-toc { display: none; }
+.reading-layout.notes-open .reading-toc-mini { display: flex; position: sticky; top: 72px; flex-direction: column; align-items: center; gap: .4rem;
+  width: 44px; margin: 0; padding: .6rem 0; border: 0; font-size: .8rem; color: var(--muted); cursor: pointer; }
+.reading-toc-mini span { writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: .05em; }
+.reading-toc-mini:hover { color: var(--primary-strong); }
 .reading [id] { scroll-margin-top: 80px; }
 @media (max-width: 900px) {
   .reading-layout { grid-template-columns: minmax(0, 1fr); }
   .reading-toc { position: static; max-height: none; }
+  .reading-layout.notes-open { grid-template-columns: minmax(0, 1fr); }
+  .reading-layout.notes-open .reading-toc { display: block; }
+  .reading-layout.notes-open .reading-toc-mini { display: none; }
 }
 
 /* Теория рядом с упражнением (009, FR-032) */
@@ -418,3 +433,159 @@
 .element-row .row-title { flex: 1 1 18rem; min-width: 0; }
 .element-row .row-meta { color: var(--muted); font-size: .85rem; white-space: nowrap; text-align: right; }
 @media (max-width: 600px) { .element-row .row-meta { white-space: normal; text-align: left; } }
+
+/* ===== Заметки (005): значки, отметки, мини-заметки, поле, подсказка выделения ===== */
+.icon { width: 1.15em; height: 1.15em; vertical-align: -.2em; flex: none; }
+.q-badge { display: inline-flex; align-items: center; gap: .3rem; height: 2rem; padding: 0 .65rem; border-radius: 999px;
+  border: 1px solid var(--line); background: transparent; color: var(--q); font-size: .88rem; font-weight: 600; cursor: pointer; }
+.q-badge:hover { border-color: var(--q); }
+.q-badge[hidden] { display: none; }
+.notes-toggle { width: auto; min-width: var(--control-h); padding: 0 .5rem; gap: .25rem; color: var(--primary-strong); }
+.notes-toggle .n { font-size: .85rem; }
+.notes-toggle.empty { opacity: .5; } .notes-toggle.empty:hover { opacity: 1; }
+.notes-toggle[aria-expanded="true"] { background: var(--primary-soft); border-color: var(--primary); }
+
+mark.note-anchor { padding: 0; background: none; color: inherit; border-bottom: 1px dotted var(--anchor); cursor: pointer; border-radius: 2px;
+  transition: background .15s; }
+mark.note-anchor:hover, mark.note-anchor.hl { background: var(--note-hl); }
+mark.note-anchor.pending { background: var(--note-hl); border-bottom-style: solid; }
+
+.note-item { position: relative; display: flex; gap: .35rem; padding: .3rem .55rem .3rem .5rem; border-radius: 6px;
+  background: var(--note-bg); border-left: 2px solid var(--anchor); font-family: var(--font); font-size: .87rem; line-height: 1.45;
+  color: var(--text); transition: background .15s; }
+.note-item.frag { border-left-style: dotted; }
+.note-item.q { border-left-color: var(--q); }
+.note-item.imp { border-left-color: var(--imp); }
+.note-item.done { border-left-color: var(--ok); }
+.note-item.hl { background: var(--note-hl); }
+.note-item.flash { animation: note-flash 1.4s ease; }
+@keyframes note-flash { 0%, 60% { background: var(--note-hl); } 100% { background: var(--note-bg); } }
+.note-ic { flex: none; font-size: .78rem; font-weight: 700; line-height: 1.7; }
+.note-item.q .note-ic { color: var(--q); } .note-item.imp .note-ic { color: var(--imp); } .note-item.done .note-ic { color: var(--ok); }
+.note-tx { flex: 1; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.note-ans { color: var(--muted); margin-top: .1rem; }
+.note-was, .note-lost { color: var(--muted); font-size: .78rem; margin-top: .1rem; }
+.note-lost button { border: 0; background: none; padding: 0; color: var(--primary-strong); font: inherit; cursor: pointer; text-decoration: underline; }
+.note-acts { display: flex; gap: 1px; align-items: center; opacity: 0; transition: opacity .12s; }
+.note-item .note-acts { position: absolute; top: .15rem; right: .2rem; background: var(--surface-solid); border-radius: 6px; box-shadow: var(--shadow-sm); }
+.note-item:hover .note-acts, .note-item:focus-within .note-acts,
+.qi-row:hover .note-acts, .qi-row:focus-within .note-acts, .ni:hover .note-acts, .ni:focus-within .note-acts { opacity: 1; }
+.note-acts button, .note-acts a { border: 0; background: none; padding: 0 .28rem; font-size: .82rem; color: var(--muted); cursor: pointer; line-height: 1.6; }
+.note-acts button:hover, .note-acts a:hover { color: var(--primary-strong); text-decoration: none; }
+.note-acts [data-note-act="delete"]:hover { color: var(--bad); }
+.note-acts [data-note-act="answer"]:hover { color: var(--ok); }
+@media (hover: none) {
+  .note-acts { opacity: 1; }
+  .note-item .note-acts { position: static; box-shadow: none; background: none; margin-left: auto; align-self: flex-start; }
+}
+
+.notes-important { display: grid; gap: .35rem; margin: -.3rem 0 .9rem; }
+.notes-important:empty { display: none; }
+.notes-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.3rem; align-items: start; }
+.notes-layout.with-margin { grid-template-columns: minmax(0, 1fr) 250px; }
+.notes-margin { position: relative; }
+.notes-margin .note-item, .notes-margin .note-cap, .notes-margin .note-add, .notes-margin .note-form { position: absolute; left: 0; right: 0; }
+.note-cap { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.note-add { display: block; width: auto; height: auto; border: 0; background: none; padding: 0; color: var(--muted); font-size: .8rem; text-align: left; cursor: pointer; box-shadow: none; }
+.note-add:hover { color: var(--primary-strong); }
+@media (max-width: 760px) {
+  .notes-layout.with-margin { grid-template-columns: 1fr; }
+  .notes-layout.with-margin .notes-margin { order: -1; display: grid; gap: .45rem; min-height: 0 !important; }
+  .notes-margin .note-item, .notes-margin .note-cap, .notes-margin .note-add, .notes-margin .note-form { position: static; }
+}
+.note-float-list { position: absolute; z-index: 45; width: 260px; max-width: calc(100vw - 16px); display: grid; gap: .35rem; }
+.note-float-list .note-item { background: linear-gradient(var(--note-bg), var(--note-bg)), var(--surface-solid);
+  box-shadow: 0 4px 16px rgba(60, 55, 140, .18); }
+
+.sel-pop { position: absolute; z-index: 50; background: var(--surface-solid); border: 1px solid var(--pop-line); border-radius: 12px;
+  box-shadow: var(--pop-shadow); padding: 3px; font-family: var(--font); max-width: calc(100vw - 16px); }
+.sel-strip { display: flex; gap: 2px; }
+/* перевод в подсказке (006, макет: белая карточка с тонкой лавандовой рамкой) */
+.tr-sec { width: 320px; max-width: calc(100vw - 24px); padding: .5rem .65rem .45rem; font-size: .93rem; }
+.tr-sec + .sel-strip { border-top: 1px solid var(--line); margin-top: 2px; padding-top: 2px; }
+.tr-head { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+.tr-src { font-weight: 700; color: var(--fr); overflow-wrap: anywhere; }
+.tr-close { border: 0; background: none; color: var(--muted); padding: 0 .2rem; min-height: 0; font-size: .95rem; cursor: pointer; }
+.tr-close:hover { color: var(--text); background: none; }
+.tr-text { margin: .3rem 0 .15rem; font-size: 1rem; overflow-wrap: anywhere; }
+.tr-error { color: var(--muted); font-size: .9rem; }
+.tr-lemma { color: var(--muted); font-size: .86rem; margin: .1rem 0; }
+.tr-lemma [lang="fr"] { color: var(--fr); }
+.tr-acts { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin-top: .4rem; }
+.tr-acts .speak { min-height: 1.9rem; }
+.tr-add { min-height: 1.9rem; }
+.tr-in-dict { display: inline-block; background: var(--ok-soft); color: var(--ok); border-radius: 6px; padding: .05rem .5rem; font-size: .82rem; font-weight: 600; }
+.sel-strip button { display: inline-flex; align-items: center; gap: .3rem; border: 0; background: none; border-radius: 8px; padding: .3rem .55rem;
+  font-size: .82rem; color: var(--muted); cursor: pointer; }
+.sel-strip button:hover { background: var(--surface-2); color: var(--text); }
+.sel-strip .icon-note { color: var(--primary-strong); } .sel-strip .icon-question { color: var(--q); }
+
+.note-form { background: var(--surface-solid); border: 1px solid var(--pop-line); border-radius: 8px; padding: .45rem .55rem;
+  box-shadow: 0 4px 14px rgba(60, 55, 140, .12); font-family: var(--font); font-size: .87rem; }
+.note-form.floating { position: absolute; z-index: 60; width: 280px; max-width: calc(100vw - 16px); }
+.note-form textarea { width: 100%; min-height: 3.6em; margin: 0; font: inherit; color: var(--text); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 6px; padding: .3rem .45rem; resize: vertical; }
+.note-form textarea + textarea { margin-top: .3rem; min-height: 2.4em; }
+.note-form .row { display: flex; align-items: center; gap: .25rem; margin-top: .3rem; }
+.note-form .row .sp { flex: 1; }
+.note-form .tg { border: 1px solid var(--line); background: transparent; border-radius: 6px; height: 1.7rem; padding: 0 .4rem;
+  font-size: .8rem; color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; }
+.note-form .tg.on { background: var(--primary-soft); border-color: var(--primary); color: var(--text); }
+.note-form .tg.q.on { color: var(--q); border-color: var(--q); } .note-form .tg.imp.on { color: var(--imp); border-color: var(--imp); }
+.note-form .btn-sm { height: 1.7rem; padding: 0 .7rem; font-size: .8rem; }
+.note-dialog { border: 0; border-radius: var(--radius-lg); box-shadow: var(--pop-shadow); background: var(--surface-solid); color: var(--text);
+  padding: 1.1rem 1.3rem; width: min(340px, 92vw); }
+.note-dialog::backdrop { background: rgba(20, 22, 40, .35); }
+.note-dialog .row { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .9rem; }
+.note-toast { position: fixed; bottom: 1.2rem; left: 50%; transform: translateX(-50%); z-index: 70; background: var(--surface-solid);
+  box-shadow: var(--pop-shadow); border-radius: 10px; padding: .5rem 1rem; font-size: .9rem; }
+
+/* страница «Заметки к уроку» (вариант В1) и панель вопросов */
+.notes-b1 { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 1.2rem; align-items: start; }
+.notes-b1 > .blk.q { position: sticky; top: 5rem; }
+@media (max-width: 900px) { .notes-b1 { grid-template-columns: 1fr; } .notes-b1 > .blk.q { position: static; } }
+.blk { background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); padding: .75rem 1.1rem .6rem; margin-bottom: 1rem;
+  border-top: 3px solid var(--line); }
+.blk.q { border-top-color: var(--q); } .blk.les { border-top-color: var(--primary); }
+.blk-h { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .15rem; }
+.blk-h .t { font-weight: 700; font-size: .98rem; }
+.blk-h .t .icon { color: var(--primary-strong); } .blk.q .blk-h .t .icon { color: var(--q); }
+.blk-h .k { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.blk-h .c { font-size: .8rem; color: var(--muted); }
+.blk-h .go { margin-left: auto; font-size: .8rem; color: var(--muted); }
+.items > * + * { border-top: 1px solid var(--line); }
+.qi-row, .ni { position: relative; display: flex; gap: .6rem; align-items: flex-start; padding: .5rem 0; font-size: .95rem; line-height: 1.5; }
+.q-box { flex: none; width: 1.05rem; height: 1.05rem; margin-top: .22rem; padding: 0; border: 1.5px solid var(--q); border-radius: 4px;
+  background: transparent; display: grid; place-items: center; font-size: .7rem; color: #fff; cursor: pointer; }
+.q-box:hover { background: var(--q-soft); }
+.q-box.on { background: var(--ok); border-color: var(--ok); }
+.qi.done .qi-tx { color: var(--muted); } .qi.done .note-ans { color: var(--text); }
+.qi .note-form, .ni + .note-form { margin: 0 0 .55rem 1.65rem; }
+.ni .mk { flex: none; width: .9rem; text-align: center; }
+.ni .mk::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--primary); }
+.ni.frag .mk::before { background: transparent; border: 1.5px dotted var(--primary); width: 6px; height: 6px; }
+.ni.imp .mk::before { content: "★"; width: auto; height: auto; background: none; border: 0; color: var(--imp); font-size: .85rem; }
+.ni.imp .ni-tx { font-weight: 600; }
+.ni .qt { position: absolute; left: 1.5rem; top: -.75rem; z-index: 2; background: var(--surface-solid); border: 1px solid var(--line);
+  border-radius: 6px; padding: 0 .45rem; font-family: var(--reading); font-style: italic; font-size: .78rem; color: var(--muted);
+  opacity: 0; pointer-events: none; transition: opacity .12s; white-space: nowrap; max-width: 90%; overflow: hidden; text-overflow: ellipsis; }
+.ni:hover .qt { opacity: 1; }
+@media (hover: none) {
+  .ni { flex-wrap: wrap; }
+  .ni .qt { position: static; opacity: 1; order: -1; width: 100%; margin-left: 1.5rem; border: 0; padding: 0; background: none; }
+}
+.addline { display: flex; gap: .5rem; align-items: center; padding: .35rem 0 .15rem; border-top: 1px dashed var(--line); margin-top: .1rem; }
+.addline span { color: var(--muted); width: 1.05rem; text-align: center; }
+.addline input { flex: 1; height: auto; margin: 0; border: 0; background: transparent; font: inherit; font-size: .9rem; color: var(--text);
+  outline: none; padding: .15rem 0; box-shadow: none; }
+.fold2 { border: 0; background: none; color: var(--muted); font-size: .82rem; padding: .35rem 0 .1rem; cursor: pointer; }
+.empty-s { color: var(--muted); font-size: .88rem; padding: .4rem 0; }
+.q-drawer { left: auto; right: 0; width: 380px; }
+.q-group { font-size: .74rem; text-transform: uppercase; letter-spacing: .06em; margin: 1rem 0 .2rem; }
+.q-drawer .q-group a { display: inline; padding: 0; color: var(--muted); font-size: .74rem; }
+.q-drawer .note-acts a { display: inline; padding: 0 .28rem; font-size: .82rem; }
+.drawer a.drawer-notes { margin-top: .3rem; color: var(--primary-strong); justify-content: flex-start; align-items: center; }
+/* маленькие кнопки заметок — без общей минимальной высоты кнопок */
+.note-acts button, .sel-strip button, .note-form .tg, .note-form .btn-sm, .q-box, .fold2, .note-add, .q-badge,
+.note-lost button { min-height: 0; }
+.note-form .btn-sm { padding: 0 .7rem; }

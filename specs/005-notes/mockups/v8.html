@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ru" data-theme="light" data-v="1" data-open="1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Макет 005 v8 — заметки в разделе «Тексты»</title>
+<!-- Макет v8: как показать заметки во вкладке урока «Тексты» / «Теория».
+     «Сейчас» — правка из сессии 2026-09-29, вариант 1 — тексты подряд, поле снаружи карточки.
+     Значки — «облачка-комментарии» приложения (FR-003a). Тексты придуманные. -->
+<style>
+:root {
+  --bg:#FDFCF8; --surface:rgba(255,255,255,.85); --solid:#fff; --surface-2:#F3F1FB; --text:#2C2F52; --muted:#6F739C; --line:#E2E0F2;
+  --primary:#838BCC; --primary-strong:#6B73B8; --primary-soft:#E9E7FA; --imp:#D9822B; --q:#4F8CC9;
+  --note-bg: rgba(233,231,250,.55); --note-hl: #DCD6F7; --anchor: rgba(131,139,204,.55);
+  --page: radial-gradient(1200px 650px at 0% 0%, #F8D6FD 0%, transparent 60%), radial-gradient(1000px 650px at 100% 5%, #C9F1F4 0%, transparent 55%), #FDFCF8;
+  --font: "Inter", system-ui, sans-serif; --reading: "Lora", Georgia, serif;
+}
+:root[data-theme="dark"] {
+  --bg:#1C1E33; --surface:rgba(40,43,70,.9); --solid:#282B46; --surface-2:#2E3152; --text:#ECEBFA; --muted:#A9ABCD; --line:#3B3F66;
+  --primary:#AAB1EE; --primary-strong:#C3C8F5; --primary-soft:#363B69; --imp:#F0A860; --q:#86BBEE;
+  --note-bg: rgba(54,59,105,.55); --note-hl: #4A4380; --anchor: rgba(170,177,238,.5);
+  --page: radial-gradient(1200px 600px at 0% 0%, #2F2548 0%, transparent 60%), radial-gradient(1000px 600px at 100% 10%, #1F3D48 0%, transparent 55%), #1C1E33;
+}
+* { box-sizing: border-box; }
+html { background: var(--page); background-attachment: fixed; }
+body { margin: 0; font: 16px/1.55 var(--font); color: var(--text); min-height: 100vh; }
+button { font: inherit; cursor: pointer; color: inherit; }
+a { color: inherit; text-decoration: none; cursor: pointer; }
+
+/* панель макета */
+.mock { position: sticky; top: 0; z-index: 80; background: #1f2230; color: #e8e9f0; font: 13px/1.4 system-ui; padding: .5rem .8rem;
+  display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; }
+.mock .grp { display: flex; gap: .25rem; align-items: center; flex-wrap: wrap; }
+.mock .lbl { color: #9aa0b8; }
+.mock button { background: #2d3144; color: #e8e9f0; border: 1px solid #3d4260; border-radius: 5px; padding: .2rem .55rem; font-size: 12px; }
+.mock button.on { background: #7E89CA; border-color: #7E89CA; color: #fff; }
+.mock .hint { color: #c9cde0; width: 100%; }
+.mock .hint b { color: #fff; }
+.hint-v { display: none; } :root[data-v="now"] .hint-v.now, :root[data-v="1"] .hint-v.v1, :root[data-v="2"] .hint-v.v2 { display: inline; }
+
+/* шапка приложения */
+.app-head { display: flex; align-items: center; gap: 1.2rem; padding: .7rem 1.5rem; border-bottom: 1px solid var(--line); background: var(--surface); backdrop-filter: blur(8px); }
+.logo { font-weight: 700; background: linear-gradient(120deg, #B8AEE3 0%, #838BCC 55%, #7FAED9 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.nav a { color: var(--muted); margin-right: 1rem; font-weight: 500; } .nav a.on { color: var(--text); }
+.search { flex: 1; max-width: 280px; border: 1px solid var(--line); border-radius: 8px; padding: .3rem .6rem; color: var(--muted); font-size: .9rem; background: var(--bg); }
+
+/* урок: шапка и разделы (как в приложении, 009) */
+.wrap { max-width: 1320px; margin: 0 auto; padding: 1.2rem 1.5rem 5rem; }
+.crumbs { font-size: .86rem; color: var(--muted); margin: 0 0 .4rem; }
+.lesson-head { display: flex; align-items: center; gap: .9rem; margin-bottom: 1.2rem; }
+.ring { width: 46px; height: 46px; border-radius: 50%; border: 4px solid var(--primary-soft); border-top-color: var(--primary); display: grid; place-items: center; font-size: .75rem; color: var(--muted); }
+.lesson-head h1 { margin: 0; font-size: 1.6rem; }
+.lesson-head .date { color: var(--muted); font-size: .85rem; }
+.lesson { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 1.3rem; align-items: start; }
+.card { background: var(--surface); border-radius: 14px; box-shadow: 0 4px 18px rgba(92,88,170,.12); padding: 1.2rem 1.4rem; backdrop-filter: blur(8px); }
+.sections { padding: .8rem .6rem; font-size: .92rem; }
+.sections .t { font-size: .8rem; color: var(--muted); padding: 0 .5rem .4rem; }
+.sections a { display: flex; justify-content: space-between; padding: .35rem .6rem; border-radius: 8px; }
+.sections a.on { background: var(--primary-soft); font-weight: 600; }
+.sections a .c { color: var(--muted); font-weight: 400; font-size: .85rem; }
+.sub { margin: .1rem 0 .3rem .6rem; border-left: 2px solid var(--line); }
+.sub a { font-size: .86rem; padding: .22rem .6rem; border-radius: 0 8px 8px 0; font-weight: 400; }
+.sub a.on { background: var(--surface-2); font-weight: 600; color: var(--text); }
+.sub { display: none; } :root[data-v="2"] .sub { display: block; }
+
+/* раздел «Тексты»: оглавление + тексты подряд (сейчас и вариант 1) */
+.reading-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 1.3rem; align-items: start; }
+.toc { position: sticky; top: 100px; font-size: .9rem; padding: .9rem 1rem; }
+.toc .tt { display: block; font-weight: 700; margin: .5rem 0 .2rem; } .toc .tt:first-child { margin-top: 0; }
+.toc .h { display: block; color: var(--muted); padding: .1rem 0 .1rem .7rem; border-left: 2px solid var(--line); }
+.toc-mini { display: none; }
+/* вариант 1: при открытом поле оглавление сворачивается в узкую полоску */
+:root[data-v="1"] .reading-layout.has-open { grid-template-columns: 44px minmax(0, 1fr); }
+:root[data-v="1"] .reading-layout.has-open .toc { display: none; }
+:root[data-v="1"] .reading-layout.has-open .toc-mini { display: flex; position: sticky; top: 100px; flex-direction: column; align-items: center; gap: .4rem; padding: .6rem 0; font-size: .8rem; color: var(--muted); }
+.toc-mini .bar { writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: .05em; }
+.items { display: grid; gap: 1.6rem; }
+
+.reading { font-family: var(--reading); font-size: 1.04rem; line-height: 1.7; }
+.reading p { margin: 0 0 .85rem; } .reading p:last-child { margin-bottom: 0; }
+.reading h3 { font-family: var(--font); font-size: 1rem; margin: 1rem 0 .4rem; }
+
+/* заголовок элемента с кнопками */
+.el-head { display: flex; align-items: center; gap: .45rem; margin: 0 0 .6rem; }
+.el-head h2 { margin: 0; font-size: 1.3rem; flex: 1; }
+.el-head h1 { margin: 0; font-size: 1.6rem; flex: 1; }
+.btn-icon { border: 1px solid var(--line); background: var(--solid); border-radius: 8px; height: 2.1rem; min-width: 2.1rem; padding: 0 .45rem; display: inline-flex; gap: .25rem; align-items: center; justify-content: center; font-size: .85rem; color: var(--muted); }
+.btn-icon:hover { border-color: var(--primary); color: var(--text); }
+.btn-icon.on { background: var(--primary-soft); border-color: var(--primary); color: var(--text); }
+.icon { width: 1.15em; height: 1.15em; flex: none; }
+.btn-note { color: var(--primary-strong); gap: .3rem; padding: 0 .55rem; }
+.btn-note[data-empty] { opacity: .5; } .btn-note[data-empty]:hover { opacity: 1; }
+.btn-note.on { background: var(--primary-soft); border-color: var(--primary); color: var(--primary-strong); }
+.mn .ic .icon { width: 1rem; height: 1rem; vertical-align: -.2em; }
+.qbadge { margin-left: auto; display: inline-flex; gap: .3rem; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: .1rem .6rem; color: var(--q); font-size: .85rem; background: var(--solid); }
+.imp-line { margin: 0 0 .7rem; }
+
+/* «сейчас»: кнопки и поле внутри карточки */
+.card-head { display: none; }
+:root[data-v="now"] .card-head { display: flex; }
+:root[data-v="now"] .out-head { display: none; }
+:root[data-v="now"] .imp-out { display: none; }
+.imp-in { display: none; } :root[data-v="now"] .imp-in { display: block; }
+
+/* текст + поле заметок */
+.work { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.3rem; align-items: start; }
+.work.open { grid-template-columns: minmax(0, 1fr) 250px; }
+.margin { display: none; position: relative; }
+.work.open .margin { display: block; }
+.margin > * { position: absolute; left: 0; right: 0; }
+
+/* заметки */
+mark.anchor { background: none; color: inherit; border-bottom: 1.5px dashed var(--anchor); cursor: pointer; }
+mark.anchor.hl { background: var(--note-hl); }
+.mn { background: var(--note-bg); border-left: 2px solid var(--anchor); border-radius: 6px; padding: .3rem .55rem; font: .84rem/1.4 var(--font); color: var(--text); display: flex; gap: .35rem; }
+.mn.imp { border-left-color: var(--imp); } .mn.q { border-left-color: var(--q); }
+.mn .ic { flex: none; font-size: .8rem; } .mn.imp .ic { color: var(--imp); } .mn.q .ic { color: var(--q); }
+.mn.hl { background: var(--note-hl); }
+.cap { font: .7rem var(--font); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.add { font: .8rem var(--font); color: var(--muted); border: 0; background: none; padding: 0; text-align: left; }
+
+/* вариант 2: один текст, переключение текстов */
+.one { display: none; } .many { display: block; }
+:root[data-v="2"] .one { display: block; } :root[data-v="2"] .many { display: none; }
+.switch { display: flex; gap: .4rem; margin: 0 0 .9rem; flex-wrap: wrap; }
+.switch a { border: 1px solid var(--line); border-radius: 999px; padding: .15rem .8rem; font-size: .88rem; color: var(--muted); background: var(--solid); }
+.switch a.on { background: var(--primary-soft); border-color: var(--primary); color: var(--text); font-weight: 600; }
+.arrows { display: flex; justify-content: space-between; margin-top: 1rem; font-size: .9rem; color: var(--muted); }
+
+@media (max-width: 1000px) {
+  .lesson { grid-template-columns: 1fr; }
+  .reading-layout { grid-template-columns: 1fr !important; } .toc, .toc-mini { display: none !important; }
+  .work.open { grid-template-columns: 1fr; } .work.open .margin { order: -1; display: grid; gap: .4rem; min-height: 0 !important; }
+  .margin > * { position: static; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-note" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 15a2 2 0 0 1-2 2H8l-4.5 4V5.5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"/><path d="M8 8.5h8M8 12.5h5"/></g></symbol>
+  <symbol id="i-question" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20.2A9 9 0 1 0 3.8 16.1L2.5 21.5z"/><path d="M9.2 9a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.8-2.8 2.8"/><path d="M12 17h.01"/></g></symbol>
+</svg>
+
+<div class="mock">
+  <div class="grp"><span class="lbl">Вкладка «Тексты»:</span>
+    <button data-set="v" data-val="now">сейчас (моя правка)</button>
+    <button data-set="v" data-val="1">вариант 1 — тексты подряд</button></div>
+  <div class="grp"><span class="lbl">Поле заметок:</span>
+    <button data-set="open" data-val="0">закрыто</button><button data-set="open" data-val="1">открыто</button></div>
+  <div class="grp"><span class="lbl">Тема:</span><button data-set="theme" data-val="light">светлая</button><button data-set="theme" data-val="dark">тёмная</button></div>
+  <span class="hint">
+    <span class="hint-v now"><b>Сейчас:</b> все тексты урока подряд; кнопки и поле заметок — <b>внутри карточки</b>, текст сжимается в узкую колонку. Оглавление слева остаётся.</span>
+    <span class="hint-v v1"><b>Вариант 1:</b> все тексты урока подряд, как сейчас; кнопки — <b>над карточкой</b>, поле заметок — <b>справа снаружи</b>, текст остаётся широким. Пока поле открыто, оглавление свёрнуто в полоску «≡».</span>
+    Нажимайте кнопку заметок у заголовка текста — поле открывается и закрывается.
+  </span>
+</div>
+
+<header class="app-head">
+  <span class="logo">French Learning</span>
+  <nav class="nav"><a class="on">Уроки</a><a>Словарь</a><a>Практика</a><a>Темы</a></nav>
+  <span class="search">Поиск…</span>
+  <span class="qbadge" title="Открытые вопросы к преподавательнице"><svg class="icon"><use href="#i-question"/></svg>1</span>
+</header>
+
+<div class="wrap">
+  <p class="crumbs">Уроки › Урок 15</p>
+  <div class="lesson-head"><div class="ring">1/4</div><div><h1>Урок 15</h1><div class="date">12 сентября 2026</div></div></div>
+
+  <div class="lesson">
+    <nav class="card sections">
+      <div class="t">Разделы</div>
+      <a>Обзор</a>
+      <a>Теория <span class="c">1</span></a>
+      <a class="on">Тексты <span class="c">2</span></a>
+      <a>Лексика <span class="c">14</span></a>
+      <a>Задания <span class="c">6</span></a>
+      <a>Заметки <span class="c">4</span></a>
+    </nav>
+
+    <!-- сейчас и вариант 1: оглавление + тексты подряд -->
+    <div class="many">
+      <div class="reading-layout" id="rl">
+        <nav class="card toc">
+          <a class="tt">Au marché</a>
+          <a class="tt">Le week-end de Paul</a><a class="h">Samedi</a><a class="h">Dimanche</a>
+        </nav>
+        <div class="card toc-mini" title="Оглавление свёрнуто, пока открыто поле заметок">≡<span class="bar">Оглавление</span></div>
+        <div class="items">
+          <section data-el="t1">
+            <div class="el-head out-head"><h2 lang="fr">Au marché</h2>
+              <button class="btn-icon" title="Заметка ко всему тексту">＋</button>
+              <button class="btn-icon btn-note" data-toggle="t1" title="Все заметки"><svg class="icon"><use href="#i-note"/></svg><span>3</span></button></div>
+            <div class="imp-line imp-out"><div class="mn imp"><span class="ic">★</span><span>Пересказать текст в passé composé к следующему уроку.</span></div></div>
+            <div class="work" data-work="t1">
+              <article class="card reading" lang="fr">
+                <div class="el-head card-head"><h2 lang="fr">Au marché</h2>
+                  <button class="btn-icon" title="Заметка ко всему тексту">＋</button>
+                  <button class="btn-icon btn-note" data-toggle="t1" title="Все заметки"><svg class="icon"><use href="#i-note"/></svg><span>3</span></button></div>
+                <div class="imp-line imp-in"><div class="mn imp"><span class="ic">★</span><span>Пересказать текст в passé composé к следующему уроку.</span></div></div>
+                <div class="work-in" data-work-in="t1">
+                  <div>
+                    <p>Le samedi matin, Claire va au marché avec sa sœur. Elles achètent des pommes, du fromage et une baguette.</p>
+                    <p>Il y a beaucoup de monde. Claire mange une crêpe au chocolat <mark class="anchor" data-n="a">pendant que</mark> sa sœur choisit des fleurs.</p>
+                    <p>À midi, elles <mark class="anchor" data-n="b">sont rentrées</mark> à la maison et elles ont préparé le déjeuner ensemble.</p>
+                  </div>
+                  <div class="margin" data-margin></div>
+                </div>
+              </article>
+              <div class="margin" data-margin></div>
+            </div>
+          </section>
+
+          <section data-el="t2">
+            <div class="el-head out-head"><h2 lang="fr">Le week-end de Paul</h2>
+              <button class="btn-icon" title="Заметка ко всему тексту">＋</button>
+              <button class="btn-icon btn-note" data-toggle="t2" title="Все заметки" data-empty><svg class="icon"><use href="#i-note"/></svg><span></span></button></div>
+            <div class="work" data-work="t2">
+              <article class="card reading" lang="fr">
+                <div class="el-head card-head"><h2 lang="fr">Le week-end de Paul</h2>
+                  <button class="btn-icon" title="Заметка ко всему тексту">＋</button>
+                  <button class="btn-icon btn-note" data-toggle="t2" title="Все заметки" data-empty><svg class="icon"><use href="#i-note"/></svg><span></span></button></div>
+                <div class="work-in" data-work-in="t2">
+                  <div>
+                    <h3>Samedi</h3>
+                    <p>Paul se lève tard. Il prend son café sur le balcon et il lit le journal.</p>
+                    <h3>Dimanche</h3>
+                    <p>Il va chez ses parents à la campagne. Ils se promènent dans la forêt et rentrent le soir.</p>
+                  </div>
+                  <div class="margin" data-margin></div>
+                </div>
+              </article>
+              <div class="margin" data-margin></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const root = document.documentElement;
+// заметки текста «Au marché»; у второго текста заметок нет
+const NOTES = [
+  { cap: "Ко всему тексту" },
+  { body: "Спросить: можно ли так пересказывать в présent?", cls: "q", ic: '<svg class="icon"><use href="#i-question"/></svg>' },
+  { cap: "К фрагментам" },
+  { body: "pendant que + présent — «в то время как».", n: "a" },
+  { body: "rentrer → être, поэтому rentrées: согласуется с elles.", n: "b" },
+];
+const open = new Set(["t1", "s1"]); // какие поля открыты
+
+function fill(margin, el) {
+  const first = el === "t1" || el === "s1";
+  margin.innerHTML = (first ? NOTES : []).map((x) =>
+    x.cap ? `<div class="cap">${x.cap}</div>`
+      : `<div class="mn ${x.cls || ""}" ${x.n ? `data-for="${x.n}"` : ""}>${x.ic ? `<span class="ic">${x.ic}</span>` : ""}<span>${x.body}</span></div>`
+  ).join("") + `<button class="add">+ заметка</button>`;
+}
+
+// заметки к фрагментам — на уровне своих строк, остальные сверху, без наложений
+function place(margin, scope) {
+  if (!margin.offsetParent) return;
+  const top0 = margin.getBoundingClientRect().top;
+  let y = 0;
+  [...margin.children].forEach((node, i, all) => {
+    let want = -1;
+    const probe = node.classList.contains("cap") && all[i + 1]?.dataset.for ? all[i + 1] : node;
+    if (probe.dataset.for) {
+      const mark = scope.querySelector(`mark[data-n="${probe.dataset.for}"]`);
+      if (mark) want = mark.getBoundingClientRect().top - top0 - (probe === node ? 2 : 20);
+    }
+    const top = Math.max(want, y);
+    node.style.top = `${top}px`;
+    y = top + node.offsetHeight + 6;
+  });
+  margin.style.minHeight = `${y}px`;
+}
+
+function render() {
+  const v = root.dataset.v;
+  document.querySelectorAll("[data-el]").forEach((sec) => {
+    const el = sec.dataset.el;
+    const isOpen = open.has(el);
+    sec.querySelectorAll(`[data-toggle="${el}"]`).forEach((b) => b.classList.toggle("on", isOpen));
+    const outer = sec.querySelector(`[data-work="${el}"]`);
+    const inner = sec.querySelector(`[data-work-in="${el}"]`);
+    // «сейчас» — поле внутри карточки, варианты 1 и 2 — снаружи
+    const inside = v === "now" && inner;
+    outer.classList.toggle("open", isOpen && !inside);
+    if (inner) {
+      inner.classList.toggle("work", true);
+      inner.classList.toggle("open", isOpen && inside);
+    }
+    const margin = inside ? inner.querySelector(":scope > [data-margin]") : outer.querySelector(":scope > [data-margin]");
+    sec.querySelectorAll("[data-margin]").forEach((m) => { m.innerHTML = ""; m.style.minHeight = ""; });
+    if (isOpen) fill(margin, el);
+  });
+  document.getElementById("rl").classList.toggle("has-open", open.has("t1") || open.has("t2"));
+  requestAnimationFrame(() => document.querySelectorAll("[data-el]").forEach((sec) => {
+    sec.querySelectorAll("[data-margin]").forEach((m) => m.children.length && place(m, sec));
+  }));
+  document.querySelectorAll(".mock button").forEach((b) => {
+    const cur = b.dataset.set === "open" ? (open.size ? "1" : "0") : root.dataset[b.dataset.set];
+    b.classList.toggle("on", cur === b.dataset.val);
+  });
+}
+
+function showText(n) {
+  document.querySelectorAll("[data-one]").forEach((s) => (s.hidden = s.dataset.one !== n));
+  document.querySelectorAll("[data-text]").forEach((a) => a.classList.toggle("on", a.dataset.text === n && !a.closest(".arrows")));
+  render();
+}
+
+document.addEventListener("click", (e) => {
+  const set = e.target.closest("[data-set]");
+  if (set) {
+    if (set.dataset.set === "open") {
+      open.clear();
+      if (set.dataset.val === "1") ["t1", "s1"].forEach((x) => open.add(x));
+    } else root.dataset[set.dataset.set] = set.dataset.val;
+    return render();
+  }
+  const t = e.target.closest("[data-toggle]");
+  if (t) { const el = t.dataset.toggle; open.has(el) ? open.delete(el) : open.add(el); return render(); }
+  const txt = e.target.closest("[data-text]");
+  if (txt) {
+    if (root.dataset.v === "2") showText(txt.dataset.text);
+    else document.querySelector(`[data-el="t${txt.dataset.text}"]`)?.scrollIntoView({ behavior: "smooth" });
+  }
+});
+document.addEventListener("mouseover", (e) => {
+  document.querySelectorAll(".hl").forEach((x) => x.classList.remove("hl"));
+  const m = e.target.closest("mark.anchor, .mn[data-for]");
+  if (!m) return;
+  const n = m.dataset.n || m.dataset.for;
+  const sec = m.closest("[data-el]");
+  sec.querySelectorAll(`mark[data-n="${n}"], .mn[data-for="${n}"]`).forEach((x) => x.classList.add("hl"));
+});
+window.addEventListener("resize", render);
+render();
+</script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 {% set lesson_no = e.lesson if e.kind != "vocab" else (e.lessons | min if e.lessons else none) %}
 <li class="element-row">
   {% if e.kind == "vocab" %}
-    <span class="row-title"><a class="fr" href="/vocab/{{ e.id }}">{% if e.article %}{{ e.article }}{% if e.article != "l'" %} {% endif %}{% endif %}{{ e.text }}</a>
+    <span class="row-title"><a class="fr" lang="fr" href="/vocab/{{ e.id }}">{% if e.article %}{{ e.article }}{% if e.article != "l'" %} {% endif %}{% endif %}{{ e.text }}</a>
       <span class="muted">— {{ e.translations | map(attribute="text") | join(", ") }}</span></span>
   {% elif e.kind == "exercise" %}
     <a class="row-title" href="/elements/{{ e.id }}">{{ e.description_ru }}</a>

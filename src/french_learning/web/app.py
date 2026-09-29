@@ -14,11 +14,14 @@ from french_learning.config import Settings
 from french_learning.content.index import ContentStore
 from french_learning.content.progress import NoProgress
 from french_learning.exercises.attempts import AttemptStore, ExerciseProgress
+from french_learning.notes.store import NoteStore
 from french_learning.practice.backup import start_daily_backup
 from french_learning.practice.db import ProgressDB
 from french_learning.practice.tts import DEFAULT_VOICE, Speaker
 from french_learning.trainers.schedule import TrainerSchedule
 from french_learning.trainers.sessions import TrainerSessions
+from french_learning.translate.cache import TranslationCache
+from french_learning.translate.service import TranslationService
 from french_learning.vocab.cards import CardStore
 from french_learning.vocab.sessions import SessionStore
 from french_learning.web import routes
@@ -37,16 +40,23 @@ def create_app(settings: Settings | None = None, auto_backup: bool = False) -> F
     app.state.store = ContentStore(settings.content_dir) if settings.content_configured else None
     app.state.progress = NoProgress()
     app.state.progress_db = app.state.cards = app.state.sessions = app.state.attempts = None
-    app.state.trainer_schedule = app.state.trainer_sessions = None
+    app.state.trainer_schedule = app.state.trainer_sessions = app.state.notes = None
+    app.state.translation = None
     if settings.content_configured:
         app.state.progress_db = ProgressDB(settings.content_dir)
         app.state.cards = CardStore(app.state.progress_db)
         app.state.sessions = SessionStore(app.state.progress_db, app.state.cards)
         app.state.attempts = AttemptStore(app.state.progress_db)
         app.state.progress = ExerciseProgress(app.state.attempts)
+        app.state.notes = NoteStore(app.state.progress_db)
         app.state.trainer_schedule = TrainerSchedule(app.state.progress_db)
         app.state.trainer_sessions = TrainerSessions(
             app.state.progress_db, app.state.trainer_schedule
+        )
+        from french_learning.web.routes.translate import translator_factory
+
+        app.state.translation = TranslationService(
+            TranslationCache(app.state.progress_db), lambda: translator_factory(app)
         )
 
     app.state.speaker = Speaker(settings.tts_dir)

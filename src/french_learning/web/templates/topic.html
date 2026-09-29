@@ -49,7 +49,7 @@
         <ul class="word-rows card">
           {% for w in items %}
             <li class="word-row"><span class="gbar g-{{ w.gender or 'none' }}"></span>
-              <span><a class="fr" href="/vocab/{{ w.id }}">{{ display_fr(w) }}</a> <span class="muted">— {{ w.translations | map(attribute="text") | join(", ") }}</span></span></li>
+              <span><a class="fr" lang="fr" href="/vocab/{{ w.id }}">{{ display_fr(w) }}</a> <span class="muted">— {{ w.translations | map(attribute="text") | join(", ") }}</span></span></li>
           {% endfor %}
         </ul>
       {% else %}

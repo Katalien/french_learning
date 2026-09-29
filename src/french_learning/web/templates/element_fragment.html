@@ -4,5 +4,6 @@
     <strong {% if element.kind == "text" %}lang="fr"{% endif %}>{{ element.title }}</strong>
     <a href="/elements/{{ element.id }}" class="small">открыть отдельно</a>
   </div>
-  {{ element.body | markdown(path, element.id) }}
+  <div data-translate {% if element.lesson %}data-lesson="{{ element.lesson }}"{% endif %} {% if notes_json is defined %}data-note-container="{{ element.id }}"{% endif %}>{{ element.body | markdown(path, element.id) }}</div>
 </div>
+{% if notes_json is defined %}<script type="application/json" class="notes-data" data-notes-json>{{ notes_json | safe }}</script>{% endif %}
