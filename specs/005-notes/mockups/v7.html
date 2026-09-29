@@ -1,0 +1,1001 @@
+<!doctype html>
+<html lang="ru" data-theme="light" data-variant="margin" data-mark="faint" data-lp="b1" data-icons="line" data-tr="on" data-off="strip">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Макет 005 v7 — значки и подсказка</title>
+<!-- Макет для обсуждения (005, вторая версия по замечаниям). Всё хранится только в памяти страницы. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#FDFCF8; --surface:rgba(255,255,255,.85); --solid:#fff; --surface-2:#F3F1FB; --text:#2C2F52; --muted:#6F739C; --line:#E2E0F2;
+  --primary:#838BCC; --primary-strong:#6B73B8; --primary-soft:#E9E7FA; --fr:#6D62BD; --ok:#2F7F5E;
+  --imp:#D9822B; --q:#4F8CC9; --danger:#B84A5A;
+  --note-bg: rgba(233,231,250,.55); --note-hl: #DCD6F7; --anchor: rgba(131,139,204,.55); --tint: rgba(233,231,250,.9);
+  --grad: linear-gradient(120deg, #B8AEE3 0%, #838BCC 55%, #7FAED9 100%);
+  --page: radial-gradient(1200px 650px at 0% 0%, #F8D6FD 0%, transparent 60%), radial-gradient(1000px 650px at 100% 5%, #C9F1F4 0%, transparent 55%), #FDFCF8;
+  --pop-line:#C9C4EA; --pop-shadow: 0 10px 30px rgba(60,55,140,.22), 0 1px 3px rgba(60,55,140,.12);
+  --font: "Inter", system-ui, sans-serif; --reading: "Lora", Georgia, serif;
+}
+:root[data-theme="dark"] {
+  --bg:#1C1E33; --surface:rgba(40,43,70,.9); --solid:#282B46; --surface-2:#2E3152; --text:#ECEBFA; --muted:#A9ABCD; --line:#3B3F66;
+  --primary:#AAB1EE; --primary-strong:#C3C8F5; --primary-soft:#363B69; --fr:#C5BCF7; --ok:#82D6AE;
+  --imp:#F0A860; --q:#86BBEE; --danger:#F08A99;
+  --note-bg: rgba(54,59,105,.55); --note-hl: #4A4380; --anchor: rgba(170,177,238,.5); --tint: rgba(74,67,128,.55);
+  --page: radial-gradient(1200px 600px at 0% 0%, #2F2548 0%, transparent 60%), radial-gradient(1000px 600px at 100% 10%, #1F3D48 0%, transparent 55%), #1C1E33;
+  --pop-line:#565B92; --pop-shadow: 0 10px 30px rgba(0,0,0,.55);
+}
+* { box-sizing: border-box; }
+html { background: var(--page); background-attachment: fixed; }
+body { margin: 0; font: 16px/1.55 var(--font); color: var(--text); min-height: 100vh; }
+button { font: inherit; cursor: pointer; color: inherit; }
+.muted { color: var(--muted); } .small { font-size: .85rem; }
+
+.mock { position: sticky; top: 0; z-index: 80; background: #1f2230; color: #e8e9f0; font: 13px/1.4 system-ui; padding: .45rem .8rem;
+  display: flex; flex-wrap: wrap; gap: .35rem .9rem; align-items: center; }
+.mock .grp { display: flex; gap: .25rem; align-items: center; flex-wrap: wrap; }
+.mock .lbl { color: #9aa0b8; }
+.mock button { background: #2d3144; color: #e8e9f0; border: 1px solid #3d4260; border-radius: 5px; padding: .2rem .5rem; font-size: 12px; }
+.mock button.on { background: #7E89CA; border-color: #7E89CA; color: #fff; }
+.mock .hint { color: #9aa0b8; width: 100%; }
+
+.app-head { display: flex; align-items: center; gap: 1.2rem; padding: .7rem 1.5rem; border-bottom: 1px solid var(--line); background: var(--surface); backdrop-filter: blur(8px); }
+.logo { font-weight: 700; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.nav a { color: var(--muted); text-decoration: none; margin-right: 1rem; font-weight: 500; }
+.nav a.on { color: var(--text); }
+.search { flex: 1; max-width: 280px; border: 1px solid var(--line); border-radius: 8px; padding: .3rem .6rem; color: var(--muted); font-size: .9rem; background: var(--bg); }
+.head-right { margin-left: auto; display: flex; gap: .5rem; align-items: center; }
+.dots { border: 1px solid var(--line); background: var(--solid); border-radius: 8px; padding: .1rem .6rem; font-size: 1.1rem; }
+.qchip { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; padding: .05rem .6rem; font-size: .85rem; }
+.qchip:hover { color: var(--q); border-color: var(--q); }
+.qchip.none { display: none; }
+
+.layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 1.5rem; max-width: 1240px; margin: 0 auto; padding: 1.4rem 1.5rem 5rem; }
+.side { font-size: .92rem; }
+.side .sec { color: var(--muted); font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; margin: 1rem 0 .3rem; }
+.side a { display: block; color: var(--text); text-decoration: none; padding: .25rem .6rem; border-radius: 7px; cursor: pointer; }
+.side a.on { background: var(--primary-soft); font-weight: 600; }
+.side a .cnt { color: var(--muted); font-size: .8rem; font-weight: 400; }
+.crumbs { font-size: .86rem; color: var(--muted); margin: 0; }
+.el-head { display: flex; align-items: center; gap: .5rem; margin: .15rem 0 .8rem; }
+.el-head h1 { margin: 0; font-size: 1.6rem; flex: 1; }
+.btn-icon { border: 1px solid var(--line); background: var(--solid); border-radius: 8px; height: 2.1rem; min-width: 2.1rem; padding: 0 .45rem; display: inline-flex; gap: .25rem; align-items: center; justify-content: center; font-size: .85rem; color: var(--muted); }
+.btn-icon:hover { border-color: var(--primary); color: var(--text); }
+.btn-icon.on { background: var(--primary-soft); border-color: var(--primary); color: var(--text); }
+.note-btn.empty { opacity: .5; }
+
+.work { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.4rem; align-items: start; position: relative; }
+.work.with-margin { grid-template-columns: minmax(0, 1fr) 250px; }
+.margin-col { display: none; position: relative; }
+.work.with-margin .margin-col { display: block; }
+.card { background: var(--surface); border-radius: 14px; box-shadow: 0 4px 18px rgba(92,88,170,.12); padding: 1.3rem 1.5rem; backdrop-filter: blur(8px); }
+.reading { font-family: var(--reading); font-size: 1.1rem; line-height: 1.85; }
+.reading p { margin: 0 0 .9rem; }
+.ex-item { display: flex; gap: .6rem; align-items: baseline; padding: .35rem 0; font-family: var(--reading); font-size: 1.05rem; }
+.ex-item .num { color: var(--muted); font-family: var(--font); font-size: .85rem; width: 1.4rem; }
+.ex-item input { font: inherit; width: 7rem; border: 0; border-bottom: 1.5px solid var(--line); background: transparent; color: var(--fr); text-align: center; }
+.arrows { display: flex; justify-content: space-between; margin-top: 1rem; font-size: .9rem; }
+.arrows a { color: var(--muted); text-decoration: none; }
+
+/* отметка фрагмента — три варианта */
+mark.anchor { background: none; color: inherit; cursor: pointer; border-radius: 3px; transition: background .15s; }
+:root[data-mark="faint"] mark.anchor { border-bottom: 1px dotted var(--anchor); }
+:root[data-mark="dot"] mark.anchor::after { content: ""; display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--anchor); vertical-align: super; margin-left: 2px; }
+:root[data-mark="dot"] mark.anchor.q::after { background: var(--q); opacity: .7; }
+:root[data-mark="tint"] mark.anchor { background: var(--tint); }
+mark.anchor:hover, mark.anchor.hl { background: var(--note-hl); }
+
+/* мини-заметка */
+.mn { position: relative; background: var(--note-bg); border-left: 2px solid var(--anchor); border-radius: 6px; padding: .3rem .55rem .3rem .5rem;
+  font-size: .87rem; line-height: 1.45; display: flex; gap: .35rem; transition: background .15s, box-shadow .15s; }
+.mn.q { border-left-color: var(--q); }
+.mn.imp { border-left-color: var(--imp); }
+.mn.done { border-left-color: var(--ok); }
+.mn.hl { background: var(--note-hl); }
+.mn .ic { flex: none; font-size: .78rem; font-weight: 700; line-height: 1.7; }
+.mn.q .ic { color: var(--q); } .mn.imp .ic { color: var(--imp); } .mn.done .ic { color: var(--ok); }
+.mn .tx { flex: 1; min-width: 0; white-space: pre-wrap; }
+.mn .ans { color: var(--muted); margin-top: .15rem; }
+.mn .ha { position: absolute; top: .15rem; right: .2rem; display: flex; gap: 1px; opacity: 0; transition: opacity .12s; background: var(--solid); border-radius: 6px; box-shadow: 0 1px 4px rgba(60,55,140,.15); }
+.mn:hover .ha, .mn:focus-within .ha { opacity: 1; }
+.mn .ha button { border: 0; background: none; padding: .05rem .3rem; font-size: .8rem; color: var(--muted); }
+.mn .ha button:hover { color: var(--primary-strong); }
+.mn .ha button.ok:hover { color: var(--ok); }
+.mn .ha button.del:hover { color: var(--danger); }
+.mn .x { border: 0; background: none; color: var(--muted); padding: 0 .1rem; font-size: .8rem; align-self: flex-start; }
+
+.margin-col .mn { position: absolute; left: 0; right: 0; transition: top .15s; }
+/* заметка к фрагменту — пунктирная полоса (как пунктир в тексте), ко всему элементу — сплошная */
+.mn.frag { border-left-style: dotted; border-left-width: 2px; }
+.margin-col .cap { position: absolute; left: 0; font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.add-pop { position: absolute; z-index: 60; width: 280px; }
+.mn .ha { align-items: center; height: auto; }
+.margin-col .add { position: absolute; left: 0; font-size: .8rem; color: var(--muted); border: 0; background: none; padding: 0; }
+.margin-col .add:hover { color: var(--primary-strong); }
+.float { position: absolute; z-index: 45; width: 250px; box-shadow: 0 4px 16px rgba(60,55,140,.16); background: var(--solid); }
+.float.mn { background: var(--solid); }
+.float.mn::before { content: ""; position: absolute; inset: 0; background: var(--note-bg); border-radius: 6px; pointer-events: none; }
+.float.mn > *:not(.ha) { position: relative; }
+
+/* список под заголовком (вариант Б) */
+.under { display: none; margin: -.2rem 0 1rem; padding: .5rem; border-radius: 10px; background: var(--surface); }
+.under.open { display: grid; gap: .35rem; }
+.under .add { font-size: .8rem; color: var(--muted); border: 0; background: none; text-align: left; padding: .1rem .2rem; }
+.imp-line { margin: -.3rem 0 .8rem; }
+
+/* форма */
+.nform { background: var(--solid); border: 1px solid var(--pop-line); border-radius: 8px; padding: .45rem .55rem; box-shadow: 0 4px 14px rgba(60,55,140,.12); font-size: .87rem; }
+.nform textarea { width: 100%; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: .3rem .45rem; resize: vertical; min-height: 3.6em; }
+.nform textarea:focus { outline: 2px solid var(--primary-soft); border-color: var(--primary); }
+.nform .row { display: flex; align-items: center; gap: .25rem; margin-top: .3rem; }
+.nform .row .sp { flex: 1; }
+.tg { border: 1px solid var(--line); background: transparent; border-radius: 6px; padding: 0 .4rem; font-size: .8rem; color: var(--muted); height: 1.6rem; }
+.tg.on { background: var(--primary-soft); border-color: var(--primary); color: var(--text); }
+.tg.q.on { color: var(--q); border-color: var(--q); } .tg.imp.on { color: var(--imp); border-color: var(--imp); }
+.btn { border: 0; border-radius: 6px; padding: 0 .7rem; height: 1.6rem; font-weight: 600; background: var(--grad); color: #fff; font-size: .8rem; }
+.btn-o { border: 1px solid var(--line); border-radius: 6px; padding: 0 .55rem; height: 1.6rem; background: transparent; font-size: .8rem; }
+
+/* всплывающее меню выделения (подсказка 006) */
+.pop { position: absolute; z-index: 50; width: 280px; background: var(--solid); border: 1px solid var(--pop-line); border-radius: 12px; box-shadow: var(--pop-shadow); padding: .65rem .8rem; font-size: .92rem; }
+.pop .src { font-weight: 700; color: var(--fr); }
+.pop .tr { margin: .15rem 0 .45rem; }
+.pop .acts { display: flex; gap: .3rem; padding-top: .45rem; border-top: 1px solid var(--line); align-items: center; }
+.pop .acts .l { font-size: .8rem; color: var(--muted); margin-right: auto; }
+
+/* страница «Заметки к уроку» */
+.lp { max-width: 680px; }
+.lp h2 { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin: 1.6rem 0 .5rem; font-weight: 600; display: flex; gap: .5rem; align-items: baseline; }
+.lp .list { display: grid; gap: .4rem; }
+.lp .src-link { font-size: .78rem; color: var(--muted); cursor: pointer; margin: .1rem 0 0 .6rem; }
+.lp .src-link:hover { color: var(--primary-strong); }
+.lp .el-group { margin-bottom: .9rem; }
+.lp .el-name { font-size: .88rem; font-weight: 600; cursor: pointer; margin-bottom: .3rem; display: inline-block; }
+.lp .el-name:hover { color: var(--primary-strong); }
+.lp .quick { display: flex; gap: .4rem; align-items: flex-start; }
+.lp .quick textarea { flex: 1; font: inherit; font-size: .92rem; color: var(--text); background: var(--solid); border: 1px solid var(--line); border-radius: 8px; padding: .4rem .6rem; resize: vertical; min-height: 2.4em; }
+.lp .quick textarea:focus { outline: 2px solid var(--primary-soft); border-color: var(--primary); }
+.lp .list[hidden] { display: none; }
+.lp .fold { border: 0; background: none; color: var(--muted); font-size: .82rem; padding: .2rem 0; }
+
+/* ===== варианты страницы «Заметки к уроку» ===== */
+:root:not([data-lp="list"]) #lp-a { display: none; }
+:root[data-lp="list"] #lp-alt { display: none; }
+:root:not([data-lp="list"]) #page-lesson { max-width: 860px; }
+.qline { display: flex; gap: .4rem; align-items: flex-start; }
+.q-box { flex: none; width: 1.05rem; height: 1.05rem; margin-top: .35rem; border: 1.5px solid var(--q); border-radius: 4px; background: transparent; padding: 0; display: grid; place-items: center; font-size: .7rem; color: #fff; }
+.q-box:hover { background: var(--q-soft, rgba(79,140,201,.15)); }
+.q-box.on { background: var(--ok); border-color: var(--ok); }
+.qline .mn { flex: 1; }
+.qline .mn .ic { display: none; }
+.tag { font-size: .74rem; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.tag:hover { color: var(--primary-strong); }
+.quote-s { font-family: var(--reading); font-style: italic; color: var(--muted); font-size: .8rem; }
+
+/* Б. Тетрадь */
+.book { --lh: 1.9rem; position: relative; background: var(--solid); border-radius: 6px 14px 14px 6px; box-shadow: 0 4px 18px rgba(92,88,170,.14);
+  padding: calc(var(--lh) * .6) 1.2rem calc(var(--lh)) 4.4rem; line-height: var(--lh); font-size: .95rem;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--lh) - 1px), var(--line) calc(var(--lh) - 1px), var(--line) var(--lh));
+  background-position: 0 calc(var(--lh) * .6 - 4px); }
+.book::before { content: ""; position: absolute; top: 0; bottom: 0; left: 3.4rem; border-left: 1.5px solid rgba(217,130,43,.35); }
+.book .b-h { font-family: var(--reading); font-style: italic; color: var(--fr); font-size: 1.05rem; }
+.book .b-row { position: relative; display: flex; gap: .6rem; }
+.book .b-row .mk { position: absolute; left: -3.4rem; width: 2.6rem; text-align: right; font-size: .78rem; font-weight: 700; color: var(--muted); }
+.book .b-row.q .mk { color: var(--q); } .book .b-row.imp .mk { color: var(--imp); } .book .b-row.done .mk { color: var(--ok); }
+.book .b-row .txt { flex: 1; white-space: pre-wrap; }
+.book .b-row.imp .txt { font-weight: 600; }
+.book .b-row .ans { color: var(--muted); }
+.book .b-row .tag { line-height: var(--lh); }
+.book .b-row .ha { opacity: 0; display: flex; gap: 1px; } .book .b-row:hover .ha { opacity: 1; }
+.book .b-row .ha button { border: 0; background: none; color: var(--muted); font-size: .8rem; padding: 0 .2rem; }
+.book .sticker { float: right; width: 230px; margin: 0 -2.2rem .6rem 1rem; background: #FFF6D6; color: #5b4a1a; border-radius: 4px; padding: .3rem .7rem .5rem;
+  box-shadow: 0 3px 10px rgba(120,100,40,.18); transform: rotate(1.2deg); line-height: 1.45; font-size: .87rem; }
+:root[data-theme="dark"] .book .sticker { background: #4A4226; color: #F3E7BF; }
+.book .sticker b { display: block; margin-bottom: .2rem; }
+.book .sticker div { margin: .15rem 0; cursor: pointer; }
+.book .newline { width: 100%; border: 0; background: transparent; font: inherit; color: var(--text); line-height: var(--lh); height: var(--lh); padding: 0; outline: none; }
+.book .newline::placeholder { color: var(--muted); opacity: .7; }
+
+/* В. Две колонки */
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.4rem; align-items: start; }
+.cols .col { background: var(--surface); border-radius: 14px; padding: .9rem 1rem; box-shadow: 0 4px 18px rgba(92,88,170,.1); }
+.cols h3 { margin: 0 0 .6rem; font-size: .95rem; display: flex; justify-content: space-between; align-items: baseline; }
+.cols h3 .muted { font-weight: 400; font-size: .8rem; }
+.cols .grp-h { font-size: .74rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin: .8rem 0 .3rem; }
+.cols .stack { display: grid; gap: .4rem; }
+.cols .quick { margin-bottom: 1.1rem; }
+
+/* Г. По ходу урока */
+.filters { display: flex; gap: .35rem; margin: 0 0 1rem; flex-wrap: wrap; }
+.filters button { border: 1px solid var(--line); background: var(--solid); border-radius: 999px; padding: .1rem .7rem; font-size: .84rem; color: var(--muted); }
+.filters button.on { background: var(--primary-soft); border-color: var(--primary); color: var(--text); }
+.tree { position: relative; padding-left: 1.1rem; border-left: 2px solid var(--line); margin-left: .4rem; }
+.tree .node { position: relative; margin-bottom: 1.1rem; }
+.tree .node::before { content: ""; position: absolute; left: calc(-1.1rem - 6px); top: .45rem; width: 10px; height: 10px; border-radius: 50%; background: var(--solid); border: 2px solid var(--primary); }
+.tree .node.empty::before { border-color: var(--line); }
+.tree .node-h { display: flex; gap: .5rem; align-items: baseline; margin-bottom: .35rem; }
+.tree .node-h .kind { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.tree .node-h .nm { font-weight: 600; font-size: .95rem; cursor: pointer; }
+.tree .node-h .nm:hover { color: var(--primary-strong); }
+.tree .node-h .plus { border: 0; background: none; color: var(--muted); font-size: .85rem; padding: 0 .2rem; opacity: 0; }
+.tree .node:hover .plus { opacity: 1; }
+.tree .node.empty .node-h .nm { color: var(--muted); font-weight: 400; }
+.tree .stack { display: grid; gap: .35rem; max-width: 620px; }
+/* ===== v5: общие элементы ===== */
+:root[data-lp="b1"] #page-lesson, :root[data-lp="b2"] #page-lesson { max-width: 1060px; }
+.blk { background: var(--surface); border-radius: 14px; box-shadow: 0 3px 14px rgba(92,88,170,.1); padding: .75rem 1.1rem .6rem; margin-bottom: 1rem; border-top: 3px solid var(--line); }
+.blk.q { border-top-color: var(--q); } .blk.les { border-top-color: var(--primary); }
+.blk-h { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .15rem; }
+.blk-h .t { font-weight: 700; font-size: .98rem; }
+.blk-h .k { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.blk-h .c { font-size: .8rem; color: var(--muted); }
+.blk-h .go { margin-left: auto; font-size: .8rem; color: var(--muted); cursor: pointer; }
+.blk-h .go:hover { color: var(--primary-strong); }
+.items > * + * { border-top: 1px solid var(--line); }
+.qi-row, .ni { position: relative; display: flex; gap: .6rem; align-items: flex-start; padding: .5rem 0; font-size: .95rem; line-height: 1.5; }
+.qi-row .q-box { margin-top: .2rem; }
+.qi-tx, .ni-tx { flex: 1; min-width: 0; white-space: pre-wrap; }
+.qi.done .qi-tx { color: var(--muted); }
+.qi-ans { color: var(--muted); font-size: .9rem; margin-top: .1rem; }
+.qi.done .qi-ans { color: var(--text); }
+.qi-form { display: none; margin: 0 0 .55rem 1.65rem; }
+.qi-form.open { display: block; }
+.qi-form textarea, .edit-ta { width: 100%; font: inherit; font-size: .92rem; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: .35rem .55rem; resize: vertical; min-height: 2.4em; }
+.qi-form textarea:focus, .edit-ta:focus { outline: 2px solid var(--primary-soft); border-color: var(--primary); }
+.qi-form .row { display: flex; justify-content: flex-end; gap: .3rem; margin-top: .3rem; }
+.ni .mk { flex: none; width: .9rem; text-align: center; margin-top: .05rem; }
+.ni .mk::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--primary); }
+.ni.frag .mk::before { background: transparent; border: 1.5px dotted var(--primary); width: 6px; height: 6px; }
+.ni.imp .mk::before { content: "★"; width: auto; height: auto; background: none; border: 0; color: var(--imp); font-size: .85rem; }
+.ni.imp .ni-tx { font-weight: 600; }
+.ni .qt { position: absolute; left: 1.5rem; top: -.75rem; background: var(--solid); border: 1px solid var(--line); border-radius: 6px; padding: 0 .45rem;
+  font-family: var(--reading); font-style: italic; font-size: .78rem; color: var(--muted); opacity: 0; pointer-events: none; transition: opacity .12s; z-index: 2; white-space: nowrap; }
+.ni:hover .qt { opacity: 1; }
+.r-acts { display: flex; gap: 1px; opacity: 0; transition: opacity .12s; }
+.qi-row:hover .r-acts, .ni:hover .r-acts { opacity: 1; }
+.r-acts button { border: 0; background: none; color: var(--muted); font-size: .82rem; padding: 0 .25rem; }
+.r-acts button:hover { color: var(--primary-strong); }
+.addline { display: flex; gap: .5rem; align-items: center; padding: .35rem 0 .15rem; border-top: 1px dashed var(--line); margin-top: .1rem; }
+.addline span { color: var(--muted); width: 1.05rem; text-align: center; }
+.addline input { flex: 1; border: 0; background: transparent; font: inherit; font-size: .9rem; color: var(--text); outline: none; padding: .15rem 0; }
+.addline input::placeholder { color: var(--muted); opacity: .8; }
+.fold2 { border: 0; background: none; color: var(--muted); font-size: .82rem; padding: .35rem 0 .1rem; }
+.empty-s { color: var(--muted); font-size: .88rem; padding: .4rem 0; }
+
+/* А2: разделы с линиями */
+.sec2 { margin-bottom: 1.8rem; }
+.sec2-h { display: flex; align-items: baseline; gap: .55rem; padding-bottom: .4rem; border-bottom: 2px solid var(--line); margin-bottom: .3rem; }
+.sec2-h .t { font-size: 1.12rem; font-weight: 700; }
+.sec2-h .c { font-size: .82rem; color: var(--muted); }
+.sec2.q .sec2-h { border-bottom-color: var(--q); }
+.sec2.q .panel { background: rgba(79,140,201,.07); border-radius: 0 0 12px 12px; padding: .1rem .9rem .4rem; }
+:root[data-theme="dark"] .sec2.q .panel { background: rgba(134,187,238,.08); }
+.sub2 { margin-top: 1rem; }
+.sub2-h { display: flex; align-items: center; gap: .5rem; font-size: .9rem; font-weight: 600; margin-bottom: .1rem; }
+.chip-k { font-size: .66rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; border: 1px solid var(--line); border-radius: 5px; padding: 0 .35rem; }
+.sub2-h .go { font-weight: 400; font-size: .8rem; color: var(--muted); cursor: pointer; margin-left: auto; }
+.sub2-h .go:hover { color: var(--primary-strong); }
+.sub2 .items { padding-left: .2rem; }
+
+/* В1 / В2 */
+.grid-b1 { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 1.2rem; align-items: start; }
+.grid-b2 { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 1.2rem; align-items: start; }
+.grid-b1 > .blk.q, .grid-b2 > aside { position: sticky; top: 7.5rem; }
+.grid-b2 aside .blk { background: rgba(79,140,201,.06); box-shadow: none; border: 1px solid rgba(79,140,201,.25); border-top: 3px solid var(--q); }
+.grid-b2 aside .qi-row { font-size: .9rem; }
+@media (max-width: 900px) { .grid-b1, .grid-b2 { grid-template-columns: 1fr; } .grid-b1 > .blk.q, .grid-b2 > aside { position: static; } .grid-b2 aside { order: -1; } }
+
+/* ===== v7: значки ===== */
+.ico { display: inline-flex; vertical-align: -.2em; line-height: 0; }
+.ico svg { width: 1.15em; height: 1.15em; }
+.ico-note { color: var(--primary-strong); }
+.ico-q { color: var(--q); }
+:root[data-icons="soft"] .ico svg { width: 1.3em; height: 1.3em; }
+:root[data-icons="emoji"] .ico { line-height: 1; vertical-align: baseline; }
+.pop-strip { position: absolute; z-index: 50; display: flex; gap: 2px; padding: 3px; background: var(--solid); border: 1px solid var(--pop-line); border-radius: 10px; box-shadow: var(--pop-shadow); }
+.pop-strip button { border: 0; background: none; border-radius: 7px; padding: .25rem .45rem; font-size: 1rem; display: inline-flex; align-items: center; gap: .3rem; }
+.pop-strip button:hover { background: var(--surface-2); }
+.pop-strip button span.l { font-size: .78rem; color: var(--muted); }
+.ex-state { font-size: .8rem; color: var(--muted); margin-left: .6rem; }
+
+/* ===== v6: телефон и сенсорный экран ===== */
+@media (hover: none) {
+  .r-acts, .mn .ha { opacity: 1; }
+  .mn .ha { position: static; box-shadow: none; background: none; margin-left: auto; align-self: flex-start; }
+  .ni .qt { position: static; opacity: 1; display: block; border: 0; padding: 0; background: none; white-space: normal; }
+  .ni { flex-wrap: wrap; } .ni .qt { order: -1; width: 100%; margin-left: 1.5rem; }
+  .tree .plus { opacity: 1; }
+}
+@media (max-width: 640px) {
+  .mock { position: static; font-size: 12px; } .mock .hint { display: none; }
+  .app-head { padding: .55rem .9rem; gap: .6rem; } .logo { font-size: .95rem; }
+  .layout { padding: .8rem .9rem 4rem; gap: .8rem; }
+  .side { font-size: .82rem; } .side a { padding: .15rem .5rem; }
+  .el-head h1 { font-size: 1.25rem; } .card { padding: 1rem 1.05rem; }
+  .reading { font-size: 1.02rem; line-height: 1.75; }
+  .work.with-margin { grid-template-columns: 1fr !important; }
+  .work.with-margin .margin-col { order: -1; }
+  .work.with-margin .margin-col { min-height: 0 !important; }
+  .margin-col .mn, .margin-col .cap, .margin-col .add, .margin-col .nform { position: static !important; margin-bottom: .45rem; }
+  .margin-col .cap { display: block; margin-top: .4rem; }
+  .blk { padding: .65rem .85rem .5rem; }
+  .quick { flex-wrap: wrap; } .quick textarea { flex-basis: 100%; }
+  .drawer { width: 100vw; }
+  .float, .pop, .nform[style*="absolute"] { max-width: calc(100vw - 16px); }
+}
+
+@media (max-width: 900px) { .cols { grid-template-columns: 1fr; } .book .sticker { float: none; margin: 0 0 .8rem; transform: none; width: auto; } }
+
+/* панель вопросов */
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 360px; max-width: 100vw; background: var(--solid); box-shadow: -8px 0 30px rgba(60,55,140,.2); z-index: 90;
+  transform: translateX(105%); transition: transform .2s; padding: 1.1rem 1.2rem; overflow: auto; }
+.drawer.open { transform: none; }
+.drawer h2 { margin: 0 0 .6rem; font-size: 1.1rem; display: flex; justify-content: space-between; }
+.drawer h2 button { border: 0; background: none; color: var(--muted); }
+.drawer .list { display: grid; gap: .45rem; }
+
+.modal-bg { position: fixed; inset: 0; background: rgba(20,20,40,.35); z-index: 100; display: none; place-items: center; }
+.modal-bg.open { display: grid; }
+.modal { background: var(--solid); border-radius: 14px; box-shadow: var(--pop-shadow); padding: 1.1rem 1.3rem; width: 330px; }
+.modal .row { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .9rem; }
+.btn-danger { border: 0; border-radius: 8px; padding: .3rem .9rem; font-weight: 600; background: var(--danger); color: #fff; }
+.toast { position: fixed; bottom: 1.2rem; left: 50%; transform: translateX(-50%); background: var(--solid); box-shadow: var(--pop-shadow); border-radius: 10px; padding: .5rem 1rem; display: none; z-index: 95; font-size: .9rem; }
+.page { display: none; } .page.on { display: block; }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; } .side .sec { display: none; }
+  .side { display: flex; flex-wrap: wrap; gap: .3rem; } .side a { border: 1px solid var(--line); }
+  .search, .nav { display: none; }
+  .work.with-margin { grid-template-columns: minmax(0, 1fr) 200px; }
+}
+</style>
+</head>
+<body>
+
+<div class="mock">
+  <div class="grp"><span class="lbl">Страница:</span><button data-go="text">текст</button><button data-go="ex">упражнение</button><button data-go="lesson">заметки к уроку</button></div>
+  <div class="grp"><span class="lbl">«Заметки к уроку»:</span><button data-set="lp" data-val="b1">В1 — основной</button><button data-set="lp" data-val="a1">А1 — запасной</button></div>
+  <div class="grp"><span class="lbl">Значки:</span><button data-set="icons" data-val="emoji">как было (эмодзи)</button><button data-set="icons" data-val="line">1. тонкие линии</button><button data-set="icons" data-val="bubble">2. облачка-комментарии</button><button data-set="icons" data-val="soft">3. кружки с цветом</button></div>
+  <div class="grp"><span class="lbl">Перевод при выделении (006):</span><button data-set="tr" data-val="on">включён</button><button data-set="tr" data-val="off">выключен в «⋯»</button>
+    <span class="lbl" style="margin-left:.5rem">когда перевода нет:</span><button data-set="off" data-val="strip">полоска из двух значков</button><button data-set="off" data-val="none">ничего (только «＋»)</button></div>
+  <div class="grp"><span class="lbl">Тема:</span><button data-set="theme" data-val="light">светлая</button><button data-set="theme" data-val="dark">тёмная</button></div>
+  <span class="hint"><b>К вопросу 2:</b> выделите фразу в тексте с переводом «включён» и «выключен»; на странице «упражнение» перевода нет, пока не нажата «Проверить». <b>Значки</b> меняются везде: шапка, кнопки, подсказка, страница урока.<br>Enter — сохранить, Shift+Enter — новая строка. Щёлкните отмеченный фрагмент — откроется его заметка.</span>
+</div>
+
+<header class="app-head">
+  <span class="logo">French Learning</span>
+  <nav class="nav"><a class="on">Уроки</a><a>Словарь</a><a>Практика</a><a>Темы</a></nav>
+  <span class="search">Поиск…</span>
+  <div class="head-right">
+    <button class="qchip" id="qchip" title="Открытые вопросы к преподавательнице">❓ <span class="qn"></span></button>
+    <button class="dots" title="Ещё">⋯</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="side">
+    <div class="sec">Урок 15</div>
+    <a data-page="lesson">📝 Заметки к уроку <span class="cnt" id="lesson-cnt"></span></a>
+    <div class="sec">Теория</div><a>Le passé composé avec être</a>
+    <div class="sec">Тексты</div><a data-page="text">Au marché</a>
+    <div class="sec">Упражнения</div><a data-page="ex">Упр. 4 — être или avoir</a><a>Упр. 5 — accord</a>
+  </aside>
+
+  <div>
+    <section class="page" id="page-text">
+      <p class="crumbs">Уроки › Урок 15 › Тексты</p>
+      <div class="el-head"><h1 lang="fr">Au marché</h1>
+        <button class="btn-icon" data-add-head="text" title="Заметка ко всему тексту">＋</button>
+        <button class="btn-icon note-btn" data-toggle="text" title="Все заметки к тексту">📝 <span class="n"></span></button>
+        <button class="btn-icon" title="Происхождение">ⓘ</button><button class="btn-icon" title="Настройки">⚙</button></div>
+      <div class="imp-line" data-imp="text"></div>
+      <div class="under" data-under="text"></div>
+      <div class="work" data-work="text">
+        <div>
+          <article class="card reading" lang="fr" data-body="text">
+            <p>Le samedi matin, Claire va au marché avec sa sœur. Elles achètent des pommes, du fromage et une baguette.</p>
+            <p>Il y a beaucoup de monde. Claire mange une crêpe au chocolat pendant que sa sœur choisit des fleurs.</p>
+            <p>À midi, elles sont rentrées à la maison et elles ont préparé le déjeuner ensemble.</p>
+          </article>
+          <div class="arrows"><a>← Упр. 3</a><a>Упр. 4 →</a></div>
+        </div>
+        <div class="margin-col" data-margin="text"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-ex">
+      <p class="crumbs">Уроки › Урок 15 › Упражнения</p>
+      <div class="el-head"><h1>Упр. 4 — être или avoir</h1>
+        <button class="btn-icon" data-add-head="ex" title="Заметка ко всему упражнению">＋</button>
+        <button class="btn-icon note-btn" data-toggle="ex" title="Все заметки к упражнению">📝 <span class="n"></span></button>
+        <button class="btn-icon" title="Происхождение">ⓘ</button><button class="btn-icon" title="Настройки">⚙</button></div>
+      <div class="imp-line" data-imp="ex"></div>
+      <div class="under" data-under="ex"></div>
+      <div class="work" data-work="ex">
+        <div>
+          <article class="card" data-body="ex">
+            <p class="muted small" style="margin-top:0">Вставьте вспомогательный глагол в passé composé.</p>
+            <div class="ex-item" lang="fr"><span class="num">1.</span><span>Nous <input> allés au cinéma hier soir.</span></div>
+            <div class="ex-item" lang="fr"><span class="num">2.</span><span>Elle <input> monté les valises au troisième étage.</span></div>
+            <div class="ex-item" lang="fr"><span class="num">3.</span><span>Ils <input> descendus du train à Lyon.</span></div>
+            <div class="ex-item" lang="fr"><span class="num">4.</span><span>J'<input> sorti le chien ce matin.</span></div>
+            <p style="margin:.8rem 0 0"><button class="btn" id="ex-check" style="height:2rem;font-size:.9rem;padding:0 1rem">Проверить</button><span class="ex-state" id="ex-state">ответ не проверен — перевод при выделении недоступен</span></p>
+          </article>
+          <div class="arrows"><a>← Au marché</a><a>Упр. 5 →</a></div>
+        </div>
+        <div class="margin-col" data-margin="ex"></div>
+      </div>
+    </section>
+
+    <section class="page lp" id="page-lesson">
+      <p class="crumbs">Уроки › Урок 15</p>
+      <div class="el-head"><h1>Заметки к уроку 15</h1></div>
+      <div id="lp-a">
+      <div class="quick"><textarea id="quick" rows="1" placeholder="Записать к уроку… (например, что сказала преподавательница)"></textarea>
+        <button class="tg" id="quick-q" title="Это вопрос">❓</button><button class="tg imp" id="quick-imp" title="Важная">★</button><button class="btn" id="quick-save" style="height:2.3rem">Записать</button></div>
+      <h2>Вопросы <span class="muted" id="lp-qn" style="text-transform:none;letter-spacing:0"></span></h2>
+      <div class="list" id="lp-q"></div>
+      <button class="fold" id="lp-done-t"></button><div class="list" id="lp-done" hidden></div>
+      <h2>К уроку</h2><div class="list" id="lp-lesson"></div>
+      <h2>В текстах и упражнениях</h2><div id="lp-els"></div>
+      </div>
+      <div id="lp-alt"></div>
+    </section>
+  </div>
+</div>
+
+<aside class="drawer" id="drawer">
+  <h2>Вопросы к преподавательнице <button id="drawer-x" title="Закрыть">✕</button></h2>
+  <div class="list" id="drawer-list"></div>
+</aside>
+<div class="modal-bg" id="modal"><div class="modal"><b>Удалить заметку?</b><p class="muted small" id="modal-text" style="margin:.4rem 0 0"></p>
+  <div class="row"><button class="btn-o" id="m-cancel" style="height:2rem">Отмена</button><button class="btn-danger" id="m-ok">Удалить</button></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const root = document.documentElement;
+const EL = {text: "Au marché", ex: "Упр. 4 — être или avoir", lesson: "Урок 15"};
+let seq = 20;
+const notes = [
+  {id: 1, el: "text", kind: "note", quote: "elles sont rentrées", body: "rentrer → être, поэтому rentrées: согласуется с elles."},
+  {id: 2, el: "text", kind: "q", quote: "pendant que", body: "pendant que и alors que — в чём разница?"},
+  {id: 7, el: "text", kind: "note", quote: "", body: "Преподавательница: пересказать текст в passé composé к следующему уроку."},
+  {id: 3, el: "ex", kind: "note", imp: true, quote: "", body: "monter / descendre / sortir + прямое дополнение → avoir. Я тут ошибаюсь каждый раз!"},
+  {id: 6, el: "ex", kind: "q", done: true, quote: "descendus", body: "Почему descendus, а не descendu?", answer: "С être причастие согласуется с подлежащим: ils → -s."},
+  {id: 8, el: "ex", kind: "note", quote: "sorti le chien", body: "sortir le chien — «выгулять собаку», тут avoir."},
+  {id: 4, el: "lesson", kind: "q", quote: "", body: "« j'ai allé » — это совсем ошибка или так говорят в разговорной речи?"},
+  {id: 5, el: "lesson", kind: "note", quote: "", body: "passé simple в устной речи не нужен, только узнавать в текстах."},
+];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const byId = id => notes.find(n => n.id == id);
+const openAll = new Set();
+let floatId = null, page = "text", showDone = false;
+
+function icon(n) { return n.done ? "✓" : n.kind === "q" ? "?" : n.imp ? "★" : ""; }
+function meta(n) { return `${n.done ? "Вопрос · отвечен" : n.kind === "q" ? "Вопрос" : n.imp ? "Важная пометка" : "Пометка"} · ${EL[n.el]}${n.quote ? " · к «" + n.quote + "»" : ""} · 29.09.2026`; }
+function mini(n, extra = "", closeBtn = false) {
+  const cls = ["mn", n.kind === "q" && !n.done ? "q" : "", n.imp ? "imp" : "", n.done ? "done" : "", n.quote ? "frag" : "", extra].join(" ");
+  const ic = icon(n);
+  return `<div class="${cls}" data-id="${n.id}" title="${esc(meta(n))}">
+    ${ic ? `<span class="ic">${ic}</span>` : ""}
+    <div class="tx">${esc(n.body)}${n.answer ? `<div class="ans">→ ${esc(n.answer)}</div>` : ""}</div>
+    <span class="ha">${n.kind === "q" && !n.done ? `<button class="ok" data-act="answer" title="Ответ получен">✓</button>` : ""}<button data-act="edit" title="Изменить">✎</button><button class="del" data-act="del" title="Удалить">🗑</button></span>
+  </div>`;
+}
+
+/* ---------- отрисовка элемента ---------- */
+function renderEl(el) {
+  const list = notes.filter(n => n.el === el);
+  const work = document.querySelector(`[data-work="${el}"]`);
+  const col = document.querySelector(`[data-margin="${el}"]`);
+  const under = document.querySelector(`[data-under="${el}"]`);
+  const impLine = document.querySelector(`[data-imp="${el}"]`);
+  const btn = document.querySelector(`[data-toggle="${el}"]`);
+  const all = openAll.has(el);
+  btn.classList.toggle("on", all); btn.classList.toggle("empty", !list.length);
+  btn.querySelector(".n").textContent = list.length || "";
+  // важные — одной строкой, пока все заметки не открыты
+  impLine.innerHTML = list.filter(n => n.imp).map(n => mini(n)).join("");   // важные всегда здесь, на поле не переезжают
+  const variant = root.dataset.variant;
+  work.classList.toggle("with-margin", variant === "margin" && all);
+  under.classList.toggle("open", variant === "bubble" && all);
+  under.innerHTML = variant === "bubble" && all ? list.map(n => mini(n)).join("") + `<button class="add" data-add="${el}">+ заметка к элементу · или выделите фрагмент</button>` : "";
+  col.innerHTML = "";
+  if (variant === "margin" && all) {
+    const whole = list.filter(n => !n.imp && !n.quote), frag = list.filter(n => !n.imp && n.quote);
+    col.innerHTML = (whole.length ? `<div class="cap">Ко всему ${el === "ex" ? "упражнению" : "тексту"}</div>` : "") + whole.map(n => mini(n)).join("")
+      + (frag.length ? `<div class="cap" data-cap-frag>К фрагментам</div>` : "") + frag.map(n => mini(n)).join("")
+      + `<button class="add" data-add="${el}">+ заметка</button>`;
+    requestAnimationFrame(() => layoutMargin(el));
+  }
+}
+function layoutMargin(el) {
+  const col = document.querySelector(`[data-margin="${el}"]`);
+  if (matchMedia("(max-width: 640px)").matches) { col.style.minHeight = ""; return; }   // на телефоне поле идёт под текстом списком
+  const top0 = col.getBoundingClientRect().top;
+  const caps = [...col.querySelectorAll(".cap")];
+  const items = [...col.querySelectorAll(".mn, .nform")].map(node => {
+    const n = byId(node.dataset.id);
+    const m = n && n.quote ? document.querySelector(`mark.anchor[data-id="${n.id}"]`) : node.dataset.anchor ? document.querySelector(`mark.anchor[data-id="${node.dataset.anchor}"]`) : null;
+    return {node, want: m ? m.getBoundingClientRect().top - top0 - 2 : -1};
+  });
+  // сначала заметки ко всему элементу (сверху), затем по месту фрагмента
+  items.sort((a, b) => a.want - b.want);
+  let y = 0, capFragDone = false;
+  if (caps[0] && !caps[0].hasAttribute("data-cap-frag")) { caps[0].style.top = "0px"; y = 18; }
+  for (const it of items) {
+    if (it.want >= 0 && !capFragDone) { capFragDone = true; const c = col.querySelector("[data-cap-frag]"); if (c) { const t = Math.max(it.want - 18, y + (y ? 10 : 0)); c.style.top = t + "px"; y = t + 18; } } const t = Math.max(it.want, y); it.node.style.position = "absolute"; it.node.style.top = t + "px"; it.node.style.left = 0; it.node.style.right = 0; y = t + it.node.offsetHeight + 6; }
+  const add = col.querySelector(".add"); if (add) { add.style.top = y + "px"; y += 24; }
+  col.style.minHeight = y + "px";
+}
+function renderAll() { renderAll0(); iconize(document.body, true); }
+function renderAll0() {
+  ["text", "ex"].forEach(renderEl);
+  document.querySelectorAll("mark.anchor").forEach(m => {
+    const n = byId(m.dataset.id);
+    if (!n) { m.replaceWith(document.createTextNode(m.textContent)); return; }
+    m.classList.toggle("q", n.kind === "q" && !n.done);
+    m.title = n.body;
+  });
+  const q = notes.filter(n => n.kind === "q" && !n.done).length;
+  document.querySelectorAll(".qn").forEach(x => x.textContent = q);
+  document.getElementById("qchip").classList.toggle("none", !q);
+  const lc = notes.filter(n => n.el === "lesson").length + notes.filter(n => n.kind === "q" && !n.done).length;
+  document.getElementById("lesson-cnt").textContent = "";
+  renderLesson(); renderAlt(); renderDrawer(); placeFloat();
+}
+function renderLesson() {
+  const openQs = notes.filter(n => n.kind === "q" && !n.done), done = notes.filter(n => n.kind === "q" && n.done);
+  const src = n => n.el === "lesson" ? "" : `<div class="src-link" data-goto="${n.id}">↗ ${esc(EL[n.el])}${n.quote ? " · «" + esc(n.quote) + "»" : ""}</div>`;
+  document.getElementById("lp-qn").textContent = openQs.length ? `· ${openQs.length} открыт${openQs.length === 1 ? "ый" : "ых"}` : "· открытых нет";
+  document.getElementById("lp-q").innerHTML = openQs.map(n => `<div>${mini(n)}${src(n)}</div>`).join("");
+  document.getElementById("lp-done-t").textContent = done.length ? (showDone ? "▾ " : "▸ ") + `отвеченные (${done.length})` : "";
+  const d = document.getElementById("lp-done"); d.hidden = !showDone;
+  d.innerHTML = done.map(n => `<div>${mini(n)}${src(n)}</div>`).join("");
+  const ln = notes.filter(n => n.el === "lesson" && n.kind !== "q");
+  document.getElementById("lp-lesson").innerHTML = ln.length ? ln.map(n => mini(n)).join("") : `<p class="muted small" style="margin:0">Пока нет — запишите в поле вверху.</p>`;
+  document.getElementById("lp-els").innerHTML = ["text", "ex"].map(el => {
+    const l = notes.filter(n => n.el === el && n.kind !== "q"); if (!l.length) return "";
+    return `<div class="el-group"><span class="el-name" data-open-el="${el}">${esc(EL[el])} ↗</span><div class="list">${l.map(n => mini(n)).join("")}</div></div>`;
+  }).join("");
+}
+const ORDER = [["lesson", "Урок", "Урок целиком"], ["theory", "Теория", "Le passé composé avec être"], ["text", "Текст", "Au marché"], ["ex", "Упражнение", "Упр. 4 — être или avoir"], ["ex5", "Упражнение", "Упр. 5 — accord"]];
+let lpFilter = "all";
+const tagOf = n => n.el === "lesson" ? "" : `<span class="tag" data-goto="${n.id}" title="Открыть">↗ ${esc(EL[n.el])}</span>`;
+const quoteOf = n => n.quote ? `<span class="quote-s">«${esc(n.quote)}» — </span>` : "";
+function miniQ(n) {   // вопрос с квадратиком: щелчок — ответ получен
+  return `<div class="qline"><button class="q-box ${n.done ? "on" : ""}" data-qbox="${n.id}" title="${n.done ? "Отвечен" : "Ответ получен"}">${n.done ? "✓" : ""}</button>${mini(n)}</div>`;
+}
+const V5 = ["a1", "a2", "b1", "b2"];
+let showDone5 = false;
+const srcTitle = n => (n.el === "lesson" ? "Урок 15" : EL[n.el]) + (n.quote ? " · «" + n.quote + "»" : "");
+function qItem(n) {
+  return `<div class="qi ${n.done ? "done" : ""}" data-qi="${n.id}">
+    <div class="qi-row"><button class="q-box ${n.done ? "on" : ""}" data-qb="${n.id}" title="${n.done ? "Отвечен — снять отметку" : "Ответ получен"}">${n.done ? "✓" : ""}</button>
+      <div class="qi-tx" data-tx>${esc(n.body)}${n.answer ? `<div class="qi-ans">→ ${esc(n.answer)}</div>` : ""}</div>
+      <span class="r-acts">${n.el !== "lesson" ? `<button data-goto="${n.id}" title="${esc(srcTitle(n))}">↗</button>` : ""}<button data-e="${n.id}" title="Изменить">✎</button><button data-d="${n.id}" title="Удалить">🗑</button></span></div>
+    <div class="qi-form" data-qf="${n.id}"></div></div>`;
+}
+function nItem(n) {
+  return `<div class="ni ${n.quote ? "frag" : ""} ${n.imp ? "imp" : ""}" data-ni="${n.id}" title="${n.quote ? "" : ""}">
+    <span class="mk"></span>${n.quote ? `<span class="qt">«${esc(n.quote)}»</span>` : ""}
+    <div class="ni-tx" data-tx>${esc(n.body)}</div>
+    <span class="r-acts">${n.quote ? `<button data-goto="${n.id}" title="Показать в тексте">↗</button>` : ""}<button data-e="${n.id}" title="Изменить">✎</button><button data-d="${n.id}" title="Удалить">🗑</button></span></div>`;
+}
+const addLine = (key, ph) => `<div class="addline"><span>+</span><input data-addline="${key}" placeholder="${ph}"></div>`;
+function qBlock(cls = "") {
+  const open = notes.filter(n => n.kind === "q" && !n.done), done = notes.filter(n => n.kind === "q" && n.done);
+  return `<div class="blk q ${cls}"><div class="blk-h"><span class="t">❓ Спросить на уроке</span><span class="c">${open.length ? open.length + " открыт" + (open.length === 1 ? "ый" : "ых") : "всё спрошено"}</span></div>
+    <div class="items">${open.map(qItem).join("") || `<div class="empty-s">Открытых вопросов нет 🎉</div>`}</div>
+    ${addLine("lesson:q", "Вопрос к уроку… (Enter)")}
+    ${done.length ? `<button class="fold2" data-fold5>${showDone5 ? "▾" : "▸"} отвеченные (${done.length})</button>${showDone5 ? `<div class="items">${done.map(qItem).join("")}</div>` : ""}` : ""}</div>`;
+}
+function noteBlocks() {
+  const les = notes.filter(n => n.el === "lesson" && n.kind !== "q");
+  let h = `<div class="blk les"><div class="blk-h"><span class="t">📝 К уроку</span><span class="c">${les.length || ""}</span></div>
+    <div class="items">${les.map(nItem).join("")}</div>${addLine("lesson:note", "Пометка к уроку… (Enter)")}</div>`;
+  for (const [el, kind, name] of ORDER.slice(1)) {
+    const l = notes.filter(n => n.el === el && n.kind !== "q"); if (!l.length) continue;
+    h += `<div class="blk"><div class="blk-h"><span class="k">${kind}</span><span class="t">${esc(name)}</span><span class="c">${l.length}</span><span class="go" data-open-el="${el}">открыть ↗</span></div>
+      <div class="items">${l.map(nItem).join("")}</div></div>`;
+  }
+  return h;
+}
+function renderNew(box, v) {
+  if (v === "a1") box.innerHTML = qBlock() + noteBlocks();
+  if (v === "b1") box.innerHTML = `<div class="grid-b1">${qBlock()}<div>${noteBlocks()}</div></div>`;
+  if (v === "b2") box.innerHTML = `<div class="grid-b2"><div>${noteBlocks()}</div><aside>${qBlock()}</aside></div>`;
+  if (v === "a2") {
+    const open = notes.filter(n => n.kind === "q" && !n.done), done = notes.filter(n => n.kind === "q" && n.done);
+    const les = notes.filter(n => n.el === "lesson" && n.kind !== "q");
+    let subs = `<div class="sub2"><div class="sub2-h"><span class="chip-k">Урок</span>Урок целиком</div><div class="items">${les.map(nItem).join("")}</div>${addLine("lesson:note", "Пометка к уроку… (Enter)")}</div>`;
+    for (const [el, kind, name] of ORDER.slice(1)) {
+      const l = notes.filter(n => n.el === el && n.kind !== "q"); if (!l.length) continue;
+      subs += `<div class="sub2"><div class="sub2-h"><span class="chip-k">${kind}</span>${esc(name)}<span class="go" data-open-el="${el}">открыть ↗</span></div><div class="items">${l.map(nItem).join("")}</div></div>`;
+    }
+    box.innerHTML = `<div class="sec2 q"><div class="sec2-h"><span class="t">❓ Спросить на уроке</span><span class="c">${open.length} открыт${open.length === 1 ? "ый" : "ых"}</span></div>
+        <div class="panel"><div class="items">${open.map(qItem).join("")}</div>${addLine("lesson:q", "Вопрос к уроку… (Enter)")}
+        ${done.length ? `<button class="fold2" data-fold5>${showDone5 ? "▾" : "▸"} отвеченные (${done.length})</button>${showDone5 ? `<div class="items">${done.map(qItem).join("")}</div>` : ""}` : ""}</div></div>
+      <div class="sec2"><div class="sec2-h"><span class="t">📝 Пометки</span><span class="c">${notes.filter(n => n.kind !== "q").length}</span></div>${subs}</div>`;
+  }
+  box.querySelectorAll("[data-addline]").forEach(inp => inp.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return; const t = inp.value.trim(); if (!t) return;
+    const [el, kind] = inp.dataset.addline.split(":");
+    notes.push({id: ++seq, el, kind, quote: "", body: t}); renderAll();
+    document.querySelector(`[data-addline="${inp.dataset.addline}"]`).focus(); toast(kind === "q" ? "Вопрос записан" : "Записано");
+  }));
+}
+function answer5(n) {   // поле ответа — под вопросом
+  const f = document.querySelector(`#lp-alt [data-qf="${n.id}"]`);
+  f.innerHTML = `<textarea placeholder="Ответ (можно не писать) · Enter — закрыть вопрос"></textarea>
+    <div class="row"><button class="btn-o" data-x>Отмена</button><button class="btn" data-ok title="Закрыть вопрос">✓</button></div>`;
+  f.classList.add("open"); f.querySelector("textarea").focus();
+  enterSaves(f, () => f.querySelector("[data-ok]").click());
+  f.querySelector("[data-x]").onclick = () => renderAll();
+  f.querySelector("[data-ok]").onclick = () => { n.done = true; n.answer = f.querySelector("textarea").value.trim(); renderAll(); toast("Вопрос закрыт"); };
+}
+function edit5(n, row) {   // правка на месте
+  const tx = row.querySelector("[data-tx]");
+  tx.innerHTML = `<textarea class="edit-ta">${esc(n.body)}</textarea>${n.kind === "q" ? `<textarea class="edit-ta" data-ans style="margin-top:.3rem" placeholder="Ответ">${esc(n.answer || "")}</textarea>` : ""}
+    <div style="display:flex;gap:.3rem;justify-content:flex-end;margin-top:.3rem"><button class="btn-o" data-x>Отмена</button><button class="btn" data-ok>Сохранить</button></div>`;
+  tx.querySelector("textarea").focus();
+  enterSaves(tx, () => tx.querySelector("[data-ok]").click());
+  tx.querySelector("[data-x]").onclick = () => renderAll();
+  tx.querySelector("[data-ok]").onclick = () => { const b = tx.querySelector("textarea").value.trim(); if (!b) return;
+    n.body = b; const a = tx.querySelector("[data-ans]"); if (a) { n.answer = a.value.trim(); if (n.answer) n.done = true; } renderAll(); };
+}
+function renderAlt() {
+  const box = document.getElementById("lp-alt"), v = root.dataset.lp;
+  if (V5.includes(v)) return renderNew(box, v);
+  if (v === "list") { box.innerHTML = ""; return; }
+  const openQs = notes.filter(n => n.kind === "q" && !n.done);
+  if (v === "book") {
+    const rows = [];
+    for (const [el, kind, name] of ORDER) {
+      const l = notes.filter(n => n.el === el); if (!l.length) continue;
+      rows.push(`<div class="b-row"><span class="mk"></span><span class="txt b-h">${el === "lesson" ? "К уроку" : esc(kind + " · " + name)}</span></div>`);
+      for (const n of l) {
+        const cls = ["b-row", n.kind === "q" && !n.done ? "q" : "", n.imp ? "imp" : "", n.done ? "done" : ""].join(" ");
+        rows.push(`<div class="${cls}" data-id="${n.id}"><span class="mk">${n.done ? "✓" : n.kind === "q" ? "?" : n.imp ? "★" : "—"}</span>
+          <span class="txt">${quoteOf(n)}${esc(n.body)}${n.answer ? `<span class="ans"> → ${esc(n.answer)}</span>` : ""}</span>
+          <span class="ha">${n.kind === "q" && !n.done ? `<button data-qbox="${n.id}" title="Ответ получен">✓</button>` : ""}<button data-bedit="${n.id}" title="Изменить">✎</button><button data-bdel="${n.id}" title="Удалить">🗑</button></span></div>`);
+      }
+    }
+    box.innerHTML = `<div class="book">
+      ${openQs.length ? `<div class="sticker"><b>Спросить на уроке · ${openQs.length}</b>${openQs.map(n => `<div data-goto="${n.id}">— ${esc(n.body)}</div>`).join("")}</div>` : ""}
+      ${rows.join("")}
+      <div class="b-row"><span class="mk">+</span><input class="newline" id="book-new" placeholder="Новая строка… (Enter — записать; «?» в начале — вопрос, «!» — важное)"></div>
+    </div>`;
+    const inp = document.getElementById("book-new");
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") { let t = inp.value.trim(); if (!t) return; let k = "note", imp = false;
+      if (t.startsWith("?")) { k = "q"; t = t.slice(1).trim(); } else if (t.startsWith("!")) { imp = true; t = t.slice(1).trim(); }
+      notes.push({id: ++seq, el: "lesson", kind: k, imp, quote: "", body: t}); renderAll(); document.getElementById("book-new").focus(); toast(k === "q" ? "Вопрос записан" : "Записано"); } });
+    return;
+  }
+  const quick = `<div class="quick"><textarea id="alt-quick" rows="1" placeholder="Записать к уроку…"></textarea>
+    <button class="tg" id="alt-q" title="Это вопрос">❓</button><button class="tg imp" id="alt-imp" title="Важная">★</button><button class="btn" id="alt-save" style="height:2.3rem">Записать</button></div>`;
+  if (v === "cols") {
+    const done = notes.filter(n => n.kind === "q" && n.done);
+    const groups = ORDER.map(([el, kind, name]) => {
+      const l = notes.filter(n => n.el === el && n.kind !== "q"); if (!l.length) return "";
+      return `<div class="grp-h">${el === "lesson" ? "К уроку" : `<span class="tag" data-open-el="${el}" style="text-transform:none;letter-spacing:0;font-size:.8rem">${esc(name)} ↗</span>`}</div>
+        <div class="stack">${l.map(n => `<div>${n.quote ? `<div class="quote-s" style="margin:0 0 .1rem .6rem">«${esc(n.quote)}»</div>` : ""}${mini(n)}</div>`).join("")}</div>`;
+    }).join("");
+    box.innerHTML = quick + `<div class="cols">
+      <div class="col"><h3>❓ Вопросы <span class="muted">${openQs.length} открыт${openQs.length === 1 ? "ый" : "ых"}</span></h3>
+        <div class="stack">${openQs.map(n => `<div>${miniQ(n)}<div style="margin:.05rem 0 0 1.6rem">${tagOf(n)}</div></div>`).join("") || `<p class="muted small">Всё спрошено 🎉</p>`}</div>
+        ${done.length ? `<div class="grp-h">Отвеченные</div><div class="stack">${done.map(miniQ).join("")}</div>` : ""}</div>
+      <div class="col"><h3>📝 Пометки</h3>${groups}</div></div>`;
+  }
+  if (v === "tree") {
+    const pass = n => lpFilter === "all" || (lpFilter === "q" && n.kind === "q") || (lpFilter === "imp" && n.imp);
+    const cnt = f => notes.filter(n => f === "all" || (f === "q" ? n.kind === "q" : n.imp)).length;
+    const nodes = ORDER.map(([el, kind, name]) => {
+      const l = notes.filter(n => n.el === el && pass(n));
+      if (!l.length && lpFilter !== "all") return "";
+      return `<div class="node ${l.length ? "" : "empty"}"><div class="node-h"><span class="kind">${kind}</span>
+          <span class="nm" ${el === "text" || el === "ex" ? `data-open-el="${el}"` : ""}>${esc(name)}</span>
+          <button class="plus" data-tree-add="${el}" title="Добавить заметку">＋</button></div>
+        ${l.length ? `<div class="stack">${l.map(n => `<div>${n.quote ? `<div class="quote-s" style="margin:0 0 .1rem .6rem">«${esc(n.quote)}»</div>` : ""}${n.kind === "q" ? miniQ(n) : mini(n)}</div>`).join("")}</div>` : ""}</div>`;
+    }).join("");
+    box.innerHTML = quick + `<div class="filters">
+      <button data-f="all" class="${lpFilter === "all" ? "on" : ""}">Все · ${cnt("all")}</button>
+      <button data-f="q" class="${lpFilter === "q" ? "on" : ""}">❓ Вопросы · ${cnt("q")}</button>
+      <button data-f="imp" class="${lpFilter === "imp" ? "on" : ""}">★ Важные · ${cnt("imp")}</button></div>
+      <div class="tree">${nodes}</div>`;
+  }
+  let aq = false, ai = false;
+  document.getElementById("alt-q").onclick = e => { aq = !aq; e.currentTarget.classList.toggle("on", aq); e.currentTarget.classList.add("q"); };
+  document.getElementById("alt-imp").onclick = e => { ai = !ai; e.currentTarget.classList.toggle("on", ai); };
+  document.getElementById("alt-save").onclick = () => { const ta = document.getElementById("alt-quick"); const b = ta.value.trim(); if (!b) return ta.focus();
+    notes.push({id: ++seq, el: "lesson", kind: aq ? "q" : "note", imp: ai, quote: "", body: b}); renderAll(); toast(aq ? "Вопрос записан" : "Записано"); };
+  enterSaves(document.querySelector("#lp-alt .quick"), () => document.getElementById("alt-save").click());
+}
+function renderDrawer() {
+  const l = notes.filter(n => n.kind === "q" && !n.done);
+  document.getElementById("drawer-list").innerHTML = l.length ? l.map(n => `<div>${mini(n)}<div class="src-link small muted" data-goto="${n.id}" style="cursor:pointer;margin:.1rem 0 0 .6rem;font-size:.78rem">↗ ${n.el === "lesson" ? "Урок 15" : "Урок 15 · " + esc(EL[n.el])}</div></div>`).join("") : `<p class="muted">Открытых вопросов нет.</p>`;
+}
+
+/* ---------- одна заметка по щелчку на фрагменте ---------- */
+function placeFloat() {
+  document.querySelectorAll(".float").forEach(f => f.remove());
+  if (!floatId) return;
+  const n = byId(floatId); const m = document.querySelector(`#page-${page} mark.anchor[data-id="${floatId}"]`);
+  if (!n || !m) { floatId = null; return; }
+  const wrap = document.createElement("div"); wrap.innerHTML = mini(n, "float", true); const f = wrap.firstElementChild;
+  document.body.appendChild(f);
+  const r = m.getBoundingClientRect(), card = m.closest(".card").getBoundingClientRect();
+  const vw = document.documentElement.clientWidth;
+  if (root.dataset.variant === "margin" && card.right + 16 + 250 <= vw - 8) {   // на поле справа, на уровне строки
+    f.style.left = (scrollX + card.right + 16) + "px"; f.style.top = (scrollY + r.top - 4) + "px";
+  } else {                                                                        // пузырёк под фрагментом
+    f.style.left = Math.max(8, Math.min(scrollX + r.left, scrollX + vw - 258)) + "px"; f.style.top = (scrollY + r.bottom + 6) + "px";
+  }
+  m.classList.add("hl");
+}
+function clearHl() { document.querySelectorAll(".hl").forEach(x => x.classList.remove("hl")); }
+
+/* ---------- форма ---------- */
+function openForm({el, kind = "note", quote = "", range = null, existing = null, anchorEl = null, cardEl = null, headBtn = null}) {
+  document.querySelectorAll(".nform").forEach(f => f.remove());
+  floatId = null; placeFloat();
+  let k = existing ? existing.kind : kind, imp = existing ? !!existing.imp : false;
+  const f = document.createElement("div"); f.className = "nform";
+  f.innerHTML = `<textarea placeholder="${k === "q" ? "Что спросить…" : "На что обратить внимание…"}">${existing ? esc(existing.body) : ""}</textarea>
+    ${existing && existing.kind === "q" ? `<textarea class="ans" style="min-height:2.4em;margin-top:.3rem" placeholder="Ответ (если уже знаете)">${esc(existing.answer || "")}</textarea>` : ""}
+    <div class="row"><button class="tg q" data-t="q" title="Это вопрос к преподавательнице">❓</button><button class="tg imp" data-t="imp" title="Важная — всегда на виду">★</button>
+      <span class="sp"></span><button class="btn-o" data-f="x">Отмена</button><button class="btn" data-f="ok">Сохранить</button></div>`;
+  const sync = () => { f.querySelector('[data-t="q"]').classList.toggle("on", k === "q"); f.querySelector('[data-t="imp"]').classList.toggle("on", imp); };
+  f.querySelector('[data-t="q"]').onclick = () => { k = k === "q" ? "note" : "q"; sync(); };
+  f.querySelector('[data-t="imp"]').onclick = () => { imp = !imp; sync(); };
+  sync();
+  // куда поставить форму
+  const variant = root.dataset.variant;
+  let placed = false;
+  if (!cardEl && (anchorEl || (existing && existing.quote))) {
+    const m = anchorEl || document.querySelector(`mark.anchor[data-id="${existing.id}"]`);
+    if (m) {
+      const r = m.getBoundingClientRect(), card = m.closest(".card").getBoundingClientRect(), vw = document.documentElement.clientWidth;
+      f.style.position = "absolute"; f.style.width = "260px"; f.style.zIndex = 60;
+      // окно под фрагментом (понравилось пользователю)
+      f.style.left = Math.max(8, Math.min(scrollX + r.left, scrollX + vw - 268)) + "px"; f.style.top = (scrollY + r.bottom + 6) + "px";
+      document.body.appendChild(f); placed = true;
+    }
+  }
+  if (!placed && headBtn) {   // «＋» у заголовка — окно под кнопкой
+    const r = headBtn.getBoundingClientRect();
+    f.classList.add("add-pop"); f.style.left = Math.max(8, scrollX + r.right - 280) + "px"; f.style.top = (scrollY + r.bottom + 6) + "px";
+    document.body.appendChild(f); placed = true;
+  }
+  if (!placed && cardEl) {   // правка на месте
+    cardEl.style.display = "none"; cardEl.after(f); placed = true;
+    if (cardEl.closest(".margin-col")) { if (existing.quote) f.dataset.anchor = existing.id; cardEl.remove(); requestAnimationFrame(() => layoutMargin(el)); }
+  }
+  if (!placed) {
+    const host = el === "lesson" ? document.getElementById("lp-lesson") : variant === "margin" ? (openAll.add(el), renderEl(el), document.querySelector(`[data-margin="${el}"]`)) : (openAll.add(el), renderEl(el), document.querySelector(`[data-under="${el}"]`));
+    host.insertBefore(f, host.querySelector(".add")); if (variant === "margin" && el !== "lesson") requestAnimationFrame(() => layoutMargin(el));
+  }
+  const ta = f.querySelector("textarea"); ta.focus();
+  const cancel = () => { f.remove(); if (range && !existing) unwrapTemp(); renderAll(); };
+  f.querySelector('[data-f="x"]').onclick = cancel;
+  enterSaves(f, () => f.querySelector('[data-f="ok"]').click());
+  f.querySelector('[data-f="ok"]').onclick = () => {
+    const body = ta.value.trim(); if (!body) { ta.focus(); return; }
+    if (existing) {
+      Object.assign(existing, {body, kind: k, imp});
+      const a = f.querySelector(".ans");
+      if (a) { existing.answer = a.value.trim(); existing.done = !!existing.answer || existing.done; }   // записан ответ → вопрос отвечен
+    }
+    else {
+      const n = {id: ++seq, el, kind: k, imp, quote, body};
+      notes.push(n);
+      const tmp = document.querySelector("mark.anchor[data-id='tmp']"); if (tmp) tmp.dataset.id = n.id;
+    }
+    f.remove(); renderAll();
+    const hidden = !existing && !quote && el !== "lesson" && !openAll.has(el) && !imp;
+    toast(existing ? "Изменено" : (k === "q" ? "Вопрос записан" : "Пометка сохранена") + (hidden ? " — видна по 📝" : ""));
+  };
+}
+function enterSaves(box, save) {
+  box.querySelectorAll("textarea").forEach(ta => ta.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); save(); }
+  }));
+}
+function unwrapTemp() { const t = document.querySelector("mark.anchor[data-id='tmp']"); if (t) t.replaceWith(document.createTextNode(t.textContent)); }
+function wrapRange(range, id) {
+  const m = document.createElement("mark"); m.className = "anchor"; m.dataset.id = id;
+  try { range.surroundContents(m); } catch (e) { m.appendChild(range.extractContents()); range.insertNode(m); }
+  return m;
+}
+
+/* ---------- события ---------- */
+document.addEventListener("click", e => {
+  const t = e.target;
+  const tog = t.closest("[data-toggle]");
+  if (tog) { const el = tog.dataset.toggle; openAll.has(el) ? openAll.delete(el) : openAll.add(el); floatId = null; renderAll(); return; }
+  const add = t.closest("[data-add]"); if (add) { openForm({el: add.dataset.add}); return; }
+  const addH = t.closest("[data-add-head]"); if (addH) { openForm({el: addH.dataset.addHead, headBtn: addH}); return; }
+  const anchor = t.closest("mark.anchor");
+  if (anchor && anchor.dataset.id !== "tmp") {
+    const id = +anchor.dataset.id; clearHl();
+    if (openAll.has(page)) { const c = document.querySelector(`#page-${page} .mn[data-id="${id}"]`); if (c) { c.classList.add("hl"); anchor.classList.add("hl"); c.scrollIntoView({block: "nearest", behavior: "smooth"}); } return; }
+    floatId = floatId === id ? null : id; placeFloat(); return;
+  }
+  const g = t.closest("[data-goto]"); if (g) { goTo(+g.dataset.goto); return; }
+  const qb5 = t.closest("[data-qb]"); if (qb5) { const n = byId(qb5.dataset.qb); if (n.done) { n.done = false; renderAll(); } else answer5(n); return; }
+  const e5 = t.closest("[data-e]"); if (e5) { edit5(byId(e5.dataset.e), e5.closest(".qi-row, .ni")); return; }
+  const d5 = t.closest("[data-d]"); if (d5) { askDelete(byId(d5.dataset.d)); return; }
+  if (t.closest("[data-fold5]")) { showDone5 = !showDone5; renderAlt(); return; }
+  const qb = t.closest("[data-qbox]");
+  if (qb) { const n = byId(qb.dataset.qbox);
+    if (n.done) { n.done = false; renderAll(); return; }
+    const card = qb.closest(".qline") ? qb.closest(".qline") : qb.closest(".b-row");
+    if (card.classList.contains("b-row")) { const a = prompt("Ответ (можно оставить пустым)", ""); if (a === null) return; n.done = true; n.answer = a.trim(); renderAll(); toast("Вопрос закрыт"); }
+    else answer(card, n);
+    return; }
+  const be = t.closest("[data-bedit]"); if (be) { const n = byId(be.dataset.bedit); const v = prompt("Изменить", n.body); if (v && v.trim()) { n.body = v.trim(); renderAll(); } return; }
+  const bd = t.closest("[data-bdel]"); if (bd) { askDelete(byId(bd.dataset.bdel)); return; }
+  const fl = t.closest(".filters [data-f]"); if (fl) { lpFilter = fl.dataset.f; renderAlt(); return; }
+  const ta2 = t.closest("[data-tree-add]"); if (ta2) { const el = ta2.dataset.treeAdd;
+    if (el === "lesson") { document.getElementById("alt-quick").focus(); return; }
+    if (el === "theory" || el === "ex5") { toast("В макете у этого элемента нет страницы"); return; }
+    openForm({el, headBtn: ta2}); return; }
+  const oe = t.closest("[data-open-el]"); if (oe) { showPage(oe.dataset.openEl); openAll.add(oe.dataset.openEl); renderAll(); return; }
+  const act = t.closest("[data-act]");
+  if (act) {
+    const card = act.closest(".mn"); const n = byId(card.dataset.id); const a = act.dataset.act;
+    if (a === "close") { floatId = null; clearHl(); placeFloat(); }
+    if (a === "edit") openForm({el: n.el, existing: n, cardEl: card.classList.contains("float") ? null : card});
+    if (a === "del") askDelete(n);
+    if (a === "answer") answer(card, n);
+    return;
+  }
+  if (t.closest("#qchip")) { document.getElementById("drawer").classList.add("open"); return; }
+  if (t.closest("#drawer-x")) { document.getElementById("drawer").classList.remove("open"); return; }
+  if (t.closest("#lp-done-t")) { showDone = !showDone; renderLesson(); return; }
+  const pg = t.closest("[data-page]"); if (pg) { showPage(pg.dataset.page); return; }
+  if (floatId && !t.closest(".float")) { floatId = null; clearHl(); placeFloat(); }
+});
+document.addEventListener("mouseover", e => {
+  const c = e.target.closest(".mn"); const m = e.target.closest("mark.anchor");
+  document.querySelectorAll(".hov").forEach(x => x.classList.remove("hl", "hov"));
+  const id = c ? c.dataset.id : m ? m.dataset.id : null; if (!id) return;
+  document.querySelectorAll(`#page-${page} mark.anchor[data-id="${id}"], #page-${page} .margin-col .mn[data-id="${id}"], #page-${page} .under .mn[data-id="${id}"]`).forEach(x => { if (!x.classList.contains("hl")) x.classList.add("hl", "hov"); });
+});
+
+function answer(card, n) {
+  const d = document.createElement("div"); d.className = "nform"; d.style.marginTop = ".3rem";
+  d.innerHTML = `<textarea style="min-height:2.4em" placeholder="Ответ (можно не писать)"></textarea>
+    <div class="row"><span class="sp"></span><button class="btn-o" data-x>Отмена</button><button class="btn" data-ok title="Закрыть вопрос">✓</button></div>`;
+  card.after(d); d.querySelector("textarea").focus();
+  enterSaves(d, () => d.querySelector("[data-ok]").click());
+  if (card.closest(".margin-col")) layoutMargin(n.el);
+  d.querySelector("[data-x]").onclick = () => { d.remove(); renderAll(); };
+  d.querySelector("[data-ok]").onclick = () => { n.done = true; n.answer = d.querySelector("textarea").value.trim(); d.remove(); renderAll(); toast("Вопрос закрыт"); };
+}
+let toDelete = null;
+function askDelete(n) { toDelete = n; document.getElementById("modal-text").textContent = "«" + n.body.slice(0, 80) + (n.body.length > 80 ? "…" : "") + "»"; document.getElementById("modal").classList.add("open"); }
+document.getElementById("m-cancel").onclick = () => document.getElementById("modal").classList.remove("open");
+document.getElementById("m-ok").onclick = () => { notes.splice(notes.indexOf(toDelete), 1); document.getElementById("modal").classList.remove("open"); floatId = null; renderAll(); toast("Удалено"); };
+
+function showPage(p) {
+  page = p; floatId = null; placeFloat();
+  document.querySelectorAll(".page").forEach(x => x.classList.toggle("on", x.id === "page-" + p));
+  document.querySelectorAll(".side a[data-page]").forEach(a => a.classList.toggle("on", a.dataset.page === p));
+  document.querySelectorAll("[data-go]").forEach(b => b.classList.toggle("on", b.dataset.go === p));
+  renderAll();
+}
+function goTo(id) {
+  const n = byId(id); document.getElementById("drawer").classList.remove("open");
+  if (n.el === "lesson") { showPage("lesson"); return; }
+  showPage(n.el);
+  if (n.quote) { floatId = id; const m = document.querySelector(`mark.anchor[data-id="${id}"]`); m.scrollIntoView({block: "center"}); placeFloat(); }
+  else { openAll.add(n.el); renderAll(); }
+}
+
+/* быстрая заметка к уроку */
+let qQ = false, qImp = false;
+document.getElementById("quick-q").onclick = e => { qQ = !qQ; e.currentTarget.classList.toggle("on", qQ); e.currentTarget.classList.toggle("q", true); };
+document.getElementById("quick-imp").onclick = e => { qImp = !qImp; e.currentTarget.classList.toggle("on", qImp); };
+enterSaves(document.querySelector(".quick"), () => document.getElementById("quick-save").click());
+document.getElementById("quick-save").onclick = () => {
+  const ta = document.getElementById("quick"); const body = ta.value.trim(); if (!body) { ta.focus(); return; }
+  notes.push({id: ++seq, el: "lesson", kind: qQ ? "q" : "note", imp: qImp, quote: "", body}); ta.value = ""; renderAll(); toast(qQ ? "Вопрос записан" : "Записано");
+};
+
+/* выделение → подсказка 006 с кнопками 📝 ❓ */
+let pop = null;
+function closePop() { if (pop) pop.remove(); pop = null; }
+function selectionPop() {
+    const s = getSelection(); const txt = s.toString().trim();
+    const body = s.anchorNode && (s.anchorNode.nodeType === 3 ? s.anchorNode.parentElement : s.anchorNode).closest("[data-body]");
+    if (!txt || !body || !s.rangeCount) return;
+    const range = s.getRangeAt(0).cloneRange(); const rect = range.getBoundingClientRect();
+    closePop();
+    const trOk = root.dataset.tr === "on" && !(body.dataset.body === "ex" && !exChecked);
+    if (!trOk && root.dataset.off === "none") return;   // без перевода подсказки нет — заметка только через «＋»
+    pop = document.createElement("div");
+    if (trOk) {
+      pop.className = "pop";
+      pop.innerHTML = `<div class="src">${esc(txt.length > 50 ? txt.slice(0, 50) + "…" : txt)}</div><div class="tr">(перевод) <span class="muted small">· 🔊 · + В словарь — как в 006</span></div>
+        <div class="acts"><span class="l">Заметка к фрагменту:</span><button class="tg" data-p="note" title="Пометка">📝</button><button class="tg q" data-p="q" title="Вопрос">❓</button></div>`;
+    } else {
+      pop.className = "pop-strip";
+      pop.innerHTML = `<button data-p="note" title="Пометка к фрагменту">📝<span class="l">пометка</span></button><button data-p="q" title="Вопрос к фрагменту">❓<span class="l">вопрос</span></button>`;
+    }
+    document.body.appendChild(pop); iconize(pop);
+    pop.style.top = (scrollY + rect.bottom + 8) + "px";
+    pop.style.left = Math.max(10, Math.min(scrollX + rect.left, scrollX + document.documentElement.clientWidth - pop.offsetWidth - 10)) + "px";
+    pop.querySelectorAll("[data-p]").forEach(b => b.onclick = () => {
+      closePop(); getSelection().removeAllRanges();
+      const m = wrapRange(range, "tmp");
+      openForm({el: body.dataset.body, kind: b.dataset.p, quote: txt, range, anchorEl: m});
+    });
+}
+document.addEventListener("mouseup", e => {
+  if (e.target.closest(".pop,.nform,.mn,input,textarea,button")) return;
+  setTimeout(selectionPop, 10);
+});
+// сенсорный экран: выделение долгим нажатием — ждём, пока выделение перестанет меняться
+let selTimer = null;
+if (matchMedia("(pointer: coarse)").matches) document.addEventListener("selectionchange", () => {
+  clearTimeout(selTimer);
+  selTimer = setTimeout(() => { if (!pop && getSelection().toString().trim()) selectionPop(); }, 700);
+});
+document.addEventListener("mousedown", e => { if (pop && !pop.contains(e.target)) closePop(); });
+document.addEventListener("touchstart", e => { if (pop && !pop.contains(e.target)) closePop(); }, {passive: true});
+document.addEventListener("keydown", e => { if (e.key === "Escape") { closePop(); floatId = null; clearHl(); placeFloat(); document.getElementById("drawer").classList.remove("open"); document.getElementById("modal").classList.remove("open"); } });
+window.addEventListener("resize", () => { ["text", "ex"].forEach(el => openAll.has(el) && root.dataset.variant === "margin" && layoutMargin(el)); placeFloat(); });
+
+function anchorText(el, phrase, id) {
+  const body = document.querySelector(`[data-body="${el}"]`);
+  const w = document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
+  while (w.nextNode()) { const i = w.currentNode.textContent.indexOf(phrase); if (i >= 0) { const r = document.createRange(); r.setStart(w.currentNode, i); r.setEnd(w.currentNode, i + phrase.length); wrapRange(r, id); return; } }
+}
+notes.filter(n => n.quote).forEach(n => anchorText(n.el, n.quote, n.id));
+
+const SV = (inner, fill = false) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+const QMARK = `<path d="M9.2 9a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.8-2.8 2.8"/><path d="M12 17h.01"/>`;
+const ICONS = {
+  line: {
+    note: SV(`<path d="M12 3.5H6a2.5 2.5 0 0 0-2.5 2.5v12A2.5 2.5 0 0 0 6 20.5h12a2.5 2.5 0 0 0 2.5-2.5v-6"/><path d="M18.4 2.9a2.1 2.1 0 0 1 3 3L12.8 14.5l-3.8 1 1-3.8z"/>`),
+    q: SV(`<circle cx="12" cy="12" r="9.3"/>${QMARK}`),
+  },
+  bubble: {
+    note: SV(`<path d="M20.5 15a2 2 0 0 1-2 2H8l-4.5 4V5.5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"/><path d="M8 8.5h8M8 12.5h5"/>`),
+    q: SV(`<path d="M7.9 20.2A9 9 0 1 0 3.8 16.1L2.5 21.5z"/>${QMARK}`),
+  },
+  soft: {
+    note: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor" opacity=".18"/><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.8 6.8a1.6 1.6 0 0 1 2.3 2.3l-6.4 6.4-3 .8.8-3z"/><path d="M13.3 8.3l2.3 2.3"/></g></svg>`,
+    q: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor" opacity=".18"/><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${QMARK}</g></svg>`,
+  },
+};
+const EMOJI = {"📝": "note", "❓": "q"};
+function icoHTML(kind) {
+  const set = root.dataset.icons;
+  return set === "emoji" ? (kind === "note" ? "📝" : "❓") : ICONS[set][kind];
+}
+function iconize(scope = document.body, refresh = false) {   // заменить эмодзи в интерфейсе на значки выбранного набора
+  const w = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT, {acceptNode: n => n.parentElement.closest(".mock, script, style, textarea, .toast") ? NodeFilter.FILTER_REJECT : /📝|❓/.test(n.textContent) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP});
+  const list = []; while (w.nextNode()) list.push(w.currentNode);
+  for (const t of list) {
+    const frag = document.createDocumentFragment();
+    for (const part of t.textContent.split(/(📝|❓)/)) {
+      if (EMOJI[part]) { const i = document.createElement("span"); i.className = "ico ico-" + EMOJI[part]; i.dataset.k = EMOJI[part]; i.innerHTML = icoHTML(EMOJI[part]); frag.appendChild(i); }
+      else if (part) frag.appendChild(document.createTextNode(part));
+    }
+    t.replaceWith(frag);
+  }
+  if (refresh) scope.querySelectorAll(".ico").forEach(i => i.innerHTML = icoHTML(i.dataset.k));
+}
+// всё, что дорисовывается позже (формы, поле, подсказки), тоже получает значки
+new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) { const el = n.nodeType === 1 ? n : n.parentElement; if (el && /📝|❓/.test(n.textContent || "")) iconize(el); } })
+  .observe(document.body, {childList: true, subtree: true});
+let exChecked = false;
+document.getElementById("ex-check").addEventListener("click", () => { exChecked = true; document.getElementById("ex-state").textContent = "ответ проверен — перевод при выделении снова доступен"; });
+function toast(m) { const t = document.getElementById("toast"); t.textContent = m; t.style.display = "block"; clearTimeout(t._h); t._h = setTimeout(() => t.style.display = "none", 2500); }
+function markBtns() { document.querySelectorAll("[data-set]").forEach(b => b.classList.toggle("on", root.dataset[b.dataset.set] === b.dataset.val)); }
+document.querySelectorAll("[data-set]").forEach(b => b.addEventListener("click", ev => { ev.stopPropagation(); root.dataset[b.dataset.set] = b.dataset.val; markBtns(); floatId = null; renderAll(); }));
+document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", ev => { ev.stopPropagation(); showPage(b.dataset.go); scrollTo(0, 0); }));
+markBtns(); showPage("lesson");
+</script>
+</body>
+</html>
