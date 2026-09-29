@@ -18,23 +18,23 @@ contracts/translate-api.md, contracts/ui-routes.md, quickstart.md, mockups/index
 
 ## Phase 1: Setup
 
-- [ ] T001 Добавить зависимость `simplemma` (`uv add simplemma`) — согласие пользователя на скачивание (19 МБ, MIT) получено 2026-09-30; пакет `src/french_learning/translate/`, тесты `tests/unit/translate/`
-- [ ] T002 `config.py`: `deepl_api_key: str | None` (из `DEEPL_API_KEY` / `.env`); `.env.example` — строка с пояснением
+- [X] T001 Добавить зависимость `simplemma` (`uv add simplemma`) — согласие пользователя на скачивание (19 МБ, MIT) получено 2026-09-30; пакет `src/french_learning/translate/`, тесты `tests/unit/translate/`
+- [X] T002 `config.py`: `deepl_api_key: str | None` (из `DEEPL_API_KEY` / `.env`); `.env.example` — строка с пояснением
 
 ---
 
 ## Phase 2: Foundational — нормализация, запас, сервисы, формы
 
-- [ ] T003 [P] Тесты `test_normalize.py`: ключ (регистр, апострофы, пробелы, конечная пунктуация); кириллица; «больше одного предложения»; длина > 500
-- [ ] T004 `translate/normalize.py` — тесты T003 проходят
-- [ ] T005 [P] Тесты `tests/unit/practice/test_db.py`: схема 4, таблица `translations`, миграция 3 → 4 с сохранением заметок и карточек; настройки `translator` = `mymemory` по умолчанию
-- [ ] T006 `practice/db.py` — схема 4 — тесты T005 проходят
-- [ ] T007 [P] Тесты `test_providers.py`: разбор ответа MyMemory (успех, `MYMEMORY WARNING`, 403/429, пустой), DeepL (успех, 403, 456), тайм-аут/сеть → `TranslationUnavailable`; в запрос уходит только текст (и почта, если задана); DeepL без ключа — ошибка настройки. Сеть подменяется (`urllib.request.urlopen`)
-- [ ] T008 `translate/providers.py` — тесты T007 проходят
-- [ ] T009 [P] Тесты `test_lemma.py`: `achètent → acheter` (verb), `pommes → pomme` (word), `maison` без формы, несколько слов → phrase как есть
-- [ ] T010 `translate/lemma.py` — тесты T009 проходят
-- [ ] T011 [P] Тесты `test_service.py`: порядок словарь (по тексту и по форме, скрытые тоже) → запас → сервис; ответ сервиса пишется в запас один раз; ошибка не пишется; повтор не вызывает сервис; `can_add` / `add_as` / `entry`; перевод начальной формы; `clear()` и `count()` запаса
-- [ ] T012 `translate/cache.py`, `translate/service.py` — тесты T011 проходят
+- [X] T003 [P] Тесты `test_normalize.py`: ключ (регистр, апострофы, пробелы, конечная пунктуация); кириллица; «больше одного предложения»; длина > 500
+- [X] T004 `translate/normalize.py` — тесты T003 проходят
+- [X] T005 [P] Тесты `tests/unit/practice/test_db.py`: схема 4, таблица `translations`, миграция 3 → 4 с сохранением заметок и карточек; настройки `translator` = `mymemory` по умолчанию
+- [X] T006 `practice/db.py` — схема 4 — тесты T005 проходят
+- [X] T007 [P] Тесты `test_providers.py`: разбор ответа MyMemory (успех, `MYMEMORY WARNING`, 403/429, пустой), DeepL (успех, 403, 456), тайм-аут/сеть → `TranslationUnavailable`; в запрос уходит только текст (и почта, если задана); DeepL без ключа — ошибка настройки. Сеть подменяется (`urllib.request.urlopen`)
+- [X] T008 `translate/providers.py` — тесты T007 проходят
+- [X] T009 [P] Тесты `test_lemma.py`: `achètent → acheter` (verb), `pommes → pomme` (word), `maison` без формы, несколько слов → phrase как есть
+- [X] T010 `translate/lemma.py` — тесты T009 проходят
+- [X] T011 [P] Тесты `test_service.py`: порядок словарь (по тексту и по форме, скрытые тоже) → запас → сервис; ответ сервиса пишется в запас один раз; ошибка не пишется; повтор не вызывает сервис; `can_add` / `add_as` / `entry`; перевод начальной формы; `clear()` и `count()` запаса
+- [X] T012 `translate/cache.py`, `translate/service.py` — тесты T011 проходят
 
 **Checkpoint**: перевод получается и запоминается без интерфейса.
 
