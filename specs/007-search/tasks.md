@@ -19,16 +19,16 @@ contracts/search-routes.md, contracts/ui.md, quickstart.md, mockups/index.html
 
 ## Phase 1: Setup
 
-- [ ] T001 Пакет `src/french_learning/search/__init__.py` (описание пакета) и `tests/unit/search/__init__.py`
+- [X] T001 Пакет `src/french_learning/search/__init__.py` (описание пакета) и `tests/unit/search/__init__.py`
 
 ---
 
 ## Phase 2: Foundational — нормализация, совпадение, индекс
 
-- [ ] T002 [P] Тесты `tests/unit/search/test_text.py`: `normalize` — регистр, диакритика (`été` → `ete`, `ç` → `c`), `œ` → `oe`, `æ` → `ae`, «ё» → «е»; `tokens` — слова с позициями в исходном тексте, апострофы (`'`, `’`, `ʼ`) и дефисы — разделители (`l'eau` → `l`, `eau`; `peut-être` → `peut`, `etre`); `query_tokens` — «меньше 2 символов → пустой запрос», знаки препинания и пробелы — пустой; `find` — одно слово по началу (`mang` находит `manger`, `ange` — нет), фраза подряд с последним словом по началу (`il y a` находит `il y avait`, не находит `il a y`), все позиции совпадений
-- [ ] T003 `src/french_learning/search/text.py` — тесты T002 проходят
-- [ ] T004 [P] Тесты `tests/unit/search/test_index.py` на образце контента: документы видов `word` / `topic` / `theory`; слово — поле `fr` с артиклем (`la maison`, `l'eau`) и поля `ru` по переводам, `translation` через «, »; скрытые слова не попадают; теория (и уроков, и «Дополнительных материалов» без урока) — `title` и `text` из отрендеренного markdown без разметки (таблица, заголовок, список находятся); тема — `title`; `lessons` слова — `lessons` ∪ уроки у переводов и примеров (006); `topics`; `url` по видам; кеш: тот же `ContentIndex` → тот же индекс, новый → перестроен (FR-016)
-- [ ] T005 `src/french_learning/search/index.py` — тесты T004 проходят
+- [X] T002 [P] Тесты `tests/unit/search/test_text.py`: `normalize` — регистр, диакритика (`été` → `ete`, `ç` → `c`), `œ` → `oe`, `æ` → `ae`, «ё» → «е»; `tokens` — слова с позициями в исходном тексте, апострофы (`'`, `’`, `ʼ`) и дефисы — разделители (`l'eau` → `l`, `eau`; `peut-être` → `peut`, `etre`); `query_tokens` — «меньше 2 символов → пустой запрос», знаки препинания и пробелы — пустой; `find` — одно слово по началу (`mang` находит `manger`, `ange` — нет), фраза подряд с последним словом по началу (`il y a` находит `il y avait`, не находит `il a y`), все позиции совпадений
+- [X] T003 `src/french_learning/search/text.py` — тесты T002 проходят
+- [X] T004 [P] Тесты `tests/unit/search/test_index.py` на образце контента: документы видов `word` / `topic` / `theory`; слово — поле `fr` с артиклем (`la maison`, `l'eau`) и поля `ru` по переводам, `translation` через «, »; скрытые слова не попадают; теория (и уроков, и «Дополнительных материалов» без урока) — `title` и `text` из отрендеренного markdown без разметки (таблица, заголовок, список находятся); тема — `title`; `lessons` слова — `lessons` ∪ уроки у переводов и примеров (006); `topics`; `url` по видам; кеш: тот же `ContentIndex` → тот же индекс, новый → перестроен (FR-016)
+- [X] T005 `src/french_learning/search/index.py` — тесты T004 проходят
 
 **Checkpoint**: индекс строится из контента и находит совпадения без интерфейса.
 
