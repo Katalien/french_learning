@@ -12,7 +12,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain — 2 (фрагмент не найден; 📝 ❓ при выключенном переводе)
+- [x] No [NEEDS CLARIFICATION] markers remain (уточнено 2026-09-29)
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic
