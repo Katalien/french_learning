@@ -18,7 +18,7 @@ contracts/translate-api.md, contracts/ui-routes.md, quickstart.md, mockups/index
 
 ## Phase 1: Setup
 
-- [ ] T001 Добавить зависимость `simplemma` (`uv add simplemma`) — **после согласия пользователя** на скачивание (19 МБ, MIT); пакет `src/french_learning/translate/`, тесты `tests/unit/translate/`
+- [ ] T001 Добавить зависимость `simplemma` (`uv add simplemma`) — согласие пользователя на скачивание (19 МБ, MIT) получено 2026-09-30; пакет `src/french_learning/translate/`, тесты `tests/unit/translate/`
 - [ ] T002 `config.py`: `deepl_api_key: str | None` (из `DEEPL_API_KEY` / `.env`); `.env.example` — строка с пояснением
 
 ---
@@ -46,7 +46,7 @@ contracts/translate-api.md, contracts/ui-routes.md, quickstart.md, mockups/index
 - [ ] T014 [US1] `web/routes/translate.py` (`/translate`), подключение сервиса в `app.state` — тесты T013 проходят
 - [ ] T015 [P] [US1] Тесты разметки: `data-translate` на теории, упражнении, доп. материале, словаре, карточке, теме, тренажёре; `<html data-translate="1">` по умолчанию и `"0"` при cookie; `translate.js` подключён
 - [ ] T016 [US1] Шаблоны: `data-translate` на французских блоках; `base.html` — атрибут и скрипт — тесты T015 проходят
-- [ ] T017 [US1] `selection.js`: зоны `[data-note-container], [data-translate], [lang="fr"]`, `ctx.zone` / `ctx.noteContainer`, ✕ в подсказке; `notes.js` — секция 005 по `ctx.noteContainer` (регрессия 005 — quickstart 005 §1)
+- [ ] T017 [US1] `selection.js`: зоны `[data-note-container], [data-translate], [lang="fr"]`, `ctx.zone` / `ctx.noteContainer`, ✕ в подсказке; `notes.js` — секция 005 по `ctx.noteContainer` (регрессия 005 — quickstart 005 §1 и вкладки урока «Тексты» / «Теория» из 0.6.1: кнопки заметок у каждого элемента, поле справа)
 - [ ] T018 [US1] `static/js/translate.js`: секция перевода по макету (загрузка → перевод, форма, 🔊 `data-speak`, сообщения), стили подсказки; без перевода при кириллице и выключенном переключателе
 - [ ] T019 [US1] Проверка quickstart §1
 
@@ -54,9 +54,9 @@ contracts/translate-api.md, contracts/ui-routes.md, quickstart.md, mockups/index
 
 ## Phase 4: User Story 2 — в словарь (P1)
 
-- [ ] T020 [P] [US2] Тесты `tests/unit/vocab/test_edits.py`: `add_word(example=…, translation_origin="service")` — пример с уроком, перевод с `origin: service` и уроком, `lessons` пуст, тем нет; повтор — не дубль, пример добавлен в существующую запись один раз
+- [ ] T020 [P] [US2] Тесты `tests/unit/vocab/test_edits.py`: `add_word(example=…, translation_origin="service")` — пример с уроком, перевод с `origin: service` и уроком, `lessons` пуст, тем нет; повтор — не дубль, пример добавлен в существующую запись один раз; род у существительного — как при быстром вводе (003), если определён (FR-012, analyze C1)
 - [ ] T021 [US2] `vocab/edits.py` — тесты T020 проходят; `vocab/entry.html` — у примера мелко «урок N» (FR-012: урок виден в «Подробнее») + тест разметки
-- [ ] T022 [P] [US2] Тесты `POST /vocab/from-text`: слово (форма, verb/word), фраза, предложение (пример не дублируется), абзац → 422, без перевода → 422, повтор → `merged: true`
+- [ ] T022 [P] [US2] Тесты `POST /vocab/from-text`: слово (форма, verb/word, род существительного), фраза, предложение (пример не дублируется), абзац → 422, без перевода → 422, повтор → `merged: true`
 - [ ] T023 [US2] Маршрут `/vocab/from-text` — тесты T022 проходят
 - [ ] T024 [US2] `translate.js`: «+ В словарь: X» → запрос с предложением вокруг выделения и уроком страницы → «✓ в словаре: перевод» + сообщение внизу
 - [ ] T025 [US2] Проверка quickstart §2 (в т. ч. «Подробнее», оборот карточки, происхождение)
