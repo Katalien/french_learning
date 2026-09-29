@@ -31,6 +31,17 @@
         <a href="{{ href }}" {% if current == href or current.startswith(href ~ "/") %}aria-current="page"{% endif %}>{{ name }}</a>
       {% endfor %}
     </nav>
+    {# поиск (007): панель под строкой по мере ввода, Enter — страница всех результатов;
+       при закрытии панели область и фильтры сбрасываются (поля живут только в панели) #}
+    <form class="search-box" role="search" method="get" action="/search"
+          hx-get="/search/panel" hx-trigger="input changed delay:150ms from:#search-q, focus from:#search-q, change" hx-target="#search-panel" hx-sync="this:replace"
+          x-data="{ open: false, close() { this.open = false; this.$refs.panel.innerHTML = ''; } }"
+          @input="open = $refs.q.value.trim().length > 0; if (!open) close()"
+          @keydown.escape="close()" @click.outside="close()">
+      <input type="search" id="search-q" name="q" x-ref="q" autocomplete="off" @focus="open = $refs.q.value.trim().length > 0" placeholder="Поиск…" aria-label="Поиск по словарю, теории и темам"
+             value="{{ request.query_params.get('q', '') if current == '/search' else '' }}">
+      <div id="search-panel" class="search-panel" x-ref="panel" x-show="open" x-cloak></div>
+    </form>
     {% if request.app.state.notes is not none %}
       <button type="button" class="q-badge" data-questions-count="{{ nav_badges.questions }}" {% if not nav_badges.questions %}hidden{% endif %} x-data
               hx-get="/questions" hx-target="#questions-body" @click="$dispatch('questions-open')"

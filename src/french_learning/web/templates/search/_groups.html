@@ -1,0 +1,30 @@
+{# Группы результатов поиска (007, FR-008, FR-012). Переменные: results, query, limit
+   (None — все), group_names, search_link #}
+{% if results.empty_reason == "short" %}
+  <p class="search-empty">Введите хотя бы 2 буквы</p>
+{% elif results.empty_reason == "none" %}
+  <p class="search-empty">Ничего не найдено</p>
+{% else %}
+  {% for key, items in results.groups.items() if items %}
+    <section class="search-group">
+      <h3>{{ group_names[key] }} <span class="count">{{ items | length }}</span></h3>
+      <ul class="search-list">
+        {% for r in (items[:limit] if limit else items) %}
+          <li class="search-item search-{{ r.kind }}">
+            {% if r.kind == "word" %}
+              <a href="{{ r.url }}"><span lang="fr">{{ r.title }}</span></a>{% if r.translation %} <span class="muted">— {{ r.translation }}</span>{% endif %}
+            {% elif r.kind == "theory" %}
+              <a href="{{ r.url }}?hl={{ query.q | urlencode }}">{{ r.title }}</a>
+              <small class="muted">{{ "урок " ~ r.lesson if r.lesson else "доп. материалы" }}</small>
+              {% if r.snippet %}<p class="search-snippet">{% for part, hit in r.snippet %}{% if hit %}<mark>{{ part }}</mark>{% else %}{{ part }}{% endif %}{% endfor %}</p>{% endif %}
+              {% if r.count > 1 %}<small class="muted">ещё {{ r.count - 1 }}</small>{% endif %}
+            {% else %}
+              <a href="{{ r.url }}">{{ r.title }}</a>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+      {% if limit and items | length > limit %}<a class="search-more" href="{{ search_link(scope=key) }}">Показать все ({{ items | length }})</a>{% endif %}
+    </section>
+  {% endfor %}
+{% endif %}

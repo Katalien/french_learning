@@ -40,12 +40,12 @@ contracts/search-routes.md, contracts/ui.md, quickstart.md, mockups/index.html
 
 **Independent Test**: `mais` → группы «Слова / Темы / Теория»; `дом` → `la maison`; `ete` → `été`; `zzz` → «Ничего не найдено».
 
-- [ ] T006 [P] [US1] Тесты `tests/unit/search/test_query.py`: группы `words` / `topics` / `theory` со счётчиками; «только артикль» (`la`, `le`, `les`, `l`, `un`, `une`, `des`) — слова словаря не ищутся, теория ищется; порядок (research R5): слово — совпадение во французском выше перевода, затем по алфавиту; теория — совпадение в названии выше текста, затем урок (новые выше); `empty_reason` — `short` / `none`; перевод у слова только при `show_translation=True`
-- [ ] T007 [US1] `src/french_learning/search/query.py` (запрос, группы, ранжирование) — тесты T006 проходят
-- [ ] T008 [P] [US1] Тесты `tests/integration/test_search.py`: `GET /search/panel?q=` — группы по 3, «Показать все (N)», «Все результаты», пустые состояния «Введите хотя бы 2 буквы» / «Ничего не найдено»; `GET /search?q=` — все результаты группами; слова с `lang="fr"`; в шапке любой страницы форма `role="search"` с `action="/search"`, `autocomplete="off"` и `hx-get="/search/panel"`; поиск ничего не пишет (база прогресса и контент не меняются)
-- [ ] T009 [US1] `src/french_learning/web/routes/search.py` (`/search`, `/search/panel`), подключение в `web/routes/__init__.py`; шаблоны `web/templates/search/_groups.html`, `panel.html`, `page.html` — тесты T008 проходят
-- [ ] T010 [US1] `web/templates/base.html`: форма поиска в шапке (HTMX `input changed delay:150ms`, цель — панель), Alpine: открыть при вводе, закрыть по Esc и щелчку вне; стили строки и панели в `web/static/css/screens.css` (светлая и тёмная тема, 375 px — во всю ширину)
-- [ ] T011 [US1] Проверка quickstart §1 и §5
+- [X] T006 [P] [US1] Тесты `tests/unit/search/test_query.py`: группы `words` / `topics` / `theory` со счётчиками; «только артикль» (`la`, `le`, `les`, `l`, `un`, `une`, `des`) — слова словаря не ищутся, теория ищется; порядок (research R5): слово — совпадение во французском выше перевода, затем по алфавиту; теория — совпадение в названии выше текста, затем урок (новые выше); `empty_reason` — `short` / `none`; перевод у слова только при `show_translation=True`
+- [X] T007 [US1] `src/french_learning/search/query.py` (запрос, группы, ранжирование) — тесты T006 проходят
+- [X] T008 [P] [US1] Тесты `tests/integration/test_search.py`: `GET /search/panel?q=` — группы по 3, «Показать все (N)», «Все результаты», пустые состояния «Введите хотя бы 2 буквы» / «Ничего не найдено»; `GET /search?q=` — все результаты группами; слова с `lang="fr"`; в шапке любой страницы форма `role="search"` с `action="/search"`, `autocomplete="off"` и `hx-get="/search/panel"`; поиск ничего не пишет (база прогресса и контент не меняются)
+- [X] T009 [US1] `src/french_learning/web/routes/search.py` (`/search`, `/search/panel`), подключение в `web/routes/__init__.py`; шаблоны `web/templates/search/_groups.html`, `panel.html`, `page.html` — тесты T008 проходят
+- [X] T010 [US1] `web/templates/base.html`: форма поиска в шапке (HTMX `input changed delay:150ms`, цель — панель), Alpine: открыть при вводе, закрыть по Esc и щелчку вне; стили строки и панели в `web/static/css/screens.css` (светлая и тёмная тема, 375 px — во всю ширину)
+- [X] T011 [US1] Проверка quickstart §1 и §5
 
 ---
 
@@ -55,11 +55,11 @@ contracts/search-routes.md, contracts/ui.md, quickstart.md, mockups/index.html
 
 **Independent Test**: `maison` → «Словарь» → только слова → урок N → только слова урока N → «Всё».
 
-- [ ] T012 [P] [US2] Тесты в `tests/unit/search/test_query.py`: `scope` = `all` | `words` | `theory` | `topics` (иначе `all`); урок N — слова с N в `lessons` документа, теория урока N, темы, встречающиеся в уроке N; тема T — слова и теория с темой T, в группе тем — только T
-- [ ] T013 [US2] Область и фильтры в `search/query.py` — тесты T012 проходят
-- [ ] T014 [P] [US2] Тесты маршрутов: `scope`, `lesson`, `topic` в `/search/panel` и `/search`; в панели — переключатель области и выбор урока / темы с текущими значениями; «Показать все (N)» ведёт на `/search?…&scope=<группа>`
-- [ ] T015 [US2] Управление областью и фильтрами в `search/panel.html` и `page.html` (скрытые поля формы шапки, HTMX повторяет запрос); при закрытии панели — сброс на «Всё» без фильтров (Alpine в `base.html`) — тесты T014 проходят
-- [ ] T016 [US2] Проверка quickstart §2
+- [X] T012 [P] [US2] Тесты в `tests/unit/search/test_query.py`: `scope` = `all` | `words` | `theory` | `topics` (иначе `all`); урок N — слова с N в `lessons` документа, теория урока N, темы, встречающиеся в уроке N; тема T — слова и теория с темой T, в группе тем — только T
+- [X] T013 [US2] Область и фильтры в `search/query.py` — тесты T012 проходят
+- [X] T014 [P] [US2] Тесты маршрутов: `scope`, `lesson`, `topic` в `/search/panel` и `/search`; в панели — переключатель области и выбор урока / темы с текущими значениями; «Показать все (N)» ведёт на `/search?…&scope=<группа>`
+- [X] T015 [US2] Управление областью и фильтрами в `search/panel.html` и `page.html` (скрытые поля формы шапки, HTMX повторяет запрос); при закрытии панели — сброс на «Всё» без фильтров (Alpine в `base.html`) — тесты T014 проходят
+- [X] T016 [US2] Проверка quickstart §2
 
 ---
 

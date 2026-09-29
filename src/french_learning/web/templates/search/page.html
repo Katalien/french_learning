@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{# Страница всех результатов поиска (007, FR-008): группы блоками, область и фильтры сверху #}
+{% block title %}Поиск{% endblock %}
+{% block content %}
+<h1>Поиск</h1>
+<form method="get" action="/search" class="card search-page-form" onchange="this.requestSubmit()">
+  <input type="search" name="q" value="{{ query.q }}" autocomplete="off" aria-label="Что искать" placeholder="Слово, тема, правило…">
+  {% include "search/_controls.html" %}
+</form>
+<div class="search-page">{% include "search/_groups.html" %}</div>
+{% endblock %}
