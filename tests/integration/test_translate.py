@@ -195,3 +195,29 @@ def test_entry_page_shows_example_lesson_and_service_origin(client, fake, git_re
     assert "внешний сервис" not in html
     client.cookies.set("show_origin", "1")
     assert "внешний сервис" in client.get(f"/vocab/{data['id']}").text
+
+
+# --- переключатель «Перевод при выделении» (US4, T026) ---------------------------------------
+
+
+def test_translate_toggle_sets_cookie_and_goes_back(client):
+    html = client.get("/lessons").text
+    assert 'action="/settings/translate"' in html and "Перевод при выделении" in html
+    response = client.post(
+        "/settings/translate",
+        data={"show": "0"},
+        headers={"referer": "http://testserver/lessons/1/texts"},
+        follow_redirects=False,
+    )
+    assert response.status_code == 303 and response.headers["location"] == "/lessons/1/texts"
+    assert "translate=0" in response.headers["set-cookie"]
+    assert "Max-Age" in response.headers["set-cookie"]  # переживает перезапуск
+    client.cookies.set("translate", "0")
+    html = client.get("/lessons").text
+    assert re.search(r'<html[^>]*data-translate="0"', html)
+    menu = html[html.index('action="/settings/translate"') :][:800]
+    assert re.search(r'class="on"[^>]*>выкл', menu)
+    client.cookies.set("translate", "1")
+    menu = client.get("/lessons").text
+    menu = menu[menu.index('action="/settings/translate"') :][:800]
+    assert re.search(r'class="on"[^>]*>вкл', menu)

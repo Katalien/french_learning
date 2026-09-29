@@ -65,9 +65,9 @@ contracts/translate-api.md, contracts/ui-routes.md, quickstart.md, mockups/index
 
 ## Phase 5: User Story 3 + 4 — озвучка и переключатель (P2)
 
-- [ ] T026 [P] [US4] Тесты: `POST /settings/translate` ставит cookie и возвращает назад; пункт «Перевод при выделении» в «⋯» с состоянием
-- [ ] T027 [US4] Маршрут и пункт меню — тесты T026 проходят
-- [ ] T028 [US3][US4] Проверка quickstart §3 и §4
+- [X] T026 [P] [US4] Тесты: `POST /settings/translate` ставит cookie и возвращает назад; пункт «Перевод при выделении» в «⋯» с состоянием
+- [X] T027 [US4] Маршрут и пункт меню — тесты T026 проходят
+- [X] T028 [US3][US4] Проверка quickstart §3 и §4
 
 ---
 

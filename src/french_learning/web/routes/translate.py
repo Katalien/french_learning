@@ -7,10 +7,10 @@ API — contracts/translate-api.md. Ошибки — `{"error": "…"}`. Во в
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Annotated, Any
 
-from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Form, Request
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from french_learning.translate.lemma import add_as
 from french_learning.translate.normalize import has_cyrillic, is_multi_sentence, normalize_key
@@ -18,6 +18,7 @@ from french_learning.translate.providers import Translator, make_translator
 from french_learning.translate.service import find_entry
 from french_learning.vocab.entries import vocab_entries
 from french_learning.web.deps import Index
+from french_learning.web.routes.trust import _back
 
 router = APIRouter()
 
@@ -46,6 +47,14 @@ def translate(request: Request, index: Index, q: str = ""):
     except ValueError as error:
         return _error(422, str(error))
     return result.to_dict()
+
+
+@router.post("/settings/translate")
+def toggle_translate(request: Request, show: Annotated[str, Form()] = "1"):
+    """«Перевод при выделении» в меню «⋯» — cookie браузера, по умолчанию включён (research R8)."""
+    response = RedirectResponse(_back(request), status_code=303)
+    response.set_cookie("translate", "0" if show == "0" else "1", max_age=10 * 365 * 24 * 3600)
+    return response
 
 
 def _word_before(text: str, sentence: str) -> str | None:
