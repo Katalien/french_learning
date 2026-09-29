@@ -78,3 +78,29 @@ def test_elided_article_gives_article_without_gender():
         "l'",
         None,
     )
+
+
+# --- омонимы: глагол после подлежащего (SC-005) ----------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("form", "before", "lemma"),
+    [
+        ("entre", "Paul", "entrer"),  # Paul entre dans un café
+        ("commande", "Il", "commander"),
+        ("commande", "ne", "commander"),  # il ne commande pas
+        ("commandes", "tu", "commander"),
+        ("entre", None, None),  # без контекста — как в словаре (предлог entre)
+        ("entre", "la", None),  # после артикля — не глагол
+        ("pommes", "des", "pomme"),
+        ("pommes", "Deux", "pomme"),  # слово с заглавной в начале предложения — не подлежащее
+    ],
+)
+def test_verb_reading_after_subject(form, before, lemma):
+    assert lemma_of(form, before=before) == lemma
+
+
+def test_add_as_uses_verb_reading_after_subject():
+    result = add_as("commande", before="Il")
+    assert (result.text, result.entry_type) == ("commander", "verb")
+    assert add_as("commande", before="une").entry_type == "word"

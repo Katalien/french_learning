@@ -264,3 +264,15 @@ def test_clear_saved_translations(client, fake):
     response = client.post("/settings/translations/clear")
     assert "Очищено: 2" in response.text
     assert "Сохранённых переводов: 0" in client.get("/settings").text
+
+
+def test_translate_uses_word_before_locally(client, fake):
+    data = client.get("/translate", params={"q": "entre", "before": "Paul"}).json()
+    assert data["lemma"] == "entrer" and data["add_as"]["entry_type"] == "verb"
+    assert fake.calls == ["entre", "entrer"]  # «Paul» во внешний сервис не уходит
+
+
+def test_add_verb_homograph_from_text(client, fake, git_repo):
+    data = add(client, text="commande", sentence="Il commande un café et un croissant.").json()
+    assert data["text"] == "commander"
+    assert vocab_file(git_repo, data["id"])["entry_type"] == "verb"

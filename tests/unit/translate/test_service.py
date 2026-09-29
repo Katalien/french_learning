@@ -169,3 +169,17 @@ def test_service_capital_letter_follows_selection(cache):
     translator = FakeTranslator({"serveuse": "Официантка", "Bonjour": "Здравствуйте"})
     assert service(cache, translator).translate("serveuse", []).translation == "официантка"
     assert service(cache, translator).translate("Bonjour", []).translation == "Здравствуйте"
+
+
+def test_word_before_selects_verb_reading(cache):
+    translator = FakeTranslator({"commande": "заказывает", "commander": "заказывать"})
+    result = service(cache, translator).translate("commande", [], before="Il")
+    assert result.lemma == "commander" and result.lemma_translation == "заказывать"
+    assert result.add_as == {"text": "commander", "entry_type": "verb"}
+    assert "Il" not in translator.calls  # соседнее слово во внешний сервис не уходит
+
+
+def test_service_all_caps_translation_lowered(cache):
+    translator = FakeTranslator({"commande": "ЗАКАЗ", "ONU": "ООН"})
+    assert service(cache, translator).translate("commande", []).translation == "заказ"
+    assert service(cache, translator).translate("ONU", []).translation == "ООН"

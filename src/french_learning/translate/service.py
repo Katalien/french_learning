@@ -75,12 +75,17 @@ class TranslationService:
             translation = translator.translate(text)
         except (TranslationUnavailable, TranslatorNotConfigured):
             return None, "none"
+        if translation.isupper() and len(translation) > 1 and not text.isupper():
+            translation = translation.lower()  # MyMemory: «ЗАКАЗ»
         if text[:1].islower() and translation[:1].isupper():
             translation = translation[:1].lower() + translation[1:]  # MyMemory: «Официант»
         self.cache.put(text, translation, translator.name)
         return translation, "service"
 
-    def translate(self, text: str, entries: Iterable[Any]) -> TranslationResult:
+    def translate(
+        self, text: str, entries: Iterable[Any], before: str | None = None
+    ) -> TranslationResult:
+        """`before` — слово перед выделенным (только для начальной формы, наружу не уходит)."""
         text = " ".join(text.split())
         if not text or has_cyrillic(text):
             raise ValueError("переводится только французский текст")
@@ -89,8 +94,8 @@ class TranslationService:
             result.error = TOO_LONG
             return result
         entries = list(entries)
-        result.lemma = lemma_of(text)
-        target = add_as(text)
+        result.lemma = lemma_of(text, before)
+        target = add_as(text, before)
         result.add_as = {"text": target.text, "entry_type": target.entry_type}
 
         entry = find_entry(entries, text, target.text, result.lemma)

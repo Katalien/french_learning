@@ -19,6 +19,23 @@ _ELISION = re.compile(r"^(l|d|j|m|t|s|n|c|qu)'(.+)$")
 _GENDERED = ("le", "la", "un", "une")
 _ARTICLES = (*_GENDERED, "les", "des")
 _VERB_ENDINGS = ("er", "ir", "re", "oir")
+# после этих слов идёт глагол: подлежащее, отрицание, возвратное местоимение
+_SUBJECTS = {"je", "j'", "tu", "il", "elle", "on", "nous", "vous", "ils", "elles", "qui"}
+_BEFORE_VERB = _SUBJECTS | {"ne", "n'", "se", "s'", "me", "m'", "te", "t'"}
+_NOT_SUBJECT = {
+    *_ARTICLES,
+    "l'",
+    "du",
+    "au",
+    "aux",
+    "ce",
+    "cet",
+    "cette",
+    "ces",
+    "mon",
+    "ma",
+    "mes",
+}
 
 
 @dataclass
@@ -29,8 +46,33 @@ class AddAs:
     gender: str | None = None
 
 
-def _lemma(word: str) -> str:
-    return simplemma.lemmatize(word, lang="fr")
+def _is_subject(before: str | None) -> bool:
+    """Перед словом подлежащее (il, elle, имя с заглавной) или отрицание — дальше глагол."""
+    if not before:
+        return False
+    key = normalize_key(before)
+    if key in _BEFORE_VERB:
+        return True
+    return before[:1].isupper() and key not in _NOT_SUBJECT
+
+
+def _verb_reading(word: str) -> str | None:
+    """Глагол на -er для омонима (entre → entrer, commande → commander), если он есть."""
+    for ending in ("es", "e"):
+        if word.endswith(ending):
+            candidate = word[: -len(ending)] + "er"
+            return candidate if simplemma.is_known(candidate, lang="fr") else None
+    return None
+
+
+def _lemma(word: str, before: str | None = None) -> str:
+    lemma = simplemma.lemmatize(word, lang="fr")
+    # «Paul entre», «il commande», «tu commandes» — глаголы, а не предлог и не существительное;
+    # после имени с заглавной — только если словарная форма совпала (иначе «Deux pommes»)
+    pronoun = normalize_key(before or "") in _BEFORE_VERB
+    if (pronoun and not lemma.endswith(_VERB_ENDINGS)) or (lemma == word and _is_subject(before)):
+        return _verb_reading(word) or lemma
+    return lemma
 
 
 def _split_elision(token: str) -> tuple[str | None, str]:
@@ -38,13 +80,16 @@ def _split_elision(token: str) -> tuple[str | None, str]:
     return (match.group(1), match.group(2)) if match else (None, token)
 
 
-def lemma_of(text: str) -> str | None:
-    """Начальная форма одного слова, если она отличается от выделенного."""
+def lemma_of(text: str, before: str | None = None) -> str | None:
+    """Начальная форма одного слова, если она отличается от выделенного.
+
+    `before` — слово перед выделенным (для омонимов вроде entre / entrer).
+    """
     key = normalize_key(text)
     if not key or " " in key:
         return None
-    _prefix, word = _split_elision(key)
-    lemma = _lemma(word)
+    prefix, word = _split_elision(key)
+    lemma = _lemma(word, before if prefix is None else None)
     return lemma if lemma and lemma != key else None
 
 
@@ -54,8 +99,8 @@ def _is_verb(form: str, lemma: str) -> bool:
     return form not in (lemma + "s", lemma + "x")  # livres → livre — множественное, не глагол
 
 
-def _word(word: str, article: str | None) -> AddAs:
-    lemma = _lemma(word) or word
+def _word(word: str, article: str | None, before: str | None = None) -> AddAs:
+    lemma = _lemma(word, None if article else before) or word
     gender = _GENDER.get(article or "")
     if article in _GENDERED:
         return AddAs(lemma, "word", _definite(article, lemma), gender)
@@ -79,5 +124,7 @@ def add_as(text: str, before: str | None = None) -> AddAs:
         if prefix == "l":
             return _word(word, "l")
         previous = normalize_key(before or "")
-        return _word(word, previous if previous in _GENDERED else None)
+        if previous in _GENDERED:
+            return _word(word, previous)
+        return _word(word, None, before)
     return AddAs(" ".join(text.split()).strip(" ,;:"), "phrase")

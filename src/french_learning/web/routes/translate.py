@@ -42,12 +42,12 @@ def translator_factory(app) -> Translator:
 
 
 @router.get("/translate")
-def translate(request: Request, index: Index, q: str = ""):
+def translate(request: Request, index: Index, q: str = "", before: str = ""):
     service = request.app.state.translation
     if service is None:
         return _error(503, "перевод недоступен: хранилище не настроено")
     try:
-        result = service.translate(q, vocab_entries(index))
+        result = service.translate(q, vocab_entries(index), before=before or None)
     except ValueError as error:
         return _error(422, str(error))
     return result.to_dict()
@@ -143,10 +143,11 @@ async def vocab_from_text(request: Request, index: Index):
         return _error(422, "абзац в словарь не добавляется — выделите слово, фразу или предложение")
 
     entries = vocab_entries(index)
-    result = request.app.state.translation.translate(text, entries)
+    before = _word_before(text, sentence)
+    result = request.app.state.translation.translate(text, entries, before=before)
     if result.translation is None:
         return _error(422, result.error or "перевода нет")
-    target = add_as(text, before=_word_before(text, sentence))
+    target = add_as(text, before=before)
     existing = find_entry(entries, text, target.text, result.lemma)
     translations = [t.text for t in existing.translations] if existing else [result.translation]
     origin = "service" if result.source in ("service", "cache") else "user"

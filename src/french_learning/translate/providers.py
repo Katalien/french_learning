@@ -54,6 +54,37 @@ def _json(raw: bytes) -> dict:
     return data
 
 
+def _number(value, default: float = 0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _best_rated(matches: list) -> str | None:
+    """Лучший близкий вариант с оценкой качества. Первый ответ MyMemory часто берётся из
+    «Public_Corpora» с качеством 0 — строки интерфейсов программ («commander» → «КДЕ»)."""
+    rated = [
+        m
+        for m in matches
+        if isinstance(m, dict)
+        and str(m.get("translation") or "").strip()
+        and _number(m.get("match")) >= 0.9
+        and _number(m.get("quality")) > 0
+    ]
+    if not rated:
+        return None
+    best = max(
+        rated,
+        key=lambda m: (
+            _number(m.get("quality")),
+            _number(m.get("match")),
+            _number(m.get("usage-count")),
+        ),
+    )
+    return str(best["translation"])
+
+
 class MyMemory:
     name = "mymemory"
 
@@ -68,6 +99,9 @@ class MyMemory:
         data = _json(_fetch(urllib.request.Request(url)))
         status = str(data.get("responseStatus", ""))
         translated = (data.get("responseData") or {}).get("translatedText") or ""
+        rated = _best_rated(data.get("matches") or [])
+        if rated and status == "200":
+            translated = rated
         translated = html.unescape(str(translated)).strip()
         if status != "200" or not translated or translated.upper().startswith("MYMEMORY WARNING"):
             raise TranslationUnavailable(f"MyMemory: {status} {translated[:80]}")

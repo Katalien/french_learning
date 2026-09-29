@@ -65,7 +65,11 @@
         <button type="button" class="tr-close" title="Закрыть" aria-label="Закрыть">✕</button></div>
       <div class="tr-body"><div class="tr-text muted">Перевод…</div></div>`;
     box.querySelector(".tr-close").onclick = () => window.SelectionPopup.close();
-    fetch(`/translate?${new URLSearchParams({ q: ctx.text })}`)
+    // слово перед выделенным — только для начальной формы (Paul entre → entrer), наружу не уходит
+    const sentence = ctx.sentence();
+    const at = sentence.toLowerCase().indexOf(ctx.text.toLowerCase());
+    const before = at > 0 ? (sentence.slice(0, at).match(/[\p{L}'’]+(?=[^\p{L}'’]*$)/u) || [""])[0] : "";
+    fetch(`/translate?${new URLSearchParams({ q: ctx.text, before })}`)
       .then((response) => response.json())
       .catch(() => ({ translation: null, error: "Перевод сейчас недоступен" }))
       .then((data) => render(box, ctx, { translation: null, ...data }));

@@ -153,3 +153,28 @@ def test_make_translator_by_name():
         make_translator("deepl", deepl_key=None)
     with pytest.raises(ValueError):
         make_translator("google")
+
+
+def test_mymemory_prefers_rated_match_over_zero_quality_corpus(monkeypatch):
+    # «commander» → «КДЕ» из Public_Corpora (качество 0); рядом «Заказать» с качеством 74
+    body = {
+        "responseData": {"translatedText": "КДЕ", "match": 1},
+        "responseStatus": 200,
+        "matches": [
+            {"translation": "КДЕ", "match": 1, "quality": 0, "usage-count": 2},
+            {"translation": "Заказать", "match": 0.98, "quality": "74", "usage-count": 2},
+            {"translation": "Приказать", "match": 0.5, "quality": "90", "usage-count": 9},
+        ],
+    }
+    FakeNet(monkeypatch, body)
+    assert MyMemory().translate("commander") == "Заказать"
+
+
+def test_mymemory_keeps_main_answer_without_rated_matches(monkeypatch):
+    body = {
+        "responseData": {"translatedText": "круассан", "match": 1},
+        "responseStatus": 200,
+        "matches": [{"translation": "круассан", "match": 1, "quality": 0}],
+    }
+    FakeNet(monkeypatch, body)
+    assert MyMemory().translate("croissant") == "круассан"
