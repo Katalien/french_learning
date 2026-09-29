@@ -14,7 +14,11 @@ from fastapi.responses import JSONResponse, RedirectResponse
 
 from french_learning.translate.lemma import add_as
 from french_learning.translate.normalize import has_cyrillic, is_multi_sentence, normalize_key
-from french_learning.translate.providers import Translator, make_translator
+from french_learning.translate.providers import (
+    Translator,
+    TranslatorNotConfigured,
+    make_translator,
+)
 from french_learning.translate.service import find_entry
 from french_learning.vocab.entries import vocab_entries
 from french_learning.web.deps import Index
@@ -47,6 +51,56 @@ def translate(request: Request, index: Index, q: str = ""):
     except ValueError as error:
         return _error(422, str(error))
     return result.to_dict()
+
+
+TRANSLATORS = {"mymemory": "MyMemory — бесплатно, без ключа", "deepl": "DeepL — с вашим ключом"}
+
+
+def _deepl_key_set(request: Request) -> bool:
+    return bool((request.app.state.settings.deepl_api_key or "").strip())
+
+
+def settings_context(request: Request) -> dict:
+    """Блок «Перевод» на странице «Настройки» (T030, contracts/translate-api.md)."""
+    db = request.app.state.progress_db
+    return {
+        "translators": TRANSLATORS,
+        "translator": db.get_setting("translator") or "mymemory",
+        "deepl_key_set": _deepl_key_set(request),
+        "mymemory_email": db.get_setting("mymemory_email") or "",
+        "translations_count": request.app.state.translation.cache.count(),
+    }
+
+
+def _to_settings(**params: str) -> RedirectResponse:
+    from urllib.parse import urlencode
+
+    return RedirectResponse("/settings?" + urlencode(params), status_code=303)
+
+
+@router.post("/settings/translator")
+def choose_translator(
+    request: Request,
+    translator: Annotated[str, Form()] = "mymemory",
+    mymemory_email: Annotated[str, Form()] = "",
+):
+    if translator not in TRANSLATORS:
+        return _to_settings(error="неизвестный сервис перевода")
+    if translator == "deepl":
+        try:
+            make_translator("deepl", deepl_key=request.app.state.settings.deepl_api_key)
+        except TranslatorNotConfigured as error:
+            return _to_settings(error=f"{error} — сервис не изменён")
+    db = request.app.state.progress_db
+    db.set_setting("translator", translator)
+    db.set_setting("mymemory_email", mymemory_email.strip())
+    return _to_settings(notice="Настройки перевода сохранены.")
+
+
+@router.post("/settings/translations/clear")
+def clear_translations(request: Request):
+    count = request.app.state.translation.cache.clear()
+    return _to_settings(notice=f"Очищено: {count}")
 
 
 @router.post("/settings/translate")

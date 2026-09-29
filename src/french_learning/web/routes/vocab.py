@@ -542,6 +542,9 @@ def settings_page(request: Request, index: Index):
         "voices": {key: name for key, (_code, name) in VOICES.items()},
         "voices_missing": not request.app.state.speaker.available(db.get_setting("voice")),
     }
+    from french_learning.web.routes.translate import settings_context
+
+    context.update(settings_context(request))
     return templates.TemplateResponse(request, "vocab/settings.html", context)
 
 

@@ -73,9 +73,9 @@ contracts/translate-api.md, contracts/ui-routes.md, quickstart.md, mockups/index
 
 ## Phase 6: Настройки перевода
 
-- [ ] T029 [P] Тесты: `/settings` показывает сервис, статус ключа DeepL, почту, число записей запаса; `POST /settings/translator` (DeepL без ключа — ошибка), `POST /settings/translations/clear`
-- [ ] T030 Блок «Перевод» в `vocab/settings.html` и маршруты — тесты T029 проходят
-- [ ] T031 Проверка quickstart §5
+- [X] T029 [P] Тесты: `/settings` показывает сервис, статус ключа DeepL, почту, число записей запаса; `POST /settings/translator` (DeepL без ключа — ошибка), `POST /settings/translations/clear`
+- [X] T030 Блок «Перевод» в `vocab/settings.html` и маршруты — тесты T029 проходят
+- [X] T031 Проверка quickstart §5
 
 ---
 

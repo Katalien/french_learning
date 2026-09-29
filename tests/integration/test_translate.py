@@ -221,3 +221,46 @@ def test_translate_toggle_sets_cookie_and_goes_back(client):
     menu = client.get("/lessons").text
     menu = menu[menu.index('action="/settings/translate"') :][:800]
     assert re.search(r'class="on"[^>]*>вкл', menu)
+
+
+# --- настройки перевода (T029) ---------------------------------------------------------------
+
+
+def test_settings_show_translation_block(client, fake):
+    get(client, "achètent")  # два перевода в запасе: форма и начальная форма
+    html = client.get("/settings").text
+    assert 'action="/settings/translator"' in html
+    assert re.search(r'value="mymemory"[^>]*checked', html)
+    assert "ключ не задан" in html and "DEEPL_API_KEY" in html
+    assert 'name="mymemory_email"' in html and "уйдёт в сервис перевода" in html
+    assert "Сохранённых переводов: 2" in html
+    assert 'action="/settings/translations/clear"' in html
+
+
+def test_choose_translator_and_email(client):
+    response = client.post(
+        "/settings/translator",
+        data={"translator": "mymemory", "mymemory_email": " me@example.org "},
+    )
+    assert response.status_code == 200
+    db = client.app.state.progress_db
+    assert db.get_setting("mymemory_email") == "me@example.org"
+    client.post("/settings/translator", data={"translator": "mymemory", "mymemory_email": ""})
+    assert not db.get_setting("mymemory_email")
+
+
+def test_deepl_needs_key(client):
+    response = client.post("/settings/translator", data={"translator": "deepl"})
+    assert "ключ DeepL не задан" in response.text
+    assert client.app.state.progress_db.get_setting("translator") == "mymemory"
+    client.app.state.settings.deepl_api_key = "k:fx"
+    client.post("/settings/translator", data={"translator": "deepl"})
+    assert client.app.state.progress_db.get_setting("translator") == "deepl"
+    assert "ключ задан" in client.get("/settings").text
+
+
+def test_clear_saved_translations(client, fake):
+    get(client, "achètent")
+    response = client.post("/settings/translations/clear")
+    assert "Очищено: 2" in response.text
+    assert "Сохранённых переводов: 0" in client.get("/settings").text
