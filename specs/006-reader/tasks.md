@@ -55,7 +55,7 @@ contracts/translate-api.md, contracts/ui-routes.md, quickstart.md, mockups/index
 ## Phase 4: User Story 2 — в словарь (P1)
 
 - [ ] T020 [P] [US2] Тесты `tests/unit/vocab/test_edits.py`: `add_word(example=…, translation_origin="service")` — пример с уроком, перевод с `origin: service` и уроком, `lessons` пуст, тем нет; повтор — не дубль, пример добавлен в существующую запись один раз
-- [ ] T021 [US2] `vocab/edits.py` — тесты T020 проходят
+- [ ] T021 [US2] `vocab/edits.py` — тесты T020 проходят; `vocab/entry.html` — у примера мелко «урок N» (FR-012: урок виден в «Подробнее») + тест разметки
 - [ ] T022 [P] [US2] Тесты `POST /vocab/from-text`: слово (форма, verb/word), фраза, предложение (пример не дублируется), абзац → 422, без перевода → 422, повтор → `merged: true`
 - [ ] T023 [US2] Маршрут `/vocab/from-text` — тесты T022 проходят
 - [ ] T024 [US2] `translate.js`: «+ В словарь: X» → запрос с предложением вокруг выделения и уроком страницы → «✓ в словаре: перевод» + сообщение внизу
