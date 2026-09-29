@@ -30,8 +30,8 @@
         <a href="{{ href }}" {% if current == href or current.startswith(href ~ "/") %}aria-current="page"{% endif %}>{{ name }}</a>
       {% endfor %}
     </nav>
-    {% if nav_badges.questions %}
-      <button type="button" class="q-badge" data-questions-count="{{ nav_badges.questions }}" x-data
+    {% if request.app.state.notes is not none %}
+      <button type="button" class="q-badge" data-questions-count="{{ nav_badges.questions }}" {% if not nav_badges.questions %}hidden{% endif %} x-data
               hx-get="/questions" hx-target="#questions-body" @click="$dispatch('questions-open')"
               title="Открытые вопросы к преподавательнице" aria-label="Открытые вопросы: {{ nav_badges.questions }}">
         <svg class="icon" aria-hidden="true"><use href="#i-question"/></svg><span>{{ nav_badges.questions }}</span></button>

@@ -65,3 +65,11 @@ def test_delete(client):
     n = create(client, kind="note", body="a", lesson=1).json()
     assert client.delete(f"/notes/{n['id']}").status_code == 204
     assert client.delete(f"/notes/{n['id']}").status_code == 404
+
+
+def test_get_note_and_questions_count(client):
+    assert client.get("/questions/count").json() == {"open": 0}
+    q = create(client, kind="question", body="вопрос", lesson=1).json()
+    assert client.get(f"/notes/{q['id']}").json()["body"] == "вопрос"
+    assert client.get("/notes/999").status_code == 404
+    assert client.get("/questions/count").json() == {"open": 1}

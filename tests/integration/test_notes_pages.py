@@ -58,7 +58,7 @@ def test_side_fragment_has_container_and_notes(client):
 
 
 def test_questions_badge_only_when_open(client):
-    assert "data-questions-count" not in client.get("/lessons").text
+    assert re.search(r'data-questions-count="0" hidden', client.get("/lessons").text)
     q = add(client, kind="question", body="почему un?", element_id="ex-gapchoic")
     add(client, kind="question", body="вопрос к уроку", lesson=1)
     assert re.search(r'data-questions-count="2"', client.get("/lessons").text)

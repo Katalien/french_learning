@@ -91,6 +91,21 @@ async def update_note(request: Request, note_id: int, index: Index):
     return JSONResponse(note.to_dict())
 
 
+@router.get("/notes/{note_id}")
+def get_note(request: Request, note_id: int):
+    note = _store(request).get(note_id)
+    if note is None:
+        return _error(404, f"заметка {note_id} не найдена")
+    return JSONResponse(note.to_dict())
+
+
+@router.get("/questions/count")
+def questions_count(request: Request):
+    """Число открытых вопросов — для значка в шапке после изменений на странице."""
+    store = request.app.state.notes
+    return JSONResponse({"open": store.open_questions_count() if store is not None else 0})
+
+
 @router.delete("/notes/{note_id}")
 def delete_note(request: Request, note_id: int):
     if not _store(request).delete(note_id):

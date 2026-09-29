@@ -117,7 +117,7 @@
       {% if e.links.text %}{{ beside(e.links.text, "Текст рядом", "Скрыть текст") }}{% endif %}
     </p>
   {% endif %}
-  <div class="notes-layout" data-notes-layout>
+  <div class="notes-layout" data-notes-layout {% if with_notes %}data-notes-element="{{ e.id }}"{% endif %}>
   <div class="notes-main">
   <div class="split-layout" :class="{ 'is-split': split }">
     <div class="split-main" {% if with_notes %}data-note-container="{{ e.id }}"{% endif %}>
@@ -130,7 +130,7 @@
     </aside>
   </div>
   </div>
-  {% if with_notes %}<aside class="notes-margin" data-notes-margin hidden aria-label="Заметки"></aside>{% endif %}
+  {% if with_notes %}<aside class="notes-margin" data-notes-margin data-kind="{{ e.kind }}" hidden aria-label="Заметки"></aside>{% endif %}
   </div>
   {% if neighbours %}
     {% set prev, next = neighbours %}
@@ -140,13 +140,13 @@
     {% else %}<span class="arrow next disabled" aria-hidden="true">›</span>{% endif %}
   {% endif %}
 {% else %}
-  <div class="notes-layout" data-notes-layout>
+  <div class="notes-layout" data-notes-layout {% if with_notes %}data-notes-element="{{ e.id }}"{% endif %}>
   <div class="notes-main">
   <article class="{{ e.kind }} reading" {% if e.kind == "text" %}lang="fr"{% endif %} {% if with_notes %}data-note-container="{{ e.id }}"{% endif %}>
     {{ e.body | markdown(path) }}
   </article>
   </div>
-  {% if with_notes %}<aside class="notes-margin" data-notes-margin hidden aria-label="Заметки"></aside>{% endif %}
+  {% if with_notes %}<aside class="notes-margin" data-notes-margin data-kind="{{ e.kind }}" hidden aria-label="Заметки"></aside>{% endif %}
   </div>
   {% if linked %}
     <details class="linked-exercises">
