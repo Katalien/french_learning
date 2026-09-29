@@ -18,15 +18,15 @@ XIII); JS (якоря, поле, подсказка) — вручную по qui
 
 ## Phase 1: Setup
 
-- [ ] T001 Пакет `src/french_learning/notes/` (`__init__.py`), папка тестов `tests/unit/notes/`; в `tests/conftest.py` — фикстура приложения с `NoteStore` на временной базе (по образцу существующих фикстур прогресса)
+- [X] T001 Пакет `src/french_learning/notes/` (`__init__.py`), папка тестов `tests/unit/notes/`; отдельная фикстура не понадобилась — хватило общей `client` и `ProgressDB` на копии образца
 
 ---
 
 ## Phase 2: Foundational — хранение и API
 
-- [ ] T002 Тесты `tests/unit/practice/test_db.py`: новая база — схема 3, есть таблица `notes` с индексами; база версии 2 с данными карточек и попыток → после открытия схема 3, прежние данные на месте (data-model, R1)
-- [ ] T003 `practice/db.py`: `SCHEMA_VERSION = 3`, таблица `notes` и индексы — тесты T002 проходят
-- [ ] T004 [P] Тесты `tests/unit/notes/test_store.py`:
+- [X] T002 Тесты `tests/unit/practice/test_db.py`: новая база — схема 3, есть таблица `notes` с индексами; база версии 2 с данными карточек и попыток → после открытия схема 3, прежние данные на месте (data-model, R1)
+- [X] T003 `practice/db.py`: `SCHEMA_VERSION = 3`, таблица `notes` и индексы — тесты T002 проходят
+- [X] T004 [P] Тесты `tests/unit/notes/test_store.py`:
   - создание заметки к уроку, элементу, фрагменту;
   - пустой текст, неизвестный вид, якорь без элемента, текст длиннее 2000 символов → ошибка;
   - `lesson` и `element_title` берутся из индекса, а не от клиента;
@@ -35,11 +35,11 @@ XIII); JS (якоря, поле, подсказка) — вручную по qui
   - смена вида вопрос ↔ пометка (data-model: переходы);
   - `for_elements`, `for_lesson`, `open_questions` (порядок), `open_questions_count`, `lesson_counts`;
   - удаление; `origin == "user"`.
-- [ ] T005 `notes/store.py`: `Anchor`, `Note`, `NoteStore` — тесты T004 проходят
-- [ ] T006 [P] Тесты `tests/unit/practice/test_backup.py`: дамп содержит `notes`; `restore` из дампа возвращает заметки с якорями (SC-004)
-- [ ] T007 Убедиться, что `dump` и `restore` работают с новой таблицей без изменений кода (если нужно — поправить) — тесты T006 проходят
-- [ ] T008 [P] Тесты `tests/integration/test_notes_api.py`: `POST /notes` (201, 422 по правилам, 404 урок), `PATCH /notes/{id}` (ответ закрывает вопрос, `answered:false`, перепривязка якоря, 404), `DELETE /notes/{id}` (204, 404) — contracts/notes-api.md
-- [ ] T009 `web/routes/notes.py` (API) + `app.state.notes` в `web/app.py`; регистрация в `routes.ALL` — тесты T008 проходят
+- [X] T005 `notes/store.py`: `Anchor`, `Note`, `NoteStore` — тесты T004 проходят
+- [X] T006 [P] Тесты `tests/unit/practice/test_backup.py`: дамп содержит `notes`; `restore` из дампа возвращает заметки с якорями (SC-004)
+- [X] T007 `dump` и `restore` работают с новой таблицей без изменений кода — тесты T006 проходят
+- [X] T008 [P] Тесты `tests/integration/test_notes_api.py`: `POST /notes` (201, 422 по правилам, 404 урок), `PATCH /notes/{id}` (ответ закрывает вопрос, `answered:false`, перепривязка якоря, 404), `DELETE /notes/{id}` (204, 404) — contracts/notes-api.md
+- [X] T009 `web/routes/notes.py` (API) + `app.state.notes` в `web/app.py`; регистрация в `routes.ALL` — тесты T008 проходят
 
 **Checkpoint**: заметки хранятся, проходят проверки, попадают в резервную копию, доступны через API.
 
