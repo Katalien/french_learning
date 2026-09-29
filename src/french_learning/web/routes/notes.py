@@ -96,3 +96,60 @@ def delete_note(request: Request, note_id: int):
     if not _store(request).delete(note_id):
         return _error(404, f"заметка {note_id} не найдена")
     return Response(status_code=204)
+
+
+# --- страницы -------------------------------------------------------------------------------
+
+
+def notes_json(request: Request, element_ids: list[str], page: str, lesson: int | None) -> str:
+    """Заметки элементов для `notes.js`, безопасно для вставки в <script> (research R4)."""
+    import json
+
+    store = request.app.state.notes
+    notes = store.for_elements(element_ids) if store is not None else []
+    data = {"page": page, "lesson": lesson, "notes": [n.to_dict() for n in notes]}
+    return (
+        json.dumps(data, ensure_ascii=False)
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+        .replace("&", "\\u0026")
+    )
+
+
+def element_notes(request: Request, element_id: str) -> list:
+    store = request.app.state.notes
+    return store.for_elements([element_id]) if store is not None else []
+
+
+@router.get("/questions")
+def questions_panel(request: Request, index: Index):
+    """Панель открытых вопросов всех уроков (HTMX-фрагмент, FR-014)."""
+    from itertools import groupby
+
+    from french_learning.web.templating import templates
+
+    questions = _store(request).open_questions()
+    groups = [(lesson, list(items)) for lesson, items in groupby(questions, key=lambda n: n.lesson)]
+    return templates.TemplateResponse(
+        request, "partials/questions.html", {"groups": groups, "index": index}
+    )
+
+
+@router.get("/lessons/{number}/notes")
+def lesson_notes_page(request: Request, number: int, index: Index, fragment: int = 0):
+    """Страница «Заметки к уроку» (вариант В1, FR-016, FR-017)."""
+    from french_learning.notes.grouping import lesson_page
+    from french_learning.web.deps import not_found
+    from french_learning.web.routes.lessons import _context
+    from french_learning.web.templating import templates
+
+    if index.lesson(number) is None:
+        raise not_found(f"Урок {number} не найден")
+    tree = index.lesson_tree(number, request.app.state.progress)
+    page = lesson_page(_store(request).for_lesson(number), tree)
+    if fragment:
+        return templates.TemplateResponse(
+            request, "partials/lesson_notes.html", {"n": number, "page": page}
+        )
+    context = _context(request, index, number, section="notes", page=page)
+    return templates.TemplateResponse(request, "lesson_notes.html", context)

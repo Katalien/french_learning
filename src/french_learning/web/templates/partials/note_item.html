@@ -1,0 +1,42 @@
+{# Заметки (005). Разметка совпадает с той, что рисует static/js/notes.js.
+   note_item — мини-комментарий (поле, строка важных); q_row / n_row — строки страницы урока и
+   панели вопросов (вариант В1). #}
+
+{% macro note_meta(n) -%}
+{{ "Вопрос · отвечен" if n.kind == "question" and n.answered else ("Вопрос" if n.kind == "question" else ("Важная пометка" if n.important else "Пометка")) }} · {{ n.element_title or ("Урок " ~ n.lesson) }}{% if n.anchor %} · к «{{ n.anchor.exact }}»{% endif %} · {{ n.created_at[:10] }}
+{%- endmacro %}
+
+{% macro note_classes(n) -%}
+{% if n.kind == "question" and not n.answered %}q{% endif %}{% if n.kind == "question" and n.answered %} done{% endif %}{% if n.important %} imp{% endif %}{% if n.anchor %} frag{% endif %}
+{%- endmacro %}
+
+{% macro note_item(n) -%}
+<div class="note-item {{ note_classes(n) }}" data-note-id="{{ n.id }}" title="{{ note_meta(n) }}">
+  {% if n.kind == "question" %}<span class="note-ic">{{ "✓" if n.answered else "?" }}</span>{% elif n.important %}<span class="note-ic">★</span>{% endif %}
+  <div class="note-tx">{{ n.body }}{% if n.kind == "question" and n.answer %}<div class="note-ans">→ {{ n.answer }}</div>{% endif %}</div>
+  <span class="note-acts">{% if n.kind == "question" and not n.answered %}<button type="button" data-note-act="answer" title="Ответ получен">✓</button>{% endif %}<button type="button" data-note-act="edit" title="Изменить">✎</button><button type="button" data-note-act="delete" title="Удалить">🗑</button></span>
+</div>
+{%- endmacro %}
+
+{% macro source_link(n) -%}
+{% if n.element_id %}/elements/{{ n.element_id }}#note-{{ n.id }}{% else %}/lessons/{{ n.lesson }}/notes{% endif %}
+{%- endmacro %}
+
+{% macro q_row(n, show_lesson=false) -%}
+<div class="qi {% if n.answered %}done{% endif %}" data-note-id="{{ n.id }}">
+  <div class="qi-row">
+    <button type="button" class="q-box {% if n.answered %}on{% endif %}" data-note-act="{{ 'reopen' if n.answered else 'answer' }}" title="{{ 'Отвечен — снять отметку' if n.answered else 'Ответ получен' }}">{{ "✓" if n.answered else "" }}</button>
+    <div class="qi-tx note-tx">{{ n.body }}{% if n.answer %}<div class="note-ans">→ {{ n.answer }}</div>{% endif %}</div>
+    <span class="note-acts">{% if n.element_id or show_lesson %}<a href="{{ source_link(n) }}" title="{{ n.element_title or ('Урок ' ~ n.lesson) }}{% if n.anchor %} · «{{ n.anchor.exact }}»{% endif %}">↗</a>{% endif %}<button type="button" data-note-act="edit" title="Изменить">✎</button><button type="button" data-note-act="delete" title="Удалить">🗑</button></span>
+  </div>
+</div>
+{%- endmacro %}
+
+{% macro n_row(n, was=none) -%}
+<div class="ni {% if n.anchor %}frag{% endif %} {% if n.important %}imp{% endif %}" data-note-id="{{ n.id }}">
+  <span class="mk" aria-hidden="true"></span>
+  {% if n.anchor %}<span class="qt">«{{ n.anchor.exact }}»</span>{% endif %}
+  <div class="ni-tx note-tx">{{ n.body }}{% if was %}<div class="note-was">было: {{ was }}</div>{% endif %}</div>
+  <span class="note-acts">{% if n.anchor %}<a href="{{ source_link(n) }}" title="Показать в тексте">↗</a>{% endif %}<button type="button" data-note-act="edit" title="Изменить">✎</button><button type="button" data-note-act="delete" title="Удалить">🗑</button></span>
+</div>
+{%- endmacro %}
