@@ -80,12 +80,18 @@ def ui_theme(request) -> str:
 
 
 def nav_counts(request) -> dict[str, int]:
-    """Счётчики для меню «⋯»: «требует проверки» и открытые сообщения об ошибках."""
+    """Счётчики шапки: «требует проверки», открытые сообщения об ошибках, открытые вопросы (005)."""
     store = getattr(request.app.state, "store", None)
+    notes = getattr(request.app.state, "notes", None)
+    questions = notes.open_questions_count() if notes is not None else 0
     if store is None:
-        return {"review": 0, "reports": 0}
+        return {"review": 0, "reports": 0, "questions": questions}
     index = store.get()
-    return {"review": len(index.needs_review()), "reports": index.open_reports_count()}
+    return {
+        "review": len(index.needs_review()),
+        "reports": index.open_reports_count(),
+        "questions": questions,
+    }
 
 
 def answer_text(fields: dict) -> str:

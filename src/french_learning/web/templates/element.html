@@ -2,6 +2,8 @@
 {# Страница элемента (009): путь, заголовок, «ⓘ» (происхождение) и «⚙» (настройки) за кнопками;
    у упражнения — стрелки к соседям и меню урока «☰» (FR-021–FR-025) #}
 {% set e = element %}
+{% from "partials/note_item.html" import note_item %}
+{% set with_notes = notes_json is defined %}
 {% block title %}{{ e.title if e.title is defined else e.description_ru }}{% endblock %}
 {% block content %}
 <div x-data="{ info: false, settings: false, menu: false, split: false, shown: '' }">
@@ -29,10 +31,18 @@
     </p>
   </div>
   <div class="btn-group">
+    {% if with_notes %}
+      <button type="button" class="outline btn-icon" data-notes-add title="Заметка ко всему {{ 'упражнению' if e.kind == 'exercise' else ('тексту' if e.kind == 'text' else 'разделу теории') }}" aria-label="Добавить заметку">＋</button>
+      <button type="button" class="outline btn-icon notes-toggle {% if not element_notes %}empty{% endif %}" data-notes-toggle data-count="{{ element_notes | length }}" title="Все заметки" aria-label="Заметки" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#i-note"/></svg><span class="n">{{ element_notes | length or "" }}</span></button>
+    {% endif %}
     <button type="button" class="outline btn-icon" title="Происхождение" aria-label="Происхождение" @click="info = !info; settings = false" :aria-expanded="info">ⓘ</button>
     <button type="button" class="outline btn-icon" title="Настройки" aria-label="Настройки" @click="settings = !settings; info = false" :aria-expanded="settings">⚙</button>
   </div>
 </header>
+
+{% if with_notes %}
+<div class="notes-important" data-notes-important>{% for n in element_notes if n.important %}{{ note_item(n) }}{% endfor %}</div>
+{% endif %}
 
 {% if show_origin %}
   <p class="origin-line">Происхождение:
@@ -107,8 +117,10 @@
       {% if e.links.text %}{{ beside(e.links.text, "Текст рядом", "Скрыть текст") }}{% endif %}
     </p>
   {% endif %}
+  <div class="notes-layout" data-notes-layout {% if with_notes %}data-notes-element="{{ e.id }}"{% endif %}>
+  <div class="notes-main">
   <div class="split-layout" :class="{ 'is-split': split }">
-    <div class="split-main">
+    <div class="split-main" {% if with_notes %}data-note-container="{{ e.id }}"{% endif %}>
       {% if solve_mode %}{% include "exercises/solve.html" %}{% else %}{% include "partials/exercise.html" %}{% endif %}
     </div>
     <aside class="side-pane card" x-show="split" x-cloak aria-label="Теория или текст рядом">
@@ -116,6 +128,9 @@
         <button type="button" class="outline small" @click="split = false" aria-label="Закрыть теорию">✕ Закрыть</button></div>
       <div id="side-pane-content"><p class="muted">Загрузка…</p></div>
     </aside>
+  </div>
+  </div>
+  {% if with_notes %}<aside class="notes-margin" data-notes-margin data-kind="{{ e.kind }}" hidden aria-label="Заметки"></aside>{% endif %}
   </div>
   {% if neighbours %}
     {% set prev, next = neighbours %}
@@ -125,9 +140,14 @@
     {% else %}<span class="arrow next disabled" aria-hidden="true">›</span>{% endif %}
   {% endif %}
 {% else %}
-  <article class="{{ e.kind }} reading" {% if e.kind == "text" %}lang="fr"{% endif %}>
+  <div class="notes-layout" data-notes-layout {% if with_notes %}data-notes-element="{{ e.id }}"{% endif %}>
+  <div class="notes-main">
+  <article class="{{ e.kind }} reading" {% if e.kind == "text" %}lang="fr"{% endif %} {% if with_notes %}data-note-container="{{ e.id }}"{% endif %}>
     {{ e.body | markdown(path) }}
   </article>
+  </div>
+  {% if with_notes %}<aside class="notes-margin" data-notes-margin data-kind="{{ e.kind }}" hidden aria-label="Заметки"></aside>{% endif %}
+  </div>
   {% if linked %}
     <details class="linked-exercises">
       <summary>Упражнения {{ "к тексту" if e.kind == "text" else "по этой теории" }} ({{ linked | length }})</summary>
@@ -141,6 +161,7 @@
   <aside id="lesson-menu" class="drawer" x-show="menu" x-cloak x-transition.opacity @keydown.escape.window="menu = false" aria-label="Урок {{ e.lesson }}">
     <div class="drawer-head"><a href="/lessons/{{ e.lesson }}"><strong>Урок {{ e.lesson }}</strong></a>
       <button type="button" class="btn-text small" @click="menu = false" aria-label="Закрыть">✕</button></div>
+    <a href="/lessons/{{ e.lesson }}/notes" class="drawer-notes"><svg class="icon" aria-hidden="true"><use href="#i-note"/></svg> Заметки к уроку</a>
     {% if lesson_tree.theory %}<div class="drawer-group">Теория</div>
       {% for t in lesson_tree.theory %}<div class="drawer-row"><a href="/elements/{{ t.id }}" {% if t.id == e.id %}aria-current="page"{% endif %}>{{ t.title }}</a>
         {% if e.kind == "exercise" %}<button type="button" class="btn-text small" hx-get="/elements/{{ t.id }}?fragment=1" hx-target="#side-pane-content" @click="split = true; shown = '{{ t.id }}'; menu = false">рядом</button>{% endif %}</div>{% endfor %}{% endif %}
@@ -157,4 +178,5 @@
   </aside>
 {% endif %}
 </div>
+{% if with_notes %}<script type="application/json" id="notes-data" data-notes-json>{{ notes_json | safe }}</script>{% endif %}
 {% endblock %}

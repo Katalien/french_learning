@@ -1,0 +1,31 @@
+{# Содержимое страницы «Заметки к уроку» (005, вариант В1): слева вопросы, справа пометки блоками.
+   Переменные: n — номер урока, page — notes.grouping.LessonNotes #}
+{% from "partials/note_item.html" import q_row, n_row %}
+<div class="notes-b1" data-notes-region data-refresh="/lessons/{{ n }}/notes?fragment=1">
+  <section class="blk q" x-data="{ done: false }">
+    <div class="blk-h"><span class="t"><svg class="icon" aria-hidden="true"><use href="#i-question"/></svg> Спросить на уроке</span>
+      <span class="c">{% if page.open_questions %}{{ plural(page.open_questions | length, "открытый", "открытых", "открытых") }}{% else %}всё спрошено{% endif %}</span></div>
+    <div class="items">{% for q in page.open_questions %}{{ q_row(q) }}{% else %}<div class="empty-s">Открытых вопросов нет</div>{% endfor %}</div>
+    <div class="addline"><span aria-hidden="true">+</span><input data-add-note="question" data-lesson="{{ n }}" placeholder="Вопрос к уроку… (Enter)" aria-label="Новый вопрос к уроку"></div>
+    {% if page.answered_questions %}
+      <button type="button" class="fold2" @click="done = !done"><span x-text="done ? '▾' : '▸'">▸</span> отвеченные ({{ page.answered_questions | length }})</button>
+      <div class="items" x-show="done" x-cloak>{% for q in page.answered_questions %}{{ q_row(q) }}{% endfor %}</div>
+    {% endif %}
+  </section>
+  <div class="notes-b1-right">
+    <section class="blk les">
+      <div class="blk-h"><span class="t"><svg class="icon" aria-hidden="true"><use href="#i-note"/></svg> К уроку</span><span class="c">{{ page.lesson_notes | length or "" }}</span></div>
+      <div class="items">{% for x in page.lesson_notes %}{{ n_row(x, page.orphan_titles.get(x.id)) }}{% endfor %}</div>
+      <div class="addline"><span aria-hidden="true">+</span><input data-add-note="note" data-lesson="{{ n }}" placeholder="Пометка к уроку… (Enter)" aria-label="Новая пометка к уроку"></div>
+    </section>
+    {% for b in page.blocks %}
+      <section class="blk">
+        <div class="blk-h"><span class="k">{{ b.kind_name }}</span>
+          <span class="t" {% if b.element.kind == "text" %}lang="fr"{% endif %}>{{ b.element.description_ru if b.element.kind == "exercise" else b.element.title }}</span>
+          <span class="c">{{ b.notes | length }}</span>
+          <a class="go" href="/elements/{{ b.element.id }}">открыть ↗</a></div>
+        <div class="items">{% for x in b.notes %}{{ n_row(x) }}{% endfor %}</div>
+      </section>
+    {% endfor %}
+  </div>
+</div>

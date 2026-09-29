@@ -95,3 +95,25 @@ def test_start_daily_backup_runs_in_background(repo: Path, db_with_reviews, monk
     thread.join(timeout=5)
     assert calls == [dt.date(2026, 9, 27)]
     assert backup.start_daily_backup(db_with_reviews, repo, today=dt.date(2026, 9, 27)) is None
+
+
+def test_notes_survive_dump_and_restore(clean_content_root: Path, tmp_path: Path):
+    """Заметки с привязкой к фрагменту попадают в копию и восстанавливаются (005, SC-004)."""
+    from french_learning.notes.store import Anchor, NoteStore
+
+    db = ProgressDB(clean_content_root)
+    index = ContentIndex(load_content(clean_content_root))
+    anchor = Anchor(exact="un café", prefix="commande ", suffix=" et", start=40)
+    note = NoteStore(db).create(
+        index, kind="question", body="почему «un café»?", element_id="tx-aucafeaa", anchor=anchor
+    )
+    text = backup.dump(db)
+    db.close()
+    assert "CREATE TABLE notes" in text or 'CREATE TABLE "notes"' in text
+    source = tmp_path / "progress.sql"
+    source.write_text(text, encoding="utf-8")
+    backup.restore(clean_content_root, source)
+    db = ProgressDB(clean_content_root)
+    restored = NoteStore(db).get(note.id)
+    assert restored == note and restored.anchor == anchor
+    db.close()

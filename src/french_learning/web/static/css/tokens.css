@@ -33,6 +33,10 @@
   --shadow: 0 4px 18px rgba(92, 88, 170, .12);
   --shadow-sm: 0 1px 4px rgba(92, 88, 170, .10);
   --header-bg: rgba(255, 255, 255, .6);
+  /* заметки (005) */
+  --q: #4F8CC9; --q-soft: #E3F0FB; --imp: #D9822B;
+  --note-bg: rgba(233, 231, 250, .55); --note-hl: #DCD6F7; --anchor: rgba(131, 139, 204, .6);
+  --pop-line: #C9C4EA; --pop-shadow: 0 10px 30px rgba(60, 55, 140, .22), 0 1px 3px rgba(60, 55, 140, .12);
   color-scheme: light;
 }
 
@@ -56,6 +60,9 @@
   --shadow: 0 4px 18px rgba(0, 0, 0, .4);
   --shadow-sm: 0 1px 4px rgba(0, 0, 0, .35);
   --header-bg: rgba(28, 30, 51, .65);
+  --q: #86BBEE; --q-soft: #223A52; --imp: #F0A860;
+  --note-bg: rgba(54, 59, 105, .55); --note-hl: #4A4380; --anchor: rgba(170, 177, 238, .55);
+  --pop-line: #565B92; --pop-shadow: 0 10px 30px rgba(0, 0, 0, .55);
   color-scheme: dark;
 }
 @media (prefers-color-scheme: dark) {
@@ -75,6 +82,9 @@
     --shadow: 0 4px 18px rgba(0, 0, 0, .4);
     --shadow-sm: 0 1px 4px rgba(0, 0, 0, .35);
     --header-bg: rgba(28, 30, 51, .65);
+    --q: #86BBEE; --q-soft: #223A52; --imp: #F0A860;
+    --note-bg: rgba(54, 59, 105, .55); --note-hl: #4A4380; --anchor: rgba(170, 177, 238, .55);
+    --pop-line: #565B92; --pop-shadow: 0 10px 30px rgba(0, 0, 0, .55);
     color-scheme: dark;
   }
 }
