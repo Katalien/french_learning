@@ -66,3 +66,15 @@ def test_filters_apply_on_change_and_list_only_topics_with_words(client):
     assert html.count('onchange="this.form.requestSubmit()"') == 4
     assert 'value="top-maisonxx"' in html
     assert 'value="top-nasalson"' not in html
+
+
+def test_entry_details_layout(client):
+    # «Подробнее» (макеты 2026-09-30: В4 + Д1): урок и число повторений — одной строкой внизу,
+    # без даты последнего повторения; пример — без «урок N» рядом
+    import re
+
+    html = client.get("/vocab/voc-painaaaa").text
+    meta = re.search(r'class="entry-meta">(.*?)</p>', html, re.S)[1]
+    assert "уроки 1, 2" in meta and "повторений ещё не было" in meta
+    assert "последнее" not in html
+    assert "<h3>Уроки</h3>" not in html and "<h3>Повторения</h3>" not in html

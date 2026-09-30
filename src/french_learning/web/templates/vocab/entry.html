@@ -19,33 +19,32 @@
   </header>
   <p class="translations">{% for t in e.translations %}{{ t.text }}{% if show_origin %} {% with origin = t.origin, detail = none %}{% include "partials/origin_badge.html" %}{% endwith %}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}</p>
 
+  {# «Подробнее» (макеты 2026-09-30: В4 + Д1): пример курсивом, формы — метками, мои заметки —
+     приписка на полях; урок и число повторений — мелко внизу #}
   <details class="entry-extra">
     <summary>Подробнее</summary>
-    {% if e.needs_completion %}<p class="muted">Нужно дополнить: формы и спряжение заполнит агент по команде «/complete-words».</p>{% endif %}
+    {% if e.needs_completion %}<p class="muted small">Нужно дополнить: формы и спряжение заполнит агент по команде «/complete-words».</p>{% endif %}
+    {% for x in e.examples %}<p class="entry-example" lang="fr">{{ x.text }}</p>{% endfor %}
     {% if e.forms.feminine or e.forms.plural or e.forms.note %}
-      <h3>Формы</h3>
-      <ul>
-        {% if e.forms.feminine %}<li>женский род: <span lang="fr">{{ e.forms.feminine }}</span></li>{% endif %}
-        {% if e.forms.plural %}<li>множественное число: <span lang="fr">{{ e.forms.plural }}</span></li>{% endif %}
-        {% if e.forms.note %}<li>{{ e.forms.note }}</li>{% endif %}
-      </ul>
+      <p class="entry-forms">
+        {% if e.forms.feminine %}<span><b>ж. р.</b> <i lang="fr">{{ e.forms.feminine }}</i></span>{% endif %}
+        {% if e.forms.plural %}<span><b>мн. ч.</b> <i lang="fr">{{ e.forms.plural }}</i></span>{% endif %}
+        {% if e.forms.note %}<span>{{ e.forms.note }}</span>{% endif %}
+      </p>
     {% endif %}
     {% if e.verb %}
-      <h3>Глагол{% if e.verb.group %}, {{ e.verb.group }} группа{% endif %}</h3>
+      <p class="entry-verb small muted">Глагол{% if e.verb.group %}, {{ e.verb.group }} группа{% endif %}</p>
       {% for tense, forms in e.verb.conjugation.items() %}
-        <p class="muted">{{ {"present": "настоящее время"}.get(tense, tense) }}</p>
+        <p class="muted small">{{ {"present": "настоящее время"}.get(tense, tense) }}</p>
         <table class="conjugation" lang="fr">
           {% for pronoun, form in forms.items() %}<tr><td>{{ pronoun }}</td><td>{{ form }}</td></tr>{% endfor %}
         </table>
       {% endfor %}
     {% endif %}
-    {% if e.notes %}<h3>Заметки</h3><p>{{ e.notes }}</p>{% endif %}
-    <h3>Уроки</h3>
-    <p>{% if e.lessons %}{{ e.lessons | join(", ") }}{% else %}добавлено вручную{% endif %}</p>
-    {% if e.examples %}<h3>{{ "Примеры" if e.examples | length > 1 else "Пример" }}</h3>
-      {% for x in e.examples %}<p class="entry-example"><span lang="fr">{{ x.text }}</span>{% if x.lesson %} <small class="muted">урок {{ x.lesson }}</small>{% endif %}</p>{% endfor %}{% endif %}
-    <h3>Повторения</h3>
-    <p>{% if history %}{{ history | length }} (последнее: {{ history[-1].reviewed_at[:10] }}){% else %}ещё не было{% endif %}</p>
+    {% if e.notes %}<p class="entry-note"><svg class="icon" aria-hidden="true"><use href="#i-note"/></svg><span>{{ e.notes }}</span></p>{% endif %}
+    {% set sources = (e.lessons + (e.examples | map(attribute="lesson") | select | list) + (e.translations | map(attribute="lesson") | select | list)) | unique | sort | list %}
+    <p class="entry-meta">{% if sources %}{{ "урок" if sources | length == 1 else "уроки" }} {{ sources | join(", ") }}{% else %}добавлено вручную{% endif %}
+      · {% if history %}повторений {{ history | length }}{% else %}повторений ещё не было{% endif %}</p>
   </details>
 </article>
 

@@ -629,3 +629,13 @@ mark.search-hit.current { background: var(--ring); outline: 2px solid var(--prim
 .flip-card .flip-back { transform: rotateY(180deg); }
 .flip-card .example { margin: 0; font-family: var(--reading); font-style: italic; }
 @media (prefers-reduced-motion: reduce) { .flashcard.flip-card { transition: none; } }
+
+/* «Подробнее» на странице слова (макеты 2026-09-30: В4 + Д1) */
+.entry-extra .entry-example { margin: .6rem 0 0; font-family: var(--reading); font-style: italic; }
+.entry-forms { display: flex; flex-wrap: wrap; gap: .35rem; margin: .8rem 0 0; }
+.entry-forms span { font-size: .82rem; border: 1px solid var(--line); border-radius: 999px; padding: .1rem .55rem; background: var(--surface-solid); }
+.entry-forms b { font-weight: 500; color: var(--muted); margin-right: .15rem; }
+.entry-verb { margin: .8rem 0 .2rem; }
+.entry-note { display: flex; gap: .45rem; align-items: flex-start; margin: .9rem 0 0; font-size: .9rem; font-style: italic; color: var(--muted); }
+.entry-note .icon { margin-top: .15rem; }
+.entry-meta { margin: 1rem 0 0; font-size: .78rem; color: var(--muted); }
