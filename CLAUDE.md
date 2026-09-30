@@ -65,11 +65,18 @@ SQLite для прогресса, pytest, ruff. Подробнее — конс�
 ## Команды
 
 - `uv sync` — установить зависимости; `uv run pre-commit install` — git-хуки.
-- `uv run french-learning serve` — запустить приложение (http://127.0.0.1:8000). Пользователь
-  запускает его ярлыком «French Learning» на рабочем столе (`scripts/windows/`: сервер в фоне,
-  журнал в `%LOCALAPPDATA%\french-learning`); перед `uv sync` фоновый сервер надо остановить
-  (ярлык «остановить» или `scripts/windows/stop-app.ps1`). Скрипты .ps1 — в UTF-8 с BOM
-  (иначе Windows PowerShell 5.1 ломает русский текст).
+- `uv run french-learning serve` — запустить приложение (http://127.0.0.1:8000).
+- **Рабочее приложение пользователя** — отдельная копия репозитория на ветке `main`:
+  `C:\Users\Kate\source\french_learning_app` (своё окружение, свой `.env` с тем же
+  `CONTENT_DIR`). Ярлыки «French Learning» и «… — остановить» на рабочем столе ведут туда
+  (`scripts/windows/`: сервер в фоне, журнал в `%LOCALAPPDATA%\french-learning`). Код там
+  не правится. Эта папка — только разработка; проверки — на демо-хранилище (порт 8010).
+- **Выпуск** после «принимаю»: влить в `main`, отправить на GitHub, затем в копии
+  `powershell -ExecutionPolicy Bypass -File C:\Users\Kate\source\french_learning_app\scripts\windows\update-app.ps1`
+  (остановить → `git pull --ff-only` → `uv sync --frozen` → запустить в фоне, без окон).
+  Пользователь обновлять ничего не должна. `stop-app.ps1` показывает окно-сообщение —
+  агенту для остановки его не использовать. Скрипты .ps1 — в UTF-8 с BOM (иначе Windows
+  PowerShell 5.1 ломает русский текст).
 - `uv run french-learning validate-content` — проверить хранилище контента (вызывать перед
   сохранением контента агентом).
 - `uv run french-learning tts-download` — скачать голоса озвучки Piper (около 130 МБ, один раз;
