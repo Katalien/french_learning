@@ -57,23 +57,31 @@
         <a href="/reports">Сообщения об ошибках{% if nav_badges.reports %} <span class="chip">{{ nav_badges.reports }}</span>{% endif %}</a>
         <a href="/settings">Настройки</a>
         <hr>
+        {# переключатели — ползунком, оформление — значками (макет 2026-09-30, Е1) #}
         {% set origin_on = request.cookies.get("show_origin") == "1" %}
         <form method="post" action="/settings/origin" class="row">
           <span>Происхождение</span>
           <input type="hidden" name="show" value="{{ '0' if origin_on else '1' }}">
-          <span class="segmented"><button type="submit" class="{{ '' if origin_on else 'on' }}" {% if not origin_on %}disabled{% endif %}>скрыто</button><button type="submit" class="{{ 'on' if origin_on else '' }}" {% if origin_on %}disabled{% endif %}>везде</button></span>
+          <button type="submit" class="switch{% if origin_on %} on{% endif %}" role="switch" aria-checked="{{ 'true' if origin_on else 'false' }}"
+                  aria-label="Происхождение" title="{{ 'Скрыть происхождение' if origin_on else 'Показывать происхождение везде' }}"></button>
         </form>
         {% set translate_on = request.cookies.get("translate") != "0" %}
         <form method="post" action="/settings/translate" class="row">
           <span>Перевод при выделении</span>
           <input type="hidden" name="show" value="{{ '0' if translate_on else '1' }}">
-          <span class="segmented"><button type="submit" class="{{ '' if translate_on else 'on' }}" {% if not translate_on %}disabled{% endif %}>выкл</button><button type="submit" class="{{ 'on' if translate_on else '' }}" {% if translate_on %}disabled{% endif %}>вкл</button></span>
+          <button type="submit" class="switch{% if translate_on %} on{% endif %}" role="switch" aria-checked="{{ 'true' if translate_on else 'false' }}"
+                  aria-label="Перевод при выделении" title="{{ 'Выключить перевод при выделении' if translate_on else 'Включить перевод при выделении' }}"></button>
         </form>
         <form method="post" action="/settings/theme" class="row">
           <span>Оформление</span>
-          <span class="segmented">
-            {% for key, name in (("light", "светлое"), ("dark", "тёмное"), ("system", "как в системе")) %}
-              <button type="submit" name="theme" value="{{ key }}" class="{{ 'on' if ui_theme(request) == key else '' }}">{{ name }}</button>
+          <span class="theme-icons">
+            {% for key, name, icon in (
+                ("light", "Светлое", '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+                ("dark", "Тёмное", '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'),
+                ("system", "Как в системе", '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>')) %}
+              <button type="submit" name="theme" value="{{ key }}" class="{{ 'on' if ui_theme(request) == key else '' }}"
+                      title="{{ name }}" aria-label="Оформление: {{ name | lower }}" aria-pressed="{{ 'true' if ui_theme(request) == key else 'false' }}">
+                <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{{ icon | safe }}</svg></button>
             {% endfor %}
           </span>
         </form>
