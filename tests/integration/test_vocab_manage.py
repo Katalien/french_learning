@@ -26,7 +26,7 @@ def test_hide_lesson_word_shows_mark_in_lesson(client):
     assert "скрыто" in client.get("/vocab/voc-maisonaa").text
     assert "voc-maisonaa" not in client.get("/vocab").text
     assert "voc-maisonaa" in client.get("/vocab?filter=hidden").text
-    assert "скрыто" in client.get("/lessons/1/theory").text
+    assert "скрыто" in client.get("/lessons/1/vocab").text  # отметка у слова в «Лексике» урока
 
 
 def test_delete_own_and_refuse_lesson_word(client):

@@ -104,7 +104,19 @@ article > footer, .card > footer { margin-top: .8rem; padding-top: .8rem; border
 .more-menu a:hover { background: var(--surface-2); text-decoration: none; }
 .more-menu hr { margin: .3rem 0; }
 .more-menu form { margin: 0; }
-.more-menu .segmented button { min-height: 1.7rem; padding: .1rem .5rem; font-size: .78rem; }
+/* ползунок вкл/выкл и значки оформления в меню «⋯» (макет 2026-09-30, Е1) */
+.switch { position: relative; flex: none; width: 36px; min-height: 0; height: 20px; padding: 0; border: 0; border-radius: 999px;
+  background: var(--line); cursor: pointer; transition: background .15s; }
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .25); transition: transform .15s; }
+.switch.on { background: var(--primary); }
+.switch.on::after { transform: translateX(16px); }
+.switch:hover { filter: none; }
+.theme-icons { display: inline-flex; gap: 2px; padding: 2px; border-radius: 8px; background: var(--surface-2); }
+.theme-icons button { width: 30px; min-height: 0; height: 26px; padding: 0; border: 0; border-radius: 6px; background: none;
+  color: var(--muted); display: grid; place-items: center; }
+.theme-icons button.on { background: var(--surface-solid); color: var(--text); box-shadow: 0 1px 3px rgba(60, 55, 140, .18); }
+.theme-icons svg { width: 16px; height: 16px; }
 
 main.page { max-width: 1180px; margin: 0 auto; padding: 1.8rem 2rem 3rem; animation: fade .25s ease; }
 .crumbs { font-size: .86rem; color: var(--muted); margin-bottom: .5rem; }

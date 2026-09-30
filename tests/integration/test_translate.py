@@ -216,11 +216,11 @@ def test_translate_toggle_sets_cookie_and_goes_back(client):
     html = client.get("/lessons").text
     assert re.search(r'<html[^>]*data-translate="0"', html)
     menu = html[html.index('action="/settings/translate"') :][:800]
-    assert re.search(r'class="on"[^>]*>выкл', menu)
+    assert re.search(r'class="switch"[^>]*aria-checked="false"', menu)  # выключен (макет Е1)
     client.cookies.set("translate", "1")
     menu = client.get("/lessons").text
     menu = menu[menu.index('action="/settings/translate"') :][:800]
-    assert re.search(r'class="on"[^>]*>вкл', menu)
+    assert re.search(r'class="switch on"[^>]*aria-checked="true"', menu)
 
 
 # --- настройки перевода (T029) ---------------------------------------------------------------

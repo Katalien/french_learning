@@ -61,5 +61,9 @@ def test_theme_cookie(client):
     )
     assert response.url.path == "/lessons/1"
     assert 'data-theme="dark"' in client.get("/lessons/1").text
+    html = client.get("/lessons/1").text
+    # меню «⋯»: оформление — три значка, выбранный отмечен (макет 2026-09-30, Е1)
+    assert re.search(r'name="theme" value="dark" class="on"[^>]*aria-pressed="true"', html)
+    assert 'title="Светлое"' in html and 'title="Как в системе"' in html
     client.post("/settings/theme", data={"theme": "neon"})
     assert 'data-theme="system"' in client.get("/lessons/1").text
