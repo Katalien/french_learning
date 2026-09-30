@@ -390,9 +390,6 @@
   .exercise.with-source .exercise-body { order: 1; }
 }
 /* Карточка переворачивается нажатием */
-.flashcard.flippable { cursor: pointer; transition: transform .15s, box-shadow .15s; }
-.flashcard.flippable:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-.flashcard.flippable:focus-visible { outline: 3px solid var(--primary-soft); }
 .flip-hint { margin: .6rem 0 0; }
 
 /* Добавление слов (009, правка приёмки) */
@@ -618,3 +615,17 @@ mark.search-hit.current { background: var(--ring); outline: 2px solid var(--prim
 .search-bar .sp { flex: 1; }
 .search-bar .q { color: var(--fr); font-weight: 600; }
 @media (max-width: 760px) { .search-bar { position: static; } }
+
+/* карточка повторения: переворот (макет 2026-09-30, Г1) */
+.flip-scene { perspective: 1400px; }
+.flashcard.flip-card { display: block; overflow: visible; padding: 0; height: 320px; min-height: 0; background: none; box-shadow: none; backdrop-filter: none;
+  border: 0; transform-style: preserve-3d; transition: transform .55s cubic-bezier(.3, .7, .3, 1); cursor: pointer; }
+.flashcard.flip-card.flipped { transform: rotateY(180deg); }
+.flashcard.flip-card, .flashcard.flip-card:hover { filter: none; color: var(--text); font-weight: 400; }  /* фильтр «кнопки» при наведении ломает 3D */
+.flashcard.flip-card:focus-visible { outline: 3px solid var(--primary-soft); outline-offset: 4px; }
+.flip-card .flip-face { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .5rem; padding: 2rem 1.5rem 1.5rem; overflow: hidden auto; text-align: center; border-radius: var(--radius);
+  background: var(--surface-solid); box-shadow: var(--shadow); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.flip-card .flip-back { transform: rotateY(180deg); }
+.flip-card .example { margin: 0; font-family: var(--reading); font-style: italic; }
+@media (prefers-reduced-motion: reduce) { .flashcard.flip-card { transition: none; } }

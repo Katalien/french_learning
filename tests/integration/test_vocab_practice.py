@@ -20,7 +20,9 @@ def test_card_show_rate_flow(client):
     path = start(client)
     html = client.get(path).text
     assert "Показать" in html
-    assert "Не помню" not in html  # оценки до показа недоступны
+    # 2026-09-30 (макет Г1): оценки на обеих сторонах карточки — можно оценить, не переворачивая
+    for label in ("Не помню", "С трудом", "Помню"):
+        assert label in html
     session = path.rsplit("/", 1)[-1]
     shown = client.post(f"/practice/{session}/show").text
     for label in ("Не помню", "С трудом", "Помню"):
@@ -58,8 +60,16 @@ def test_summary_after_last_card(client):
 
 
 def test_card_flips_on_click(client):
-    """009: ответ открывается нажатием на карточку, отдельной кнопки «Показать» нет."""
+    """Карточка переворачивается нажатием (анимация в браузере, макет 2026-09-30 Г1):
+    лицо и оборот уже на странице, отдельной кнопки «Показать» нет."""
     html = client.get(start(client)).text
-    assert 'class="flashcard' in html and "flippable" in html
-    assert 'id="show-form"' in html and "requestSubmit" in html
+    assert re.search(r'class="flashcard flip-card[^"]*"[^>]*data-flip', html)
+    assert 'class="flip-face flip-back"' in html and 'class="answer"' in html
     assert ">Показать</button>" not in html
+    assert "flipped" not in html.split('class="flashcard', 1)[1].split(">", 1)[0]
+
+
+def test_show_route_renders_flipped_card(client):
+    session = start(client).rsplit("/", 1)[-1]
+    html = client.post(f"/practice/{session}/show").text
+    assert re.search(r'class="flashcard flip-card[^"]* flipped"', html)
