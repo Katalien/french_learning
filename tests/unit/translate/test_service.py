@@ -161,6 +161,8 @@ def test_to_dict_has_contract_fields(cache):
         "entry",
         "can_add",
         "add_as",
+        "head",
+        "gender",
     }
 
 
@@ -183,3 +185,40 @@ def test_service_all_caps_translation_lowered(cache):
     translator = FakeTranslator({"commande": "ЗАКАЗ", "ONU": "ООН"})
     assert service(cache, translator).translate("commande", []).translation == "заказ"
     assert service(cache, translator).translate("ONU", []).translation == "ООН"
+
+
+# --- род и артикль в заголовке подсказки (макет 2026-09-30, А2) ------------------------------
+
+
+def noun(entry_id, text, translations, article, gender):
+    found = entry(entry_id, text, translations, article=article)
+    found.gender = gender
+    return found
+
+
+def test_head_from_dictionary_and_article_before(cache):
+    words = [noun("voc-p", "pomme", ["яблоко"], "la", "f")]
+    translator = FakeTranslator()
+    plural = service(cache, translator).translate("pommes", words, before="des")
+    assert (plural.head, plural.gender) == ("les pommes", "f")
+    alone = service(cache, translator).translate("pomme", words)
+    assert (alone.head, alone.gender) == ("la pomme", "f")
+    inflected = service(cache, translator).translate("pommes", words)
+    assert (inflected.head, inflected.gender) == ("les pommes", "f")
+
+
+def test_head_from_article_without_dictionary(cache):
+    result = service(cache, FakeTranslator()).translate("crêpe", [], before="une")
+    assert (result.head, result.gender) == ("la crêpe", "f")
+    selected = service(cache, FakeTranslator()).translate("un café", [])
+    assert (selected.head, selected.gender) == ("le café", "m")
+    elided = service(cache, FakeTranslator()).translate(
+        "l'eau", [noun("voc-e", "eau", ["вода"], "l'", "f")]
+    )
+    assert (elided.head, elided.gender) == ("l'eau", "f")
+
+
+def test_no_head_without_gender(cache):
+    for text, before in (("achètent", "Elles"), ("il y a", None), ("maison", None)):
+        result = service(cache, FakeTranslator()).translate(text, [], before=before)
+        assert result.head is None and result.gender is None, text

@@ -89,11 +89,21 @@
   function place() {
     if (!pop || !anchor) return;
     const width = document.documentElement.clientWidth;
+    const top = window.scrollY + 8;
+    const bottom = window.scrollY + window.innerHeight - 8;
+    const room = Math.max(bottom - anchor.bottom - 8, anchor.top - 8 - top);
+    // не помещается ни под выделением, ни над ним — сжать прокручиваемую часть ([data-shrink])
+    const shrink = pop.querySelector("[data-shrink]");
+    if (shrink) shrink.style.maxHeight = "";
+    if (shrink && pop.offsetHeight > room) {
+      shrink.style.maxHeight = `${Math.max(80, shrink.offsetHeight - (pop.offsetHeight - room))}px`;
+    }
     const height = pop.offsetHeight;
     const below = anchor.bottom + 8;
     const above = anchor.top - height - 8;
-    const fitsBelow = below + height <= window.scrollY + window.innerHeight;
-    pop.style.top = `${fitsBelow || above < window.scrollY ? below : above}px`;
+    let y = below; // под выделением; не влезает — над ним; нигде — у края окна
+    if (below + height > bottom) y = above >= top ? above : Math.max(top, bottom - height);
+    pop.style.top = `${y}px`;
     const left = Math.min(anchor.left, window.scrollX + width - pop.offsetWidth - 8);
     pop.style.left = `${Math.max(window.scrollX + 8, left)}px`;
   }

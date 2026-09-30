@@ -26,7 +26,7 @@
   </svg>
   {% set nav_badges = nav_counts(request) %}
   <header class="topbar">
-    <a href="/" class="brand">Français <small>· мой курс</small></a>
+    <a href="/" class="brand">Français</a>
     <nav class="mainnav" aria-label="Разделы">
       {% for href, name in (("/lessons", "Уроки"), ("/vocab", "Словарь"), ("/practice", "Практика"), ("/topics", "Темы")) %}
         <a href="{{ href }}" {% if current == href or current.startswith(href ~ "/") %}aria-current="page"{% endif %}>{{ name }}</a>

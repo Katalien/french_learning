@@ -8,17 +8,46 @@
     {% with done = progress.number, total = progress.total, label = progress.number ~ "/" ~ progress.total, size = "sm" %}{% include "partials/ring.html" %}{% endwith %}
   </div>
 
-  {% set flip = params.method != "input" and not shown and result is not defined %}
-  <article class="flashcard gender-{{ entry.gender or 'none' }}{% if shown or result is defined %} is-shown{% endif %}{% if flip %} flippable{% endif %}"
-    {% if flip %}role="button" tabindex="0" title="Показать ответ" aria-label="Показать ответ"
-    onclick="if (!event.target.closest('.speak')) document.getElementById('show-form').requestSubmit()"
-    onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); document.getElementById('show-form').requestSubmit(); }"{% endif %}>
+  {% if params.method != "input" and result is not defined %}
+  {# самооценка: карточка переворачивается с анимацией, оценки — на обеих сторонах
+     (макет 2026-09-30, Г1; spec 003 US, изменение 2026-09-30) #}
+  <div class="flip-scene">
+    <article class="flashcard flip-card gender-{{ entry.gender or 'none' }}{% if shown %} flipped{% endif %}"
+      role="button" tabindex="0" title="Перевернуть карточку" aria-label="Перевернуть карточку" data-flip>
+      <div class="flip-face">
+        <span class="stripe"></span>
+        {% if entry.gender in ("m", "f") and direction == "fr_ru" %}<span class="gender-tag">{{ entry.gender }}</span>{% endif %}
+        <p class="question" lang="{{ 'fr' if direction == 'fr_ru' else 'ru' }}">{{ question.text }}</p>
+        {% if direction == 'fr_ru' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}
+        {% if question.hint %}<p class="muted hint">{{ question.hint }}</p>{% endif %}
+        <p class="flip-hint small muted">Показать ответ — нажмите на карточку</p>
+      </div>
+      <div class="flip-face flip-back">
+        <span class="stripe"></span>
+        <p class="answer" lang="{{ 'ru' if direction == 'fr_ru' else 'fr' }}">{{ answers | join(", ") }}</p>
+        {% if direction == 'ru_fr' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}
+        {% if entry.examples %}<p class="example muted" lang="fr">{{ entry.examples[0].text }}</p>{% endif %}
+      </div>
+    </article>
+  </div>
+  <script>
+    (() => {
+      const card = document.querySelector("[data-flip]");
+      const flip = () => card.classList.toggle("flipped");
+      card.addEventListener("click", (event) => { if (!event.target.closest(".speak")) flip(); });
+      card.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); flip(); }
+      });
+    })();
+  </script>
+  {% else %}
+  {# ввод ответа: после проверки ответ — под вопросом #}
+  <article class="flashcard gender-{{ entry.gender or 'none' }}{% if shown or result is defined %} is-shown{% endif %}">
     <span class="stripe"></span>
     {% if entry.gender in ("m", "f") and direction == "fr_ru" %}<span class="gender-tag">{{ entry.gender }}</span>{% endif %}
     <p class="question" lang="{{ 'fr' if direction == 'fr_ru' else 'ru' }}">{{ question.text }}</p>
     {% if direction == 'fr_ru' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}
     {% if question.hint %}<p class="muted hint">{{ question.hint }}</p>{% endif %}
-    {% if flip %}<p class="flip-hint small muted">Показать ответ — нажмите на карточку</p>{% endif %}
 
     {% if shown or result is defined %}
       <div class="flash-back">
@@ -28,12 +57,11 @@
       </div>
     {% endif %}
   </article>
+  {% endif %}
 
   {% block answer_area %}
     {% if params.method == "input" and not shown %}
       <div class="flash-actions">{% include "vocab/partials/answer_input.html" %}</div>
-    {% elif not shown %}
-      <form method="post" action="/practice/{{ session_id }}/show" id="show-form" hidden></form>
     {% else %}
       <form method="post" action="/practice/{{ session_id }}/rate" class="ratings">
         {% for key, name in ratings.items() %}

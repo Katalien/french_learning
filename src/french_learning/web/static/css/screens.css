@@ -190,16 +190,15 @@
 @media (max-width: 900px) { .today-grid { grid-template-columns: 1fr; } }
 
 /* Урок: панель разделов (009) */
-.lesson-page { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 1.6rem; align-items: start; }
-.lesson-page.side-closed { grid-template-columns: minmax(0, 1fr); }
-.lside { position: sticky; top: 72px; padding: .9rem .7rem; margin: 0; }
-.lside-head { display: flex; justify-content: space-between; align-items: center; margin: 0 .3rem .5rem; }
-.lside-head strong { font-size: .9rem; color: var(--muted); }
-.lside a.sec { display: flex; justify-content: space-between; padding: .5rem .7rem; border-radius: 8px; color: var(--text); font-weight: 600; }
-.lside a.sec:hover { background: var(--surface-2); text-decoration: none; }
-.lside a.sec[aria-current="page"] { background: var(--primary-soft); }
-.lside a.sec .muted { font-weight: 500; }
-.open-side { margin-bottom: 1rem; }
+/* разделы урока — горизонтально сверху (макет 2026-09-30, Б3) */
+.lesson-page { display: block; }
+.lnav { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: 0 0 1.2rem; }
+.lnav-toggle { min-height: 2.1rem; }
+.lnav-bar { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border-radius: 10px; background: var(--surface-2); }
+.lnav-bar a.sec { padding: .35rem .75rem; border-radius: 8px; color: var(--text); font-weight: 600; font-size: .92rem; }
+.lnav-bar a.sec:hover { background: var(--surface-solid); text-decoration: none; }
+.lnav-bar a.sec[aria-current="page"] { background: var(--surface-solid); box-shadow: 0 1px 4px rgba(60, 55, 140, .15); }
+.lnav-bar a.sec .c { color: var(--muted); font-weight: 500; font-size: .82rem; margin-left: .3rem; }
 .lesson-settings { width: 100%; }
 .section-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: .8rem; }
 .section-head h2 { margin: 0; }
@@ -211,10 +210,6 @@
 .word-row:first-child { border-top: 0; }
 .gbar { flex: 0 0 5px; align-self: stretch; min-height: 1.6rem; border-radius: 3px; background: var(--line); }
 .gbar.g-m { background: var(--m); } .gbar.g-f { background: var(--f); } .gbar.g-both { background: linear-gradient(var(--m), var(--f)); }
-@media (max-width: 900px) {
-  .lesson-page { grid-template-columns: minmax(0, 1fr); }
-  .lside { position: static; }
-}
 
 /* Список заданий: строки и плитки (009, FR-020a) */
 .tasks-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
@@ -395,9 +390,6 @@
   .exercise.with-source .exercise-body { order: 1; }
 }
 /* Карточка переворачивается нажатием */
-.flashcard.flippable { cursor: pointer; transition: transform .15s, box-shadow .15s; }
-.flashcard.flippable:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-.flashcard.flippable:focus-visible { outline: 3px solid var(--primary-soft); }
 .flip-hint { margin: .6rem 0 0; }
 
 /* Добавление слов (009, правка приёмки) */
@@ -505,15 +497,19 @@ mark.note-anchor.pending { background: var(--note-hl); border-bottom-style: soli
 .tr-sec + .sel-strip { border-top: 1px solid var(--line); margin-top: 2px; padding-top: 2px; }
 .tr-head { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
 .tr-src { font-weight: 700; color: var(--fr); overflow-wrap: anywhere; }
+.tr-src .g-paren { font-weight: 600; } .g-paren.g-f { color: var(--f); } .g-paren.g-m { color: var(--m); }
 .tr-close { border: 0; background: none; color: var(--muted); padding: 0 .2rem; min-height: 0; font-size: .95rem; cursor: pointer; }
 .tr-close:hover { color: var(--text); background: none; }
 .tr-text { margin: .3rem 0 .15rem; font-size: 1rem; overflow-wrap: anywhere; }
+/* длинный перевод прокручивается внутри подсказки, а не уходит за край окна */
+.tr-body { max-height: min(45vh, 360px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
 .tr-error { color: var(--muted); font-size: .9rem; }
 .tr-lemma { color: var(--muted); font-size: .86rem; margin: .1rem 0; }
 .tr-lemma [lang="fr"] { color: var(--fr); }
 .tr-acts { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin-top: .4rem; }
+.tr-acts:empty { display: none; }
 .tr-acts .speak { min-height: 1.9rem; }
-.tr-add { min-height: 1.9rem; }
+.tr-add { display: inline-block; min-height: 1.9rem; height: auto; padding-top: .3rem; padding-bottom: .3rem; line-height: 1.35; max-width: 100%; white-space: normal; text-align: left; overflow-wrap: anywhere; }
 .tr-in-dict { display: inline-block; background: var(--ok-soft); color: var(--ok); border-radius: 6px; padding: .05rem .5rem; font-size: .82rem; font-weight: 600; }
 .sel-strip button { display: inline-flex; align-items: center; gap: .3rem; border: 0; background: none; border-radius: 8px; padding: .3rem .55rem;
   font-size: .82rem; color: var(--muted); cursor: pointer; }
@@ -610,7 +606,8 @@ mark.note-anchor.pending { background: var(--note-hl); border-bottom-style: soli
 .search-empty { color: var(--muted); margin: .4rem .2rem; }
 .search-page-form { display: grid; gap: .6rem; }
 .search-page-form input[type="search"] { margin: 0; }
-.search-page .search-group { background: var(--surface); border-radius: var(--radius); padding: .8rem 1rem; margin-bottom: 1rem; }
+.search-page .search-group { background: var(--surface); border-radius: var(--radius); padding: .8rem 1rem; margin-bottom: 1rem;
+  border: 1px solid var(--line); box-shadow: var(--shadow); }  /* блок заметно отделён от фона, без яркости */
 mark.search-hit.current { background: var(--ring); outline: 2px solid var(--primary); }
 .search-bar { position: sticky; top: 64px; z-index: 15; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem;
   margin: 0 0 .8rem; padding: .45rem .8rem; background: var(--surface-solid); border: 1px solid var(--pop-line);
@@ -618,3 +615,27 @@ mark.search-hit.current { background: var(--ring); outline: 2px solid var(--prim
 .search-bar .sp { flex: 1; }
 .search-bar .q { color: var(--fr); font-weight: 600; }
 @media (max-width: 760px) { .search-bar { position: static; } }
+
+/* карточка повторения: переворот (макет 2026-09-30, Г1) */
+.flip-scene { perspective: 1400px; }
+.flashcard.flip-card { display: block; overflow: visible; padding: 0; height: 320px; min-height: 0; background: none; box-shadow: none; backdrop-filter: none;
+  border: 0; transform-style: preserve-3d; transition: transform .55s cubic-bezier(.3, .7, .3, 1); cursor: pointer; }
+.flashcard.flip-card.flipped { transform: rotateY(180deg); }
+.flashcard.flip-card, .flashcard.flip-card:hover { filter: none; color: var(--text); font-weight: 400; }  /* фильтр «кнопки» при наведении ломает 3D */
+.flashcard.flip-card:focus-visible { outline: 3px solid var(--primary-soft); outline-offset: 4px; }
+.flip-card .flip-face { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .5rem; padding: 2rem 1.5rem 1.5rem; overflow: hidden auto; text-align: center; border-radius: var(--radius);
+  background: var(--surface-solid); box-shadow: var(--shadow); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.flip-card .flip-back { transform: rotateY(180deg); }
+.flip-card .example { margin: 0; font-family: var(--reading); font-style: italic; }
+@media (prefers-reduced-motion: reduce) { .flashcard.flip-card { transition: none; } }
+
+/* «Подробнее» на странице слова (макеты 2026-09-30: В4 + Д1) */
+.entry-extra .entry-example { margin: .6rem 0 0; font-family: var(--reading); font-style: italic; }
+.entry-forms { display: flex; flex-wrap: wrap; gap: .35rem; margin: .8rem 0 0; }
+.entry-forms span { font-size: .82rem; border: 1px solid var(--line); border-radius: 999px; padding: .1rem .55rem; background: var(--surface-solid); }
+.entry-forms b { font-weight: 500; color: var(--muted); margin-right: .15rem; }
+.entry-verb { margin: .8rem 0 .2rem; }
+.entry-note { display: flex; gap: .45rem; align-items: flex-start; margin: .9rem 0 0; font-size: .9rem; font-style: italic; color: var(--muted); }
+.entry-note .icon { margin-top: .15rem; }
+.entry-meta { margin: 1rem 0 0; font-size: .78rem; color: var(--muted); }

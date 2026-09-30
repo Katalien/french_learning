@@ -124,5 +124,5 @@ def test_lesson_menus_link_notes(client):
     add(client, kind="note", body="a", lesson=1)
     add(client, kind="note", body="b", lesson=1)
     html = client.get("/lessons/1").text
-    assert re.search(r'href="/lessons/1/notes"[^>]*>Заметки<span class="muted">2</span>', html)
+    assert re.search(r'href="/lessons/1/notes"[^>]*>Заметки<span class="c">2</span>', html)
     assert 'href="/lessons/1/notes"' in client.get("/elements/ex-gapchoic").text

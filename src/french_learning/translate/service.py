@@ -41,6 +41,8 @@ class TranslationResult:
     entry: dict | None = None
     can_add: bool = False
     add_as: dict | None = None
+    head: str | None = None  # существительное с определённым артиклем: «les pommes»
+    gender: str | None = None  # m | f — род в скобках рядом (макет 2026-09-30, А2)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -58,6 +60,43 @@ def find_entry(entries: Iterable[Any], *texts: str | None) -> Any | None:
         for key in (normalize_key(entry.text), normalize_key(display_fr(entry))):
             by_key.setdefault(key, entry)
     return next((by_key[k] for k in wanted if k in by_key), None)
+
+
+_DEFINITE = {"un": "le", "une": "la", "des": "les", "le": "le", "la": "la", "les": "les", "l": "l'"}
+
+
+def _joined(article: str, word: str) -> str:
+    return f"{article}{word}" if article == "l'" else f"{article} {word}"
+
+
+def noun_head(
+    text: str, before: str | None, entry: Any | None, gender: str | None
+) -> tuple[str | None, str | None]:
+    """Существительное с определённым артиклем и род (m / f) — для заголовка подсказки.
+
+    Род — из записи словаря, иначе по артиклю (как при добавлении, `add_as`). Артикль —
+    из текста (неопределённый → определённый), иначе из словаря; у другой формы — «les».
+    """
+    gender = getattr(entry, "gender", None) or gender
+    if gender not in ("m", "f"):
+        return None, None
+    words = " ".join(text.split()).strip(" ,;:.!?")
+    key = normalize_key(words)
+    tokens = key.split()
+    if len(tokens) == 2 and tokens[0] in _DEFINITE:  # «une crêpe» — артикль в выделении
+        return _joined(_DEFINITE[tokens[0]], words.split(" ", 1)[1]), gender
+    if len(tokens) != 1:
+        return None, None
+    if "'" in key:  # «l'eau» — артикль уже в слове
+        return words, gender
+    previous = normalize_key(before or "").rstrip("'")
+    if previous in _DEFINITE:
+        return _joined(_DEFINITE[previous], words), gender
+    if entry is not None and entry.article:
+        if normalize_key(entry.text) == key:
+            return _joined(entry.article, words), gender
+        return _joined("les", words), gender  # другая форма (pommes) — множественное число
+    return None, gender
 
 
 class TranslationService:
@@ -106,6 +145,9 @@ class TranslationService:
             result.translation, result.source = self._external(text)
         if result.translation is None:
             result.error = UNAVAILABLE
+
+        noun = entry or find_entry(entries, result.lemma)
+        result.head, result.gender = noun_head(text, before, noun, add_as(text, before).gender)
 
         if result.lemma:
             lemma_entry = find_entry(entries, result.lemma)
