@@ -508,12 +508,15 @@ mark.note-anchor.pending { background: var(--note-hl); border-bottom-style: soli
 .tr-close { border: 0; background: none; color: var(--muted); padding: 0 .2rem; min-height: 0; font-size: .95rem; cursor: pointer; }
 .tr-close:hover { color: var(--text); background: none; }
 .tr-text { margin: .3rem 0 .15rem; font-size: 1rem; overflow-wrap: anywhere; }
+/* длинный перевод прокручивается внутри подсказки, а не уходит за край окна */
+.tr-body { max-height: min(45vh, 360px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
 .tr-error { color: var(--muted); font-size: .9rem; }
 .tr-lemma { color: var(--muted); font-size: .86rem; margin: .1rem 0; }
 .tr-lemma [lang="fr"] { color: var(--fr); }
 .tr-acts { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin-top: .4rem; }
+.tr-acts:empty { display: none; }
 .tr-acts .speak { min-height: 1.9rem; }
-.tr-add { min-height: 1.9rem; }
+.tr-add { display: inline-block; min-height: 1.9rem; height: auto; padding-top: .3rem; padding-bottom: .3rem; line-height: 1.35; max-width: 100%; white-space: normal; text-align: left; overflow-wrap: anywhere; }
 .tr-in-dict { display: inline-block; background: var(--ok-soft); color: var(--ok); border-radius: 6px; padding: .05rem .5rem; font-size: .82rem; font-weight: 600; }
 .sel-strip button { display: inline-flex; align-items: center; gap: .3rem; border: 0; background: none; border-radius: 8px; padding: .3rem .55rem;
   font-size: .82rem; color: var(--muted); cursor: pointer; }
@@ -610,7 +613,8 @@ mark.note-anchor.pending { background: var(--note-hl); border-bottom-style: soli
 .search-empty { color: var(--muted); margin: .4rem .2rem; }
 .search-page-form { display: grid; gap: .6rem; }
 .search-page-form input[type="search"] { margin: 0; }
-.search-page .search-group { background: var(--surface); border-radius: var(--radius); padding: .8rem 1rem; margin-bottom: 1rem; }
+.search-page .search-group { background: var(--surface); border-radius: var(--radius); padding: .8rem 1rem; margin-bottom: 1rem;
+  border: 1px solid var(--line); box-shadow: var(--shadow); }  /* блок заметно отделён от фона, без яркости */
 mark.search-hit.current { background: var(--ring); outline: 2px solid var(--primary); }
 .search-bar { position: sticky; top: 64px; z-index: 15; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem;
   margin: 0 0 .8rem; padding: .45rem .8rem; background: var(--surface-solid); border: 1px solid var(--pop-line);

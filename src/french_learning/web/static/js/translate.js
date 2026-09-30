@@ -31,8 +31,9 @@
     let add = "";
     if (data.entry) add = inDict(data.entry.translation);
     else if (data.can_add) add = `<button type="button" class="btn-sm tr-add">+ В словарь: <span lang="fr">${esc(data.add_as.text)}</span></button>`;
-    box.querySelector(".tr-body").innerHTML = `${main}${lemma}
-      <div class="tr-acts"><button type="button" class="speak outline small" data-speak="${esc(ctx.text)}" title="Произнести" aria-label="Произнести">🔊</button>${add}</div>`;
+    // перевод и форма — в прокручиваемой части, кнопки — под ней, всегда на виду
+    box.querySelector(".tr-body").innerHTML = `${main}${lemma}`;
+    box.querySelector(".tr-acts").innerHTML = `<button type="button" class="speak outline small" data-speak="${esc(ctx.text)}" title="Произнести" aria-label="Произнести">🔊</button>${add}`;
     const button = box.querySelector(".tr-add");
     if (button) button.onclick = () => addToVocab(button, ctx);
     window.SelectionPopup.place();
@@ -63,7 +64,8 @@
     const shown = ctx.text.length > 60 ? `${ctx.text.slice(0, 60)}…` : ctx.text;
     box.innerHTML = `<div class="tr-head"><span class="tr-src" lang="fr">${esc(shown)}</span>
         <button type="button" class="tr-close" title="Закрыть" aria-label="Закрыть">✕</button></div>
-      <div class="tr-body"><div class="tr-text muted">Перевод…</div></div>`;
+      <div class="tr-body" data-shrink><div class="tr-text muted">Перевод…</div></div>
+      <div class="tr-acts"></div>`;
     box.querySelector(".tr-close").onclick = () => window.SelectionPopup.close();
     // слово перед выделенным — только для начальной формы (Paul entre → entrer), наружу не уходит
     const sentence = ctx.sentence();
