@@ -968,9 +968,9 @@ mark.search-hit.current { background: var(--ring); outline: 2px solid var(--prim
   .ex-plain small, .ex-guill small { font-family: var(--font); font-style: normal; color: var(--muted); font-size: .75rem; margin-left: .4rem; }
   .ex-guill { font-family: var(--reading); font-style: italic; color: var(--text); margin: .2rem 0 0; }
   .ex-guill::before { content: "« "; color: var(--muted); } .ex-guill::after { content: " »"; color: var(--muted); }
-  .chips { display: flex; flex-wrap: wrap; gap: .35rem; }
-  .chips span { font-size: .82rem; border: 1px solid var(--line); border-radius: 999px; padding: .1rem .55rem; background: var(--surface-solid); }
-  .chips span b { font-weight: 500; color: var(--muted); margin-right: .25rem; }
+  .fchips { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .fchips span { font-size: .82rem; border: 1px solid var(--line); border-radius: 999px; padding: .1rem .55rem; background: var(--surface-solid); }
+  .fchips span b { font-weight: 500; color: var(--muted); margin-right: .25rem; }
   .note-tile { border: 1px solid var(--line); border-radius: 10px; padding: .6rem .75rem; background: var(--surface-solid); }
   .note-tile h4, .sec-h { margin: 0 0 .3rem; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
   .note-accent { border-left: 3px solid var(--primary); background: var(--surface-2); border-radius: 0 8px 8px 0; padding: .45rem .75rem; }
@@ -979,8 +979,16 @@ mark.search-hit.current { background: var(--ring); outline: 2px solid var(--prim
   .forms-table { font-size: .88rem; border-collapse: collapse; margin: 0; }
   .forms-table th, .forms-table td { padding: .15rem .8rem .15rem 0; border: 0; text-align: left; background: none; font-weight: 400; }
   .forms-table th { color: var(--muted); font-size: .78rem; }
-  .gap { margin-top: .8rem; }
+  .mgap { margin-top: .8rem; }
   .flip-scene { perspective: 1200px; max-width: 420px; }
+  .n-margin { margin-top: .9rem; font-size: .9rem; color: var(--muted); font-style: italic; display: flex; gap: .45rem; align-items: flex-start; }
+  .n-margin svg { width: 1rem; height: 1rem; flex: none; margin-top: .15rem; color: var(--muted); }
+  .n-rule { margin-top: .9rem; padding-top: .6rem; border-top: 1px dashed var(--line); font-size: .92rem; }
+  .n-rule .lbl { font-size: .72rem; color: var(--muted); margin-right: .4rem; }
+  .n-side { margin-top: .9rem; padding-left: .7rem; border-left: 1px solid var(--line); font-size: .92rem; }
+  .n-side .lbl { display: block; font-size: .72rem; color: var(--muted); margin-bottom: .1rem; }
+  .n-pencil { margin-top: .9rem; font-size: .92rem; }
+  .n-pencil .lbl { color: var(--primary-strong); margin-right: .3rem; }
   .flip-card { position: relative; height: 240px; transform-style: preserve-3d; transition: transform .55s cubic-bezier(.3,.7,.3,1); cursor: pointer; }
   .flip-card.flipped { transform: rotateY(180deg); }
   .flip-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: var(--radius);
@@ -999,7 +1007,7 @@ mark.search-hit.current { background: var(--ring); outline: 2px solid var(--prim
 
 <div class="mock">
   <b>Макеты правок</b>
-  <a href="#a">А. Род в подсказке</a> <a href="#b">Б. Разделы урока</a> <a href="#c">В. «Подробнее» у слова</a> <a href="#c2">В4–В6 (новые)</a> <a href="#d">Г. Переворот карточки</a>
+  <a href="#a">А. Род в подсказке</a> <a href="#b">Б. Разделы урока</a> <a href="#c">В. «Подробнее» у слова</a> <a href="#c2">В4–В6 (новые)</a> <a href="#d">Г. Переворот карточки</a> <a href="#e">Д. Заметки (новые)</a>
   <span style="margin-left:auto">Тема:</span>
   <button data-theme-set="light" class="on">светлая</button><button data-theme-set="dark">тёмная</button>
 </div>
@@ -1147,8 +1155,8 @@ mark.search-hit.current { background: var(--ring); outline: 2px solid var(--prim
       <p class="translations">окно</p>
       <details class="entry-extra" open><summary>Подробнее</summary>
         <p class="ex-plain" lang="fr">Elle ouvre la fenêtre le matin.<small>урок 14</small></p>
-        <div class="gap chips"><span><b>мн. ч.</b><i lang="fr">les fenêtres</i></span></div>
-        <div class="gap note-tile"><h4>Мои заметки</h4>fenêtre — с «ê», как в «fête»</div>
+        <div class="mgap fchips"><span><b>мн. ч.</b><i lang="fr">les fenêtres</i></span></div>
+        <div class="mgap note-tile"><h4>Мои заметки</h4>fenêtre — с «ê», как в «fête»</div>
         <p class="meta-line">урок 14 · повторений 6</p>
       </details>
     </article>
@@ -1163,7 +1171,7 @@ mark.search-hit.current { background: var(--ring); outline: 2px solid var(--prim
         <div class="gap"><p class="sec-h">Формы</p>
           <table class="forms-table" lang="fr"><tr><th></th><th>ед. ч.</th><th>мн. ч.</th></tr>
             <tr><th>м. р.</th><td>petit</td><td>petits</td></tr><tr><th>ж. р.</th><td>petite</td><td>petites</td></tr></table></div>
-        <div class="gap note-accent">прилагательное обычно перед существительным</div>
+        <div class="mgap note-accent">прилагательное обычно перед существительным</div>
         <p class="meta-line">урок 1 · повторений 3</p>
       </details>
     </article>
@@ -1175,15 +1183,15 @@ mark.search-hit.current { background: var(--ring); outline: 2px solid var(--prim
       <p class="translations">окно</p>
       <details class="entry-extra" open><summary>Подробнее</summary>
         <p class="ex-plain" lang="fr">Elle ouvre la fenêtre le matin.<small>урок 14</small></p>
-        <p class="small gap" style="margin-bottom:0"><span class="muted">мн. ч.:</span> <i lang="fr">les fenêtres</i></p>
-        <div class="gap note-dashed"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 15a2 2 0 0 1-2 2H8l-4.5 4V5.5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"/><path d="M8 8.5h8M8 12.5h5"/></g></svg><span>fenêtre — с «ê», как в «fête»</span></div>
+        <p class="small mgap" style="margin-bottom:0"><span class="muted">мн. ч.:</span> <i lang="fr">les fenêtres</i></p>
+        <div class="mgap note-dashed"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 15a2 2 0 0 1-2 2H8l-4.5 4V5.5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"/><path d="M8 8.5h8M8 12.5h5"/></g></svg><span>fenêtre — с «ê», как в «fête»</span></div>
         <p class="meta-line">урок 14 · повторений 6</p>
       </details>
     </article>
   </div>
 </div>
 
-<h2 class="part" id="d">Г. Карточка повторения — переворот с анимацией</h2>
+<h2 class="part" id="d">Г. Карточка повторения — переворот с анимацией <span class="chip">выбрано: Г1, оценки на обеих сторонах — сделано</span></h2>
 <p class="part-note">Нажмите на карточку: она поворачивается, как бумажная, на обороте — ответ. Кнопки оценок появляются
   под карточкой после переворота. Нажмите ещё раз, чтобы вернуть.</p>
 <div class="variants">
@@ -1202,6 +1210,64 @@ mark.search-hit.current { background: var(--ring); outline: 2px solid var(--prim
       <div class="flip-face flip-back"><span class="stripe"></span><span class="small-q" lang="fr">la fenêtre</span><p class="a">окно</p><p class="ex" lang="fr">Elle ouvre la fenêtre le matin.</p></div>
     </div>
     <div class="flip-rates"><button class="outline">Не помню</button><button class="outline">С трудом</button><button class="outline">Помню</button></div></div>
+  </div>
+</div>
+
+<h2 class="part" id="e">Д. «Подробнее» — основа В4, новые варианты «Моих заметок»</h2>
+<p class="part-note">Пример — курсивом, без кавычек и без «урок N» (урок — только внизу). Формы — меткой, как в В4.
+  Заметки не выделяются цветным прямоугольником: они видны, но не спорят с текстом — это ваш комментарий.</p>
+<div class="variants">
+  <div class="variant">
+    <h3>Д1 <span>— приписка на полях: серый курсив со значком-облачком</span></h3>
+    <article class="entry gender-f entry-mock">
+      <header><h1 lang="fr" style="font-size:1.5rem">la fenêtre <span class="gender-label">f</span></h1><p class="muted">слово · сущ. · неопр.: une</p></header>
+      <p class="translations">окно</p>
+      <details class="entry-extra" open><summary>Подробнее</summary>
+        <p class="ex-plain" lang="fr">Elle ouvre la fenêtre le matin.</p>
+        <div class="mgap fchips"><span><b>мн. ч.</b><i lang="fr">les fenêtres</i></span></div>
+        <p class="n-margin"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 15a2 2 0 0 1-2 2H8l-4.5 4V5.5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"/><path d="M8 8.5h8M8 12.5h5"/></g></svg><span>fenêtre — с «ê», как в «fête»</span></p>
+        <p class="meta-line">урок 14 · повторений 6</p>
+      </details>
+    </article>
+  </div>
+  <div class="variant">
+    <h3>Д2 <span>— под тонкой пунктирной линией, подпись «мои заметки» мелко</span></h3>
+    <article class="entry gender-f entry-mock">
+      <header><h1 lang="fr" style="font-size:1.5rem">la fenêtre <span class="gender-label">f</span></h1><p class="muted">слово · сущ. · неопр.: une</p></header>
+      <p class="translations">окно</p>
+      <details class="entry-extra" open><summary>Подробнее</summary>
+        <p class="ex-plain" lang="fr">Elle ouvre la fenêtre le matin.</p>
+        <div class="mgap fchips"><span><b>мн. ч.</b><i lang="fr">les fenêtres</i></span></div>
+        <p class="n-rule"><span class="lbl">мои заметки</span>fenêtre — с «ê», как в «fête»</p>
+        <p class="meta-line">урок 14 · повторений 6</p>
+      </details>
+    </article>
+  </div>
+  <div class="variant">
+    <h3>Д3 <span>— тонкая серая черта слева, без фона</span></h3>
+    <article class="entry gender-f entry-mock">
+      <header><h1 lang="fr" style="font-size:1.5rem">la fenêtre <span class="gender-label">f</span></h1><p class="muted">слово · сущ. · неопр.: une</p></header>
+      <p class="translations">окно</p>
+      <details class="entry-extra" open><summary>Подробнее</summary>
+        <p class="ex-plain" lang="fr">Elle ouvre la fenêtre le matin.</p>
+        <div class="mgap fchips"><span><b>мн. ч.</b><i lang="fr">les fenêtres</i></span></div>
+        <div class="n-side"><span class="lbl">мои заметки</span>fenêtre — с «ê», как в «fête»</div>
+        <p class="meta-line">урок 14 · повторений 6</p>
+      </details>
+    </article>
+  </div>
+  <div class="variant">
+    <h3>Д4 <span>— обычный текст с маленькой меткой «✎»</span></h3>
+    <article class="entry gender-f entry-mock">
+      <header><h1 lang="fr" style="font-size:1.5rem">la fenêtre <span class="gender-label">f</span></h1><p class="muted">слово · сущ. · неопр.: une</p></header>
+      <p class="translations">окно</p>
+      <details class="entry-extra" open><summary>Подробнее</summary>
+        <p class="ex-plain" lang="fr">Elle ouvre la fenêtre le matin.</p>
+        <div class="mgap fchips"><span><b>мн. ч.</b><i lang="fr">les fenêtres</i></span></div>
+        <p class="n-pencil"><span class="lbl">✎</span>fenêtre — с «ê», как в «fête»</p>
+        <p class="meta-line">урок 14 · повторений 6</p>
+      </details>
+    </article>
   </div>
 </div>
 
