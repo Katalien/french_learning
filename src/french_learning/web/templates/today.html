@@ -40,16 +40,22 @@
   <section class="card">
     <h2>Домашка</h2>
     {% if t.homework %}
-      <ul class="plain-list">
-        {% for lesson in t.homework %}
-          {% for e in lesson.exercises %}
-            <li>
-              <a href="/elements/{{ e.id }}">{{ e.description_ru }}</a>
-              <span class="small muted">Урок {{ lesson.number }} · № {{ e.number }}</span>
-            </li>
-          {% endfor %}
-        {% endfor %}
-      </ul>
+      {# первые 5 упражнений, остальные — по кнопке (пожелание 2026-09-30) #}
+      {% set items = [] %}
+      {% for lesson in t.homework %}{% for e in lesson.exercises %}{% set _ = items.append((lesson, e)) %}{% endfor %}{% endfor %}
+      {% macro hw(lesson, e, extra=false) %}<li{% if extra %} x-show="more" x-cloak{% endif %}>
+          <a href="/elements/{{ e.id }}">{{ e.description_ru }}</a>
+          <span class="small muted">Урок {{ lesson.number }} · № {{ e.number }}</span>
+        </li>{% endmacro %}
+      <div x-data="{ more: false }">
+        <ul class="plain-list">
+          {% for lesson, e in items[:5] %}{{ hw(lesson, e) }}{% endfor %}
+          {% for lesson, e in items[5:] %}{{ hw(lesson, e, true) }}{% endfor %}
+        </ul>
+        {% if items | length > 5 %}
+          <button type="button" class="btn-text small" x-show="!more" @click="more = true">Показать ещё ({{ items | length - 5 }})</button>
+        {% endif %}
+      </div>
     {% else %}
       <p class="muted">Домашка последних уроков сделана.</p>
     {% endif %}

@@ -17,7 +17,7 @@ def section_links(html: str) -> list[str]:
 
 def test_single_sections_panel(client):
     html = client.get("/lessons/2").text
-    panel = html.split('class="lside', 1)[1].split("</aside>", 1)[0]
+    panel = html.split('class="lnav"', 1)[1].split("</nav>", 1)[0]
     for name in SECTIONS:
         assert name in panel
     # каждая ссылка на раздел — ровно один раз на странице (без дублей-блоков)
@@ -27,8 +27,10 @@ def test_single_sections_panel(client):
 
 
 def test_panel_closable(client):
+    # разделы — горизонтально сверху, кнопка «☰ Разделы урока» сворачивает их (макет Б3)
     html = client.get("/lessons/2/theory").text
-    assert "скрыть" in html and "☰ Разделы урока" in html
+    assert "☰ Разделы урока" in html and "Скрыть разделы" in html
+    assert 'x-data="{ side: true }"' in html  # на каждой странице раскрыты
 
 
 def test_vocab_section(client):

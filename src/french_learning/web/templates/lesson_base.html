@@ -1,5 +1,7 @@
 {% extends "base.html" %}
-{# Каркас урока (009, FR-010–FR-013): заголовок с «⚙», боковая панель разделов, раздел #}
+{# Каркас урока (009, FR-010–FR-013): заголовок с «⚙», панель разделов, раздел.
+   Разделы — горизонтально сверху (макет 2026-09-30, Б3): «☰ Разделы урока ‹» сворачивает их,
+   на каждой новой странице они снова раскрыты #}
 {% set n = summary.number %}
 {% block title %}Урок {{ n }}{% endblock %}
 {% block content %}
@@ -37,10 +39,11 @@
   </section>
 </div>
 
-<div class="lesson-page" x-data="{ side: window.innerWidth > 900 }" :class="{ 'side-closed': !side }">
-  <aside class="lside card" x-show="side" x-cloak aria-label="Разделы урока">
-    <div class="lside-head"><strong>Разделы</strong>
-      <button type="button" class="btn-text small" @click="side = false">‹ скрыть</button></div>
+<div class="lesson-page" x-data="{ side: true }">
+  <nav class="lnav" aria-label="Разделы урока">
+    <button type="button" class="outline small lnav-toggle" @click="side = !side" :aria-expanded="side"
+            :title="side ? 'Скрыть разделы' : 'Показать разделы'">☰ Разделы урока<span x-show="side" aria-hidden="true"> ‹</span></button>
+    <span class="lnav-bar" x-show="side">
     {% for key, name, href, count in (
         ("overview", "Обзор", "/lessons/" ~ n, none),
         ("theory", "Теория", "/lessons/" ~ n ~ "/theory", counts.theory),
@@ -48,11 +51,11 @@
         ("vocab", "Лексика", "/lessons/" ~ n ~ "/vocab", counts.vocab),
         ("tasks", "Задания", "/lessons/" ~ n ~ "/tasks?part=class", counts.tasks),
         ("notes", "Заметки", "/lessons/" ~ n ~ "/notes", counts.notes)) %}
-      <a class="sec" href="{{ href }}" {% if section == key %}aria-current="page"{% endif %}>{{ name }}{% if count is not none %}<span class="muted">{{ count }}</span>{% endif %}</a>
+      <a class="sec" href="{{ href }}" {% if section == key %}aria-current="page"{% endif %}>{{ name }}{% if count is not none %}<span class="c">{{ count }}</span>{% endif %}</a>
     {% endfor %}
-  </aside>
+    </span>
+  </nav>
   <div class="lesson-main">
-    <button type="button" class="outline small open-side" x-show="!side" x-cloak @click="side = true">☰ Разделы урока</button>
     {% block lesson_content %}{% endblock %}
   </div>
 </div>

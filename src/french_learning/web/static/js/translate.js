@@ -30,10 +30,16 @@
       : "";
     let add = "";
     if (data.entry) add = inDict(data.entry.translation);
-    else if (data.can_add) add = `<button type="button" class="btn-sm tr-add">+ В словарь: <span lang="fr">${esc(data.add_as.text)}</span></button>`;
+    else if (data.can_add) add = `<button type="button" class="btn-sm tr-add" title="Добавить в словарь: ${esc(data.add_as.text)}">+ В словарь</button>`;
     // перевод и форма — в прокручиваемой части, кнопки — под ней, всегда на виду
     box.querySelector(".tr-body").innerHTML = `${main}${lemma}`;
     box.querySelector(".tr-acts").innerHTML = `<button type="button" class="speak outline small" data-speak="${esc(ctx.text)}" title="Произнести" aria-label="Произнести">🔊</button>${add}`;
+    // существительное — с артиклем и родом в скобках: «les pommes (f)» (макет 2026-09-30, А2)
+    if (data.gender) {
+      const src = box.querySelector(".tr-src");
+      const word = data.head || src.textContent;
+      src.innerHTML = `${esc(word)} <span class="g-paren g-${data.gender}">(${data.gender})</span>`;
+    }
     const button = box.querySelector(".tr-add");
     if (button) button.onclick = () => addToVocab(button, ctx);
     window.SelectionPopup.place();

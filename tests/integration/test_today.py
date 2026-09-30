@@ -56,3 +56,23 @@ def test_empty_state(client, content_root):
 def test_lessons_page(client):
     html = client.get("/lessons").text
     assert 'href="/lessons/1"' in html and 'class="lesson-grid"' in html
+
+
+def test_homework_shows_five_then_more_button():
+    # первые 5 упражнений видны, остальные — по кнопке «Показать ещё» (пожелание 2026-09-30)
+    import re
+    from types import SimpleNamespace as NS
+
+    from french_learning.web.templating import templates
+
+    exercises = [NS(id=f"ex-{n}", description_ru=f"Упражнение {n}", number=n) for n in range(7)]
+    t = NS(empty=False, due=0, homework=[NS(number=3, exercises=exercises)], trainers=[])
+    html = templates.env.get_template("today.html").render(
+        t=t,
+        today_date=dt.date(2026, 9, 30),
+        request=NS(url=NS(path="/"), cookies={}, query_params={}, app=NS(state=NS(notes=None))),
+        nav_counts=lambda r: {"questions": 0, "review": 0, "reports": 0},
+    )
+    items = re.findall(r'<li( x-show="more" x-cloak)?>\s*<a href="/elements/ex-\d+"', html)
+    assert len(items) == 7 and [bool(x) for x in items] == [False] * 5 + [True] * 2
+    assert "Показать ещё (2)" in html
