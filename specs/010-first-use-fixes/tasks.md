@@ -58,7 +58,7 @@ description: "Task list for 010 — правки после первого ис�
 ### Implementation for User Story 1
 
 - [ ] T014 [US1] src/french_learning/vocab/sessions.py: поле `portion: int | None = None` в `SessionParams`; генератор `rng` в `SessionStore.__init__` (по умолчанию `random.Random()`); перемешивание в `queue` по research R3; `start` берёт размер подхода из `params.portion` (None → длина очереди)
-- [ ] T015 [US1] src/french_learning/web/app.py (или место создания `SessionStore`): передать генератор по умолчанию; тесты — подменяемый
+- [ ] T015 [US1] src/french_learning/web/app.py (строка `SessionStore(app.state.progress_db, app.state.cards)`): генератор по умолчанию — `random.Random()`; тесты подменяют `app.state.sessions.rng`
 - [ ] T016 [US1] src/french_learning/web/routes/vocab.py: `practice_setup` принимает `mode, lesson, topic`, отдаёт `portion_size`; `lesson_practice` → 303 на настройку; `practice_start` принимает и проверяет `portion` (пусто | 1–500), сохраняет `portion_size`, пустая очередь → 303 на `/practice/setup?...&notice=Нет слов для повторения`; новый `GET /practice/count` (фрагмент)
 - [ ] T017 [P] [US1] Новый частичный шаблон src/french_learning/web/templates/partials/combobox.html: Alpine-поле с выпадающим списком, фильтр «подстрока без регистра и акцентов» (NFD), стрелки/Enter/Escape, «Ничего не найдено», скрытое поле значения (research R5)
 - [ ] T018 [US1] src/french_learning/web/templates/vocab/practice_setup.html: начальные значения из запроса, комбобокс темы, поле «Слов за подход» (placeholder «все»; Alpine: урок/тема → пусто, иначе `portion_size`), блок `#practice-count` с `hx-get="/practice/count"` по `change` формы, «Начать» неактивна при 0 или без темы в режиме «по теме»; вывод `notice`
@@ -121,7 +121,7 @@ description: "Task list for 010 — правки после первого ис�
 
 **Independent Test**: quickstart §11
 
-- [ ] T034 [P] [US5] Тест в tests/integration/test_exercise_report_status.py: отправка — ответ содержит `.report-status` внутри `#item-{n}` с текстом «Сообщение сохранено», метку «сообщение отправлено» у пункта, ответы в полях сохранены, в хранилище один `reports/*.yaml`; пустой комментарий — подсказка «Напишите, почему ответ неверный» у пункта, файлов нет
+- [ ] T034 [P] [US5] Тест в tests/integration/test_exercise_report_status.py: отправка — ответ содержит `.report-status` внутри `#item-{n}` с текстом «Сообщение сохранено», метку «сообщение отправлено» у пункта, ответы в полях сохранены, в хранилище один `reports/*.yaml`; пустой комментарий — подсказка «Напишите, почему ответ неверный» у пункта, файлов нет; ошибка записи (`WriteError` через monkeypatch) — «Сообщение не отправлено: …» внутри `#item-{n}`
 - [ ] T035 [P] [US5] Тест в tests/unit/test_writer.py: `create_report(..., known_element=True)` не вызывает `load_content` (monkeypatch), без флага — проверка как раньше
 - [ ] T036 [US5] src/french_learning/content/writer.py: параметр `known_element: bool = False` в `create_report` — пропустить `_element` / проверку пакета
 - [ ] T037 [US5] src/french_learning/web/routes/exercises.py `report_item`: пустой комментарий → подсказка у пункта; вызов с `known_element=True`; в контекст `report_notice={item_id: текст}`; `solve_context` — множество `reported_items` из открытых `index.reports()` для упражнения (+ только что отправленный пункт)

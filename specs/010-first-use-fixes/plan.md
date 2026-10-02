@@ -113,8 +113,9 @@ src/french_learning/
 ├── web/static/js/symbols.js       # панель букв переезжает под поле с курсором
 └── web/static/css/screens.css
 tests/
-├── unit/vocab/test_cards_sync.py · test_session_order.py
-└── integration/test_first_use_fixes.py (+ правки существующих тестов staged / portion / ссылок)
+├── unit/vocab/test_cards.py · test_sessions.py · unit/test_writer.py   # дописываются
+└── integration/test_vocab_practice.py · test_vocab_pages.py · test_settings.py ·
+    test_exercise_layout.py · test_exercise_report_status.py · test_lessons_pages.py
 ```
 
 **Structure Decision**: новых пакетов нет — правки в тех модулях, где живёт поведение.
