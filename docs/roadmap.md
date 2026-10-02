@@ -38,7 +38,7 @@ Claude Code, а приложение показывает материал и р
 
 - **В работе — 010 «Правки после первого использования»** (ветка `010-first-use-fixes`,
   `specs/010-first-use-fixes/`): 12 пунктов пользователя от 2026-10-02, см. раздел 010 ниже.
-  Шаг Spec Kit: specify + clarify (6 ответов), plan — готово; дальше tasks → analyze → implement.
+  Шаг Spec Kit: specify + clarify (6 ответов), plan, tasks — готово; дальше analyze → implement.
 
 ### Ранее (2026-09-30)
 
