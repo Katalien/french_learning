@@ -48,9 +48,12 @@ def test_wrong_answer_shows_correct_and_records_again(client):
 
 
 def ru_fr_session_for_eau(client) -> str:
+    """Сеанс «русский → французский» только со словом eau (прочие — «Знаю»)."""
     cards = cards_db(client)
     cards.sync(client.app.state.store.get())
-    cards.rate("voc-eauaaaaa", "fr_ru", "good", mode="all", method="self")
+    for card in cards.all():
+        if card.entry_id != "voc-eauaaaaa":
+            cards.set_known(card.entry_id, True)
     return start_input(client, direction="ru_fr")
 
 

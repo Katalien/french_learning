@@ -21,7 +21,7 @@ description: "Task list for 010 — правки после первого ис�
 
 ## Phase 1: Setup
 
-- [ ] T001 Убедиться, что ветка `010-first-use-fixes`, `uv run pytest` зелёный до правок; `.specify/feature.json` → `specs/010-first-use-fixes`
+- [X] T001 Убедиться, что ветка `010-first-use-fixes`, `uv run pytest` зелёный до правок; `.specify/feature.json` → `specs/010-first-use-fixes`
 
 ---
 
@@ -29,12 +29,12 @@ description: "Task list for 010 — правки после первого ис�
 
 **Purpose**: карточки заводятся только недостающие и сразу в обоих направлениях (research R1, R2)
 
-- [ ] T002 Тест в tests/unit/vocab/test_cards.py: `sync` создаёт карточки `fr_ru` и `ru_fr` для каждого нескрытого слова независимо от настройки `directions`; повторный `sync` не создаёт ни одного `fsrs.Card` (подменить `fsrs.Card` счётчиком через monkeypatch); существующие карточки и их FSRS-состояние не меняются
-- [ ] T003 Тест в tests/unit/vocab/test_cards.py: `rate(..., "good")` по `fr_ru` больше не зависит от `staged` (ветка удалена); переписать/удалить старые тесты поэтапного режима в tests/unit/vocab/test_cards.py и tests/unit/vocab/test_sessions.py
-- [ ] T004 Реализовать в src/french_learning/vocab/cards.py: `sync` читает имеющиеся `(entry_id, direction)` одним запросом и вызывает `_insert` только для недостающих, всегда обе стороны; убрать ветку `staged` из `rate`
-- [ ] T005 Тест в tests/integration/test_settings.py: на `/settings` нет полей `directions` и `portion_size`; `POST /settings` без них работает и сохраняет прочие настройки
-- [ ] T006 Убрать блоки «Новые слова» и «Карточек за один подход» из src/french_learning/web/templates/vocab/settings.html и их разбор/проверку из `settings_page` / `settings_save` в src/french_learning/web/routes/vocab.py
-- [ ] T007 Замер: скрипт research R1 на копии хранилища в scratchpad — запрос `/practice/{id}` < 0,25 с; результат записать в research.md (R1, «после»)
+- [X] T002 Тест в tests/unit/vocab/test_cards.py: `sync` создаёт карточки `fr_ru` и `ru_fr` для каждого нескрытого слова независимо от настройки `directions`; повторный `sync` не создаёт ни одного `fsrs.Card` (подменить `fsrs.Card` счётчиком через monkeypatch); существующие карточки и их FSRS-состояние не меняются
+- [X] T003 Тест в tests/unit/vocab/test_cards.py: `rate(..., "good")` по `fr_ru` больше не зависит от `staged` (ветка удалена); переписать/удалить старые тесты поэтапного режима в tests/unit/vocab/test_cards.py и tests/unit/vocab/test_sessions.py
+- [X] T004 Реализовать в src/french_learning/vocab/cards.py: `sync` читает имеющиеся `(entry_id, direction)` одним запросом и вызывает `_insert` только для недостающих, всегда обе стороны; убрать ветку `staged` из `rate`
+- [X] T005 Тест в tests/integration/test_settings.py: на `/settings` нет полей `directions` и `portion_size`; `POST /settings` без них работает и сохраняет прочие настройки
+- [X] T006 Убрать блоки «Новые слова» и «Карточек за один подход» из src/french_learning/web/templates/vocab/settings.html и их разбор/проверку из `settings_page` / `settings_save` в src/french_learning/web/routes/vocab.py
+- [X] T007 Замер: скрипт research R1 на копии хранилища в scratchpad — запрос `/practice/{id}` < 0,25 с; результат записать в research.md (R1, «после»)
 
 **Checkpoint**: оценка карточки быстрая; у всех слов обе карточки
 

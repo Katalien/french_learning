@@ -16,7 +16,7 @@ def test_today_is_home(client):
 def test_cards_due_and_repeat_button(client):
     html = client.get("/").text
     # карточки создаются для всех слов словаря образца — все «пора»
-    assert "4 карточки" in html
+    assert "8 карточек" in html  # 010: 4 слова × 2 направления
     assert 'action="/practice/start"' in html and 'name="mode" value="today"' in html
 
 

@@ -76,11 +76,11 @@ def test_modes_and_kinds(setup):
     assert sessions.count(index, params(mode="hard"), now=NOW) == 1
 
 
-def test_ru_fr_only_for_existing_cards(setup):
-    _db, index, cards, sessions = setup
-    assert sessions.count(index, params(mode="all", direction="ru_fr"), now=NOW) == 0
-    cards.rate("voc-maisonaa", "fr_ru", "good", mode="all", method="self", now=NOW)
-    assert sessions.count(index, params(mode="all", direction="ru_fr"), now=NOW) == 1
+def test_ru_fr_includes_all_words(setup):
+    """010: «русский → французский» — все слова сразу, без первого «Помню»."""
+    _db, index, _cards, sessions = setup
+    assert sessions.count(index, params(mode="all", direction="ru_fr"), now=NOW) == 4
+    assert sessions.count(index, params(mode="lesson", lesson=2, direction="ru_fr"), now=NOW) == 2
 
 
 def test_no_cards_message(setup):
