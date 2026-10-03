@@ -54,9 +54,24 @@ def _own_attempt(store: AttemptStore, exercise: Any, attempt_id: int | None) -> 
     return attempt if attempt and attempt.exercise_id == exercise.id else None
 
 
-def solve_context(request: Request, exercise: Any, attempt: Attempt | None, **extra) -> dict:
-    only = attempt.item_ids if attempt and attempt.scope == "item" else None
+def reported_items(index: Any, exercise_id: str) -> set[int]:
+    """Пункты упражнения с открытыми сообщениями об ошибке (010, пункт 7)."""
     return {
+        r.item
+        for r in index.reports()
+        if r.element == exercise_id and r.status == "open" and r.item is not None
+    }
+
+
+def solve_context(
+    request: Request, exercise: Any, attempt: Attempt | None, index: Any = None, **extra
+) -> dict:
+    only = attempt.item_ids if attempt and attempt.scope == "item" else None
+    index = index if index is not None else request.app.state.store.get()
+    reported = reported_items(index, exercise.id) | set(extra.pop("reported_extra", ()))
+    return {
+        "reported": reported,
+        "report_notice": {},
         "e": exercise,
         "attempt": attempt,
         "symbols": FRENCH_SYMBOLS,
@@ -191,14 +206,28 @@ async def report_item(request: Request, exercise_id: str, item_id: int, index: I
     attempt = _own_attempt(store, exercise, attempt_id) or store.current(exercise.id)
     if attempt is not None and answers:
         attempt.answers = answers
-    try:
-        _report, result = writer(request).create_report(exercise.id, item_id, comment)
-        notice = REPORT_REMINDER
-        if result.warning:
-            notice += f" {result.warning[0].upper()}{result.warning[1:]}."
-    except WriteError as exc:
-        notice = f"Сообщение не отправлено: {exc}."
-    return _respond(request, exercise, attempt, notice=notice)
+    sent = False
+    if not comment.strip():
+        notice = "Напишите, почему ответ неверный."
+    else:
+        try:
+            _report, result = writer(request).create_report(
+                exercise.id, item_id, comment, known_element=True
+            )
+            sent = True
+            notice = REPORT_REMINDER
+            if result.warning:
+                notice += f" {result.warning[0].upper()}{result.warning[1:]}."
+        except WriteError as exc:
+            notice = f"Сообщение не отправлено: {exc}."
+    # 010 пункт 7: ответ — у самого пункта; индекс — до записи, без перечитывания хранилища
+    if not request.headers.get("HX-Request"):
+        return RedirectResponse(f"/elements/{exercise.id}", status_code=303)
+    context = solve_context(
+        request, exercise, attempt, index, reported_extra={item_id} if sent else ()
+    )
+    context["report_notice"] = {item_id: (notice, sent)}
+    return templates.TemplateResponse(request, "exercises/solve.html", context)
 
 
 @router.post("/exercises/{exercise_id}/status")

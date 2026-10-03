@@ -284,12 +284,18 @@ class ContentWriter:
         return self._save({relative: self._render(relative, meta, body)}, what)
 
     def create_report(
-        self, element_id: str, item_id: int | None, comment: str
+        self, element_id: str, item_id: int | None, comment: str, *, known_element: bool = False
     ) -> tuple[schema.Report, WriteResult]:
-        """Сообщение об ошибке (FR-042); разбирает агент (функция 002)."""
+        """Сообщение об ошибке (FR-042); разбирает агент (функция 002).
+
+        `known_element` — элемент уже найден по загруженному индексу (маршрут упражнения):
+        не перечитывать всё хранилище ради проверки (010, пункт 7).
+        """
         if not comment.strip():
             raise WriteError("опишите, что не так")
-        if element_id.startswith("tb-"):
+        if known_element:
+            pass
+        elif element_id.startswith("tb-"):
             if element_id not in self._content().batches:
                 raise WriteError(f"пакет заданий {element_id} не найден")
         else:

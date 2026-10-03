@@ -108,15 +108,22 @@
                           hx-include="closest form" hx-target="#exercise-solve" hx-swap="outerHTML">Показать ответ</button>
                 {% endif %}
                 {% if outcome == "fixed_self" %}<small class="muted">исправлено самостоятельно</small>{% endif %}
+                {% set report_status = report_notice.get(item.id) %}
+                {% if item.id in reported %}<small class="reported-mark" lang="ru">✉ сообщение отправлено</small>{% endif %}
+                {% if report_status %}
+                  <p class="report-status {{ 'flash' if report_status[1] else 'flash flash-error' }}" role="status">{{ report_status[0] }}</p>
+                {% endif %}
                 {% if report_url %}
-                  <details class="disagree"><summary>Не согласна с ответом</summary>
+                  <details class="disagree"{% if report_status and not report_status[1] %} open{% endif %}><summary>Не согласна с ответом</summary>
                     <p class="muted">Правильный ответ:
                       {% if mark == "revealed" or current == "correct" %}<span lang="fr">{{ answer_text }}</span>
                       {% else %}откроется по кнопке «Показать ответ» (будет засчитан как подсмотренный){% endif %}
                       <small class="origin-badge origin-{{ answer_origin }}">{{ ORIGIN_NAMES[answer_origin] }}</small></p>
                     <textarea name="comment-{{ item.id }}" rows="2" placeholder="Почему ответ неверный?"></textarea>
-                    <button type="button" class="small" hx-post="{{ report_url }}/{{ item.id }}/report"
-                            hx-include="closest form" hx-target="#exercise-solve" hx-swap="outerHTML">Отправить сообщение</button>
+                    {# 010 пункт 7: сразу видно, что отправка идёт; итог — у этого пункта #}
+                    <button type="button" class="small report-send" hx-post="{{ report_url }}/{{ item.id }}/report"
+                            hx-include="closest form" hx-target="#exercise-solve" hx-swap="outerHTML"
+                            hx-disabled-elt="this"><span class="when-idle">Отправить сообщение</span><span class="when-busy">Отправляю…</span></button>
                   </details>
                 {% endif %}
               </div>

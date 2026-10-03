@@ -150,6 +150,13 @@
 .new-words { display: block; color: var(--muted); line-height: 1.5; }
 .solve-buttons { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
 .solve-summary { font-weight: 700; }
+/* 010 пункт 7: отправка сообщения «Не согласна с ответом» */
+.report-send .when-busy { display: none; }
+.report-send.htmx-request .when-idle, .report-send[disabled] .when-idle { display: none; }
+.report-send.htmx-request .when-busy, .report-send[disabled] .when-busy { display: inline; }
+.report-status { margin: .4rem 0; font-size: .9rem; line-height: 1.4; }
+.reported-mark { color: var(--q); margin-left: .4rem; }
+
 /* 010 пункт 4: панель букв — под полем, в котором курсор (symbols.js), а не наверху */
 .solve-form .symbol-panel { justify-content: flex-start; margin: .35rem 0 .2rem; line-height: 1.2; }
 .solve-form .symbol-panel[hidden] { display: none; }

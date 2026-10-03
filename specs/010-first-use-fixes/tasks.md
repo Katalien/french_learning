@@ -121,11 +121,11 @@ description: "Task list for 010 — правки после первого ис�
 
 **Independent Test**: quickstart §11
 
-- [ ] T034 [P] [US5] Тест в tests/integration/test_exercise_report_status.py: отправка — ответ содержит `.report-status` внутри `#item-{n}` с текстом «Сообщение сохранено», метку «сообщение отправлено» у пункта, ответы в полях сохранены, в хранилище один `reports/*.yaml`; пустой комментарий — подсказка «Напишите, почему ответ неверный» у пункта, файлов нет; ошибка записи (`WriteError` через monkeypatch) — «Сообщение не отправлено: …» внутри `#item-{n}`
-- [ ] T035 [P] [US5] Тест в tests/unit/test_writer.py: `create_report(..., known_element=True)` не вызывает `load_content` (monkeypatch), без флага — проверка как раньше
-- [ ] T036 [US5] src/french_learning/content/writer.py: параметр `known_element: bool = False` в `create_report` — пропустить `_element` / проверку пакета
-- [ ] T037 [US5] src/french_learning/web/routes/exercises.py `report_item`: пустой комментарий → подсказка у пункта; вызов с `known_element=True`; в контекст `report_notice={item_id: текст}`; `solve_context` — множество `reported_items` из открытых `index.reports()` для упражнения (+ только что отправленный пункт)
-- [ ] T038 [US5] src/french_learning/web/templates/exercises/solve.html: кнопка с `hx-disabled-elt="this"` и индикатором «Отправляю…»; `.report-status` в `item-actions` пункта; метка «✉ сообщение отправлено»; стили в src/french_learning/web/static/css/screens.css
+- [X] T034 [P] [US5] Тест в tests/integration/test_exercise_report_status.py: отправка — ответ содержит `.report-status` внутри `#item-{n}` с текстом «Сообщение сохранено», метку «сообщение отправлено» у пункта, ответы в полях сохранены, в хранилище один `reports/*.yaml`; пустой комментарий — подсказка «Напишите, почему ответ неверный» у пункта, файлов нет; ошибка записи (`WriteError` через monkeypatch) — «Сообщение не отправлено: …» внутри `#item-{n}`
+- [X] T035 [P] [US5] Тест в tests/unit/test_writer.py: `create_report(..., known_element=True)` не вызывает `load_content` (monkeypatch), без флага — проверка как раньше
+- [X] T036 [US5] src/french_learning/content/writer.py: параметр `known_element: bool = False` в `create_report` — пропустить `_element` / проверку пакета
+- [X] T037 [US5] src/french_learning/web/routes/exercises.py `report_item`: пустой комментарий → подсказка у пункта; вызов с `known_element=True`; в контекст `report_notice={item_id: текст}`; `solve_context` — множество `reported_items` из открытых `index.reports()` для упражнения (+ только что отправленный пункт)
+- [X] T038 [US5] src/french_learning/web/templates/exercises/solve.html: кнопка с `hx-disabled-elt="this"` и индикатором «Отправляю…»; `.report-status` в `item-actions` пункта; метка «✉ сообщение отправлено»; стили в src/french_learning/web/static/css/screens.css
 
 **Checkpoint**: quickstart §11
 

@@ -135,3 +135,20 @@ def test_set_exercise_status_commits(repo: Path):
         writer(repo).set_exercise_status("ex-gapchoic", "wrong")
     with pytest.raises(WriteError):
         writer(repo).set_exercise_status("th-articles", "optional")
+
+
+def test_create_report_for_known_element_skips_reading_content(repo: Path, monkeypatch):
+    """010 пункт 7: маршрут уже проверил упражнение — полное чтение хранилища не нужно."""
+    import french_learning.content.writer as writer_module
+
+    def forbidden(_root):
+        raise AssertionError("load_content не должен вызываться")
+
+    monkeypatch.setattr(writer_module, "load_content", forbidden)
+    report, _result = writer(repo).create_report("ex-gapchoic", 1, "опечатка", known_element=True)
+    assert (repo / "reports" / f"{report.id}.yaml").exists()
+
+
+def test_create_report_checks_element_by_default(repo: Path):
+    with pytest.raises(WriteError):
+        writer(repo).create_report("ex-nonexist", 1, "опечатка")

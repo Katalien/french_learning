@@ -39,7 +39,7 @@ def test_disagree_needs_comment(client):
     html = client.post(
         "/exercises/ex-gapchoic/items/1/report", data={"comment-1": " "}, headers=HX
     ).text
-    assert "опишите" in html
+    assert "Напишите, почему ответ неверный" in html  # 010: подсказка у пункта
 
 
 def test_change_status_recounts_lesson(client):
@@ -53,3 +53,56 @@ def test_change_status_recounts_lesson(client):
     total_after = int(re.search(r"Домашка</span><strong>\d+ из (\d+)", after)[1])
     assert total_after == total_before - 1
     assert "ex-multigap" in client.get("/lessons/1/reserve").text
+
+
+# --- 010 пункт 7: видно, что сообщение отправлено ---------------------------------------------
+
+
+def item_block(html: str, item_id: int) -> str:
+    start = html.index(f'id="item-{item_id}"')
+    end = html.find('id="item-', start + 10)
+    return html[start : end if end != -1 else html.index("</ol>", start)]
+
+
+def report(client, comment: str) -> str:
+    client.post("/exercises/ex-gapchoic/check", data={"i1.1": "la"}, headers=HX)
+    return client.post(
+        "/exercises/ex-gapchoic/items/1/report",
+        data={"i1.1": "la", "comment-1": comment},
+        headers=HX,
+    ).text
+
+
+def test_report_confirmation_inside_item(client, content_root):
+    before = len(list((content_root / "reports").glob("rep-*.yaml")))
+    html = report(client, "На листе написано la")
+    block = item_block(html, 1)
+    assert 'class="report-status' in block and "Сообщение сохранено" in block
+    assert "сообщение отправлено" in block
+    assert 'value="la"' in block
+    assert len(list((content_root / "reports").glob("rep-*.yaml"))) == before + 1
+    # метка остаётся и при следующем открытии упражнения
+    assert "сообщение отправлено" in item_block(client.get("/elements/ex-gapchoic").text, 1)
+
+
+def test_report_empty_comment_hint_inside_item(client, content_root):
+    before = len(list((content_root / "reports").glob("rep-*.yaml")))
+    block = item_block(report(client, "  "), 1)
+    assert "Напишите, почему ответ неверный" in block
+    assert len(list((content_root / "reports").glob("rep-*.yaml"))) == before
+
+
+def test_report_write_error_inside_item(client, monkeypatch):
+    from french_learning.content.writer import ContentWriter, WriteError
+
+    def broken(*_args, **_kwargs):
+        raise WriteError("диск недоступен")
+
+    monkeypatch.setattr(ContentWriter, "create_report", broken)
+    block = item_block(report(client, "текст"), 1)
+    assert "Сообщение не отправлено: диск недоступен" in block
+
+
+def test_report_button_shows_sending_state(client):
+    html = client.post("/exercises/ex-gapchoic/check", data={"i1.1": "la"}, headers=HX).text
+    assert 'hx-disabled-elt="this"' in html and "Отправляю…" in html

@@ -46,5 +46,7 @@ def element_page(request: Request, element_id: str, index: Index, fragment: int 
     if element.kind == "exercise" and store is not None:
         from french_learning.web.routes.exercises import solve_context
 
-        context.update(solve_context(request, element, store.current(element_id)), solve_mode=True)
+        context.update(
+            solve_context(request, element, store.current(element_id), index), solve_mode=True
+        )
     return templates.TemplateResponse(request, "element.html", context)
