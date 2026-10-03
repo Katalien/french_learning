@@ -137,9 +137,9 @@ description: "Task list for 010 — правки после первого ис�
 
 **Independent Test**: урок → «В классе» — «✓ выполнено» у всех
 
-- [ ] T039 [P] [US6] Тест в tests/integration/test_lessons_pages.py: `/lessons/{n}/tasks?part=class` — у всех упражнений «✓ выполнено» без попыток; домашка — только проверенные; меню урока (`lesson_tree`) — классные отмечены; сводка домашки не меняется
-- [ ] T040 [US6] src/french_learning/content/index.py: функция `exercise_done(e, progress)`; использовать в `lesson_tree`
-- [ ] T041 [US6] src/french_learning/web/routes/lessons.py: множество `done` через `exercise_done`
+- [X] T039 [P] [US6] Тест в tests/integration/test_lessons_pages.py: `/lessons/{n}/tasks?part=class` — у всех упражнений «✓ выполнено» без попыток; домашка — только проверенные; меню урока (`lesson_tree`) — классные отмечены; сводка домашки не меняется
+- [X] T040 [US6] src/french_learning/content/index.py: функция `exercise_done(e, progress)`; использовать в `lesson_tree`
+- [X] T041 [US6] src/french_learning/web/routes/lessons.py: множество `done` через `exercise_done`
 
 **Checkpoint**: quickstart §12
 

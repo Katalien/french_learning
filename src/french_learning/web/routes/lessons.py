@@ -4,7 +4,7 @@ from typing import Literal
 
 from fastapi import APIRouter, Request
 
-from french_learning.content.index import ContentIndex
+from french_learning.content.index import ContentIndex, exercise_done
 from french_learning.web.deps import Index, not_found, show_origin
 from french_learning.web.templating import templates
 
@@ -98,7 +98,7 @@ def lesson_tasks(
         part=part,
         exercises=visible,
         has_reserve=len(visible) < len(exercises),
-        done={e.id for e in visible if request.app.state.progress.is_done(e.id)},
+        done={e.id for e in visible if exercise_done(e, request.app.state.progress)},
         list_view=_list_view(request),
     )
     template = "partials/task_list.html" if request.headers.get("HX-Request") else "tasks.html"

@@ -32,7 +32,7 @@ def test_homework_tab_titles_and_optional_mark(client):
 
 def test_class_tab(client):
     html = client.get("/lessons/1/tasks?part=class").text
-    assert re.search(r'class="num">1</span>.*?Вставить определённый артикль', html, re.S)
+    assert re.search(r'class="num[^"]*">1</span>.*?Вставить определённый артикль', html, re.S)
     assert "Спрягать" not in html  # это урок 2
 
 
@@ -54,3 +54,19 @@ def test_lesson_without_theory(client):
 
 def test_unknown_lesson_404(client):
     assert client.get("/lessons/99").status_code == 404
+
+
+def test_class_exercises_always_done(client):
+    """010 пункт 12: упражнения «В классе» выполнены без попыток; домашка — как раньше."""
+    html = client.get("/lessons/1/tasks?part=class").text
+    for exercise_id in ("ex-choicecf", "ex-gapchoic", "ex-gapinput", "ex-truefals"):
+        row = html.split(f'class="ex-item" href="/elements/{exercise_id}"', 1)[1].split("</a>", 1)[
+            0
+        ]
+        assert "✓ выполнено" in row, exercise_id
+    homework = client.get("/lessons/1/tasks?part=homework").text
+    assert "✓ выполнено" not in homework
+    menu = client.get("/elements/ex-gapchoic").text
+    drawer = menu.split('id="lesson-menu"', 1)[1]
+    row = drawer.split('href="/elements/ex-gapinput"', 1)[1].split("</a>", 1)[0]
+    assert 'class="done"' in row
