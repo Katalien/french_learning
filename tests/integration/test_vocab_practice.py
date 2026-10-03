@@ -147,3 +147,38 @@ def test_show_route_renders_flipped_card(client):
     session = start(client).rsplit("/", 1)[-1]
     html = client.post(f"/practice/{session}/show").text
     assert re.search(r'class="flashcard flip-card[^"]* flipped"', html)
+
+
+def only_eau_session(client, method="self") -> str:
+    """Сеанс «русский → французский» только со словом l'eau (f); прочие — «Знаю»."""
+    cards = client.app.state.cards
+    cards.sync(client.app.state.store.get())
+    for card in cards.all():
+        if card.entry_id != "voc-eauaaaaa":
+            cards.set_known(card.entry_id, True)
+    return start(client, mode="all", direction="ru_fr", method=method).rsplit("/", 1)[-1]
+
+
+def test_ru_fr_card_hides_gender_until_shown(client):
+    """010 пункт 2: лицевая сторона ru_fr не выдаёт род ни цветом, ни меткой."""
+    session = only_eau_session(client)
+    html = client.get(f"/practice/{session}").text
+    front, back = html.split('class="flip-face flip-back', 1)
+    front = front.split('class="flashcard', 1)[1]
+    assert 'class="flip-face neutral"' in front
+    assert "gender-tag" not in front
+    assert 'class="gender-tag">f<' in back.split("</article>", 1)[0]
+
+
+def test_fr_ru_card_keeps_gender_on_front(client):
+    html = client.get(start(client, mode="topic", topic="top-maisonxx")).text
+    front = html.split('class="flip-face flip-back', 1)[0]
+    assert "neutral" not in front and "gender-tag" in front
+
+
+def test_ru_fr_input_card_neutral_before_answer(client):
+    session = only_eau_session(client, method="input")
+    html = client.get(f"/practice/{session}").text
+    assert 'class="flashcard gender-none' in html and "gender-tag" not in html
+    result = client.post(f"/practice/{session}/answer", data={"answer": "l'eau"}).text
+    assert 'class="flashcard gender-f' in result

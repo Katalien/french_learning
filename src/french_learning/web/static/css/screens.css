@@ -346,6 +346,7 @@
 .flashcard.gender-m .stripe { background: var(--m); }
 .flashcard.gender-f .stripe { background: var(--f); }
 .flashcard.gender-both .stripe { background: linear-gradient(90deg, var(--m), var(--f)); }
+.flashcard .flip-face.neutral .stripe { background: var(--line); }  /* 010: ru_fr без рода */
 .gender-tag { font-size: .8rem; font-weight: 700; color: var(--muted); }
 .gender-m .gender-tag { color: var(--m); } .gender-f .gender-tag { color: var(--f); }
 .flashcard .question { font-size: 2.1rem; font-weight: 700; margin: 0; line-height: 1.2; }

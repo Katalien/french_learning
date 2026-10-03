@@ -75,9 +75,9 @@ description: "Task list for 010 — правки после первого ис�
 
 **Independent Test**: сеанс ru_fr со словом f — лицевая сторона нейтральная; после переворота — цвет и метка
 
-- [ ] T021 [P] [US2] Тест в tests/integration/test_vocab_practice.py: карточка ru_fr (самооценка) — лицевая `.flip-face` с классом `neutral` и без `.gender-tag`, обратная — `.gender-tag` с родом; режим ввода ru_fr до проверки — `gender-none`, после ответа — `gender-f`; fr_ru — без изменений
-- [ ] T022 [US2] src/french_learning/web/templates/vocab/practice_card.html: класс `neutral` на лицевой стороне при `direction == "ru_fr"`, метка рода на обратной стороне ru_fr; в режиме ввода класс рода только после показа/проверки
-- [ ] T023 [P] [US2] src/french_learning/web/static/css/screens.css: `.flip-face.neutral .stripe` — нейтральный цвет (как `gender-none`)
+- [X] T021 [P] [US2] Тест в tests/integration/test_vocab_practice.py: карточка ru_fr (самооценка) — лицевая `.flip-face` с классом `neutral` и без `.gender-tag`, обратная — `.gender-tag` с родом; режим ввода ru_fr до проверки — `gender-none`, после ответа — `gender-f`; fr_ru — без изменений
+- [X] T022 [US2] src/french_learning/web/templates/vocab/practice_card.html: класс `neutral` на лицевой стороне при `direction == "ru_fr"`, метка рода на обратной стороне ru_fr; в режиме ввода класс рода только после показа/проверки
+- [X] T023 [P] [US2] src/french_learning/web/static/css/screens.css: `.flip-face.neutral .stripe` — нейтральный цвет (как `gender-none`)
 
 **Checkpoint**: quickstart §5
 
