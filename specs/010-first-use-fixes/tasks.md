@@ -147,10 +147,10 @@ description: "Task list for 010 — правки после первого ис�
 
 ## Phase 9: Polish & Cross-Cutting
 
-- [ ] T042 Полный прогон `uv run pytest`, `uv run ruff check .`, `uv run ruff format .`, `uv run python scripts/check_no_content.py`
-- [ ] T043 Проверка на демо (порт 8010) по quickstart.md §1–13 в браузере, включая 375 px; скриншоты пользователю
-- [ ] T044 [P] CHANGELOG.md — раздел версии 0.9.0 «на приёмке» со всеми 12 пунктами и отказом от поэтапного режима
-- [ ] T045 [P] Документация: CLAUDE.md (если меняется описание), specs/003-vocabulary-flashcards/spec.md — пометка, что поэтапный режим отменён 010; docs/roadmap.md — «Текущее состояние»
+- [X] T042 Полный прогон `uv run pytest`, `uv run ruff check .`, `uv run ruff format .`, `uv run python scripts/check_no_content.py`
+- [X] T043 Проверка на демо (порт 8010) по quickstart.md §1–13 в браузере, включая 375 px; скриншоты пользователю
+- [X] T044 [P] CHANGELOG.md — раздел версии 0.9.0 «на приёмке» со всеми 12 пунктами и отказом от поэтапного режима
+- [X] T045 [P] Документация: CLAUDE.md (если меняется описание), specs/003-vocabulary-flashcards/spec.md — пометка, что поэтапный режим отменён 010; docs/roadmap.md — «Текущее состояние»
 - [ ] T046 После «принимаю»: влить в `main`, отправить на GitHub, `update-app.ps1`; roadmap 010 ✅
 
 ---
