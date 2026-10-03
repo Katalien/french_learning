@@ -19,7 +19,7 @@ if (-not (Test-App)) {
     $uv = Join-Path $env:USERPROFILE ".local\bin\uv.exe"
     if (-not (Test-Path $uv)) { $uv = "uv" }
     New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
-    Start-Process -FilePath $uv -ArgumentList "run", "french-learning", "serve" `
+    Start-Process -FilePath $uv -ArgumentList "run", "python", "-m", "french_learning.cli", "serve" `
         -WorkingDirectory $Root -WindowStyle Hidden `
         -RedirectStandardOutput (Join-Path $LogDir "server.log") `
         -RedirectStandardError (Join-Path $LogDir "server-errors.log")
