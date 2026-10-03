@@ -89,3 +89,54 @@ def test_list_view_setting(client):
     )
     assert 'class="ex-list tiles"' in client.get("/lessons/1/tasks?part=class").text
     assert client.app.state.progress_db.get_setting("exercise_list_view") == "tiles"
+
+
+# --- 010: панель букв, «рядом», картинка (пункты 4, 9, 10) ------------------------------------
+
+
+def test_symbol_panel_floats_under_field(client):
+    html = client.get("/elements/ex-gapinput").text
+    assert html.count('class="symbol-panel"') == 1
+    assert re.search(r'class="symbol-panel"[^>]*data-floating[^>]*hidden', html)
+
+
+def test_no_duplicate_links_to_theory_and_text(client):
+    for exercise_id in ("ex-gapchoic", "ex-choicecf"):
+        html = client.get(f"/elements/{exercise_id}").text
+        assert "Теория к упражнению" not in html and "Текст к упражнению" not in html
+    theory = client.get("/elements/ex-gapchoic").text
+    assert "Теория рядом" in theory and 'data-beside-default="th-articles"' in theory
+    text = client.get("/elements/ex-choicecf").text
+    assert "Текст рядом" in text and 'data-beside-default="tx-aucafeaa"' in text
+    fragment = client.get("/elements/th-articles?fragment=1").text  # содержимое панели «рядом»
+    assert 'href="/elements/th-articles"' in fragment and "Открыть отдельной страницей" in fragment
+    assert "data-beside-default" not in client.get("/elements/ex-gapinput").text
+
+
+def test_text_is_default_beside_when_both(client, content_root):
+    path = content_root / "lessons/001/exercises/ex-gapchoic.yaml"
+    path.write_text(
+        path.read_text(encoding="utf-8").replace(
+            "links: {theory: th-articles}", "links: {theory: th-articles, text: tx-aucafeaa}"
+        ),
+        encoding="utf-8",
+    )
+    assert 'data-beside-default="tx-aucafeaa"' in client.get("/elements/ex-gapchoic").text
+
+
+def test_picture_button_for_all_exercises_with_image(client):
+    optional = client.get("/elements/ex-gapinput").text
+    assert 'class="exercise-source"' in optional and "Показать картинку" in optional
+    assert "?? false }" in optional  # свёрнута по умолчанию
+    required = client.get("/elements/ex-picturea").text
+    assert 'class="exercise-source"' in required and "?? true }" in required
+
+
+def test_no_picture_for_non_image_source(client, content_root):
+    path = content_root / "lessons/001/exercises/ex-gapinput.yaml"
+    path.write_text(
+        path.read_text(encoding="utf-8").replace("sources/sheet.jpg", "sources/sheet.docx"),
+        encoding="utf-8",
+    )
+    html = client.get("/elements/ex-gapinput").text
+    assert 'class="exercise-source"' not in html

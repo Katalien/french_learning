@@ -150,8 +150,9 @@
 .new-words { display: block; color: var(--muted); line-height: 1.5; }
 .solve-buttons { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
 .solve-summary { font-weight: 700; }
-.solve-form .symbol-panel { justify-content: flex-start; position: sticky; top: 0; z-index: 2;
-  background: var(--bg); padding: 0.3rem 0; }
+/* 010 пункт 4: панель букв — под полем, в котором курсор (symbols.js), а не наверху */
+.solve-form .symbol-panel { justify-content: flex-start; margin: .35rem 0 .2rem; line-height: 1.2; }
+.solve-form .symbol-panel[hidden] { display: none; }
 .exercise-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
 .exercise-toolbar form { margin: 0; }
 .done-mark { color: var(--ok); font-size: 0.85rem; margin-left: 0.4rem; }

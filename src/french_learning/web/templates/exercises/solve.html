@@ -3,12 +3,19 @@
 {% set source = e.sources[0] if e.sources is defined and e.sources else none %}
 {% set checked = attempt and attempt.checked %}
 {% set text_input = e.type in ("gap_input", "multi_gap", "transform", "picture", "open") %}
-<div id="exercise-solve" class="exercise solve{% if e.show_source is defined and e.show_source %} with-source{% endif %}" x-data="{ reference: false, picture: true }">
-  {% if e.show_source is defined and e.show_source and source and source.file %}
+{# 010 пункт 10: картинка исходного листа — у любого упражнения, если источник — картинка;
+   обязательная (show_source) открыта сразу, остальные свёрнуты #}
+{% set required_picture = e.show_source is defined and e.show_source %}
+{% set has_picture = source and source.file and source.file.lower().endswith((".jpg", ".jpeg", ".png", ".webp", ".gif")) %}
+<div id="exercise-solve" class="exercise solve" :class="{ 'with-source': picture }"
+     x-data="{ reference: false,
+               picture: (window.picturesOpen ??= {})['{{ e.id }}'] ?? {{ 'true' if has_picture and required_picture else 'false' }} }"
+     x-effect="window.picturesOpen['{{ e.id }}'] = picture">
+  {% if has_picture %}
     <figure class="exercise-source" :class="{ collapsed: !picture }">
       <button type="button" class="btn-text small picture-toggle" @click="picture = !picture"
-              x-text="picture ? 'Свернуть картинку' : 'Показать картинку'">Свернуть картинку</button>
-      <img src="/sources/{{ source.file }}" alt="Исходный лист упражнения" x-show="picture">
+              x-text="picture ? 'Свернуть картинку' : 'Показать картинку'">{{ "Свернуть картинку" if required_picture else "Показать картинку" }}</button>
+      <img src="/sources/{{ source.file }}" alt="Исходный лист упражнения" x-show="picture"{% if not required_picture %} x-cloak loading="lazy"{% endif %}>
     </figure>
   {% endif %}
 
@@ -24,10 +31,6 @@
     {% else %}
       <p class="instruction">{{ e.instruction_ru }}</p>
     {% endif %}
-    {% if e.links is defined %}
-      {% if e.links.text %}<p><a href="/elements/{{ e.links.text }}">📖 Текст к упражнению</a></p>{% endif %}
-      {% if e.links.theory %}<p><a href="/elements/{{ e.links.theory }}">📘 Теория к упражнению</a></p>{% endif %}
-    {% endif %}
     {% if e.reference is defined and e.reference %}
       <button type="button" class="outline secondary small" @click="reference = !reference"
               x-text="reference ? 'Скрыть справку' : 'Справка'">Справка</button>
@@ -40,7 +43,8 @@
       <span hidden hx-post="{{ base }}/draft" hx-include="closest form" hx-swap="none"
             hx-trigger="input from:closest form delay:1500ms, change from:closest form delay:1500ms"></span>
       {% if text_input %}
-        <div class="symbol-panel" aria-label="Французские символы">
+        {# 010 пункт 4: панель одна; symbols.js показывает её под полем, где курсор #}
+        <div class="symbol-panel" aria-label="Французские символы" data-floating hidden>
           {% for ch in symbols %}<button type="button" class="symbol" data-char="{{ ch }}" tabindex="-1">{{ ch }}</button>{% endfor %}
         </div>
       {% endif %}

@@ -104,12 +104,12 @@ description: "Task list for 010 — правки после первого ис�
 
 **Independent Test**: quickstart §8–10
 
-- [ ] T028 [P] [US4] Тест в tests/integration/test_exercise_layout.py: в упражнении с вводом одна `.symbol-panel` с атрибутом `hidden` и `data-floating`; нет текстов «Теория к упражнению» / «Текст к упражнению»; есть кнопки «Теория рядом» / «Текст рядом» и ссылка «Открыть отдельной страницей» в панели; атрибут автозапуска «рядом» указывает на текст, если он есть, иначе на теорию
-- [ ] T029 [P] [US4] Тест в tests/integration/test_exercise_layout.py: упражнение `show_source: false` с картинкой-источником — блок `.exercise-source` и кнопка «Показать картинку», начальное состояние свёрнуто; `type: picture` — открыто; источник docx/pdf или без файла — блока нет
-- [ ] T030 [US4] src/french_learning/web/templates/exercises/solve.html: убрать ссылки `📖`/`📘`; панель букв `hidden data-floating`; блок картинки при файле-картинке, `x-data` `picture: {{ show_source }}`, `:class` сетки `with-source` только при открытой картинке (research R10)
-- [ ] T031 [US4] src/french_learning/web/static/js/symbols.js: перенос панели `[data-floating]` в конец `li` поля при `focusin`, скрытие при уходе фокуса из полей формы; поведение вставки символа не меняется; после HTMX-замены формы — работает (делегирование событий)
-- [ ] T032 [US4] src/french_learning/web/static/css/screens.css: убрать `position: sticky` у `.solve-form .symbol-panel`; стиль панели под полем
-- [ ] T033 [US4] src/french_learning/web/templates/element.html: автозапуск «рядом» на ≥ 900 px (`x-init` + `matchMedia`, текст → иначе теория), ссылка «Открыть отдельной страницей» (`:href="'/elements/' + shown"`) в `.side-pane-bar`
+- [X] T028 [P] [US4] Тест в tests/integration/test_exercise_layout.py: в упражнении с вводом одна `.symbol-panel` с атрибутом `hidden` и `data-floating`; нет текстов «Теория к упражнению» / «Текст к упражнению»; есть кнопки «Теория рядом» / «Текст рядом» и ссылка «Открыть отдельной страницей» в панели; атрибут автозапуска «рядом» указывает на текст, если он есть, иначе на теорию
+- [X] T029 [P] [US4] Тест в tests/integration/test_exercise_layout.py: упражнение `show_source: false` с картинкой-источником — блок `.exercise-source` и кнопка «Показать картинку», начальное состояние свёрнуто; `type: picture` — открыто; источник docx/pdf или без файла — блока нет
+- [X] T030 [US4] src/french_learning/web/templates/exercises/solve.html: убрать ссылки `📖`/`📘`; панель букв `hidden data-floating`; блок картинки при файле-картинке, `x-data` `picture: {{ show_source }}`, `:class` сетки `with-source` только при открытой картинке (research R10)
+- [X] T031 [US4] src/french_learning/web/static/js/symbols.js: перенос панели `[data-floating]` в конец `li` поля при `focusin`, скрытие при уходе фокуса из полей формы; поведение вставки символа не меняется; после HTMX-замены формы — работает (делегирование событий)
+- [X] T032 [US4] src/french_learning/web/static/css/screens.css: убрать `position: sticky` у `.solve-form .symbol-panel`; стиль панели под полем
+- [X] T033 [US4] src/french_learning/web/templates/element.html: автозапуск «рядом» на ≥ 900 px (`x-init` + `matchMedia`, текст → иначе теория), ссылка «Открыть отдельной страницей» (`:href="'/elements/' + shown"`) в `.side-pane-bar`
 
 **Checkpoint**: quickstart §8–10, §13
 

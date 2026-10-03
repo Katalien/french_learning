@@ -2,7 +2,7 @@
 <div class="side-pane-body reading" {% if element.kind == "text" %}lang="fr"{% endif %}>
   <div class="side-pane-head">
     <strong {% if element.kind == "text" %}lang="fr"{% endif %}>{{ element.title }}</strong>
-    <a href="/elements/{{ element.id }}" class="small">открыть отдельно</a>
+    <a href="/elements/{{ element.id }}" class="small">Открыть отдельной страницей</a>
   </div>
   <div data-translate {% if element.lesson %}data-lesson="{{ element.lesson }}"{% endif %} {% if notes_json is defined %}data-note-container="{{ element.id }}"{% endif %}>{{ element.body | markdown(path, element.id) }}</div>
 </div>

@@ -16,8 +16,6 @@
       </p>
     {% endif %}
 
-    {% if e.links.text %}<p><a href="/elements/{{ e.links.text }}">📖 Текст к упражнению</a></p>{% endif %}
-    {% if e.links.theory %}<p><a href="/elements/{{ e.links.theory }}">📘 Теория к упражнению</a></p>{% endif %}
 
     {% if e.reference %}
       <button type="button" class="outline secondary small" @click="reference = !reference"
