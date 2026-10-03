@@ -4,7 +4,7 @@ import re
 
 
 def links(html: str) -> set[str]:
-    return set(re.findall(r'href="/vocab/(voc-[a-z2-7]{8})"', html))
+    return set(re.findall(r'href="/vocab/(voc-[a-z2-7]{8})(?:\?[^"]*)?"', html))
 
 
 def test_dictionary_list_and_filters(client):
@@ -78,3 +78,34 @@ def test_entry_details_layout(client):
     assert "уроки 1, 2" in meta and "повторений ещё не было" in meta
     assert "последнее" not in html
     assert "<h3>Уроки</h3>" not in html and "<h3>Повторения</h3>" not in html
+
+
+def word_links(html: str) -> list[str]:
+    return re.findall(r'href="/vocab/(voc-[a-z]+)(?:\?[^"]*)?" class="dict-word"', html)
+
+
+def test_list_links_keep_filters(client):
+    """010 пункт 1: слово открывается с фильтрами списка — для переходов «‹ ›»."""
+    html = client.get("/vocab?lesson=2").text
+    assert re.search(r'href="/vocab/voc-[a-z]+\?lesson=2" class="dict-word"', html)
+    assert re.search(r'href="/vocab/voc-[a-z]+" class="dict-word"', client.get("/vocab").text)
+
+
+def test_entry_neighbours_follow_filtered_list(client):
+    ids = word_links(client.get("/vocab?lesson=2").text)
+    assert len(ids) == 2
+    first = client.get(f"/vocab/{ids[0]}?lesson=2").text
+    assert "1 из 2" in first
+    assert 'class="arrow prev disabled"' in first
+    assert f'href="/vocab/{ids[1]}?lesson=2"' in first and 'class="arrow next"' in first
+    second = client.get(f"/vocab/{ids[1]}?lesson=2").text
+    assert "2 из 2" in second
+    assert f'href="/vocab/{ids[0]}?lesson=2"' in second
+    assert 'class="arrow next disabled"' in second
+
+
+def test_entry_without_filters_uses_whole_dictionary(client):
+    ids = word_links(client.get("/vocab").text)
+    html = client.get(f"/vocab/{ids[1]}").text
+    assert f"2 из {len(ids)}" in html
+    assert f'href="/vocab/{ids[0]}"' in html and f'href="/vocab/{ids[2]}"' in html

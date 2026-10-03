@@ -89,10 +89,10 @@ description: "Task list for 010 — правки после первого ис�
 
 **Independent Test**: фильтр по уроку → второе слово → «›» — третье, «‹» — первое
 
-- [ ] T024 [P] [US3] Тест в tests/integration/test_vocab_pages.py: ссылки списка `/vocab?lesson=n` ведут на `/vocab/{id}?lesson=n…`; страница слова с параметрами — `prev`/`next` по отфильтрованному списку, «2 из M»; у первого нет активной «‹»; без параметров — по всему словарю
-- [ ] T025 [US3] src/french_learning/web/routes/vocab.py `vocab_entry`: параметры `lesson, topic, kind, filter`; список через `filter_entries` (с `known_ids`), позиция, соседи, строка запроса для ссылок
-- [ ] T026 [US3] src/french_learning/web/templates/vocab/entry.html: стрелки `.arrow.prev/.next` (как в element.html) с подписью-словом и «N из M»; src/french_learning/web/templates/vocab/list.html и src/french_learning/web/templates/partials/vocab_list.html — ссылки на слово с текущими фильтрами
-- [ ] T027 [P] [US3] src/french_learning/web/static/css/screens.css: расположение стрелок на странице слова (если стили упражнения не подходят)
+- [X] T024 [P] [US3] Тест в tests/integration/test_vocab_pages.py: ссылки списка `/vocab?lesson=n` ведут на `/vocab/{id}?lesson=n…`; страница слова с параметрами — `prev`/`next` по отфильтрованному списку, «2 из M»; у первого нет активной «‹»; без параметров — по всему словарю
+- [X] T025 [US3] src/french_learning/web/routes/vocab.py `vocab_entry`: параметры `lesson, topic, kind, filter`; список через `filter_entries` (с `known_ids`), позиция, соседи, строка запроса для ссылок
+- [X] T026 [US3] src/french_learning/web/templates/vocab/entry.html: стрелки `.arrow.prev/.next` (как в element.html) с подписью-словом и «N из M»; src/french_learning/web/templates/vocab/list.html и src/french_learning/web/templates/partials/vocab_list.html — ссылки на слово с текущими фильтрами
+- [X] T027 [P] [US3] src/french_learning/web/static/css/screens.css: расположение стрелок на странице слова (если стили упражнения не подходят)
 
 **Checkpoint**: quickstart §7
 

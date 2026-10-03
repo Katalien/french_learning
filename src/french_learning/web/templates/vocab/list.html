@@ -34,7 +34,7 @@
   {% for e in items %}
     <li class="dict-row">
       <span class="gbar g-{{ e.gender or 'none' }}" title="{{ {'m': 'мужской род', 'f': 'женский род', 'both': 'оба рода'}.get(e.gender, '') }}"></span>
-      <a href="/vocab/{{ e.id }}" class="dict-word"><span class="fr" lang="fr">{{ display_fr(e) }}</span> <span class="dict-ru">— {{ e.translations | map(attribute="text") | join(", ") }}</span>{% if e.needs_completion %} <small class="muted">· нужно дополнить</small>{% endif %}{% if e.hidden %} <small class="muted">· скрыто</small>{% endif %}</a>
+      <a href="/vocab/{{ e.id }}{% if query %}?{{ query }}{% endif %}" class="dict-word"><span class="fr" lang="fr">{{ display_fr(e) }}</span> <span class="dict-ru">— {{ e.translations | map(attribute="text") | join(", ") }}</span>{% if e.needs_completion %} <small class="muted">· нужно дополнить</small>{% endif %}{% if e.hidden %} <small class="muted">· скрыто</small>{% endif %}</a>
       {% if e.lessons %}<span class="chip">урок {{ e.lessons | join(", ") }}</span>{% endif %}
       {% with speak = display_fr(e) %}{% include "partials/speak.html" %}{% endwith %}
     </li>

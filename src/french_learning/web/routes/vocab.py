@@ -339,6 +339,7 @@ def vocab_list(
         "items": items,
         "view": "list" if view == "list" else "cards",
         "selected": {"lesson": lesson, "topic": topic, "kind": kind, "filter": filter},
+        "query": _list_query(lesson, topic, kind, filter),
         "filters": VOCAB_FILTERS,
         "kinds": {"": "все виды", "word": "слова", "verb": "глаголы", "phrase": "фразы"},
         "lessons": index.lessons(),
@@ -633,18 +634,65 @@ def settings_save(
 
 
 # Маршрут записи — последним: иначе он перехватит /vocab/add и /vocab/complete.
+def _list_query(lesson: str, topic: str, kind: str, filter: str) -> str:
+    """Фильтры списка словаря для ссылок на слово и переходов «‹ ›» (010, пункт 1)."""
+    pairs = {"lesson": lesson, "topic": topic, "kind": kind, "filter": filter}
+    return urlencode({k: v for k, v in pairs.items() if v})
+
+
+def _neighbours(index: ContentIndex, entry_id: str, known: set[str], **filters: str) -> dict:
+    """Соседи слова в списке, из которого его открыли; иначе — во всём словаре."""
+    query = _list_query(**filters)
+    lesson = filters["lesson"]
+    items = vocab_entries.filter_entries(
+        index,
+        lesson=int(lesson) if lesson.isdigit() else None,
+        topic=filters["topic"] or None,
+        kind=filters["kind"] or None,
+        flag=filters["filter"] or None,
+        known_ids=known,
+    )
+    ids = [e.id for e in items]
+    if entry_id not in ids:
+        query = ""
+        items = vocab_entries.filter_entries(index, known_ids=known)
+        ids = [e.id for e in items]
+    if entry_id not in ids:
+        return {}
+    at = ids.index(entry_id)
+    return {
+        "prev": items[at - 1] if at > 0 else None,
+        "next": items[at + 1] if at + 1 < len(items) else None,
+        "position": at + 1,
+        "total": len(items),
+        "query": query,
+    }
+
+
 @router.get("/vocab/{entry_id}")
-def vocab_entry(request: Request, entry_id: str, index: Index):
+def vocab_entry(
+    request: Request,
+    entry_id: str,
+    index: Index,
+    lesson: str = "",
+    topic: str = "",
+    kind: str = "",
+    filter: str = "",
+):
     cards, _sessions = _practice(request, index)
     entry = index.element(entry_id)
     if entry is None or entry.kind != "vocab":
         raise not_found("Слово не найдено")
+    known = cards.known_ids()
     context = {
         "index": index,
         "entry": entry,
         "display_fr": vocab_entries.display_fr,
         "indefinite": vocab_entries.indefinite(entry),
-        "known": entry_id in cards.known_ids(),
+        "known": entry_id in known,
+        "nav": _neighbours(
+            index, entry_id, known, lesson=lesson, topic=topic, kind=kind, filter=filter
+        ),
         "history": cards.history(entry_id),
         "pos_names": vocab_entries.POS_NAMES,
         "kind_names": vocab_entries.KIND_NAMES,

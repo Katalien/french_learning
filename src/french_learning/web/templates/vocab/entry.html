@@ -2,7 +2,17 @@
 {% set e = entry %}
 {% block title %}{{ display_fr(e) }}{% endblock %}
 {% block content %}
-<p class="crumbs"><a href="/vocab">Словарь</a> › {{ display_fr(e) }}</p>
+<p class="crumbs"><a href="/vocab{% if nav.query %}?{{ nav.query }}{% endif %}">Словарь</a> › {{ display_fr(e) }}
+  {% if nav %}<span class="muted small"> · {{ nav.position }} из {{ nav.total }}</span>{% endif %}</p>
+
+{# 010 пункт 1: переход к соседним словам списка — как между упражнениями #}
+{% if nav %}
+  {% set q = "?" ~ nav.query if nav.query else "" %}
+  {% if nav.prev %}<a class="arrow prev" href="/vocab/{{ nav.prev.id }}{{ q }}" title="Предыдущее: {{ display_fr(nav.prev) }}" aria-label="Предыдущее слово">‹</a>
+  {% else %}<span class="arrow prev disabled" aria-hidden="true">‹</span>{% endif %}
+  {% if nav.next %}<a class="arrow next" href="/vocab/{{ nav.next.id }}{{ q }}" title="Следующее: {{ display_fr(nav.next) }}" aria-label="Следующее слово">›</a>
+  {% else %}<span class="arrow next disabled" aria-hidden="true">›</span>{% endif %}
+{% endif %}
 
 <article class="entry gender-{{ e.gender or 'none' }}">
   <header>
