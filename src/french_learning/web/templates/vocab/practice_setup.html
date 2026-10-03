@@ -5,27 +5,44 @@
 <h1>Настройка повторения</h1>
 <p>Карточек к повторению: {{ today_count }} <span class="muted">(сегодня, французский → русский)</span></p>
 
-<form method="post" action="/practice/start" class="card practice-setup" x-data="{ mode: 'today' }">
+{# 010: из урока приходят mode=lesson&lesson=N; «Слов за подход» — здесь, а не в «Настройках»
+   (для урока и темы по умолчанию все); счётчик обновляется при смене настроек #}
+<form method="post" action="/practice/start" class="card practice-setup"
+      x-data="{ mode: '{{ selected.mode }}', topic: '{{ selected.topic or '' }}',
+               portion: '{{ '' if selected.mode in ('lesson', 'topic') else portion_size }}' }"
+      x-effect="portion = (mode === 'lesson' || mode === 'topic') ? '' : '{{ portion_size }}'"
+      @change="if ($event.target.name === 'topic') topic = $event.target.value"
+      hx-get="/practice/count" hx-trigger="change" hx-target="#practice-count" hx-include="this">
   <fieldset>
     <legend>Что повторять</legend>
     {% for key, name in modes.items() %}
-      <label><input type="radio" name="mode" value="{{ key }}" x-model="mode" {% if loop.first %}checked{% endif %}> {{ name }}</label>
+      <label><input type="radio" name="mode" value="{{ key }}" x-model="mode" {% if key == selected.mode %}checked{% endif %}> {{ name }}</label>
     {% endfor %}
   </fieldset>
   <label x-show="mode === 'lesson'" x-cloak>Урок
-    <select name="lesson">{% for l in lessons %}<option value="{{ l.number }}">Урок {{ l.number }}</option>{% endfor %}</select>
+    <select name="lesson">{% for l in lessons %}<option value="{{ l.number }}"
+      {% if l.number == selected.lesson %}selected{% endif %}>Урок {{ l.number }}</option>{% endfor %}</select>
   </label>
-  <label x-show="mode === 'topic'" x-cloak>Тема
-    <select name="topic">{% for t in topics %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}</select>
-  </label>
+  <div x-show="mode === 'topic'" x-cloak>
+    {% with name = "topic", label = "Тема", placeholder = "Начните вводить название темы",
+            value = selected.topic, options = topic_options %}
+      {% include "partials/combobox.html" %}
+    {% endwith %}
+  </div>
   <label>Вид
     <select name="kind">{% for key, name in kinds.items() %}<option value="{{ key }}">{{ name }}</option>{% endfor %}</select>
   </label>
   <label>Направление
     <select name="direction">{% for key, name in directions.items() %}<option value="{{ key }}">{{ name }}</option>{% endfor %}</select>
   </label>
+  <label>Слов за подход
+    <input type="number" name="portion" min="1" max="500" placeholder="все" x-model="portion" value="{{ '' if selected.mode in ('lesson', 'topic') else portion_size }}">
+    <small class="muted">Пусто — все слова одним подходом.</small>
+  </label>
+  <input type="hidden" name="from_setup" value="1">
   <label><input type="checkbox" name="method" value="input" role="switch"> Вводить ответ (вместо самооценки)</label>
-  <button type="submit">Начать</button>
+  <p id="practice-count" class="practice-count" aria-live="polite">{% include "vocab/partials/practice_count.html" %}</p>
+  <button type="submit" :disabled="mode === 'topic' && !topic">Начать</button>
 </form>
 
 <details class="edit-block">

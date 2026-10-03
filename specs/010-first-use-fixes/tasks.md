@@ -48,22 +48,22 @@ description: "Task list for 010 — правки после первого ис�
 
 ### Tests for User Story 1
 
-- [ ] T008 [P] [US1] Тест в tests/unit/vocab/test_sessions.py: с `random.Random(seed)` очередь режимов урок/тема/все перемешана (не равна сортировке по id) и детерминирована при одном seed; «сегодня» — сначала повторявшиеся с подошедшим сроком, затем новые, каждая группа перемешана
-- [ ] T009 [P] [US1] Тест в tests/unit/vocab/test_sessions.py: `SessionParams.portion=None` → один подход на всю очередь; `portion=5` → порции по 5; старый сеанс без поля `portion` в JSON читается
-- [ ] T010 [P] [US1] Тест в tests/integration/test_vocab_practice.py: `GET /lessons/{n}/practice` → 303 на `/practice/setup?mode=lesson&lesson={n}`; 404 для несуществующего урока; `/practice/setup?mode=lesson&lesson=n` — отмечен «По уроку» и выбран урок n, поле `portion` пусто
-- [ ] T011 [P] [US1] Тест в tests/integration/test_vocab_practice.py: `POST /practice/start` с `portion` пусто → все карточки в одном подходе; `portion=7` → подход 7 и `portion_size`=7 в настройках; `portion=0`/`abc` → ошибка формы; пустая очередь → возврат на настройку с «Нет слов для повторения»
-- [ ] T012 [P] [US1] Тест в tests/integration/test_vocab_practice.py: `GET /practice/count?mode=lesson&lesson=n&direction=ru_fr&kind=all` → число = все нескрытые слова урока без «Знаю»; при 0 — «Нет слов для повторения»
-- [ ] T013 [P] [US1] Тест в tests/integration/test_vocab_practice.py: страница настройки содержит поле темы-комбобокс (`data-combobox`, скрытое `name="topic"`, JSON списка тем) и не содержит `<select name="topic">`
+- [X] T008 [P] [US1] Тест в tests/unit/vocab/test_sessions.py: с `random.Random(seed)` очередь режимов урок/тема/все перемешана (не равна сортировке по id) и детерминирована при одном seed; «сегодня» — сначала повторявшиеся с подошедшим сроком, затем новые, каждая группа перемешана
+- [X] T009 [P] [US1] Тест в tests/unit/vocab/test_sessions.py: `SessionParams.portion=None` → один подход на всю очередь; `portion=5` → порции по 5; старый сеанс без поля `portion` в JSON читается
+- [X] T010 [P] [US1] Тест в tests/integration/test_vocab_practice.py: `GET /lessons/{n}/practice` → 303 на `/practice/setup?mode=lesson&lesson={n}`; 404 для несуществующего урока; `/practice/setup?mode=lesson&lesson=n` — отмечен «По уроку» и выбран урок n, поле `portion` пусто
+- [X] T011 [P] [US1] Тест в tests/integration/test_vocab_practice.py: `POST /practice/start` с `portion` пусто → все карточки в одном подходе; `portion=7` → подход 7 и `portion_size`=7 в настройках; `portion=0`/`abc` → ошибка формы; пустая очередь → возврат на настройку с «Нет слов для повторения»
+- [X] T012 [P] [US1] Тест в tests/integration/test_vocab_practice.py: `GET /practice/count?mode=lesson&lesson=n&direction=ru_fr&kind=all` → число = все нескрытые слова урока без «Знаю»; при 0 — «Нет слов для повторения»
+- [X] T013 [P] [US1] Тест в tests/integration/test_vocab_practice.py: страница настройки содержит поле темы-комбобокс (`data-combobox`, скрытое `name="topic"`, JSON списка тем) и не содержит `<select name="topic">`
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] src/french_learning/vocab/sessions.py: поле `portion: int | None = None` в `SessionParams`; генератор `rng` в `SessionStore.__init__` (по умолчанию `random.Random()`); перемешивание в `queue` по research R3; `start` берёт размер подхода из `params.portion` (None → длина очереди)
-- [ ] T015 [US1] src/french_learning/web/app.py (строка `SessionStore(app.state.progress_db, app.state.cards)`): генератор по умолчанию — `random.Random()`; тесты подменяют `app.state.sessions.rng`
-- [ ] T016 [US1] src/french_learning/web/routes/vocab.py: `practice_setup` принимает `mode, lesson, topic`, отдаёт `portion_size`; `lesson_practice` → 303 на настройку; `practice_start` принимает и проверяет `portion` (пусто | 1–500), сохраняет `portion_size`, пустая очередь → 303 на `/practice/setup?...&notice=Нет слов для повторения`; новый `GET /practice/count` (фрагмент)
-- [ ] T017 [P] [US1] Новый частичный шаблон src/french_learning/web/templates/partials/combobox.html: Alpine-поле с выпадающим списком, фильтр «подстрока без регистра и акцентов» (NFD), стрелки/Enter/Escape, «Ничего не найдено», скрытое поле значения (research R5)
-- [ ] T018 [US1] src/french_learning/web/templates/vocab/practice_setup.html: начальные значения из запроса, комбобокс темы, поле «Слов за подход» (placeholder «все»; Alpine: урок/тема → пусто, иначе `portion_size`), блок `#practice-count` с `hx-get="/practice/count"` по `change` формы, «Начать» неактивна при 0 или без темы в режиме «по теме»; вывод `notice`
-- [ ] T019 [P] [US1] Стили комбобокса и счётчика в src/french_learning/web/static/css/screens.css (без `.gap`, `.chips`)
-- [ ] T020 [US1] Подпись кнопки в src/french_learning/web/templates/lesson_vocab.html остаётся «Повторить слова урока»; проверить прочие ссылки на `/lessons/{n}/practice` (grep по templates)
+- [X] T014 [US1] src/french_learning/vocab/sessions.py: поле `portion: int | None = None` в `SessionParams`; генератор `rng` в `SessionStore.__init__` (по умолчанию `random.Random()`); перемешивание в `queue` по research R3; `start` берёт размер подхода из `params.portion` (None → длина очереди)
+- [X] T015 [US1] src/french_learning/web/app.py (строка `SessionStore(app.state.progress_db, app.state.cards)`): генератор по умолчанию — `random.Random()`; тесты подменяют `app.state.sessions.rng`
+- [X] T016 [US1] src/french_learning/web/routes/vocab.py: `practice_setup` принимает `mode, lesson, topic`, отдаёт `portion_size`; `lesson_practice` → 303 на настройку; `practice_start` принимает и проверяет `portion` (пусто | 1–500), сохраняет `portion_size`, пустая очередь → 303 на `/practice/setup?...&notice=Нет слов для повторения`; новый `GET /practice/count` (фрагмент)
+- [X] T017 [P] [US1] Новый частичный шаблон src/french_learning/web/templates/partials/combobox.html: Alpine-поле с выпадающим списком, фильтр «подстрока без регистра и акцентов» (NFD), стрелки/Enter/Escape, «Ничего не найдено», скрытое поле значения (research R5)
+- [X] T018 [US1] src/french_learning/web/templates/vocab/practice_setup.html: начальные значения из запроса, комбобокс темы, поле «Слов за подход» (placeholder «все»; Alpine: урок/тема → пусто, иначе `portion_size`), блок `#practice-count` с `hx-get="/practice/count"` по `change` формы, «Начать» неактивна при 0 или без темы в режиме «по теме»; вывод `notice`
+- [X] T019 [P] [US1] Стили комбобокса и счётчика в src/french_learning/web/static/css/screens.css (без `.gap`, `.chips`)
+- [X] T020 [US1] Подпись кнопки в src/french_learning/web/templates/lesson_vocab.html остаётся «Повторить слова урока»; проверить прочие ссылки на `/lessons/{n}/practice` (grep по templates)
 
 **Checkpoint**: US1 проверяется по quickstart §2–4, §6
 

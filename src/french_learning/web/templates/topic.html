@@ -39,12 +39,11 @@
     <section data-tab="{{ key }}" x-show="tab === '{{ key }}'" {% if key != current_tab %}x-cloak{% endif %}>
       {% if key == "words" %}
         {% if topic %}
-          <form method="post" action="/practice/start" class="section-head">
+          {# 010: как из урока — через страницу настройки с выбранной темой #}
+          <div class="section-head">
             <span class="muted">{{ plural(items | length, "слово", "слова", "слов") }}</span>
-            <input type="hidden" name="mode" value="topic">
-            <input type="hidden" name="topic" value="{{ topic.id }}">
-            <button type="submit">Повторить слова темы</button>
-          </form>
+            <a href="/practice/setup?mode=topic&amp;topic={{ topic.id }}" role="button">Повторить слова темы</a>
+          </div>
         {% endif %}
         <ul class="word-rows card">
           {% for w in items %}

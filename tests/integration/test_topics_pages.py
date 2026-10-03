@@ -89,8 +89,9 @@ def test_topic_tabs_with_counts(client):
     words = client.get("/topics/top-maisonxx?tab=words").text
     assert "tab: 'words'" in words
     panel = words.split('data-tab="words"', 1)[1].split("</section>", 1)[0]
-    assert 'action="/practice/start"' in panel and 'name="mode" value="topic"' in panel
-    assert 'name="topic" value="top-maisonxx"' in panel and "Повторить слова темы" in panel
+    # 010: через страницу настройки с выбранной темой
+    assert 'href="/practice/setup?mode=topic&amp;topic=top-maisonxx"' in panel
+    assert "Повторить слова темы" in panel
 
 
 def test_topic_default_tab_first_nonempty(client):

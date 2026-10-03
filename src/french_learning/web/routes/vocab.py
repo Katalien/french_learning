@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Annotated
+from urllib.parse import urlencode
 
 from fastapi import APIRouter, Form, Request
 from fastapi.responses import RedirectResponse
@@ -46,20 +47,69 @@ def _redirect(url: str) -> RedirectResponse:
     return RedirectResponse(url, status_code=303)
 
 
+def _session_params(
+    mode: str = "today",
+    kind: str = "all",
+    direction: str = "fr_ru",
+    method: str = "self",
+    lesson: str = "",
+    topic: str = "",
+    portion: int | None = None,
+) -> SessionParams:
+    return SessionParams(
+        source="dictionary",
+        mode=mode if mode in MODE_NAMES else "today",
+        kind=kind if kind in KIND_FILTERS else "all",
+        direction=direction if direction in DIRECTIONS else "fr_ru",
+        method=method,
+        lesson=int(lesson) if lesson.isdigit() else None,
+        topic=topic or None,
+        portion=portion,
+    )
+
+
 @router.get("/practice/setup")
-def practice_setup(request: Request, index: Index):
+def practice_setup(
+    request: Request, index: Index, mode: str = "today", lesson: str = "", topic: str = ""
+):
+    """Настройка повторения; из урока приходят `mode=lesson&lesson=N` (010, пункт 3)."""
     _cards, sessions = _practice(request, index)
+    params = _session_params(mode=mode, lesson=lesson, topic=topic)
     context = {
         "index": index,
         "today_count": sessions.count(index, SessionParams()),
+        "count": 0
+        if params.mode == "topic" and not params.topic
+        else sessions.count(index, params),
         "modes": MODE_NAMES,
         "kinds": KIND_FILTERS,
         "directions": DIRECTIONS,
-        "topics": index.all_topics(),
+        "topic_options": [{"value": t.id, "label": t.name} for t in index.all_topics()],
         "lessons": index.lessons(),
+        "selected": params,
+        "portion_size": request.app.state.progress_db.get_setting("portion_size") or "20",
         "last_backup": request.app.state.progress_db.get_meta("last_backup_pushed"),
     }
     return templates.TemplateResponse(request, "vocab/practice_setup.html", context)
+
+
+@router.get("/practice/count")
+def practice_count(
+    request: Request,
+    index: Index,
+    mode: str = "today",
+    kind: str = "all",
+    direction: str = "fr_ru",
+    lesson: str = "",
+    topic: str = "",
+):
+    """Сколько карточек будет в сеансе при текущих настройках (010, FR-007)."""
+    _cards, sessions = _practice(request, index)
+    params = _session_params(mode, kind, direction, lesson=lesson, topic=topic)
+    count = 0 if mode == "topic" and not topic else sessions.count(index, params)
+    return templates.TemplateResponse(
+        request, "vocab/partials/practice_count.html", {"count": count}
+    )
 
 
 @router.post("/practice/start")
@@ -72,27 +122,37 @@ def practice_start(
     method: Annotated[str, Form()] = "self",
     lesson: Annotated[str, Form()] = "",
     topic: Annotated[str, Form()] = "",
+    portion: Annotated[str, Form()] = "",
+    from_setup: Annotated[str, Form()] = "",
 ):
+    """Запуск сеанса (010). `portion` со страницы настройки (`from_setup`): пусто — все.
+
+    Без настройки (кнопки «Повторить» на «Сегодня» и в «Практике»): урок / тема — целиком,
+    прочие режимы — последнее число «слов за подход».
+    """
     _cards, sessions = _practice(request, index)
-    params = SessionParams(
-        source="dictionary",
-        mode=mode,
-        kind=kind,
-        direction=direction,
-        method=method,
-        lesson=int(lesson) if lesson else None,
-        topic=topic or None,
-    )
+    back = f"/practice/setup?{urlencode({'mode': mode, 'lesson': lesson, 'topic': topic})}"
+    size = None
+    if not from_setup and not portion.strip():
+        if mode not in ("lesson", "topic"):
+            size = int(request.app.state.progress_db.get_setting("portion_size") or 20)
+    elif portion.strip():
+        if not portion.strip().isdigit() or not 1 <= int(portion) <= 500:
+            return _redirect(f"{back}&{urlencode({'error': 'слов за подход — число от 1 до 500'})}")
+        size = int(portion)
+        request.app.state.progress_db.set_setting("portion_size", str(size))
+    params = _session_params(mode, kind, direction, method, lesson, topic, size)
+    if sessions.count(index, params) == 0:
+        return _redirect(f"{back}&{urlencode({'notice': 'Нет слов для повторения.'})}")
     return _redirect(f"/practice/{sessions.start(index, params)}")
 
 
 @router.get("/lessons/{number}/practice")
-def lesson_practice(request: Request, number: int, index: Index):
+def lesson_practice(number: int, index: Index):
+    """010, пункт 3: повторение слов урока начинается со страницы настройки."""
     if index.lesson(number) is None:
         raise not_found(f"Урок {number} не найден")
-    _cards, sessions = _practice(request, index)
-    params = SessionParams(source="lesson", mode="lesson", lesson=number)
-    return _redirect(f"/practice/{sessions.start(index, params)}")
+    return _redirect(f"/practice/setup?mode=lesson&lesson={number}")
 
 
 def _card_page(request: Request, index: ContentIndex, session_id: str, shown: bool, **extra):
