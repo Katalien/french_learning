@@ -105,23 +105,13 @@ def test_no_duplicate_links_to_theory_and_text(client):
         html = client.get(f"/elements/{exercise_id}").text
         assert "Теория к упражнению" not in html and "Текст к упражнению" not in html
     theory = client.get("/elements/ex-gapchoic").text
-    assert "Теория рядом" in theory and 'data-beside-default="th-articles"' in theory
+    assert "Теория рядом" in theory
     text = client.get("/elements/ex-choicecf").text
-    assert "Текст рядом" in text and 'data-beside-default="tx-aucafeaa"' in text
+    assert "Текст рядом" in text
+    # 2026-10-04: «рядом» по умолчанию закрыто — ничего не открывается само
+    assert "matchMedia" not in theory and "data-beside" not in theory
     fragment = client.get("/elements/th-articles?fragment=1").text  # содержимое панели «рядом»
     assert 'href="/elements/th-articles"' in fragment and "Открыть отдельной страницей" in fragment
-    assert "data-beside-default" not in client.get("/elements/ex-gapinput").text
-
-
-def test_text_is_default_beside_when_both(client, content_root):
-    path = content_root / "lessons/001/exercises/ex-gapchoic.yaml"
-    path.write_text(
-        path.read_text(encoding="utf-8").replace(
-            "links: {theory: th-articles}", "links: {theory: th-articles, text: tx-aucafeaa}"
-        ),
-        encoding="utf-8",
-    )
-    assert 'data-beside-default="tx-aucafeaa"' in client.get("/elements/ex-gapchoic").text
 
 
 def test_picture_button_for_all_exercises_with_image(client):

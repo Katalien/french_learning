@@ -106,16 +106,15 @@
 {% if e.kind == "exercise" %}
   {% macro beside(target_id, label, hide) -%}
     <button type="button" class="outline small" x-show="!split || shown !== '{{ target_id }}'"
-            {% if target_id == (e.links.text or e.links.theory) %}data-beside{% endif %}
             hx-get="/elements/{{ target_id }}?fragment=1" hx-target="#side-pane-content"
             @click="split = true; shown = '{{ target_id }}'">{{ label }}</button>
     <button type="button" class="outline small" x-show="split && shown === '{{ target_id }}'" x-cloak
             @click="split = false">{{ hide }}</button>
   {%- endmacro %}
   {% if e.links.theory or e.links.text %}
-    {# 010 пункт 9: на широком экране «рядом» открыто сразу — текст, если он есть, иначе теория #}
-    <p class="btn-group beside-buttons" data-beside-default="{{ e.links.text or e.links.theory }}"
-       x-init="if (matchMedia('(min-width: 900px)').matches) $nextTick(() => $el.querySelector('[data-beside]')?.click())">
+    {# 010 пункт 9: «Теория рядом» / «Текст рядом» — по кнопке, по умолчанию закрыто
+       (уточнение пользователя 2026-10-04) #}
+    <p class="btn-group beside-buttons">
       {% if e.links.theory %}{{ beside(e.links.theory, "Теория рядом", "Скрыть теорию") }}{% endif %}
       {% if e.links.text %}{{ beside(e.links.text, "Текст рядом", "Скрыть текст") }}{% endif %}
     </p>

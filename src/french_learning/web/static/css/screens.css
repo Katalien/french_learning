@@ -48,7 +48,8 @@
 }
 .exercise-source { margin: 0; }
 .exercise-source img { border: 1px solid var(--line); border-radius: 0.5rem; display: block; }
-.picture-toggle { display: none; }
+/* 010 пункт 10: кнопка картинки видна на любом экране (картинка может быть свёрнута) */
+.picture-toggle { display: inline-flex; margin-bottom: .4rem; }
 /* картинка остаётся на месте, листаются только предложения (009, замечание 1) */
 @media (min-width: 900px) {
   .exercise.with-source .exercise-source { position: sticky; top: 72px; max-height: calc(100vh - 96px); overflow-y: auto; }
@@ -57,7 +58,6 @@
   .exercise.with-source .exercise-source { position: sticky; top: 0; z-index: 3; background: var(--surface-solid);
     padding: .4rem; border-radius: var(--radius); box-shadow: var(--shadow-sm); }
   .exercise.with-source .exercise-source img { max-height: 34vh; width: auto; margin: 0 auto; }
-  .picture-toggle { display: inline-flex; }
 }
 
 .element-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1.5rem; }
