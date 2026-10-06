@@ -716,3 +716,7 @@ mark.search-hit.current { background: var(--ring); outline: 2px solid var(--prim
 .flashcard .question.tr-s { font-size: 1.25rem; }
 .flashcard .answer.tr-m { font-size: 1.2rem; }
 .flashcard .answer.tr-s { font-size: 1.05rem; }
+
+/* Повтор-тренировка (011): пометка и кнопки на итоге */
+.drill-note { text-align: center; margin: -.3rem 0 .8rem; }
+.drill-buttons { margin-bottom: .6rem; }

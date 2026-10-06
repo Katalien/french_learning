@@ -8,6 +8,7 @@
     <p class="crumbs"><a href="/practice">Практика</a> › Повторение · {{ mode_name }} · {{ direction_name }}</p>
     {% with done = progress.number, total = progress.total, label = progress.number ~ "/" ~ progress.total, size = "sm" %}{% include "partials/ring.html" %}{% endwith %}
   </div>
+  {% if params.drill %}<p class="drill-note small muted">Тренировка — без записи: оценки не меняют расписание.</p>{% endif %}
 
   {% if params.method != "input" and result is not defined %}
   {# самооценка: карточка переворачивается с анимацией, оценки — на обеих сторонах

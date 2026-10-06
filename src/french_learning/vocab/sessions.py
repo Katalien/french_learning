@@ -29,6 +29,7 @@ class SessionParams:
     lesson: int | None = None
     topic: str | None = None
     portion: int | None = None  # слов за подход; None — все (010)
+    drill: bool = False  # 011: повтор-тренировка — оценки не пишутся в прогресс
 
 
 @dataclass
@@ -172,6 +173,11 @@ class SessionStore:
         if card is None:
             raise ValueError("в сеансе нет текущей карточки")
         params = state["params"]
+        if params.get("drill"):
+            # тренировка: оценка только в состоянии сеанса — расписание и история не меняются
+            state.setdefault("drill", []).append([card[0], card[1], rating])
+            self._save(session_id, state, position + 1, len(state["drill"]))
+            return 0
         review_id = self.cards.rate(
             card[0],
             card[1],
@@ -185,10 +191,17 @@ class SessionStore:
         self._save(session_id, state, position + 1, review_id)
         return review_id
 
+    def can_undo(self, session_id: str) -> bool:
+        return self._load(session_id)[3] is not None
+
     def undo(self, session_id: str) -> tuple[str, str] | None:
         state, _queue, position, last_review_id = self._load(session_id)
         if last_review_id is None:
             return None
+        if state["params"].get("drill"):
+            entry_id, direction, _rating = state["drill"].pop()
+            self._save(session_id, state, max(position - 1, 0), None)
+            return entry_id, direction
         card = self.cards.undo(last_review_id)
         self._save(session_id, state, max(position - 1, 0), None)
         return card
@@ -198,7 +211,56 @@ class SessionStore:
         state["portion_end"] = position + state["portion_size"]
         self._save(session_id, state, position, last_review_id)
 
+    # --- повтор-тренировка (011) ------------------------------------------------------------
+
+    def _ratings(self, session_id: str) -> list[tuple[str, str, str]]:
+        """Оценки сеанса по порядку: (запись, направление, оценка)."""
+        state = self._load(session_id)[0]
+        if state["params"].get("drill"):
+            return [tuple(r) for r in state.get("drill", [])]
+        with self.db.lock:
+            rows = self.db.conn.execute(
+                "select entry_id, direction, rating from reviews where session_id = ? order by id",
+                (session_id,),
+            ).fetchall()
+        return [(r["entry_id"], r["direction"], r["rating"]) for r in rows]
+
+    def drill_candidates(self, session_id: str, which: str) -> list[tuple[str, str]]:
+        """Карточки, последняя оценка которых в сеансе — «Не помню» (which=again) или
+        «Не помню» / «С трудом» (again_hard). «Ошибка в артикле» не входит."""
+        wanted = {"again"} if which == "again" else {"again", "hard"}
+        last: dict[tuple[str, str], str] = {}
+        for entry_id, direction, rating in self._ratings(session_id):
+            last[(entry_id, direction)] = rating
+        return [card for card, rating in last.items() if rating in wanted]
+
+    def start_drill(self, session_id: str, which: str, now: dt.datetime | None = None) -> str:
+        """Новый сеанс-тренировка по словам сеанса, перемешанный, одним подходом."""
+        cards = [list(c) for c in self.drill_candidates(session_id, which)]
+        self.rng.shuffle(cards)
+        params = {**self._load(session_id)[0]["params"], "drill": True, "portion": None}
+        state = {
+            "params": params,
+            "portion_size": len(cards),
+            "portion_end": len(cards),
+            "drill": [],
+        }
+        drill_id = secrets.token_hex(6)
+        with self.db.lock, self.db.conn:
+            self.db.conn.execute(
+                "insert into sessions (id, params, queue, position, created_at) "
+                "values (?, ?, ?, 0, ?)",
+                (drill_id, json.dumps(state), json.dumps(cards), (now or _now()).isoformat()),
+            )
+        return drill_id
+
     def summary(self, session_id: str) -> dict[str, int]:
+        state = self._load(session_id)[0]
+        if state["params"].get("drill"):
+            counts: dict[str, int] = {}
+            for _entry, _direction, rating in state.get("drill", []):
+                counts[rating] = counts.get(rating, 0) + 1
+            return counts
         with self.db.lock:
             rows = self.db.conn.execute(
                 "select rating, count(*) as n from reviews where session_id = ? group by rating",

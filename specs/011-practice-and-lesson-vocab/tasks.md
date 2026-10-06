@@ -35,10 +35,10 @@ description: "Task list for 011 — повторение и лексика ур�
 
 ## Phase 5: US3 — повтор-тренировка (P2)
 
-- [ ] T013 [P] [US3] Тесты в tests/unit/vocab/test_sessions.py: `drill_candidates(session, which)` — по последней оценке слова в сеансе; `start_drill` — очередь из них; `rate` в тренировке не меняет `cards` и `reviews`; `summary` и `undo` тренировки — из состояния сеанса
-- [ ] T014 [P] [US3] Тесты в tests/integration/test_vocab_practice.py: итог — кнопки с числами только при N > 0; `POST /practice/{id}/drill` → новый сеанс; пометка «Тренировка — без записи»; итог тренировки предлагает повтор по её ответам; «article» в повтор не входит
-- [ ] T015 [US3] src/french_learning/vocab/sessions.py: `SessionParams.drill`, `drill_candidates`, `start_drill`, ветки в `rate` / `undo` / `summary`
-- [ ] T016 [US3] src/french_learning/web/routes/vocab.py: маршрут `drill`, контекст итога; templates/vocab/practice_summary.html и practice_card.html (пометка)
+- [X] T013 [P] [US3] Тесты в tests/unit/vocab/test_sessions.py: `drill_candidates(session, which)` — по последней оценке слова в сеансе; `start_drill` — очередь из них; `rate` в тренировке не меняет `cards` и `reviews`; `summary` и `undo` тренировки — из состояния сеанса
+- [X] T014 [P] [US3] Тесты в tests/integration/test_vocab_practice.py: итог — кнопки с числами только при N > 0; `POST /practice/{id}/drill` → новый сеанс; пометка «Тренировка — без записи»; итог тренировки предлагает повтор по её ответам; «article» в повтор не входит
+- [X] T015 [US3] src/french_learning/vocab/sessions.py: `SessionParams.drill`, `drill_candidates`, `start_drill`, ветки в `rate` / `undo` / `summary`
+- [X] T016 [US3] src/french_learning/web/routes/vocab.py: маршрут `drill`, контекст итога; templates/vocab/practice_summary.html и practice_card.html (пометка)
 
 ## Phase 6: US4 — фильтры лексики урока (P2)
 

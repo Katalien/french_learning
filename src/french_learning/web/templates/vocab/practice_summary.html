@@ -4,6 +4,7 @@
 {% block content %}
 <div class="flash-wrap">
   <p class="crumbs"><a href="/practice">Практика</a> › Повторение · {{ mode_name }}</p>
+  {% if is_drill %}<p class="drill-note small muted">Тренировка — без записи: оценки не меняют расписание.</p>{% endif %}
   <article class="card summary-card">
     {% if progress.total == 0 %}
       <h1>Нет карточек</h1>
@@ -14,6 +15,15 @@
       <ul class="rating-stats">
         {% for key, name in summary_ratings.items() if key != "article" or summary.get(key) %}<li class="rating-{{ key }}"><span>{{ name }}</span><strong>{{ summary.get(key, 0) }}</strong></li>{% endfor %}
       </ul>
+    {% endif %}
+    {# 011: повторить ошибки сразу — тренировка без записи; «Ошибка в артикле» не входит #}
+    {% if drill_counts.again or drill_counts.again_hard %}
+      <div class="btn-group center drill-buttons">
+        {% if drill_counts.again %}<form method="post" action="/practice/{{ session_id }}/drill" class="inline-form">
+          <button type="submit" name="which" value="again" class="outline">Повторить «Не помню» ({{ drill_counts.again }})</button></form>{% endif %}
+        {% if drill_counts.again_hard > drill_counts.again %}<form method="post" action="/practice/{{ session_id }}/drill" class="inline-form">
+          <button type="submit" name="which" value="again_hard" class="outline">Повторить «Не помню» и «С трудом» ({{ drill_counts.again_hard }})</button></form>{% endif %}
+      </div>
     {% endif %}
     <div class="btn-group center">
       {% if not progress.finished and progress.total %}

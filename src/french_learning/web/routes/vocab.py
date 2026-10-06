@@ -179,13 +179,18 @@ def _card_page(request: Request, index: ContentIndex, session_id: str, shown: bo
         "mode_name": MODE_NAMES.get(params.mode, params.mode),
         "direction_name": DIRECTIONS[params.direction],
         "ratings": RATING_NAMES,
-        "can_undo": sessions._load(session_id)[3] is not None,
+        "can_undo": sessions.can_undo(session_id),
+        "is_drill": params.drill,
         "symbols": FRENCH_SYMBOLS,
         **extra,
     }
     if current is None:
         context["summary"] = sessions.summary(session_id)
         context["summary_ratings"] = {**RATING_NAMES, "article": ARTICLE_RATING}
+        context["drill_counts"] = {
+            which: len(sessions.drill_candidates(session_id, which))
+            for which in ("again", "again_hard")
+        }
         return templates.TemplateResponse(request, "vocab/practice_summary.html", context)
     entry = index.element(current[0])
     context.update(
@@ -228,6 +233,22 @@ def practice_undo(request: Request, session_id: str, index: Index):
     _cards, sessions = _practice(request, index)
     sessions.undo(session_id)
     return _redirect(f"/practice/{session_id}")
+
+
+@router.post("/practice/{session_id}/drill")
+def practice_drill(
+    request: Request, session_id: str, index: Index, which: Annotated[str, Form()] = "again"
+):
+    """011: повтор-тренировка по словам «Не помню» (или «Не помню» и «С трудом») без записи."""
+    _cards, sessions = _practice(request, index)
+    if which not in ("again", "again_hard"):
+        raise not_found("Неизвестный повтор")
+    try:
+        if not sessions.drill_candidates(session_id, which):
+            return _redirect(f"/practice/{session_id}")
+    except KeyError:
+        raise not_found("Сеанс не найден") from None
+    return _redirect(f"/practice/{sessions.start_drill(session_id, which)}")
 
 
 @router.post("/practice/{session_id}/continue")

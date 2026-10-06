@@ -257,3 +257,51 @@ def test_fr_ru_answer_each_translation_on_own_line(client, content_root):
 def test_short_translation_unchanged(client):
     html = client.get(f"/practice/{only_eau_session(client)}").text
     assert '<p class="question" lang="ru">вода</p>' in html
+
+
+# --- 011: повтор-тренировка на итоге --------------------------------------------------------
+
+
+def finish(client, session, ratings):
+    html = ""
+    for rating in ratings:
+        html = client.post(f"/practice/{session}/rate", data={"rating": rating}).text
+    return html
+
+
+def test_summary_offers_drill_buttons_with_counts(client):
+    session = start(client, mode="all").rsplit("/", 1)[-1]
+    html = finish(client, session, ["again", "again", "hard", "good"])
+    assert "Повторить «Не помню» (2)" in html
+    assert "Повторить «Не помню» и «С трудом» (3)" in html
+
+
+def test_summary_without_mistakes_has_no_drill(client):
+    session = start(client, mode="all").rsplit("/", 1)[-1]
+    html = finish(client, session, ["good"] * 4)
+    assert "Повторить «Не помню»" not in html
+
+
+def test_drill_session_without_recording(client):
+    session = start(client, mode="all").rsplit("/", 1)[-1]
+    finish(client, session, ["again", "good", "good", "good"])
+    cards = client.app.state.cards
+    history = {c.entry_id: len(cards.history(c.entry_id)) for c in cards.all()}
+    response = client.post(f"/practice/{session}/drill", data={"which": "again"})
+    assert response.status_code == 200
+    drill = response.url.path.rsplit("/", 1)[-1]
+    assert drill != session
+    assert "Тренировка — без записи" in response.text and "1/1" in response.text
+    summary = client.post(f"/practice/{drill}/rate", data={"rating": "again"}).text
+    assert "Тренировка — без записи" in summary
+    assert "Повторить «Не помню» (1)" in summary  # повтор по ответам тренировки
+    assert {c.entry_id: len(cards.history(c.entry_id)) for c in cards.all()} == history
+
+
+def test_drill_with_no_words_returns_to_summary(client):
+    session = start(client, mode="all").rsplit("/", 1)[-1]
+    finish(client, session, ["good"] * 4)
+    response = client.post(
+        f"/practice/{session}/drill", data={"which": "again"}, follow_redirects=False
+    )
+    assert response.status_code == 303 and response.headers["location"] == f"/practice/{session}"
