@@ -88,13 +88,15 @@ def practice_setup(
     lesson: str = "",
     topic: str = "",
     lesson_topic: str = "",
+    kind: str = "all",
 ):
-    """Настройка повторения; из урока приходят `mode=lesson&lesson=N` (010, пункт 3) и тема
-    из фильтра «Лексики» урока — `lesson_topic` (011)."""
+    """Настройка повторения; из урока приходят `mode=lesson&lesson=N` (010, пункт 3), тема
+    и вид из фильтров «Лексики» урока — `lesson_topic`, `kind` (011)."""
     _cards, sessions = _practice(request, index)
     word_topics = {t for e in vocab_entries.vocab_entries(index) if not e.hidden for t in e.topics}
     params = _session_params(
         mode=mode,
+        kind=kind,
         lesson=lesson,
         topic=topic if topic in word_topics else "",
         lesson_topic=lesson_topic if lesson_topic in word_topics else "",
@@ -191,12 +193,16 @@ def practice_start(
 
 
 @router.get("/lessons/{number}/practice")
-def lesson_practice(number: int, index: Index, topic: str = ""):
+def lesson_practice(number: int, index: Index, topic: str = "", kind: str = ""):
     """010, пункт 3: повторение слов урока начинается со страницы настройки; 011: тема из
     фильтра «Лексики» урока переходит в настройку."""
     if index.lesson(number) is None:
         raise not_found(f"Урок {number} не найден")
-    query = {"mode": "lesson", "lesson": number, **({"lesson_topic": topic} if topic else {})}
+    query = {"mode": "lesson", "lesson": number}
+    if topic:
+        query["lesson_topic"] = topic
+    if kind in ("word", "verb", "phrase"):
+        query["kind"] = kind
     return _redirect(f"/practice/setup?{urlencode(query)}")
 
 

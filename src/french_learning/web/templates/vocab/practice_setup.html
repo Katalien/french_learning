@@ -41,7 +41,8 @@
     {% endwith %}
   </div>
   <label>Вид
-    <select name="kind">{% for key, name in kinds.items() %}<option value="{{ key }}">{{ name }}</option>{% endfor %}</select>
+    <select name="kind">{% for key, name in kinds.items() %}<option value="{{ key }}"
+      {% if key == selected.kind %}selected{% endif %}>{{ name }}</option>{% endfor %}</select>
   </label>
   <label>Направление
     <select name="direction">{% for key, name in directions.items() %}<option value="{{ key }}">{{ name }}</option>{% endfor %}</select>

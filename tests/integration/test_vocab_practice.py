@@ -353,3 +353,22 @@ def test_lesson_vocab_topic_filter_carries_to_setup(client):
     html = client.get(response.headers["location"]).text
     assert "lessonTopic: 'top-nourritu'" in html
     assert "В сеансе: 1" in html  # слова «Еды» из урока 1
+
+
+def test_lesson_vocab_topic_and_kind_carry_to_setup(client):
+    """011 (приёмка): тема и вид из фильтров «Лексики» урока — вместе и по отдельности."""
+    both = client.get("/lessons/1/vocab?topic=top-nourritu&kind=word").text
+    assert 'href="/lessons/1/practice?topic=top-nourritu&amp;kind=word"' in both
+    only_kind = client.get("/lessons/1/vocab?kind=word").text
+    assert 'href="/lessons/1/practice?kind=word"' in only_kind
+    response = client.get(
+        "/lessons/1/practice?topic=top-nourritu&kind=word", follow_redirects=False
+    )
+    location = response.headers["location"]
+    assert location == "/practice/setup?mode=lesson&lesson=1&lesson_topic=top-nourritu&kind=word"
+    html = client.get(location).text
+    assert re.search(r'<option value="word"\s+selected>', html)
+    assert "lessonTopic: 'top-nourritu'" in html
+    kind_only = client.get("/practice/setup?mode=lesson&lesson=1&kind=verb").text
+    assert re.search(r'<option value="verb"\s+selected>', kind_only)
+    assert "Нет слов для повторения" in kind_only  # в образце у урока 1 нет глаголов
