@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Annotated
 from urllib.parse import urlencode
 
-from fastapi import APIRouter, Form, Request
+from fastapi import APIRouter, Form, Query, Request
 from fastapi.responses import RedirectResponse
 
 from french_learning.content.index import ContentIndex
@@ -640,21 +640,45 @@ def _list_query(lesson: str, topic: str, kind: str, filter: str) -> str:
     return urlencode({k: v for k, v in pairs.items() if v})
 
 
-def _neighbours(index: ContentIndex, entry_id: str, known: set[str], **filters: str) -> dict:
-    """Соседи слова в списке, из которого его открыли; иначе — во всём словаре."""
-    query = _list_query(**filters)
-    lesson = filters["lesson"]
-    items = vocab_entries.filter_entries(
-        index,
-        lesson=int(lesson) if lesson.isdigit() else None,
-        topic=filters["topic"] or None,
-        kind=filters["kind"] or None,
-        flag=filters["filter"] or None,
-        known_ids=known,
-    )
+def _source_list(index: ContentIndex, source: str, lesson: str, topic: str):
+    """Список слов страницы урока или темы — в том же порядке, что на странице (0.9.1).
+
+    Возвращает (слова, строка запроса для стрелок, (адрес назад, подпись)) или None.
+    """
+    if source == "lesson" and lesson.isdigit() and index.lesson(int(lesson)) is not None:
+        new, repeat = index.lesson_vocabulary(int(lesson))
+        query = urlencode({"from": "lesson", "lesson": lesson})
+        return new + repeat, query, (f"/lessons/{lesson}/vocab", f"Урок {lesson} › Лексика")
+    if source == "topic" and topic and index.topic(topic) is not None:
+        words = [e for e in index.topic_elements(topic) if e.kind == "vocab"]
+        query = urlencode({"from": "topic", "topic": topic})
+        return words, query, (f"/topics/{topic}?tab=words", index.topic(topic).name)
+    return None
+
+
+def _neighbours(
+    index: ContentIndex, entry_id: str, known: set[str], source: str = "", **filters: str
+) -> dict:
+    """Соседи слова в списке, из которого его открыли (урок, тема, словарь с фильтрами);
+    иначе — во всём словаре."""
+    from_page = _source_list(index, source, filters["lesson"], filters["topic"])
+    if from_page is not None:
+        items, query, back = from_page
+    else:
+        query = _list_query(**filters)
+        back = (f"/vocab?{query}" if query else "/vocab", "Словарь")
+        lesson = filters["lesson"]
+        items = vocab_entries.filter_entries(
+            index,
+            lesson=int(lesson) if lesson.isdigit() else None,
+            topic=filters["topic"] or None,
+            kind=filters["kind"] or None,
+            flag=filters["filter"] or None,
+            known_ids=known,
+        )
     ids = [e.id for e in items]
     if entry_id not in ids:
-        query = ""
+        query, back = "", ("/vocab", "Словарь")
         items = vocab_entries.filter_entries(index, known_ids=known)
         ids = [e.id for e in items]
     if entry_id not in ids:
@@ -666,6 +690,7 @@ def _neighbours(index: ContentIndex, entry_id: str, known: set[str], **filters: 
         "position": at + 1,
         "total": len(items),
         "query": query,
+        "back": back,
     }
 
 
@@ -678,6 +703,7 @@ def vocab_entry(
     topic: str = "",
     kind: str = "",
     filter: str = "",
+    source: Annotated[str, Query(alias="from")] = "",
 ):
     cards, _sessions = _practice(request, index)
     entry = index.element(entry_id)
@@ -691,7 +717,7 @@ def vocab_entry(
         "indefinite": vocab_entries.indefinite(entry),
         "known": entry_id in known,
         "nav": _neighbours(
-            index, entry_id, known, lesson=lesson, topic=topic, kind=kind, filter=filter
+            index, entry_id, known, source, lesson=lesson, topic=topic, kind=kind, filter=filter
         ),
         "history": cards.history(entry_id),
         "pos_names": vocab_entries.POS_NAMES,
