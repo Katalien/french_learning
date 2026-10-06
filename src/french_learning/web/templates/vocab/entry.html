@@ -2,7 +2,7 @@
 {% set e = entry %}
 {% block title %}{{ display_fr(e) }}{% endblock %}
 {% block content %}
-<p class="crumbs"><a href="/vocab{% if nav.query %}?{{ nav.query }}{% endif %}">Словарь</a> › {{ display_fr(e) }}
+<p class="crumbs"><a href="{{ nav.back[0] if nav else '/vocab' }}">{{ nav.back[1] if nav else "Словарь" }}</a> › {{ display_fr(e) }}
   {% if nav %}<span class="muted small"> · {{ nav.position }} из {{ nav.total }}</span>{% endif %}</p>
 
 {# 010 пункт 1: переход к соседним словам списка — как между упражнениями #}

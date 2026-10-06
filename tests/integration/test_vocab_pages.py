@@ -109,3 +109,28 @@ def test_entry_without_filters_uses_whole_dictionary(client):
     html = client.get(f"/vocab/{ids[1]}").text
     assert f"2 из {len(ids)}" in html
     assert f'href="/vocab/{ids[0]}"' in html and f'href="/vocab/{ids[2]}"' in html
+
+
+# --- 0.9.1: листание слов урока и темы, а не всего словаря ------------------------------------
+
+
+def test_lesson_vocab_links_keep_lesson(client):
+    html = client.get("/lessons/2/vocab").text
+    ids = re.findall(r'href="/vocab/(voc-[a-z2-7]{8})\?from=lesson&amp;lesson=2"', html)
+    assert len(ids) == 2  # все слова урока 2 — со ссылкой «из урока»
+    first = client.get(f"/vocab/{ids[0]}?from=lesson&lesson=2").text
+    assert "1 из 2" in first
+    assert f'href="/vocab/{ids[1]}?from=lesson&amp;lesson=2"' in first
+    assert 'href="/lessons/2/vocab"' in first  # путь назад — к лексике урока
+    last = client.get(f"/vocab/{ids[1]}?from=lesson&lesson=2").text
+    assert "2 из 2" in last and 'class="arrow next disabled"' in last
+
+
+def test_topic_words_links_keep_topic(client):
+    html = client.get("/topics/top-maisonxx?tab=words").text
+    ids = re.findall(r'href="/vocab/(voc-[a-z2-7]{8})\?from=topic&amp;topic=top-maisonxx"', html)
+    assert len(ids) == 2
+    page = client.get(f"/vocab/{ids[0]}?from=topic&topic=top-maisonxx").text
+    assert "1 из 2" in page
+    assert f'href="/vocab/{ids[1]}?from=topic&amp;topic=top-maisonxx"' in page
+    assert 'href="/topics/top-maisonxx' in page

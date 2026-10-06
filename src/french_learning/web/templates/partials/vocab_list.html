@@ -1,14 +1,16 @@
 {# Лексика урока: новые и на повторение (FR-039); строки как в словаре (009) #}
-{% macro word_row(w) -%}
+{# 0.9.1: ссылка «из урока» — стрелки на странице слова листают слова этого урока #}
+{% set from_lesson = "?from=lesson&lesson=" ~ summary.number if summary is defined else "" %}
+{% macro word_row(w, query) -%}
   <li class="word-row"><span class="gbar g-{{ w.gender or 'none' }}"></span>
-    <span><a class="fr" lang="fr" href="/vocab/{{ w.id }}">{% if w.article %}{{ w.article }}{% if w.article != "l'" %} {% endif %}{% endif %}{{ w.text }}</a>
+    <span><a class="fr" lang="fr" href="/vocab/{{ w.id }}{{ query }}">{% if w.article %}{{ w.article }}{% if w.article != "l'" %} {% endif %}{% endif %}{{ w.text }}</a>
     <span class="muted">— {{ w.translations | map(attribute="text") | join(", ") }}</span>{% if w.hidden %} <mark class="badge">скрыто</mark>{% endif %}</span></li>
 {%- endmacro %}
 {% if new_words %}
   <h3>Новые слова</h3>
-  <ul class="word-rows">{% for w in new_words %}{{ word_row(w) }}{% endfor %}</ul>
+  <ul class="word-rows">{% for w in new_words %}{{ word_row(w, from_lesson) }}{% endfor %}</ul>
 {% endif %}
 {% if repeat_words %}
   <h3>На повторение</h3>
-  <ul class="word-rows">{% for w in repeat_words %}{{ word_row(w) }}{% endfor %}</ul>
+  <ul class="word-rows">{% for w in repeat_words %}{{ word_row(w, from_lesson) }}{% endfor %}</ul>
 {% endif %}
