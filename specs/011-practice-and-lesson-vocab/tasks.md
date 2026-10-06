@@ -53,9 +53,9 @@ description: "Task list for 011 — повторение и лексика ур�
 
 ## Phase 8: Polish
 
-- [ ] T022 `uv run pytest`, `ruff check`, `ruff format`, `check_no_content.py`
-- [ ] T023 Проверка на демо по quickstart.md (1280 и 375 px), скриншоты
-- [ ] T024 [P] CHANGELOG.md — 0.10.0 «на приёмке»; docs/roadmap.md; CLAUDE.md (кратко про 011)
+- [X] T022 `uv run pytest`, `ruff check`, `ruff format`, `check_no_content.py`
+- [X] T023 Проверка на демо по quickstart.md (1280 и 375 px), скриншоты
+- [X] T024 [P] CHANGELOG.md — 0.10.0 «на приёмке»; docs/roadmap.md; CLAUDE.md (кратко про 011)
 - [ ] T025 После «принимаю»: `main`, GitHub, `update-app.ps1`; roadmap 011 ✅
 
 ## Dependencies
