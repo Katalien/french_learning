@@ -184,13 +184,13 @@ def test_ru_fr_input_card_neutral_before_answer(client):
     assert 'class="flashcard gender-f' in result
 
 
-# --- 011: «Ошибка в артикле» ------------------------------------------------------------------
+# --- 011: «Ошибка в роде» ------------------------------------------------------------------
 
 
 def test_article_button_only_for_ru_fr_nouns(client, content_root):
     session = only_eau_session(client)
     html = client.get(f"/practice/{session}").text
-    assert 'value="article"' in html and "Ошибка в артикле" in html
+    assert 'value="article"' in html and "Ошибка в роде" in html
     fr_ru = client.get(start(client, mode="all", direction="fr_ru")).text
     assert 'value="article"' not in fr_ru
 
@@ -207,11 +207,11 @@ def test_article_button_absent_without_gender(client, content_root):
 def test_article_rating_moves_word_to_front_of_articles_trainer(client):
     session = only_eau_session(client)
     html = client.post(f"/practice/{session}/rate", data={"rating": "article"}).text
-    assert "Ошибка в артикле" in html  # строка итога
-    assert re.search(r"Ошибка в артикле</span><strong>1</strong>", html)
+    assert "Ошибка в роде" in html  # строка итога
+    assert re.search(r"Ошибка в роде</span><strong>1</strong>", html)
     started = client.post("/trainers/articles/start", data={"scope": "all"})
     prompt = re.search(r'class="trainer-prompt"[^>]*>\s*([^<]+?)\s*<', started.text)[1]
-    assert "eau" in prompt  # первым — слово с «Ошибкой в артикле»
+    assert "eau" in prompt  # первым — слово с «Ошибкой в роде»
 
 
 # --- 011: переводы помещаются на карточке --------------------------------------------------
@@ -317,3 +317,24 @@ def test_setup_lists_only_topics_with_words(client):
     assert "top-etreverb" not in combobox and "top-articles" not in combobox  # темы без слов
     empty = client.get("/practice/setup?mode=topic&topic=top-etreverb").text
     assert "Нет слов для повторения" in empty
+
+
+# --- 011 (приёмка): тема внутри урока в настройке повторения -------------------------------
+
+
+def test_lesson_setup_offers_only_lesson_topics(client):
+    html = client.get("/practice/setup?mode=lesson&lesson=1").text
+    assert 'name="lesson_topic"' in html
+    data = html.split("data-lesson-topics='", 1)[1].split("'", 1)[0]
+    lesson1 = data.split('"1":', 1)[1].split("]", 1)[0]
+    assert "top-maisonxx" in lesson1 and "top-nourritu" in lesson1
+    assert "top-etreverb" not in data  # темы без слов не предлагаются
+
+
+def test_lesson_topic_narrows_session(client):
+    base = {"mode": "lesson", "lesson": "1", "direction": "ru_fr"}
+    whole = client.get("/practice/count", params=base).text
+    food = client.get("/practice/count", params={**base, "lesson_topic": "top-nourritu"}).text
+    assert "В сеансе: 2" in whole and "В сеансе: 1" in food
+    path = start(client, **base, lesson_topic="top-nourritu", from_setup="1")
+    assert client.app.state.sessions.progress(path.rsplit("/", 1)[-1]).total == 1

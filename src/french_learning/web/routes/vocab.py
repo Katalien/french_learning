@@ -33,8 +33,8 @@ KIND_FILTERS = {
 }
 DIRECTIONS = {"fr_ru": "французский → русский", "ru_fr": "русский → французский"}
 RATING_NAMES = {"again": "Не помню", "hard": "С трудом", "good": "Помню"}
-# 011: «Ошибка в артикле» — между «С трудом» и «Помню», только у ru_fr существительных с родом
-ARTICLE_RATING = "Ошибка в артикле"
+# 011: «Ошибка в роде» — между «С трудом» и «Помню», только у ru_fr существительных с родом
+ARTICLE_RATING = "Ошибка в роде"
 
 
 def _card_ratings(entry, direction: str) -> dict[str, str]:
@@ -63,7 +63,11 @@ def _session_params(
     lesson: str = "",
     topic: str = "",
     portion: int | None = None,
+    lesson_topic: str = "",
 ) -> SessionParams:
+    # 011: в режиме «по уроку» тема — необязательный фильтр внутри урока (поле lesson_topic)
+    if mode == "lesson":
+        topic = lesson_topic
     return SessionParams(
         source="dictionary",
         mode=mode if mode in MODE_NAMES else "today",
@@ -98,6 +102,18 @@ def practice_setup(
             {"value": t.id, "label": t.name} for t in index.all_topics() if t.id in word_topics
         ],
         "lessons": index.lessons(),
+        # 011: темы каждого урока (только темы его нескрытых слов) — для фильтра «Тема» в уроке
+        "lesson_topics": {
+            lesson_obj.number: [
+                {"id": t.id, "name": t.name}
+                for t in index.all_topics()
+                if any(
+                    t.id in e.topics
+                    for e in vocab_entries.filter_entries(index, lesson=lesson_obj.number)
+                )
+            ]
+            for lesson_obj in index.lessons()
+        },
         "selected": params,
         "portion_size": request.app.state.progress_db.get_setting("portion_size") or "20",
         "last_backup": request.app.state.progress_db.get_meta("last_backup_pushed"),
@@ -114,10 +130,13 @@ def practice_count(
     direction: str = "fr_ru",
     lesson: str = "",
     topic: str = "",
+    lesson_topic: str = "",
 ):
     """Сколько карточек будет в сеансе при текущих настройках (010, FR-007)."""
     _cards, sessions = _practice(request, index)
-    params = _session_params(mode, kind, direction, lesson=lesson, topic=topic)
+    params = _session_params(
+        mode, kind, direction, lesson=lesson, topic=topic, lesson_topic=lesson_topic
+    )
     count = 0 if mode == "topic" and not topic else sessions.count(index, params)
     return templates.TemplateResponse(
         request, "vocab/partials/practice_count.html", {"count": count}
@@ -134,6 +153,7 @@ def practice_start(
     method: Annotated[str, Form()] = "self",
     lesson: Annotated[str, Form()] = "",
     topic: Annotated[str, Form()] = "",
+    lesson_topic: Annotated[str, Form()] = "",
     portion: Annotated[str, Form()] = "",
     from_setup: Annotated[str, Form()] = "",
 ):
@@ -153,7 +173,7 @@ def practice_start(
             return _redirect(f"{back}&{urlencode({'error': 'слов за подход — число от 1 до 500'})}")
         size = int(portion)
         request.app.state.progress_db.set_setting("portion_size", str(size))
-    params = _session_params(mode, kind, direction, method, lesson, topic, size)
+    params = _session_params(mode, kind, direction, method, lesson, topic, size, lesson_topic)
     if sessions.count(index, params) == 0:
         return _redirect(f"{back}&{urlencode({'notice': 'Нет слов для повторения.'})}")
     return _redirect(f"/practice/{sessions.start(index, params)}")

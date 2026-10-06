@@ -66,7 +66,7 @@ def question(index: ContentIndex, entry: Any, direction: str) -> Question:
 
 
 def article_rating_allowed(entry: Any, direction: str) -> bool:
-    """«Ошибка в артикле» (011): только «русский → французский» и существительное с родом —
+    """«Ошибка в роде» (011): только «русский → французский» и существительное с родом —
     те же слова, что задаёт тренажёр «Артикли»."""
     from french_learning.trainers.generators.articles import has_gender, is_noun
 

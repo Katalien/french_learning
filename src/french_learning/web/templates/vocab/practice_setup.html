@@ -9,10 +9,12 @@
    (для урока и темы по умолчанию все); счётчик обновляется при смене настроек #}
 <form method="post" action="/practice/start" class="card practice-setup"
       x-data="{ mode: '{{ selected.mode }}', topic: '{{ selected.topic or '' }}',
+               lesson: '{{ selected.lesson or (lessons[0].number if lessons else '') }}',
+               lessonTopic: '{{ (selected.topic or '') if selected.mode == 'lesson' else '' }}',
                portion: '{{ '' if selected.mode in ('lesson', 'topic') else portion_size }}' }"
       x-effect="portion = (mode === 'lesson' || mode === 'topic') ? '' : '{{ portion_size }}'"
       @change="if ($event.target.name === 'topic') topic = $event.target.value"
-      hx-get="/practice/count" hx-trigger="change" hx-target="#practice-count" hx-include="this">
+      hx-get="/practice/count" hx-trigger="change delay:60ms" hx-target="#practice-count" hx-include="this">
   <fieldset>
     <legend>Что повторять</legend>
     {% for key, name in modes.items() %}
@@ -20,8 +22,17 @@
     {% endfor %}
   </fieldset>
   <label x-show="mode === 'lesson'" x-cloak>Урок
-    <select name="lesson">{% for l in lessons %}<option value="{{ l.number }}"
+    <select name="lesson" x-model="lesson" @change="lessonTopic = ''">{% for l in lessons %}<option value="{{ l.number }}"
       {% if l.number == selected.lesson %}selected{% endif %}>Урок {{ l.number }}</option>{% endfor %}</select>
+  </label>
+  {# 011: необязательная тема внутри урока — только темы слов этого урока #}
+  <label x-show="mode === 'lesson'" x-cloak data-lesson-topics='{{ lesson_topics | tojson }}'>Тема (необязательно)
+    <select name="lesson_topic" x-model="lessonTopic">
+      <option value="">все темы урока</option>
+      <template x-for="t in (JSON.parse($el.closest('[data-lesson-topics]').dataset.lessonTopics)[lesson] || [])" :key="t.id">
+        <option :value="t.id" x-text="t.name" :selected="t.id === lessonTopic"></option>
+      </template>
+    </select>
   </label>
   <div x-show="mode === 'topic'" x-cloak>
     {% with name = "topic", label = "Тема", placeholder = "Начните вводить название темы",

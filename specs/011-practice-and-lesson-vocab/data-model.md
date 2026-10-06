@@ -4,7 +4,7 @@
 
 ## Оценка карточки (`reviews.rating`)
 
-`again` | `hard` | `good` | **`article`** (новое: «Ошибка в артикле»). `article` → FSRS `Good`.
+`again` | `hard` | `good` | **`article`** (новое: «Ошибка в роде»). `article` → FSRS `Good`.
 В «сложных» не учитывается ни как ошибка, ни как успех.
 
 ## `trainer_priority` (новая таблица, v5)

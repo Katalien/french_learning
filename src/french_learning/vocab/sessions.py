@@ -69,7 +69,10 @@ class SessionStore:
         known = self.cards.known_ids()
         kind = None if params.kind == "all" else params.kind
         if params.mode == "lesson":
-            pool = vocab_entries.filter_entries(index, lesson=params.lesson, kind=kind)
+            # 011: тема внутри урока (необязательно) — слова этой темы из этого урока
+            pool = vocab_entries.filter_entries(
+                index, lesson=params.lesson, topic=params.topic, kind=kind
+            )
         elif params.mode == "topic":
             pool = vocab_entries.filter_entries(index, topic=params.topic, kind=kind)
         else:
@@ -227,7 +230,7 @@ class SessionStore:
 
     def drill_candidates(self, session_id: str, which: str) -> list[tuple[str, str]]:
         """Карточки, последняя оценка которых в сеансе — «Не помню» (which=again) или
-        «Не помню» / «С трудом» (again_hard). «Ошибка в артикле» не входит."""
+        «Не помню» / «С трудом» (again_hard). «Ошибка в роде» не входит."""
         wanted = {"again"} if which == "again" else {"again", "hard"}
         last: dict[tuple[str, str], str] = {}
         for entry_id, direction, rating in self._ratings(session_id):

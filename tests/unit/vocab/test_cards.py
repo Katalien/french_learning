@@ -150,7 +150,7 @@ def test_review_logged_with_snapshot_and_undo(cards: CardStore):
     assert cards.history("voc-maisonaa") == []
 
 
-# --- 011: «Ошибка в артикле» ------------------------------------------------------------------
+# --- 011: «Ошибка в роде» ------------------------------------------------------------------
 
 
 def priority_keys(db) -> list[str]:

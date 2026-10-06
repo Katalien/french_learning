@@ -50,7 +50,7 @@ class TrainerSchedule:
                 "answered_at, session_id) values (?, ?, ?, ?, ?, ?, ?)",
                 (trainer_id, key, answer, int(ok), int(revealed), now.isoformat(), session_id),
             )
-            # ответ снимает приоритет «в начало очереди» (011, «Ошибка в артикле»)
+            # ответ снимает приоритет «в начало очереди» (011, «Ошибка в роде»)
             self.db.conn.execute(
                 "delete from trainer_priority where trainer_id = ? and key = ?", (trainer_id, key)
             )

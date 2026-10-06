@@ -16,7 +16,7 @@
         {% for key, name in summary_ratings.items() if key != "article" or summary.get(key) %}<li class="rating-{{ key }}"><span>{{ name }}</span><strong>{{ summary.get(key, 0) }}</strong></li>{% endfor %}
       </ul>
     {% endif %}
-    {# 011: повторить ошибки сразу — тренировка без записи; «Ошибка в артикле» не входит #}
+    {# 011: повторить ошибки сразу — тренировка без записи; «Ошибка в роде» не входит #}
     {% if drill_counts.again or drill_counts.again_hard %}
       <div class="btn-group center drill-buttons">
         {% if drill_counts.again %}<form method="post" action="/practice/{{ session_id }}/drill" class="inline-form">

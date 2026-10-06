@@ -87,7 +87,7 @@ def add_priority(db, key: str, created: str, review_id: int = 1) -> None:
 
 
 def test_priority_keys_come_first(env):
-    """011: вопросы с приоритетом («Ошибка в артикле») — первыми, раньше добавленные — раньше."""
+    """011: вопросы с приоритетом («Ошибка в роде») — первыми, раньше добавленные — раньше."""
     db, schedule, _ = env
     for key in KEYS[:5]:
         schedule.answer("numbers", key, correct=False, now=NOW)  # пора повторить

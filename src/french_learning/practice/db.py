@@ -95,7 +95,7 @@ create table if not exists trainer_answers (
     session_id text
 );
 create index if not exists trainer_answers_key on trainer_answers (trainer_id, key, id);
--- v5 (011): «Ошибка в артикле» ставит вопросы слова в начало тренажёра «Артикли»
+-- v5 (011): «Ошибка в роде» ставит вопросы слова в начало тренажёра «Артикли»
 create table if not exists trainer_priority (
     trainer_id text not null,
     key text not null,

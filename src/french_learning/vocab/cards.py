@@ -15,7 +15,7 @@ import fsrs
 
 from french_learning.practice.db import ProgressDB
 
-# «article» — «Ошибка в артикле» (011): слово вспомнено, как «Помню»; вопросы слова — в начало
+# «article» — «Ошибка в роде» (011): слово вспомнено, как «Помню»; вопросы слова — в начало
 # тренажёра «Артикли»
 RATINGS = {
     "again": fsrs.Rating.Again,

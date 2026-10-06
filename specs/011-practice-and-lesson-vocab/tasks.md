@@ -18,11 +18,11 @@ description: "Task list for 011 — повторение и лексика ур�
 - [X] T002 Тест в tests/unit/practice/test_db.py: схема v5 — таблица `trainer_priority` (`trainer_id`, `key`, `review_id`, `created_at`, уникальный `(trainer_id, key)`); база v4 открывается и получает таблицу без потери данных
 - [X] T003 src/french_learning/practice/db.py: `SCHEMA_VERSION = 5`, таблица `trainer_priority`
 
-## Phase 3: US1 — «Ошибка в артикле» (P1) 🎯
+## Phase 3: US1 — «Ошибка в роде» (P1) 🎯
 
 - [X] T004 [P] [US1] Тесты в tests/unit/vocab/test_cards.py: `rate(..., "article")` → расписание как `good`, в `reviews.rating` — `article`; `hard_ids` не считает `article` ошибкой; `undo` оценки `article` удаляет строки `trainer_priority` с её `review_id`
 - [X] T005 [P] [US1] Тесты в tests/unit/trainers/test_schedule.py: ключи из `trainer_priority` — первыми в `select` (раньше добавленные — раньше); ответ на ключ снимает его приоритет
-- [X] T006 [P] [US1] Тесты в tests/integration/test_vocab_practice.py: кнопка «Ошибка в артикле» есть у ru_fr существительного с родом и нет в fr_ru / у глагола; `POST rate=article` там, где кнопки нет, → 404; после оценки тренажёр «Артикли» начинается с этого слова (оба вопроса); итог — «Ошибка в артикле: 1»
+- [X] T006 [P] [US1] Тесты в tests/integration/test_vocab_practice.py: кнопка «Ошибка в роде» есть у ru_fr существительного с родом и нет в fr_ru / у глагола; `POST rate=article` там, где кнопки нет, → 404; после оценки тренажёр «Артикли» начинается с этого слова (оба вопроса); итог — «Ошибка в роде: 1»
 - [X] T007 [US1] src/french_learning/vocab/cards.py: `RATINGS["article"] = Good`; `rate` для `article` добавляет приоритет `articles:<id>:def/indef`; `hard_ids`; `undo` снимает приоритет
 - [X] T008 [US1] src/french_learning/trainers/schedule.py: приоритет в `select`; снятие в `answer`
 - [X] T009 [US1] src/french_learning/web/routes/vocab.py и templates/vocab/practice_card.html, practice_summary.html: условие кнопки (`vocab_entries.article_rating_allowed`), проверка в `practice_rate`, строка в итоге; стиль кнопки в static/css/screens.css

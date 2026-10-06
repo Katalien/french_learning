@@ -156,7 +156,7 @@ def test_migration_v3_to_v4_keeps_notes_and_cards(clean_content_root: Path):
 
 
 def test_schema_v5_trainer_priority(clean_content_root: Path):
-    """011: приоритет вопросов тренажёра («Ошибка в артикле»); старая база получает таблицу."""
+    """011: приоритет вопросов тренажёра («Ошибка в роде»); старая база получает таблицу."""
     db = ProgressDB(clean_content_root)
     db.set_setting("portion_size", "35")
     db.close()
