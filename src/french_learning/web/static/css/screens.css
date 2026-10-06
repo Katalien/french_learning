@@ -659,3 +659,44 @@ mark.search-hit.current { background: var(--ring); outline: 2px solid var(--prim
 .entry-note { display: flex; gap: .45rem; align-items: flex-start; margin: .9rem 0 0; font-size: .9rem; font-style: italic; color: var(--muted); }
 .entry-note .icon { margin-top: .15rem; }
 .entry-meta { margin: 1rem 0 0; font-size: .78rem; color: var(--muted); }
+
+/* Карточка слова в словаре (0.9.1, макет А): по центру, как карточка повторения; стрелки по
+   бокам карточки; верхняя часть неизменной высоты — «Подробнее» не сдвигает слово и перевод */
+.word-card-crumbs { text-align: center; }
+.word-card-row { display: grid; grid-template-columns: auto minmax(0, 560px) auto; justify-content: center;
+  align-items: start; gap: 1rem; margin: 0 auto 1.1rem; }
+.card-arrow { width: 3rem; height: 3rem; margin-top: 126px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 1.5rem; color: var(--muted); background: var(--surface-solid); border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm); }
+.card-arrow:hover { color: var(--primary-strong); border-color: var(--primary); text-decoration: none; }
+.card-arrow.disabled { opacity: .35; pointer-events: none; }
+.word-card { position: relative; overflow: hidden; border-radius: var(--radius-lg); background: var(--surface-solid);
+  box-shadow: var(--shadow); border: 1px solid var(--line); border-top: 0; border-left: 1px solid var(--line);
+  padding: 0 1.6rem 1rem; }
+.word-card .stripe { position: absolute; top: 0; left: 0; right: 0; height: 14px; background: var(--line); }
+.word-card.gender-m .stripe { background: var(--m); }
+.word-card.gender-f .stripe { background: var(--f); }
+.word-card.gender-both .stripe { background: linear-gradient(90deg, var(--m), var(--f)); }
+.word-card-count { position: absolute; top: 1.2rem; right: 1rem; font-size: .8rem; color: var(--muted); }
+.word-card-main { min-height: 300px; padding: 2.4rem 0 1rem; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: .5rem; text-align: center; }
+.word-card-main h1 { font-size: 2.1rem; margin: 0; line-height: 1.2; color: var(--fr); }
+.word-card-main .gender-label { font-size: 1.1rem; font-weight: 600; padding: 0; background: none; vertical-align: baseline;
+  color: var(--muted); }
+.word-card.gender-m .gender-label { color: var(--m); background: none; }
+.word-card.gender-f .gender-label { color: var(--f); background: none; }
+.word-card-main .translations { font-size: 1.35rem; font-weight: 600; margin: 0; }
+.word-card-kind { margin: 0; }
+.word-card .entry-extra { border-top: 1px solid var(--line); padding-top: .7rem; margin: 0; }
+.word-card .entry-extra { text-align: center; }
+.word-card .entry-forms { justify-content: center; }
+.word-card .entry-note { justify-content: center; text-align: left; }
+.word-card-row ~ .entry-actions { justify-content: center; max-width: 560px; margin: 0 auto 1rem; }
+.word-card-row ~ .edit-block { max-width: 560px; margin-left: auto; margin-right: auto; }
+@media (max-width: 600px) {
+  .word-card-row { gap: .35rem; }
+  .card-arrow { width: 2.3rem; height: 2.3rem; font-size: 1.15rem; margin-top: 130px; }
+  .word-card { padding: 0 1rem .9rem; }
+  .word-card-main { min-height: 260px; }
+  .word-card-main h1 { font-size: 1.7rem; }
+}

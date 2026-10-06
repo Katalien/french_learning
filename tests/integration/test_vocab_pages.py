@@ -31,9 +31,10 @@ def test_dictionary_rows(client):
 def test_entry_page_gender_label_and_color(client):
     html = client.get("/vocab/voc-maisonaa").text
     assert "gender-f" in html
-    assert '<span class="gender-label">f</span>' in html
+    # 0.9.1: род — в скобках сразу за словом: «la maison (f)»
+    assert re.search(r'la maison\s*<span class="gender-label">\(f\)</span>', html)
     html = client.get("/vocab/voc-painaaaa").text
-    assert "gender-m" in html and '<span class="gender-label">m</span>' in html
+    assert "gender-m" in html and '<span class="gender-label">(m)</span>' in html
 
 
 def test_entry_without_gender_is_neutral(client, content_root):
@@ -96,12 +97,12 @@ def test_entry_neighbours_follow_filtered_list(client):
     assert len(ids) == 2
     first = client.get(f"/vocab/{ids[0]}?lesson=2").text
     assert "1 из 2" in first
-    assert 'class="arrow prev disabled"' in first
-    assert f'href="/vocab/{ids[1]}?lesson=2"' in first and 'class="arrow next"' in first
+    assert 'class="card-arrow prev disabled"' in first
+    assert f'href="/vocab/{ids[1]}?lesson=2"' in first and 'class="card-arrow next"' in first
     second = client.get(f"/vocab/{ids[1]}?lesson=2").text
     assert "2 из 2" in second
     assert f'href="/vocab/{ids[0]}?lesson=2"' in second
-    assert 'class="arrow next disabled"' in second
+    assert 'class="card-arrow next disabled"' in second
 
 
 def test_entry_without_filters_uses_whole_dictionary(client):
@@ -123,7 +124,7 @@ def test_lesson_vocab_links_keep_lesson(client):
     assert f'href="/vocab/{ids[1]}?from=lesson&amp;lesson=2"' in first
     assert 'href="/lessons/2/vocab"' in first  # путь назад — к лексике урока
     last = client.get(f"/vocab/{ids[1]}?from=lesson&lesson=2").text
-    assert "2 из 2" in last and 'class="arrow next disabled"' in last
+    assert "2 из 2" in last and 'class="card-arrow next disabled"' in last
 
 
 def test_topic_words_links_keep_topic(client):
@@ -134,3 +135,16 @@ def test_topic_words_links_keep_topic(client):
     assert "1 из 2" in page
     assert f'href="/vocab/{ids[1]}?from=topic&amp;topic=top-maisonxx"' in page
     assert 'href="/topics/top-maisonxx' in page
+
+
+def test_entry_card_layout(client):
+    """0.9.1 (макет А): карточка по центру, стрелки по бокам карточки, «Подробнее» — под
+    неизменной верхней частью (слово и переводы)."""
+    html = client.get("/vocab/voc-maisonaa?topic=top-maisonxx").text
+    row = html.split('class="word-card-row"', 1)[1]
+    assert row.index('class="card-arrow prev') < row.index('class="word-card ')
+    assert row.index('class="word-card ') < row.index('class="card-arrow next')
+    card = row.split('class="word-card ', 1)[1].split("</article>", 1)[0]
+    main = card.split('class="word-card-main"', 1)[1]
+    assert main.index("дом") < main.index('class="entry-extra"')
+    assert 'class="arrow ' not in html  # прежние стрелки у краёв окна убраны
