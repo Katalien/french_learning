@@ -169,3 +169,28 @@ def test_entry_keyboard_arrows(client):
     html = client.get("/vocab/voc-maisonaa?topic=top-maisonxx").text
     assert "data-keyboard-arrows" in html
     assert "ArrowLeft" in html and "ArrowRight" in html
+
+
+# --- 011: фильтры «Лексики» урока -----------------------------------------------------------
+
+
+def test_lesson_vocab_filters(client):
+    html = client.get("/lessons/1/vocab").text
+    topic_select = html.split('name="topic"', 1)[1].split("</select>", 1)[0]
+    assert "Дом" in topic_select and "Еда" in topic_select and "Артикли" not in topic_select
+    assert 'name="kind"' in html
+    food = client.get("/lessons/1/vocab?topic=top-nourritu").text
+    assert "pain" in food and "maison" not in food.split('class="word-rows"', 1)[1]
+    assert re.search(r'<option value="top-nourritu"\s+selected', food)
+    empty = client.get("/lessons/1/vocab?kind=verb").text
+    assert "Нет слов для выбранных условий" in empty
+
+
+def test_filtered_lesson_links_and_neighbours(client):
+    html = client.get("/lessons/1/vocab?topic=top-nourritu").text
+    link = 'href="/vocab/voc-painaaaa?from=lesson&amp;lesson=1&amp;topic=top-nourritu"'
+    assert link in html
+    page = client.get("/vocab/voc-painaaaa?from=lesson&lesson=1&topic=top-nourritu").text
+    assert "1 из 1" in page
+    assert 'class="card-arrow next disabled"' in page
+    assert 'href="/lessons/1/vocab?topic=top-nourritu"' in page  # назад — с тем же фильтром

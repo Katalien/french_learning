@@ -1,7 +1,7 @@
 {% extends "lesson_base.html" %}
 {# «Лексика» урока (009, FR-011): новые слова, на повторение, повторение карточек урока #}
 {% block lesson_content %}
-{% if not new_words and not repeat_words %}
+{% if not has_words %}
   <p class="empty">Нет материалов.</p>
 {% else %}
   <section class="card">
@@ -9,7 +9,23 @@
       <h2>Лексика урока</h2>
       <a href="/lessons/{{ summary.number }}/practice" role="button">Повторить слова урока</a>
     </div>
-    {% include "partials/vocab_list.html" %}
+    {# 011: фильтры по теме и виду — как в словаре #}
+    <form method="get" action="/lessons/{{ summary.number }}/vocab" class="dict-filters">
+      <select name="topic" aria-label="Тема" onchange="this.form.requestSubmit()">
+        <option value="">все темы</option>
+        {% for t in filter_topics %}<option value="{{ t.id }}" {% if selected.topic == t.id %}selected{% endif %}>{{ t.name }}</option>{% endfor %}
+      </select>
+      <select name="kind" aria-label="Вид" onchange="this.form.requestSubmit()">
+        {% for key, name in {"": "все виды", "word": "слова", "verb": "глаголы", "phrase": "фразы"}.items() %}<option value="{{ key }}" {% if selected.kind == key %}selected{% endif %}>{{ name }}</option>{% endfor %}
+      </select>
+      <noscript><button type="submit" class="small">Показать</button></noscript>
+      {% if selected.topic or selected.kind %}<a href="/lessons/{{ summary.number }}/vocab" class="small">сбросить</a>{% endif %}
+    </form>
+    {% if new_words or repeat_words %}
+      {% include "partials/vocab_list.html" %}
+    {% else %}
+      <p class="empty">Нет слов для выбранных условий.</p>
+    {% endif %}
   </section>
 {% endif %}
 {% endblock %}

@@ -42,14 +42,14 @@ description: "Task list for 011 — повторение и лексика ур�
 
 ## Phase 6: US4 — фильтры лексики урока (P2)
 
-- [ ] T017 [P] [US4] Тесты в tests/integration/test_vocab_pages.py: `/lessons/n/vocab?topic=&kind=` — фильтры (темы только слов урока), суженные списки, «Нет слов для выбранных условий»; ссылки несут фильтр; страница слова — «N из M» и соседи по фильтру; «назад» с фильтром
-- [ ] T018 [US4] src/french_learning/web/routes/lessons.py (лексика урока): фильтры; templates/lesson_vocab.html, partials/vocab_list.html
-- [ ] T019 [US4] src/french_learning/web/routes/vocab.py `_source_list`: фильтры `topic` / `kind` для `from=lesson`
+- [X] T017 [P] [US4] Тесты в tests/integration/test_vocab_pages.py: `/lessons/n/vocab?topic=&kind=` — фильтры (темы только слов урока), суженные списки, «Нет слов для выбранных условий»; ссылки несут фильтр; страница слова — «N из M» и соседи по фильтру; «назад» с фильтром
+- [X] T018 [US4] src/french_learning/web/routes/lessons.py (лексика урока): фильтры; templates/lesson_vocab.html, partials/vocab_list.html
+- [X] T019 [US4] src/french_learning/web/routes/vocab.py `_source_list`: фильтры `topic` / `kind` для `from=lesson`
 
 ## Phase 7: US5 — темы со словами (P3)
 
-- [ ] T020 [P] [US5] Тест в tests/integration/test_vocab_practice.py: тема без слов отсутствует в списке настройки; `?mode=topic&topic=<пустая>` — не выбрана, счётчик 0
-- [ ] T021 [US5] src/french_learning/web/routes/vocab.py `practice_setup`: `topic_options` только с темами слов
+- [X] T020 [P] [US5] Тест в tests/integration/test_vocab_practice.py: тема без слов отсутствует в списке настройки; `?mode=topic&topic=<пустая>` — не выбрана, счётчик 0
+- [X] T021 [US5] src/french_learning/web/routes/vocab.py `practice_setup`: `topic_options` только с темами слов
 
 ## Phase 8: Polish
 

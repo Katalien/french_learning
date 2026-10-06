@@ -82,7 +82,8 @@ def practice_setup(
 ):
     """Настройка повторения; из урока приходят `mode=lesson&lesson=N` (010, пункт 3)."""
     _cards, sessions = _practice(request, index)
-    params = _session_params(mode=mode, lesson=lesson, topic=topic)
+    word_topics = {t for e in vocab_entries.vocab_entries(index) if not e.hidden for t in e.topics}
+    params = _session_params(mode=mode, lesson=lesson, topic=topic if topic in word_topics else "")
     context = {
         "index": index,
         "today_count": sessions.count(index, SessionParams()),
@@ -92,7 +93,10 @@ def practice_setup(
         "modes": MODE_NAMES,
         "kinds": KIND_FILTERS,
         "directions": DIRECTIONS,
-        "topic_options": [{"value": t.id, "label": t.name} for t in index.all_topics()],
+        # 011: только темы, у которых есть нескрытые слова
+        "topic_options": [
+            {"value": t.id, "label": t.name} for t in index.all_topics() if t.id in word_topics
+        ],
         "lessons": index.lessons(),
         "selected": params,
         "portion_size": request.app.state.progress_db.get_setting("portion_size") or "20",
@@ -675,15 +679,18 @@ def _list_query(lesson: str, topic: str, kind: str, filter: str) -> str:
     return urlencode({k: v for k, v in pairs.items() if v})
 
 
-def _source_list(index: ContentIndex, source: str, lesson: str, topic: str):
+def _source_list(index: ContentIndex, source: str, lesson: str, topic: str, kind: str = ""):
     """Список слов страницы урока или темы — в том же порядке, что на странице (0.9.1).
 
     Возвращает (слова, строка запроса для стрелок, (адрес назад, подпись)) или None.
     """
     if source == "lesson" and lesson.isdigit() and index.lesson(int(lesson)) is not None:
-        new, repeat = index.lesson_vocabulary(int(lesson))
-        query = urlencode({"from": "lesson", "lesson": lesson})
-        return new + repeat, query, (f"/lessons/{lesson}/vocab", f"Урок {lesson} › Лексика")
+        # 011: с фильтрами лексики урока (тема, вид)
+        new, repeat = vocab_entries.lesson_words(index, int(lesson), topic, kind)
+        filters = {k: v for k, v in {"topic": topic, "kind": kind}.items() if v}
+        query = urlencode({"from": "lesson", "lesson": lesson, **filters})
+        back = f"/lessons/{lesson}/vocab" + (f"?{urlencode(filters)}" if filters else "")
+        return new + repeat, query, (back, f"Урок {lesson} › Лексика")
     if source == "topic" and topic and index.topic(topic) is not None:
         words = [e for e in index.topic_elements(topic) if e.kind == "vocab"]
         query = urlencode({"from": "topic", "topic": topic})
@@ -696,7 +703,7 @@ def _neighbours(
 ) -> dict:
     """Соседи слова в списке, из которого его открыли (урок, тема, словарь с фильтрами);
     иначе — во всём словаре."""
-    from_page = _source_list(index, source, filters["lesson"], filters["topic"])
+    from_page = _source_list(index, source, filters["lesson"], filters["topic"], filters["kind"])
     if from_page is not None:
         items, query, back = from_page
     else:

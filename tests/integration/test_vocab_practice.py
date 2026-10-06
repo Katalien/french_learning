@@ -305,3 +305,15 @@ def test_drill_with_no_words_returns_to_summary(client):
         f"/practice/{session}/drill", data={"which": "again"}, follow_redirects=False
     )
     assert response.status_code == 303 and response.headers["location"] == f"/practice/{session}"
+
+
+# --- 011: в настройке повторения — только темы со словами ----------------------------------
+
+
+def test_setup_lists_only_topics_with_words(client):
+    html = client.get("/practice/setup").text
+    combobox = html.split("data-combobox", 1)[1].split("</div>", 1)[0]
+    assert "top-maisonxx" in combobox and "top-nourritu" in combobox
+    assert "top-etreverb" not in combobox and "top-articles" not in combobox  # темы без слов
+    empty = client.get("/practice/setup?mode=topic&topic=top-etreverb").text
+    assert "Нет слов для повторения" in empty

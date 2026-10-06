@@ -85,6 +85,18 @@ def accepted_answers(index: ContentIndex, entry: Any, direction: str) -> list[st
     return sorted(set(same))
 
 
+def lesson_words(
+    index: ContentIndex, lesson: int, topic: str = "", kind: str = ""
+) -> tuple[list[Any], list[Any]]:
+    """Лексика урока (новые, на повторение) с фильтрами по теме и виду (011, пункт 4)."""
+
+    def keep(entry: Any) -> bool:
+        return (not topic or topic in entry.topics) and (not kind or entry.entry_type == kind)
+
+    new, repeat = index.lesson_vocabulary(lesson)
+    return [e for e in new if keep(e)], [e for e in repeat if keep(e)]
+
+
 def filter_entries(
     index: ContentIndex,
     *,
