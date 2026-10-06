@@ -29,9 +29,9 @@ description: "Task list for 011 — повторение и лексика ур�
 
 ## Phase 4: US2 — переводы помещаются (P1)
 
-- [ ] T010 [P] [US2] Тесты в tests/integration/test_vocab_practice.py: ru_fr лицевая и fr_ru обратная сторона — переводы отдельными `.tr-line`; длинные — класс `tr-m` / `tr-s`; страница результата ввода — так же
-- [ ] T011 [US2] src/french_learning/vocab/entries.py: `Question.lines`; фильтр/функция класса размера по длине
-- [ ] T012 [US2] templates/vocab/practice_card.html, practice_result.html; static/css/screens.css: `.tr-line`, `.tr-m`, `.tr-s`, `overflow-wrap: anywhere`
+- [X] T010 [P] [US2] Тесты в tests/integration/test_vocab_practice.py: ru_fr лицевая и fr_ru обратная сторона — переводы отдельными `.tr-line`; длинные — класс `tr-m` / `tr-s`; страница результата ввода — так же
+- [X] T011 [US2] src/french_learning/vocab/entries.py: `Question.lines`; фильтр/функция класса размера по длине
+- [X] T012 [US2] templates/vocab/practice_card.html, practice_result.html; static/css/screens.css: `.tr-line`, `.tr-m`, `.tr-s`, `overflow-wrap: anywhere`
 
 ## Phase 5: US3 — повтор-тренировка (P2)
 

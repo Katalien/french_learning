@@ -22,6 +22,11 @@ KIND_NAMES = {"word": "слово", "verb": "глагол", "phrase": "фраз�
 class Question:
     text: str
     hint: str = ""
+    lines: tuple[str, ...] = ()  # 011: переводы по отдельности — каждый своей строкой
+
+    def __post_init__(self) -> None:
+        if not self.lines:
+            self.lines = (self.text,)
 
 
 def display_fr(entry: Any) -> str:
@@ -57,7 +62,7 @@ def question(index: ContentIndex, entry: Any, direction: str) -> Question:
     if entry.examples:
         hint_parts.append(f"пример: {entry.examples[0].text}")
     hint = " · ".join(p for p in hint_parts if p)
-    return Question(", ".join(translations(entry)), hint)
+    return Question(", ".join(translations(entry)), hint, tuple(translations(entry)))
 
 
 def article_rating_allowed(entry: Any, direction: str) -> bool:

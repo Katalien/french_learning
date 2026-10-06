@@ -212,3 +212,48 @@ def test_article_rating_moves_word_to_front_of_articles_trainer(client):
     started = client.post("/trainers/articles/start", data={"scope": "all"})
     prompt = re.search(r'class="trainer-prompt"[^>]*>\s*([^<]+?)\s*<', started.text)[1]
     assert "eau" in prompt  # первым — слово с «Ошибкой в артикле»
+
+
+# --- 011: переводы помещаются на карточке --------------------------------------------------
+
+
+LONG = [
+    "вода питьевая из-под крана",
+    "жидкость прозрачная без цвета",
+    "водоём, море или река в целом",
+]
+
+
+def long_translations(content_root):
+    path = content_root / "vocabulary/voc-eauaaaaa.yaml"
+    lines = "".join(f"  - {{text: '{t}', lesson: 2, origin: ai}}\n" for t in LONG)
+    text = path.read_text(encoding="utf-8").replace(
+        "  - {text: вода, lesson: 2, origin: ai}\n", lines
+    )
+    path.write_text(text, encoding="utf-8")
+
+
+def test_ru_fr_question_each_translation_on_own_line(client, content_root):
+    long_translations(content_root)
+    html = client.get(f"/practice/{only_eau_session(client)}").text
+    front = html.split('class="flip-face flip-back', 1)[0]
+    assert re.search(r'class="question tr-lines tr-s"', front)
+    assert [t for t in LONG if f'<span class="tr-line">{t}</span>' in front] == LONG
+
+
+def test_fr_ru_answer_each_translation_on_own_line(client, content_root):
+    long_translations(content_root)
+    cards = client.app.state.cards
+    cards.sync(client.app.state.store.get())
+    for card in cards.all():
+        if card.entry_id != "voc-eauaaaaa":
+            cards.set_known(card.entry_id, True)
+    html = client.get(start(client, mode="all", direction="fr_ru")).text
+    back = html.split('class="flip-face flip-back', 1)[1]
+    assert 'class="answer tr-lines tr-s"' in back
+    assert all(f'<span class="tr-line">{t}</span>' in back for t in LONG)
+
+
+def test_short_translation_unchanged(client):
+    html = client.get(f"/practice/{only_eau_session(client)}").text
+    assert '<p class="question" lang="ru">вода</p>' in html

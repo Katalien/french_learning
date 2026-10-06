@@ -706,3 +706,13 @@ mark.search-hit.current { background: var(--ring); outline: 2px solid var(--prim
 .ratings .rating-article:hover { border-color: var(--q); color: var(--q); }
 .rating-stats .rating-article strong { color: var(--q); }
 @media (max-width: 600px) { .ratings:has(.rating-article) { grid-template-columns: repeat(2, 1fr); } }
+
+/* Переводы на карточке повторения (011, пункт 3): каждый своей строкой, меньше шрифт при
+   большом объёме, длинное слово переносится — текст не выходит за карточку */
+.flashcard .question, .flashcard .answer { max-width: 100%; overflow-wrap: anywhere; }
+.tr-lines .tr-line { display: block; }
+.tr-lines .tr-line + .tr-line { margin-top: .15em; }
+.flashcard .question.tr-m { font-size: 1.6rem; }
+.flashcard .question.tr-s { font-size: 1.25rem; }
+.flashcard .answer.tr-m { font-size: 1.2rem; }
+.flashcard .answer.tr-s { font-size: 1.05rem; }
