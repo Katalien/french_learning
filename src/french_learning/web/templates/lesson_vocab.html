@@ -7,7 +7,8 @@
   <section class="card">
     <div class="section-head">
       <h2>Лексика урока</h2>
-      <a href="/lessons/{{ summary.number }}/practice" role="button">Повторить слова урока</a>
+      {# 011: тема из фильтра лексики переходит в настройку повторения #}
+      <a href="/lessons/{{ summary.number }}/practice{% if selected.topic %}?topic={{ selected.topic }}{% endif %}" role="button">Повторить слова урока</a>
     </div>
     {# 011: фильтры по теме и виду — как в словаре #}
     <form method="get" action="/lessons/{{ summary.number }}/vocab" class="dict-filters">

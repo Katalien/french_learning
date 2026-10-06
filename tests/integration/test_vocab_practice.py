@@ -338,3 +338,18 @@ def test_lesson_topic_narrows_session(client):
     assert "В сеансе: 2" in whole and "В сеансе: 1" in food
     path = start(client, **base, lesson_topic="top-nourritu", from_setup="1")
     assert client.app.state.sessions.progress(path.rsplit("/", 1)[-1]).total == 1
+
+
+def test_lesson_vocab_topic_filter_carries_to_setup(client):
+    """011 (приёмка): тема из фильтра «Лексики» урока проставляется в настройке повторения."""
+    filtered = client.get("/lessons/1/vocab?topic=top-nourritu").text
+    assert 'href="/lessons/1/practice?topic=top-nourritu"' in filtered
+    plain = client.get("/lessons/1/vocab").text
+    assert 'href="/lessons/1/practice"' in plain
+    response = client.get("/lessons/1/practice?topic=top-nourritu", follow_redirects=False)
+    assert response.headers["location"] == (
+        "/practice/setup?mode=lesson&lesson=1&lesson_topic=top-nourritu"
+    )
+    html = client.get(response.headers["location"]).text
+    assert "lessonTopic: 'top-nourritu'" in html
+    assert "В сеансе: 1" in html  # слова «Еды» из урока 1
