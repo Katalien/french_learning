@@ -33,6 +33,14 @@ KIND_FILTERS = {
 }
 DIRECTIONS = {"fr_ru": "французский → русский", "ru_fr": "русский → французский"}
 RATING_NAMES = {"again": "Не помню", "hard": "С трудом", "good": "Помню"}
+# 011: «Ошибка в артикле» — между «С трудом» и «Помню», только у ru_fr существительных с родом
+ARTICLE_RATING = "Ошибка в артикле"
+
+
+def _card_ratings(entry, direction: str) -> dict[str, str]:
+    if not vocab_entries.article_rating_allowed(entry, direction):
+        return RATING_NAMES
+    return {"again": "Не помню", "hard": "С трудом", "article": ARTICLE_RATING, "good": "Помню"}
 
 
 def _practice(request: Request, index: ContentIndex):
@@ -177,6 +185,7 @@ def _card_page(request: Request, index: ContentIndex, session_id: str, shown: bo
     }
     if current is None:
         context["summary"] = sessions.summary(session_id)
+        context["summary_ratings"] = {**RATING_NAMES, "article": ARTICLE_RATING}
         return templates.TemplateResponse(request, "vocab/practice_summary.html", context)
     entry = index.element(current[0])
     context.update(
@@ -185,6 +194,7 @@ def _card_page(request: Request, index: ContentIndex, session_id: str, shown: bo
         question=vocab_entries.question(index, entry, current[1]),
         answers=vocab_entries.accepted_answers(index, entry, current[1]),
         shown=shown,
+        ratings=_card_ratings(entry, current[1]),
     )
     return templates.TemplateResponse(request, "vocab/practice_card.html", context)
 
@@ -202,10 +212,14 @@ def practice_show(request: Request, session_id: str, index: Index):
 @router.post("/practice/{session_id}/rate")
 def practice_rate(request: Request, session_id: str, index: Index, rating: Annotated[str, Form()]):
     _cards, sessions = _practice(request, index)
-    if rating not in RATING_NAMES:
-        raise not_found("Неизвестная оценка")
-    if sessions.current(session_id) is not None:
+    current = sessions.current(session_id)
+    if current is not None:
+        allowed = _card_ratings(index.element(current[0]), current[1])
+        if rating not in allowed:
+            raise not_found("Неизвестная оценка")
         sessions.rate(session_id, rating)
+    elif rating not in RATING_NAMES and rating != "article":
+        raise not_found("Неизвестная оценка")
     return _redirect(f"/practice/{session_id}")
 
 

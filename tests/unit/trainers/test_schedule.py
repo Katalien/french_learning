@@ -75,3 +75,31 @@ def test_portions_and_summary(env):
     assert sessions.progress(sid) == (0, 5, 0)
     assert not first_portion & set(sessions.queue(sid))  # новая порция без повторов
     assert len(schedule.history("numbers")) == 5  # ответы сохранены сразу
+
+
+def add_priority(db, key: str, created: str, review_id: int = 1) -> None:
+    with db.lock, db.conn:
+        db.conn.execute(
+            "insert into trainer_priority (trainer_id, key, review_id, created_at) "
+            "values (?, ?, ?, ?)",
+            ("numbers", key, review_id, created),
+        )
+
+
+def test_priority_keys_come_first(env):
+    """011: вопросы с приоритетом («Ошибка в артикле») — первыми, раньше добавленные — раньше."""
+    db, schedule, _ = env
+    for key in KEYS[:5]:
+        schedule.answer("numbers", key, correct=False, now=NOW)  # пора повторить
+    add_priority(db, "numbers:20", "2026-10-01T10:00")
+    add_priority(db, "numbers:25", "2026-10-01T09:00")
+    portion = schedule.select("numbers", KEYS, 4, now=NOW)
+    assert portion[:2] == ["numbers:25", "numbers:20"]
+
+
+def test_answer_removes_priority(env):
+    db, schedule, _ = env
+    add_priority(db, "numbers:20", "2026-10-01T10:00")
+    schedule.answer("numbers", "numbers:20", correct=True, now=NOW)
+    with db.lock:
+        assert db.conn.execute("select count(*) from trainer_priority").fetchone()[0] == 0

@@ -700,3 +700,9 @@ mark.search-hit.current { background: var(--ring); outline: 2px solid var(--prim
   .word-card-main { min-height: 260px; }
   .word-card-main h1 { font-size: 1.7rem; }
 }
+
+/* «Ошибка в артикле» (011): отдельная оценка между «С трудом» и «Помню» */
+.ratings:has(.rating-article) { grid-template-columns: repeat(4, 1fr); }
+.ratings .rating-article:hover { border-color: var(--q); color: var(--q); }
+.rating-stats .rating-article strong { color: var(--q); }
+@media (max-width: 600px) { .ratings:has(.rating-article) { grid-template-columns: repeat(2, 1fr); } }

@@ -60,6 +60,14 @@ def question(index: ContentIndex, entry: Any, direction: str) -> Question:
     return Question(", ".join(translations(entry)), hint)
 
 
+def article_rating_allowed(entry: Any, direction: str) -> bool:
+    """«Ошибка в артикле» (011): только «русский → французский» и существительное с родом —
+    те же слова, что задаёт тренажёр «Артикли»."""
+    from french_learning.trainers.generators.articles import has_gender, is_noun
+
+    return direction == "ru_fr" and is_noun(entry) and has_gender(entry)
+
+
 def accepted_answers(index: ContentIndex, entry: Any, direction: str) -> list[str]:
     if direction == "fr_ru":
         return translations(entry)

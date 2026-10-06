@@ -182,3 +182,33 @@ def test_ru_fr_input_card_neutral_before_answer(client):
     assert 'class="flashcard gender-none' in html and "gender-tag" not in html
     result = client.post(f"/practice/{session}/answer", data={"answer": "l'eau"}).text
     assert 'class="flashcard gender-f' in result
+
+
+# --- 011: «Ошибка в артикле» ------------------------------------------------------------------
+
+
+def test_article_button_only_for_ru_fr_nouns(client, content_root):
+    session = only_eau_session(client)
+    html = client.get(f"/practice/{session}").text
+    assert 'value="article"' in html and "Ошибка в артикле" in html
+    fr_ru = client.get(start(client, mode="all", direction="fr_ru")).text
+    assert 'value="article"' not in fr_ru
+
+
+def test_article_button_absent_without_gender(client, content_root):
+    path = content_root / "vocabulary/voc-eauaaaaa.yaml"
+    path.write_text(path.read_text(encoding="utf-8").replace("gender: f\n", ""), encoding="utf-8")
+    session = only_eau_session(client)
+    assert 'value="article"' not in client.get(f"/practice/{session}").text
+    response = client.post(f"/practice/{session}/rate", data={"rating": "article"})
+    assert response.status_code == 404
+
+
+def test_article_rating_moves_word_to_front_of_articles_trainer(client):
+    session = only_eau_session(client)
+    html = client.post(f"/practice/{session}/rate", data={"rating": "article"}).text
+    assert "Ошибка в артикле" in html  # строка итога
+    assert re.search(r"Ошибка в артикле</span><strong>1</strong>", html)
+    started = client.post("/trainers/articles/start", data={"scope": "all"})
+    prompt = re.search(r'class="trainer-prompt"[^>]*>\s*([^<]+?)\s*<', started.text)[1]
+    assert "eau" in prompt  # первым — слово с «Ошибкой в артикле»

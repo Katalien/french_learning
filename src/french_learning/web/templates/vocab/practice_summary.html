@@ -12,7 +12,7 @@
       {% with done = progress.position, total = progress.total, label = progress.position ~ "/" ~ progress.total, size = "" %}{% include "partials/ring.html" %}{% endwith %}
       <h1>{{ "Готово" if progress.finished else "Порция пройдена" }}</h1>
       <ul class="rating-stats">
-        {% for key, name in ratings.items() %}<li class="rating-{{ key }}"><span>{{ name }}</span><strong>{{ summary.get(key, 0) }}</strong></li>{% endfor %}
+        {% for key, name in summary_ratings.items() if key != "article" or summary.get(key) %}<li class="rating-{{ key }}"><span>{{ name }}</span><strong>{{ summary.get(key, 0) }}</strong></li>{% endfor %}
       </ul>
     {% endif %}
     <div class="btn-group center">

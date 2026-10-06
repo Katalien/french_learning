@@ -116,7 +116,7 @@ def test_notes_reject_empty_body_and_unknown_kind(clean_content_root: Path):
 
 def test_schema_v4_has_translations_and_translator_setting(clean_content_root: Path):
     db = ProgressDB(clean_content_root)
-    assert SCHEMA_VERSION == 4
+    assert SCHEMA_VERSION >= 4
     assert "translations" in tables(db.path)
     assert db.get_setting("translator") == "mymemory"
     assert not db.get_setting("mymemory_email")
@@ -148,8 +148,38 @@ def test_migration_v3_to_v4_keeps_notes_and_cards(clean_content_root: Path):
     db.set_meta("schema_version", "3")
     db.close()
     db = ProgressDB(clean_content_root)
-    assert db.get_meta("schema_version") == "4"
+    assert db.get_meta("schema_version") == str(SCHEMA_VERSION)
     assert "translations" in tables(db.path)
     assert db.conn.execute("select count(*) from cards").fetchone()[0] == 1
     assert db.conn.execute("select count(*) from notes").fetchone()[0] == 1
+    db.close()
+
+
+def test_schema_v5_trainer_priority(clean_content_root: Path):
+    """011: приоритет вопросов тренажёра («Ошибка в артикле»); старая база получает таблицу."""
+    db = ProgressDB(clean_content_root)
+    db.set_setting("portion_size", "35")
+    db.close()
+    path = clean_content_root / ".progress" / "progress.sqlite"
+    with sqlite3.connect(path) as conn:
+        conn.execute("drop table if exists trainer_priority")
+    db = ProgressDB(clean_content_root)
+    assert "trainer_priority" in tables(path)
+    assert SCHEMA_VERSION == 5
+    assert db.get_setting("portion_size") == "35"
+    with db.lock, db.conn:
+        db.conn.execute(
+            "insert into trainer_priority (trainer_id, key, review_id, created_at) "
+            "values (?, ?, ?, ?)",
+            ("articles", "articles:x:def", 1, "2026-10-07"),
+        )
+        try:
+            db.conn.execute(
+                "insert into trainer_priority (trainer_id, key, review_id, created_at) "
+                "values (?,?,?,?)",
+                ("articles", "articles:x:def", 2, "2026-10-08"),
+            )
+            raise AssertionError("ключ должен быть уникальным")
+        except sqlite3.IntegrityError:
+            pass
     db.close()

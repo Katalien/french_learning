@@ -15,7 +15,15 @@ import fsrs
 
 from french_learning.practice.db import ProgressDB
 
-RATINGS = {"again": fsrs.Rating.Again, "hard": fsrs.Rating.Hard, "good": fsrs.Rating.Good}
+# «article» — «Ошибка в артикле» (011): слово вспомнено, как «Помню»; вопросы слова — в начало
+# тренажёра «Артикли»
+RATINGS = {
+    "again": fsrs.Rating.Again,
+    "hard": fsrs.Rating.Hard,
+    "good": fsrs.Rating.Good,
+    "article": fsrs.Rating.Good,
+}
+ARTICLE_KEYS = ("def", "indef")  # вопросы тренажёра «Артикли» на слово
 HARD_WINDOW = 5
 DIRECTIONS = ("fr_ru", "ru_fr")
 
@@ -178,6 +186,18 @@ class CardStore:
                 "update cards set fsrs = ?, due = ? where entry_id = ? and direction = ?",
                 (json.dumps(updated.to_dict()), updated.due.isoformat(), entry_id, direction),
             )
+            if rating == "article":
+                for kind in ARTICLE_KEYS:
+                    self.db.conn.execute(
+                        "insert or replace into trainer_priority "
+                        "(trainer_id, key, review_id, created_at) values (?, ?, ?, ?)",
+                        (
+                            "articles",
+                            f"articles:{entry_id}:{kind}",
+                            cursor.lastrowid,
+                            now.isoformat(),
+                        ),
+                    )
         return cursor.lastrowid
 
     def undo(self, review_id: int) -> tuple[str, str] | None:
@@ -194,6 +214,7 @@ class CardStore:
                 (row["prev_fsrs"], previous.due.isoformat(), row["entry_id"], row["direction"]),
             )
             self.db.conn.execute("delete from reviews where id = ?", (review_id,))
+            self.db.conn.execute("delete from trainer_priority where review_id = ?", (review_id,))
         return row["entry_id"], row["direction"]
 
     def set_known(self, entry_id: str, known: bool) -> None:

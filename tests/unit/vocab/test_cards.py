@@ -148,3 +148,46 @@ def test_review_logged_with_snapshot_and_undo(cards: CardStore):
     cards.undo(review_id)
     assert cards.get("voc-maisonaa", "fr_ru").due == before
     assert cards.history("voc-maisonaa") == []
+
+
+# --- 011: «Ошибка в артикле» ------------------------------------------------------------------
+
+
+def priority_keys(db) -> list[str]:
+    with db.lock:
+        rows = db.conn.execute("select key from trainer_priority order by created_at, key")
+        return [r["key"] for r in rows]
+
+
+def test_article_rating_counts_as_good_and_is_stored(db, index):
+    a = CardStore(db, fuzzing=False)
+    a.sync(index, now=NOW)
+    a.rate("voc-maisonaa", "ru_fr", "article", mode="all", method="self", now=NOW)
+    b_due = a.get("voc-maisonaa", "ru_fr").due
+    a.rate("voc-painaaaa", "ru_fr", "good", mode="all", method="self", now=NOW)
+    assert b_due == a.get("voc-painaaaa", "ru_fr").due  # расписание как у «Помню»
+    assert a.history("voc-maisonaa")[-1]["rating"] == "article"
+
+
+def test_article_rating_puts_word_first_in_articles_trainer(db, index):
+    cards = CardStore(db, fuzzing=False)
+    cards.sync(index, now=NOW)
+    cards.rate("voc-maisonaa", "ru_fr", "article", mode="all", method="self", now=NOW)
+    assert priority_keys(db) == ["articles:voc-maisonaa:def", "articles:voc-maisonaa:indef"]
+
+
+def test_article_rating_is_neutral_for_hard_words(db, index):
+    cards = CardStore(db, fuzzing=False)
+    cards.sync(index, now=NOW)
+    for _ in range(3):
+        cards.rate("voc-maisonaa", "ru_fr", "article", mode="all", method="self", now=NOW)
+    cards.rate("voc-maisonaa", "ru_fr", "again", mode="all", method="self", now=NOW)
+    assert "voc-maisonaa" in cards.hard_ids()  # 1 ошибка, 0 «помню» — «article» не в счёт
+
+
+def test_undo_article_rating_removes_priority(db, index):
+    cards = CardStore(db, fuzzing=False)
+    cards.sync(index, now=NOW)
+    review = cards.rate("voc-maisonaa", "ru_fr", "article", mode="all", method="self", now=NOW)
+    cards.undo(review)
+    assert priority_keys(db) == []

@@ -50,6 +50,10 @@ class TrainerSchedule:
                 "answered_at, session_id) values (?, ?, ?, ?, ?, ?, ?)",
                 (trainer_id, key, answer, int(ok), int(revealed), now.isoformat(), session_id),
             )
+            # ответ снимает приоритет «в начало очереди» (011, «Ошибка в артикле»)
+            self.db.conn.execute(
+                "delete from trainer_priority where trainer_id = ? and key = ?", (trainer_id, key)
+            )
             if not srs:
                 return
             row = self.db.conn.execute(
@@ -116,12 +120,20 @@ class TrainerSchedule:
         exclude: set[str] | frozenset = frozenset(),
         now: dt.datetime | None = None,
     ) -> list[str]:
-        """Порция: сначала «пора» (раньше срок — раньше), затем новые, затем досрочно."""
+        """Порция: сначала приоритетные (011), затем «пора» (раньше срок — раньше), новые,
+        досрочно."""
         limit = end_of_local_day(now or _now())
         dues = self._dues(trainer_id)
-        candidates = [k for k in keys if k not in exclude]
+        allowed = {k for k in keys if k not in exclude}
+        with self.db.lock:
+            rows = self.db.conn.execute(
+                "select key from trainer_priority where trainer_id = ? order by created_at, key",
+                (trainer_id,),
+            ).fetchall()
+        first = [r["key"] for r in rows if r["key"] in allowed]
+        candidates = [k for k in keys if k in allowed and k not in first]
         due = sorted((k for k in candidates if k in dues and dues[k] <= limit), key=dues.get)
         new = [k for k in candidates if k not in dues]
         random.Random(trainer_id).shuffle(new)  # разнообразие, но стабильный порядок
         ahead = sorted((k for k in candidates if k in dues and dues[k] > limit), key=dues.get)
-        return (due + new + ahead)[:size]
+        return (first + due + new + ahead)[:size]
