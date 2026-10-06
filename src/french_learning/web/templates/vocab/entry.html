@@ -8,7 +8,7 @@
 <p class="crumbs word-card-crumbs"><a href="{{ nav.back[0] if nav else '/vocab' }}">{{ nav.back[1] if nav else "Словарь" }}</a> › {{ display_fr(e) }}</p>
 
 {% set q = "?" ~ nav.query if nav and nav.query else "" %}
-<div class="word-card-row">
+<div class="word-card-row" data-keyboard-arrows>
   {% if nav and nav.prev %}<a class="card-arrow prev" href="/vocab/{{ nav.prev.id }}{{ q }}" title="Предыдущее: {{ display_fr(nav.prev) }}" aria-label="Предыдущее слово">‹</a>
   {% else %}<span class="card-arrow prev disabled" aria-hidden="true">‹</span>{% endif %}
 
@@ -20,7 +20,7 @@
       {%- if e.gender in ("m", "f") %} <span class="gender-label">({{ e.gender }})</span>
       {%- elif e.gender == "both" %} <span class="gender-label">(m/f)</span>{% endif %}</h1>
     {% with speak = display_fr(e) %}{% include "partials/speak.html" %}{% endwith %}
-    <p class="translations">{% for t in e.translations %}{{ t.text }}{% if show_origin %} {% with origin = t.origin, detail = none %}{% include "partials/origin_badge.html" %}{% endwith %}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+    <p class="translations">{{ e.translations | map(attribute="text") | join(", ") }}</p>
     <p class="word-card-kind muted small">
       {{ kind_names[e.entry_type] }}{% if e.pos %} · {{ pos_names.get(e.pos, e.pos) }}{% endif %}
       {% if indefinite %} · неопр.: {{ indefinite }}{% endif %}
@@ -53,6 +53,9 @@
     {% endif %}
     {% if e.notes %}<p class="entry-note"><svg class="icon" aria-hidden="true"><use href="#i-note"/></svg><span>{{ e.notes }}</span></p>{% endif %}
     {% set sources = (e.lessons + (e.examples | map(attribute="lesson") | select | list) + (e.translations | map(attribute="lesson") | select | list)) | unique | sort | list %}
+    {# 0.9.1: происхождение переводов — здесь, а не рядом с переводом (принцип I: доступно
+       в интерфейсе по переключателю «Происхождение») #}
+    {% if show_origin %}<p class="entry-origin small muted">перевод: {% for t in e.translations %}{{ t.text }} {% with origin = t.origin, detail = none %}{% include "partials/origin_badge.html" %}{% endwith %}{% if not loop.last %}; {% endif %}{% endfor %}</p>{% endif %}
     <p class="entry-meta">{% if sources %}{{ "урок" if sources | length == 1 else "уроки" }} {{ sources | join(", ") }}{% else %}добавлено вручную{% endif %}
       · {% if history %}повторений {{ history | length }}{% else %}повторений ещё не было{% endif %}</p>
   </details>
@@ -92,4 +95,16 @@
   </form>
 </details>
 
+{# 0.9.1: на компьютере ← / → листают слова, как стрелки у карточки; не мешают вводу текста #}
+<script>
+  document.addEventListener("keydown", (event) => {
+    if (!document.querySelector("[data-keyboard-arrows]")) return;
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const target = event.target;
+    if (target.closest && target.closest("input, textarea, select, [contenteditable]")) return;
+    const side = { ArrowLeft: "prev", ArrowRight: "next" }[event.key];
+    const link = side && document.querySelector(`a.card-arrow.${side}`);
+    if (link) { event.preventDefault(); location.href = link.href; }
+  });
+</script>
 {% endblock %}

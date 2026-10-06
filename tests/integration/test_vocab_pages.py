@@ -148,3 +148,24 @@ def test_entry_card_layout(client):
     main = card.split('class="word-card-main"', 1)[1]
     assert main.index("дом") < main.index('class="entry-extra"')
     assert 'class="arrow ' not in html  # прежние стрелки у краёв окна убраны
+
+
+def test_translation_origin_not_next_to_translation(client):
+    """0.9.1: рядом с переводом метки происхождения нет; при включённом «Происхождении» она
+    в «Подробнее» (конституция, принцип I — происхождение доступно в интерфейсе)."""
+    client.cookies.set("show_origin", "1")
+    html = client.get("/vocab/voc-maisonaa").text
+    translations = html.split('class="translations"', 1)[1].split("</p>", 1)[0]
+    assert "origin-badge" not in translations
+    extra = html.split('class="entry-extra"', 1)[1].split("</details>", 1)[0]
+    assert 'class="entry-origin' in extra and "origin-badge" in extra
+    client.cookies.set("show_origin", "0")
+    html = client.get("/vocab/voc-maisonaa").text
+    assert "entry-origin" not in html
+
+
+def test_entry_keyboard_arrows(client):
+    """0.9.1: на компьютере ← / → листают слова (как стрелки у карточки)."""
+    html = client.get("/vocab/voc-maisonaa?topic=top-maisonxx").text
+    assert "data-keyboard-arrows" in html
+    assert "ArrowLeft" in html and "ArrowRight" in html
