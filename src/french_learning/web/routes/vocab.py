@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Annotated
+from urllib.parse import urlencode
 
 from fastapi import APIRouter, Form, Request
 from fastapi.responses import RedirectResponse
@@ -46,20 +47,69 @@ def _redirect(url: str) -> RedirectResponse:
     return RedirectResponse(url, status_code=303)
 
 
+def _session_params(
+    mode: str = "today",
+    kind: str = "all",
+    direction: str = "fr_ru",
+    method: str = "self",
+    lesson: str = "",
+    topic: str = "",
+    portion: int | None = None,
+) -> SessionParams:
+    return SessionParams(
+        source="dictionary",
+        mode=mode if mode in MODE_NAMES else "today",
+        kind=kind if kind in KIND_FILTERS else "all",
+        direction=direction if direction in DIRECTIONS else "fr_ru",
+        method=method,
+        lesson=int(lesson) if lesson.isdigit() else None,
+        topic=topic or None,
+        portion=portion,
+    )
+
+
 @router.get("/practice/setup")
-def practice_setup(request: Request, index: Index):
+def practice_setup(
+    request: Request, index: Index, mode: str = "today", lesson: str = "", topic: str = ""
+):
+    """Настройка повторения; из урока приходят `mode=lesson&lesson=N` (010, пункт 3)."""
     _cards, sessions = _practice(request, index)
+    params = _session_params(mode=mode, lesson=lesson, topic=topic)
     context = {
         "index": index,
         "today_count": sessions.count(index, SessionParams()),
+        "count": 0
+        if params.mode == "topic" and not params.topic
+        else sessions.count(index, params),
         "modes": MODE_NAMES,
         "kinds": KIND_FILTERS,
         "directions": DIRECTIONS,
-        "topics": index.all_topics(),
+        "topic_options": [{"value": t.id, "label": t.name} for t in index.all_topics()],
         "lessons": index.lessons(),
+        "selected": params,
+        "portion_size": request.app.state.progress_db.get_setting("portion_size") or "20",
         "last_backup": request.app.state.progress_db.get_meta("last_backup_pushed"),
     }
     return templates.TemplateResponse(request, "vocab/practice_setup.html", context)
+
+
+@router.get("/practice/count")
+def practice_count(
+    request: Request,
+    index: Index,
+    mode: str = "today",
+    kind: str = "all",
+    direction: str = "fr_ru",
+    lesson: str = "",
+    topic: str = "",
+):
+    """Сколько карточек будет в сеансе при текущих настройках (010, FR-007)."""
+    _cards, sessions = _practice(request, index)
+    params = _session_params(mode, kind, direction, lesson=lesson, topic=topic)
+    count = 0 if mode == "topic" and not topic else sessions.count(index, params)
+    return templates.TemplateResponse(
+        request, "vocab/partials/practice_count.html", {"count": count}
+    )
 
 
 @router.post("/practice/start")
@@ -72,27 +122,37 @@ def practice_start(
     method: Annotated[str, Form()] = "self",
     lesson: Annotated[str, Form()] = "",
     topic: Annotated[str, Form()] = "",
+    portion: Annotated[str, Form()] = "",
+    from_setup: Annotated[str, Form()] = "",
 ):
+    """Запуск сеанса (010). `portion` со страницы настройки (`from_setup`): пусто — все.
+
+    Без настройки (кнопки «Повторить» на «Сегодня» и в «Практике»): урок / тема — целиком,
+    прочие режимы — последнее число «слов за подход».
+    """
     _cards, sessions = _practice(request, index)
-    params = SessionParams(
-        source="dictionary",
-        mode=mode,
-        kind=kind,
-        direction=direction,
-        method=method,
-        lesson=int(lesson) if lesson else None,
-        topic=topic or None,
-    )
+    back = f"/practice/setup?{urlencode({'mode': mode, 'lesson': lesson, 'topic': topic})}"
+    size = None
+    if not from_setup and not portion.strip():
+        if mode not in ("lesson", "topic"):
+            size = int(request.app.state.progress_db.get_setting("portion_size") or 20)
+    elif portion.strip():
+        if not portion.strip().isdigit() or not 1 <= int(portion) <= 500:
+            return _redirect(f"{back}&{urlencode({'error': 'слов за подход — число от 1 до 500'})}")
+        size = int(portion)
+        request.app.state.progress_db.set_setting("portion_size", str(size))
+    params = _session_params(mode, kind, direction, method, lesson, topic, size)
+    if sessions.count(index, params) == 0:
+        return _redirect(f"{back}&{urlencode({'notice': 'Нет слов для повторения.'})}")
     return _redirect(f"/practice/{sessions.start(index, params)}")
 
 
 @router.get("/lessons/{number}/practice")
-def lesson_practice(request: Request, number: int, index: Index):
+def lesson_practice(number: int, index: Index):
+    """010, пункт 3: повторение слов урока начинается со страницы настройки."""
     if index.lesson(number) is None:
         raise not_found(f"Урок {number} не найден")
-    _cards, sessions = _practice(request, index)
-    params = SessionParams(source="lesson", mode="lesson", lesson=number)
-    return _redirect(f"/practice/{sessions.start(index, params)}")
+    return _redirect(f"/practice/setup?mode=lesson&lesson={number}")
 
 
 def _card_page(request: Request, index: ContentIndex, session_id: str, shown: bool, **extra):
@@ -279,6 +339,7 @@ def vocab_list(
         "items": items,
         "view": "list" if view == "list" else "cards",
         "selected": {"lesson": lesson, "topic": topic, "kind": kind, "filter": filter},
+        "query": _list_query(lesson, topic, kind, filter),
         "filters": VOCAB_FILTERS,
         "kinds": {"": "все виды", "word": "слова", "verb": "глаголы", "phrase": "фразы"},
         "lessons": index.lessons(),
@@ -534,10 +595,8 @@ def settings_page(request: Request, index: Index):
     db = request.app.state.progress_db
     context = {
         "index": index,
-        "portion_size": db.get_setting("portion_size"),
         "trainer_portion_size": db.get_setting("trainer_portion_size"),
         "exercise_list_view": db.get_setting("exercise_list_view"),
-        "directions": db.get_setting("directions"),
         "voice": db.get_setting("voice"),
         "voices": {key: name for key, (_code, name) in VOICES.items()},
         "voices_missing": not request.app.state.speaker.available(db.get_setting("voice")),
@@ -553,18 +612,12 @@ def settings_page(request: Request, index: Index):
 def settings_save(
     request: Request,
     index: Index,
-    portion_size: Annotated[str, Form()] = "20",
     trainer_portion_size: Annotated[str, Form()] = "",
     exercise_list_view: Annotated[str, Form()] = "",
-    directions: Annotated[str, Form()] = "staged",
     voice: Annotated[str, Form()] = DEFAULT_VOICE,
     search_translations: Annotated[str, Form()] = "0",
 ):
     db = request.app.state.progress_db
-    if not portion_size.isdigit() or not 1 <= int(portion_size) <= 500:
-        return _redirect("/settings?error=размер порции — число от 1 до 500")
-    if directions not in {"staged", "both"}:
-        return _redirect("/settings?error=неизвестный режим направлений")
     if voice not in VOICES:
         return _redirect("/settings?error=неизвестный голос озвучки")
     db.set_setting("voice", voice)
@@ -576,25 +629,70 @@ def settings_save(
         if exercise_list_view not in ("rows", "tiles"):
             return _redirect("/settings?error=неизвестный вид списка заданий")
         db.set_setting("exercise_list_view", exercise_list_view)
-    db.set_setting("portion_size", str(int(portion_size)))
-    db.set_setting("directions", directions)
     db.set_setting("search_translations", "1" if search_translations == "1" else "0")
     return _redirect("/settings?notice=Настройки сохранены.")
 
 
 # Маршрут записи — последним: иначе он перехватит /vocab/add и /vocab/complete.
+def _list_query(lesson: str, topic: str, kind: str, filter: str) -> str:
+    """Фильтры списка словаря для ссылок на слово и переходов «‹ ›» (010, пункт 1)."""
+    pairs = {"lesson": lesson, "topic": topic, "kind": kind, "filter": filter}
+    return urlencode({k: v for k, v in pairs.items() if v})
+
+
+def _neighbours(index: ContentIndex, entry_id: str, known: set[str], **filters: str) -> dict:
+    """Соседи слова в списке, из которого его открыли; иначе — во всём словаре."""
+    query = _list_query(**filters)
+    lesson = filters["lesson"]
+    items = vocab_entries.filter_entries(
+        index,
+        lesson=int(lesson) if lesson.isdigit() else None,
+        topic=filters["topic"] or None,
+        kind=filters["kind"] or None,
+        flag=filters["filter"] or None,
+        known_ids=known,
+    )
+    ids = [e.id for e in items]
+    if entry_id not in ids:
+        query = ""
+        items = vocab_entries.filter_entries(index, known_ids=known)
+        ids = [e.id for e in items]
+    if entry_id not in ids:
+        return {}
+    at = ids.index(entry_id)
+    return {
+        "prev": items[at - 1] if at > 0 else None,
+        "next": items[at + 1] if at + 1 < len(items) else None,
+        "position": at + 1,
+        "total": len(items),
+        "query": query,
+    }
+
+
 @router.get("/vocab/{entry_id}")
-def vocab_entry(request: Request, entry_id: str, index: Index):
+def vocab_entry(
+    request: Request,
+    entry_id: str,
+    index: Index,
+    lesson: str = "",
+    topic: str = "",
+    kind: str = "",
+    filter: str = "",
+):
     cards, _sessions = _practice(request, index)
     entry = index.element(entry_id)
     if entry is None or entry.kind != "vocab":
         raise not_found("Слово не найдено")
+    known = cards.known_ids()
     context = {
         "index": index,
         "entry": entry,
         "display_fr": vocab_entries.display_fr,
         "indefinite": vocab_entries.indefinite(entry),
-        "known": entry_id in cards.known_ids(),
+        "known": entry_id in known,
+        "nav": _neighbours(
+            index, entry_id, known, lesson=lesson, topic=topic, kind=kind, filter=filter
+        ),
         "history": cards.history(entry_id),
         "pos_names": vocab_entries.POS_NAMES,
         "kind_names": vocab_entries.KIND_NAMES,

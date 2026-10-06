@@ -112,6 +112,8 @@
             @click="split = false">{{ hide }}</button>
   {%- endmacro %}
   {% if e.links.theory or e.links.text %}
+    {# 010 пункт 9: «Теория рядом» / «Текст рядом» — по кнопке, по умолчанию закрыто
+       (уточнение пользователя 2026-10-04) #}
     <p class="btn-group beside-buttons">
       {% if e.links.theory %}{{ beside(e.links.theory, "Теория рядом", "Скрыть теорию") }}{% endif %}
       {% if e.links.text %}{{ beside(e.links.text, "Текст рядом", "Скрыть текст") }}{% endif %}

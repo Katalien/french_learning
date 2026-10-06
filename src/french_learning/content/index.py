@@ -144,7 +144,7 @@ class ContentIndex:
 
         def part(name: str) -> list[tuple[Any, bool]]:
             return [
-                (e, progress.is_done(e.id))
+                (e, exercise_done(e, progress))
                 for e in exercises
                 if e.part == name and e.status != "reserve"
             ]
@@ -285,6 +285,12 @@ def _topic_sort_key(element: Any) -> tuple:
     if element.kind == "vocab":
         lesson = min(element.lessons) if element.lessons else None
     return (lesson is None, lesson or 0, *_sort_key(element))
+
+
+def exercise_done(exercise: Any, progress: Any) -> bool:
+    """Выполнено: классная работа — всегда (её решают в классе, 010 пункт 12);
+    остальное — хотя бы одна полная проверка или сохранённый ответ (004)."""
+    return exercise.part == "class" or progress.is_done(exercise.id)
 
 
 def tree_fingerprint(root: Path) -> str:

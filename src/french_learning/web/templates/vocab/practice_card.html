@@ -14,7 +14,8 @@
   <div class="flip-scene">
     <article class="flashcard flip-card gender-{{ entry.gender or 'none' }}{% if shown %} flipped{% endif %}"
       role="button" tabindex="0" title="Перевернуть карточку" aria-label="Перевернуть карточку" data-flip>
-      <div class="flip-face">
+      {# 010 пункт 2: на лицевой стороне «русский → французский» род не выдаётся #}
+      <div class="flip-face{% if direction == 'ru_fr' %} neutral{% endif %}">
         <span class="stripe"></span>
         {% if entry.gender in ("m", "f") and direction == "fr_ru" %}<span class="gender-tag">{{ entry.gender }}</span>{% endif %}
         <p class="question" lang="{{ 'fr' if direction == 'fr_ru' else 'ru' }}">{{ question.text }}</p>
@@ -24,6 +25,7 @@
       </div>
       <div class="flip-face flip-back">
         <span class="stripe"></span>
+        {% if entry.gender in ("m", "f") and direction == "ru_fr" %}<span class="gender-tag">{{ entry.gender }}</span>{% endif %}
         <p class="answer" lang="{{ 'ru' if direction == 'fr_ru' else 'fr' }}">{{ answers | join(", ") }}</p>
         {% if direction == 'ru_fr' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}
         {% if entry.examples %}<p class="example muted" lang="fr">{{ entry.examples[0].text }}</p>{% endif %}
@@ -42,7 +44,8 @@
   </script>
   {% else %}
   {# ввод ответа: после проверки ответ — под вопросом #}
-  <article class="flashcard gender-{{ entry.gender or 'none' }}{% if shown or result is defined %} is-shown{% endif %}">
+  {% set revealed = shown or result is defined %}
+  <article class="flashcard gender-{{ (entry.gender or 'none') if direction == 'fr_ru' or revealed else 'none' }}{% if revealed %} is-shown{% endif %}">
     <span class="stripe"></span>
     {% if entry.gender in ("m", "f") and direction == "fr_ru" %}<span class="gender-tag">{{ entry.gender }}</span>{% endif %}
     <p class="question" lang="{{ 'fr' if direction == 'fr_ru' else 'ru' }}">{{ question.text }}</p>

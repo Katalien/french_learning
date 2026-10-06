@@ -17,6 +17,7 @@ from french_learning.practice.db import ProgressDB
 
 RATINGS = {"again": fsrs.Rating.Again, "hard": fsrs.Rating.Hard, "good": fsrs.Rating.Good}
 HARD_WINDOW = 5
+DIRECTIONS = ("fr_ru", "ru_fr")
 
 
 @dataclass
@@ -123,15 +124,22 @@ class CardStore:
         )
 
     def sync(self, index: Any, now: dt.datetime | None = None) -> None:
-        """Карточки для всех нескрытых записей словаря (research R3)."""
+        """Карточки обоих направлений для всех нескрытых записей словаря (research R3; 010 R2).
+
+        Создаются только недостающие: `fsrs.Card()` медленный (ждёт ~1,5 мс ради уникального
+        номера), а `sync` вызывается на каждом запросе повторения (010, пункт 8).
+        """
         now = now or _now()
-        both = self.db.get_setting("directions") == "both"
         entries = [e for e in index.content.elements.values() if e.kind == "vocab" and not e.hidden]
         with self.db.lock, self.db.conn:
+            existing = {
+                (row["entry_id"], row["direction"])
+                for row in self.db.conn.execute("select entry_id, direction from cards")
+            }
             for entry in entries:
-                self._insert(entry.id, "fr_ru", now)
-                if both:
-                    self._insert(entry.id, "ru_fr", now)
+                for direction in DIRECTIONS:
+                    if (entry.id, direction) not in existing:
+                        self._insert(entry.id, direction, now)
 
     def rate(
         self,
@@ -170,12 +178,6 @@ class CardStore:
                 "update cards set fsrs = ?, due = ? where entry_id = ? and direction = ?",
                 (json.dumps(updated.to_dict()), updated.due.isoformat(), entry_id, direction),
             )
-            if (
-                direction == "fr_ru"
-                and rating == "good"
-                and self.db.get_setting("directions") == "staged"
-            ):
-                self._insert(entry_id, "ru_fr", now)
         return cursor.lastrowid
 
     def undo(self, review_id: int) -> tuple[str, str] | None:

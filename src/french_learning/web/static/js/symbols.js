@@ -29,3 +29,27 @@ document.addEventListener("click", (event) => {
   field.setSelectionRange(start + ch.length, start + ch.length);
   field.dispatchEvent(new Event("input", { bubbles: true }));
 });
+
+// 010 пункт 4: в упражнении панель одна (data-floating) и показывается под полем, в котором
+// курсор, — в конце пункта этого поля; когда фокус уходит из полей формы, панель скрывается.
+const TEXT_FIELD = "input:not([type]), input[type=text], textarea";
+
+document.addEventListener("focusin", (event) => {
+  const field = event.target;
+  if (!field.matches(TEXT_FIELD)) return;
+  const form = field.closest("form");
+  const panel = form && form.querySelector(".symbol-panel[data-floating]");
+  if (!panel) return;
+  const item = field.closest("li") || field.parentElement;
+  if (panel.parentElement !== item) item.append(panel);
+  panel.hidden = false;
+});
+
+document.addEventListener("focusout", (event) => {
+  const form = event.target.closest && event.target.closest("form");
+  const panel = form && form.querySelector(".symbol-panel[data-floating]");
+  if (!panel) return;
+  const next = event.relatedTarget;
+  if (next && form.contains(next) && (next.matches(TEXT_FIELD) || panel.contains(next))) return;
+  panel.hidden = true;
+});

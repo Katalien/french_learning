@@ -41,10 +41,84 @@ def test_undo_returns_previous_card(client):
     assert first in html
 
 
-def test_lesson_practice_starts_whole_lesson(client):
-    response = client.get("/lessons/2/practice")
-    assert response.status_code == 200
-    assert "из 2" in response.text
+def test_lesson_practice_opens_setup_with_lesson(client):
+    """010 пункт 3: из урока — страница настройки с выбранным уроком."""
+    response = client.get("/lessons/2/practice", follow_redirects=False)
+    assert response.status_code == 303
+    assert response.headers["location"] == "/practice/setup?mode=lesson&lesson=2"
+    assert client.get("/lessons/99/practice", follow_redirects=False).status_code == 404
+    html = client.get("/practice/setup?mode=lesson&lesson=2").text
+    assert "mode: 'lesson'" in html
+    assert re.search(r'<option value="2"\s+selected>', html)
+    assert re.search(r'name="portion"[^>]*value=""', html)
+
+
+def test_start_portion_empty_means_all(client):
+    path = start(client, mode="all", portion="", from_setup="1")
+    assert "1/8" not in client.get(path).text  # одно направление: 4 слова
+    session = path.rsplit("/", 1)[-1]
+    progress = client.app.state.sessions.progress(session)
+    assert progress.total == 4 and progress.portion_size == 4
+
+
+def test_start_portion_number_is_used_and_remembered(client):
+    path = start(client, mode="all", portion="3")
+    progress = client.app.state.sessions.progress(path.rsplit("/", 1)[-1])
+    assert progress.portion_size == 3
+    assert client.app.state.progress_db.get_setting("portion_size") == "3"
+    assert 'value="3"' in client.get("/practice/setup").text
+
+
+def test_start_without_portion_field(client):
+    """Кнопки «Повторить» без поля: прочие режимы — последнее число, урок / тема — все."""
+    client.app.state.progress_db.set_setting("portion_size", "3")
+    path = client.post("/practice/start", data={"mode": "today"}).url.path
+    assert client.app.state.sessions.progress(path.rsplit("/", 1)[-1]).portion_size == 3
+    path = client.post("/practice/start", data={"mode": "lesson", "lesson": "2"}).url.path
+    assert client.app.state.sessions.progress(path.rsplit("/", 1)[-1]).portion_size == 2
+
+
+def test_topic_page_links_to_setup(client):
+    html = client.get("/topics/top-maisonxx").text
+    assert 'href="/practice/setup?mode=topic&amp;topic=top-maisonxx"' in html
+
+
+def test_start_portion_invalid(client):
+    for bad in ("0", "abc", "501"):
+        response = client.post(
+            "/practice/start", data={"mode": "all", "portion": bad}, follow_redirects=False
+        )
+        assert response.status_code == 303
+        assert "/practice/setup" in response.headers["location"]
+        assert "error=" in response.headers["location"]
+
+
+def test_start_with_empty_queue_returns_to_setup(client):
+    response = client.post(
+        "/practice/start", data={"mode": "all", "kind": "phrase"}, follow_redirects=False
+    )
+    assert response.status_code == 303
+    location = response.headers["location"]
+    assert location.startswith("/practice/setup") and "notice=" in location
+    html = client.get(location).text
+    assert "Нет слов для повторения" in html
+
+
+def test_count_fragment(client):
+    html = client.get(
+        "/practice/count", params={"mode": "lesson", "lesson": "2", "direction": "ru_fr"}
+    ).text
+    assert "В сеансе: 2" in html
+    empty = client.get("/practice/count", params={"mode": "all", "kind": "phrase"}).text
+    assert "Нет слов для повторения" in empty
+
+
+def test_setup_has_topic_combobox(client):
+    html = client.get("/practice/setup").text
+    assert "data-combobox" in html
+    assert 'type="hidden" name="topic"' in html
+    assert '<select name="topic"' not in html
+    assert "top-maisonxx" in html  # список тем передаётся в поле
 
 
 def test_vocab_section_has_practice_button(client):
@@ -73,3 +147,38 @@ def test_show_route_renders_flipped_card(client):
     session = start(client).rsplit("/", 1)[-1]
     html = client.post(f"/practice/{session}/show").text
     assert re.search(r'class="flashcard flip-card[^"]* flipped"', html)
+
+
+def only_eau_session(client, method="self") -> str:
+    """Сеанс «русский → французский» только со словом l'eau (f); прочие — «Знаю»."""
+    cards = client.app.state.cards
+    cards.sync(client.app.state.store.get())
+    for card in cards.all():
+        if card.entry_id != "voc-eauaaaaa":
+            cards.set_known(card.entry_id, True)
+    return start(client, mode="all", direction="ru_fr", method=method).rsplit("/", 1)[-1]
+
+
+def test_ru_fr_card_hides_gender_until_shown(client):
+    """010 пункт 2: лицевая сторона ru_fr не выдаёт род ни цветом, ни меткой."""
+    session = only_eau_session(client)
+    html = client.get(f"/practice/{session}").text
+    front, back = html.split('class="flip-face flip-back', 1)
+    front = front.split('class="flashcard', 1)[1]
+    assert 'class="flip-face neutral"' in front
+    assert "gender-tag" not in front
+    assert 'class="gender-tag">f<' in back.split("</article>", 1)[0]
+
+
+def test_fr_ru_card_keeps_gender_on_front(client):
+    html = client.get(start(client, mode="topic", topic="top-maisonxx")).text
+    front = html.split('class="flip-face flip-back', 1)[0]
+    assert "neutral" not in front and "gender-tag" in front
+
+
+def test_ru_fr_input_card_neutral_before_answer(client):
+    session = only_eau_session(client, method="input")
+    html = client.get(f"/practice/{session}").text
+    assert 'class="flashcard gender-none' in html and "gender-tag" not in html
+    result = client.post(f"/practice/{session}/answer", data={"answer": "l'eau"}).text
+    assert 'class="flashcard gender-f' in result

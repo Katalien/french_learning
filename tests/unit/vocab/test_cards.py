@@ -32,11 +32,55 @@ def cards(db, index) -> CardStore:
     return store
 
 
-def test_sync_creates_fr_ru_cards_only(cards: CardStore):
+def test_sync_creates_both_directions(cards: CardStore):
+    """010: поэтапного режима нет — у каждого слова сразу обе карточки."""
     ids = {(c.entry_id, c.direction) for c in cards.all()}
     assert ("voc-maisonaa", "fr_ru") in ids
-    assert ("voc-maisonaa", "ru_fr") not in ids
-    assert len(ids) == 4  # 4 записи в образце
+    assert ("voc-maisonaa", "ru_fr") in ids
+    assert len(ids) == 8  # 4 записи в образце × 2 направления
+
+
+def test_sync_ignores_old_staged_setting(db, index):
+    db.set_setting("directions", "staged")
+    store = CardStore(db, fuzzing=False)
+    store.sync(index, now=NOW)
+    assert store.get("voc-maisonaa", "ru_fr") is not None
+
+
+def test_sync_creates_only_missing_cards(db, index, monkeypatch):
+    """010 пункт 8: повторный sync не создаёт объектов FSRS (они медленные)."""
+    import french_learning.vocab.cards as cards_module
+
+    store = CardStore(db, fuzzing=False)
+    store.sync(index, now=NOW)
+    store.rate("voc-maisonaa", "fr_ru", "good", mode="today", method="self", now=NOW)
+    before = store.get("voc-maisonaa", "fr_ru").due
+
+    created = []
+    real_card = cards_module.fsrs.Card
+
+    class CountingCard(real_card):
+        def __init__(self, *args, **kwargs):
+            created.append(1)
+            super().__init__(*args, **kwargs)
+
+    monkeypatch.setattr(cards_module.fsrs, "Card", CountingCard)
+    store.sync(index, now=NOW)
+    assert created == []
+    assert store.get("voc-maisonaa", "fr_ru").due == before
+
+
+def test_sync_adds_ru_fr_to_existing_fr_ru_cards(db, index):
+    """Слова, заведённые при поэтапном режиме, получают вторую карточку; первая не меняется."""
+    store = CardStore(db, fuzzing=False)
+    store.sync(index, now=NOW)
+    store.rate("voc-maisonaa", "fr_ru", "good", mode="today", method="self", now=NOW)
+    with db.lock, db.conn:
+        db.conn.execute("delete from cards where direction = 'ru_fr'")
+    before = store.get("voc-maisonaa", "fr_ru").due
+    store.sync(index, now=NOW)
+    assert store.get("voc-maisonaa", "ru_fr") is not None
+    assert store.get("voc-maisonaa", "fr_ru").due == before
 
 
 def test_sync_skips_hidden_entries(db, clean_content_root: Path):
@@ -53,20 +97,6 @@ def test_ratings_change_due(cards: CardStore):
     good = cards.get("voc-maisonaa", "fr_ru").due
     again = cards.get("voc-painaaaa", "fr_ru").due
     assert good > again > NOW
-
-
-def test_ru_fr_created_after_first_good_when_staged(cards: CardStore):
-    cards.rate("voc-maisonaa", "fr_ru", "hard", mode="today", method="self", now=NOW)
-    assert cards.get("voc-maisonaa", "ru_fr") is None
-    cards.rate("voc-maisonaa", "fr_ru", "good", mode="today", method="self", now=NOW)
-    assert cards.get("voc-maisonaa", "ru_fr") is not None
-
-
-def test_both_directions_at_once_setting(db, index):
-    db.set_setting("directions", "both")
-    store = CardStore(db, fuzzing=False)
-    store.sync(index, now=NOW)
-    assert store.get("voc-maisonaa", "ru_fr") is not None
 
 
 def test_directions_are_independent(cards: CardStore):

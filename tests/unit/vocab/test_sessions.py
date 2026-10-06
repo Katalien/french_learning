@@ -1,6 +1,7 @@
 """Сеансы повторения (FR-030, FR-033, FR-035, FR-035b, FR-035c)."""
 
 import datetime as dt
+import random
 from pathlib import Path
 
 import pytest
@@ -20,7 +21,7 @@ def setup(clean_content_root: Path):
     index = ContentIndex(load_content(clean_content_root))
     cards = CardStore(db, fuzzing=False)
     cards.sync(index, now=NOW)
-    yield db, index, cards, SessionStore(db, cards)
+    yield db, index, cards, SessionStore(db, cards, rng=random.Random(1))
     db.close()
 
 
@@ -43,10 +44,11 @@ def test_today_includes_all_new_cards_and_count_is_known(setup):
     assert sessions.progress(session_id).total == 4
 
 
-def test_portions_from_settings(setup):
+def test_portions_from_params(setup):
+    """010: размер подхода задаётся при запуске (страница настройки повторения)."""
     db, index, _cards, sessions = setup
-    db.set_setting("portion_size", "3")
-    session_id = sessions.start(index, params(), now=NOW)
+    db.set_setting("portion_size", "1")  # настройка больше не влияет на сеанс
+    session_id = sessions.start(index, params(portion=3), now=NOW)
     for _ in range(3):
         assert sessions.current(session_id) is not None
         sessions.rate(session_id, "good", now=NOW)
@@ -59,12 +61,53 @@ def test_portions_from_settings(setup):
     assert sessions.progress(session_id).finished
 
 
-def test_lesson_session_is_whole_lesson_at_once(setup):
+def test_no_portion_means_all_at_once(setup):
     db, index, _cards, sessions = setup
     db.set_setting("portion_size", "1")
-    session_id = sessions.start(index, params(source="lesson", mode="lesson", lesson=2), now=NOW)
+    session_id = sessions.start(index, params(mode="lesson", lesson=2), now=NOW)
     state = sessions.progress(session_id)
     assert state.total == 2 and state.portion_size == 2
+
+
+def test_old_session_without_portion_field_is_read(setup):
+    _db, index, _cards, sessions = setup
+    session_id = sessions.start(index, params(), now=NOW)
+    state, _queue, _position, _last = sessions._load(session_id)
+    del state["params"]["portion"]
+    sessions._save(session_id, state, 0, None)
+    assert sessions.params(session_id).portion is None
+    assert sessions.current(session_id) is not None
+
+
+def order(sessions, index, seed, **overrides):
+    sessions.rng = random.Random(seed)
+    return [entry for entry, _direction in sessions.queue(index, params(**overrides), now=NOW)]
+
+
+def test_queue_is_shuffled(setup):
+    """010 пункт 5: порядок слов разный от запуска к запуску, при одном seed — одинаковый."""
+    _db, index, _cards, sessions = setup
+    for mode in ({"mode": "all"}, {"mode": "topic", "topic": "top-maisonxx"}):
+        assert order(sessions, index, 7, **mode) == order(sessions, index, 7, **mode)
+    orders = {tuple(order(sessions, index, seed, mode="all")) for seed in range(20)}
+    assert len(orders) > 1
+    assert all(sorted(o) == sorted(next(iter(orders))) for o in orders)
+
+
+def test_today_reviewed_due_first_then_new(setup):
+    _db, index, cards, sessions = setup
+    cards.rate("voc-painaaaa", "fr_ru", "again", mode="today", method="self", now=NOW)
+    later = NOW + dt.timedelta(days=60)
+    for seed in range(10):
+        sessions.rng = random.Random(seed)
+        queue = sessions.queue(index, params(), now=later)
+        assert queue[0] == ["voc-painaaaa", "fr_ru"]
+        assert len(queue) == 4
+    firsts = set()
+    for seed in range(20):
+        sessions.rng = random.Random(seed)
+        firsts.add(sessions.queue(index, params(), now=later)[1][0])
+    assert len(firsts) > 1  # новые карточки тоже перемешаны
 
 
 def test_modes_and_kinds(setup):
@@ -76,11 +119,11 @@ def test_modes_and_kinds(setup):
     assert sessions.count(index, params(mode="hard"), now=NOW) == 1
 
 
-def test_ru_fr_only_for_existing_cards(setup):
-    _db, index, cards, sessions = setup
-    assert sessions.count(index, params(mode="all", direction="ru_fr"), now=NOW) == 0
-    cards.rate("voc-maisonaa", "fr_ru", "good", mode="all", method="self", now=NOW)
-    assert sessions.count(index, params(mode="all", direction="ru_fr"), now=NOW) == 1
+def test_ru_fr_includes_all_words(setup):
+    """010: «русский → французский» — все слова сразу, без первого «Помню»."""
+    _db, index, _cards, sessions = setup
+    assert sessions.count(index, params(mode="all", direction="ru_fr"), now=NOW) == 4
+    assert sessions.count(index, params(mode="lesson", lesson=2, direction="ru_fr"), now=NOW) == 2
 
 
 def test_no_cards_message(setup):

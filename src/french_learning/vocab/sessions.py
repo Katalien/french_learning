@@ -1,14 +1,15 @@
 """Сеансы повторения: очередь, порции, отмена последней оценки (research R9).
 
-Из урока — все карточки урока одним сеансом; из словаря — порции по N (настройка).
-Каждая оценка сохраняется сразу (FR-035c); отменить можно только последнюю оценку
-текущего сеанса (FR-033).
+Размер подхода задаётся при запуске (010: пусто — все одним подходом). Очередь
+перемешивается при запуске (010, пункт 5) и дальше не меняется. Каждая оценка сохраняется
+сразу (FR-035c); отменить можно только последнюю оценку текущего сеанса (FR-033).
 """
 
 from __future__ import annotations
 
 import datetime as dt
 import json
+import random
 import secrets
 from dataclasses import asdict, dataclass
 from typing import Any
@@ -27,6 +28,7 @@ class SessionParams:
     method: str = "self"  # self | input
     lesson: int | None = None
     topic: str | None = None
+    portion: int | None = None  # слов за подход; None — все (010)
 
 
 @dataclass
@@ -54,9 +56,10 @@ def _now() -> dt.datetime:
 
 
 class SessionStore:
-    def __init__(self, db: ProgressDB, cards: CardStore) -> None:
+    def __init__(self, db: ProgressDB, cards: CardStore, rng: random.Random | None = None) -> None:
         self.db = db
         self.cards = cards
+        self.rng = rng or random.Random()
 
     # --- очередь -----------------------------------------------------------------------------
 
@@ -76,19 +79,28 @@ class SessionStore:
         return ids
 
     def queue(self, index: Any, params: SessionParams, now: dt.datetime | None = None) -> list:
+        """Очередь сеанса в случайном порядке (010 R3).
+
+        «Сегодня»: сначала уже повторявшиеся карточки с подошедшим сроком, затем новые —
+        каждая группа перемешана, чтобы забываемые слова не уходили в конец.
+        """
         ids = self._entry_ids(index, params)
         if params.mode == "today":
-            cards = self.cards.due(direction=params.direction, now=now or _now())
+            pool = self.cards.due(direction=params.direction, now=now or _now())
         else:
-            cards = sorted(
-                (
-                    c
-                    for c in self.cards.all()
-                    if c.direction == params.direction and not c.suspended
-                ),
-                key=lambda c: (c.reviewed, c.due),
-            )
-        return [[c.entry_id, c.direction] for c in cards if c.entry_id in ids]
+            pool = [
+                c for c in self.cards.all() if c.direction == params.direction and not c.suspended
+            ]
+        pool = [c for c in pool if c.entry_id in ids]
+        if params.mode == "today":
+            groups = [[c for c in pool if c.reviewed], [c for c in pool if not c.reviewed]]
+        else:
+            groups = [pool]
+        ordered = []
+        for group in groups:
+            self.rng.shuffle(group)
+            ordered.extend(group)
+        return [[c.entry_id, c.direction] for c in ordered]
 
     def count(self, index: Any, params: SessionParams, now: dt.datetime | None = None) -> int:
         return len(self.queue(index, params, now))
@@ -97,11 +109,7 @@ class SessionStore:
 
     def start(self, index: Any, params: SessionParams, now: dt.datetime | None = None) -> str:
         queue = self.queue(index, params, now)
-        portion = (
-            len(queue)
-            if params.source == "lesson"
-            else int(self.db.get_setting("portion_size") or 20)
-        )
+        portion = params.portion or len(queue)
         state = {"params": asdict(params), "portion_size": portion, "portion_end": portion}
         session_id = secrets.token_hex(6)
         with self.db.lock, self.db.conn:
