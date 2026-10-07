@@ -110,3 +110,29 @@ def test_resubmitted_answer_is_ignored(client):
     again = client.post(f"/trainers/s/{session}/answer", data={"answer": "x", "key": key})
     assert again.url.path == f"/trainers/s/{session}"  # обновление страницы — без записи
     assert len(client.app.state.trainer_schedule.history("numbers")) == 1
+
+
+def test_numbers_format_words_to_digits(client):
+    """012 (US8): формат «словами → цифрами» с диапазоном; без формата — как раньше."""
+    setup = client.get("/trainers/numbers").text
+    assert 'name="format" value="digits_to_words" checked' in setup
+    assert 'name="format" value="words_to_digits"' in setup
+    form = {"scope": "range", "range": "70-99", "format": "words_to_digits"}
+    session = client.post("/trainers/numbers/start", data=form).url.path.rsplit("/", 1)[-1]
+    keys = client.app.state.trainer_sessions.queue(session)
+    assert keys and all(
+        k.startswith("numbers-fr:") and 70 <= int(k.split(":")[1]) <= 99 for k in keys
+    )
+    from french_learning.trainers.french_numbers import spellings
+
+    html = client.get(f"/trainers/s/{session}").text
+    words = prompt(html)
+    number = next(n for n in range(70, 100) if spellings(n)[0] == words)
+    assert (
+        "Верно" in client.post(f"/trainers/s/{session}/answer", data={"answer": f" {number} "}).text
+    )
+    client.get(f"/trainers/s/{session}")
+    wrong = client.post(f"/trainers/s/{session}/answer", data={"answer": "1"}).text
+    assert "Неверно" in wrong
+    plain, _html = start(client, "numbers")
+    assert all(k.startswith("numbers:") for k in client.app.state.trainer_sessions.queue(plain))

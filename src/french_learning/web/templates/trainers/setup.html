@@ -63,6 +63,15 @@
       {% endif %}
       {% if hard %}<label><input type="radio" name="scope" value="hard" x-model="scope"> сложные ({{ hard }})</label>{% endif %}
     </fieldset>
+    {% if number_ranges %}
+      {# 012, пункт 10: формат — цифры → слова (как раньше) или слова → цифры #}
+      <fieldset>
+        <legend>Формат</legend>
+        {% for key, label in number_ranges.formats.items() %}
+          <label><input type="radio" name="format" value="{{ key }}"{% if key == number_ranges.default_format %} checked{% endif %}> {{ label }}</label>
+        {% endfor %}
+      </fieldset>
+    {% endif %}
     <button type="submit">Начать</button>
   </form>
 {% endif %}
