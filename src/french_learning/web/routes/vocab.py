@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Annotated
 from urllib.parse import urlencode
 
@@ -241,14 +242,19 @@ def lesson_practice(number: int, index: Index, topic: str = "", kind: str = ""):
     return _redirect(f"/practice/setup?{urlencode(query)}")
 
 
+def _exists(index: ContentIndex) -> Callable[[str], bool]:
+    """Слово ещё есть в словаре (012: удалённые посреди сеанса пропускаются)."""
+    return lambda entry_id: index.element(entry_id) is not None
+
+
 def _card_page(request: Request, index: ContentIndex, session_id: str, shown: bool, **extra):
     _cards, sessions = _practice(request, index)
     try:
+        current = sessions.current(session_id, exists=_exists(index))
         progress = sessions.progress(session_id)
     except KeyError:
         raise not_found("Сеанс не найден") from None
     params = sessions.params(session_id)
-    current = sessions.current(session_id)
     context = {
         "index": index,
         "session_id": session_id,
@@ -296,7 +302,7 @@ def practice_show(request: Request, session_id: str, index: Index):
 @router.post("/practice/{session_id}/rate")
 def practice_rate(request: Request, session_id: str, index: Index, rating: Annotated[str, Form()]):
     _cards, sessions = _practice(request, index)
-    current = sessions.current(session_id)
+    current = sessions.current(session_id, exists=_exists(index))
     if current is not None:
         allowed = _card_ratings(index.element(current[0]), current[1])
         if rating not in allowed:
@@ -384,7 +390,7 @@ def practice_answer(
     request: Request, session_id: str, index: Index, answer: Annotated[str, Form()] = ""
 ):
     _cards, sessions = _practice(request, index)
-    current = sessions.current(session_id)
+    current = sessions.current(session_id, exists=_exists(index))
     if current is None:
         return _redirect(f"/practice/{session_id}")
     entry = index.element(current[0])
@@ -407,7 +413,7 @@ def practice_spelling(
     choice: Annotated[str, Form()] = "",
 ):
     _cards, sessions = _practice(request, index)
-    current = sessions.current(session_id)
+    current = sessions.current(session_id, exists=_exists(index))
     if current is None:
         return _redirect(f"/practice/{session_id}")
     entry = index.element(current[0])

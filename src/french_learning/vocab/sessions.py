@@ -11,6 +11,7 @@ import datetime as dt
 import json
 import random
 import secrets
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from typing import Any
 
@@ -157,12 +158,18 @@ class SessionStore:
             position, len(queue), state["portion_size"], min(state["portion_end"], len(queue))
         )
 
-    def current(self, session_id: str) -> tuple[str, str] | None:
-        _state, queue, position, _ = self._load(session_id)
-        progress = self.progress(session_id)
-        if progress.finished or progress.portion_finished:
-            return None
-        return tuple(queue[position])
+    def current(
+        self, session_id: str, exists: Callable[[str], bool] | None = None
+    ) -> tuple[str, str] | None:
+        """Текущая карточка; exists — пропустить слова, удалённые из словаря (012)."""
+        while True:
+            state, queue, position, last = self._load(session_id)
+            progress = self.progress(session_id)
+            if progress.finished or progress.portion_finished:
+                return None
+            if exists is None or exists(queue[position][0]):
+                return tuple(queue[position])
+            self._save(session_id, state, position + 1, last)
 
     def rate(
         self,

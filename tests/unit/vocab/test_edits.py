@@ -106,11 +106,11 @@ def test_hide_lesson_entry_and_unhide(repo: Path):
     assert not vocab(repo)["maison"].hidden
 
 
-def test_delete_only_own_entries(repo: Path):
-    with pytest.raises(VocabError, match="только свои"):
-        editor(repo).delete("voc-maisonaa")
+def test_delete_any_entry(repo: Path):
+    """012: удалить можно и своё слово, и слово из урока."""
+    editor(repo).delete("voc-maisonaa")
     editor(repo).delete("voc-chataaaa")
-    assert "chat" not in vocab(repo)
+    assert "chat" not in vocab(repo) and "maison" not in vocab(repo)
     assert load_content(repo).errors == []
 
 
