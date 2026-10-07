@@ -30,6 +30,7 @@ class SessionParams:
     topic: str | None = None
     portion: int | None = None  # слов за подход; None — все (010)
     drill: bool = False  # 011: повтор-тренировка — оценки не пишутся в прогресс
+    back: str | None = None  # 011: куда вести «Закончить» (лексика урока, откуда пришли)
 
 
 @dataclass

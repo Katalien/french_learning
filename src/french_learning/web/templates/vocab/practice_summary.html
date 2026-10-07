@@ -29,7 +29,7 @@
       {% if not progress.finished and progress.total %}
         <form method="post" action="/practice/{{ session_id }}/continue" class="inline-form"><button type="submit">Продолжить</button></form>
       {% endif %}
-      <a href="/practice" role="button" class="outline">Закончить</a>
+      <a href="{{ finish_url }}" role="button" class="outline">Закончить</a>
     </div>
     {% if can_undo %}
       <form method="post" action="/practice/{{ session_id }}/undo" class="flash-undo">

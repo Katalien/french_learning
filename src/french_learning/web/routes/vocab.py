@@ -64,6 +64,7 @@ def _session_params(
     topic: str = "",
     portion: int | None = None,
     lesson_topic: str = "",
+    back: str = "",
 ) -> SessionParams:
     # 011: в режиме «по уроку» тема — необязательный фильтр внутри урока (поле lesson_topic)
     if mode == "lesson":
@@ -77,7 +78,15 @@ def _session_params(
         lesson=int(lesson) if lesson.isdigit() else None,
         topic=topic or None,
         portion=portion,
+        back=_safe_back(back),
     )
+
+
+def _safe_back(back: str) -> str | None:
+    """«Закончить» ведёт только на страницу лексики урока этого приложения (011)."""
+    if back.startswith("/lessons/") and "//" not in back and "\\" not in back:
+        return back
+    return None
 
 
 @router.get("/practice/setup")
@@ -89,9 +98,10 @@ def practice_setup(
     topic: str = "",
     lesson_topic: str = "",
     kind: str = "all",
+    back: str = "",
 ):
     """Настройка повторения; из урока приходят `mode=lesson&lesson=N` (010, пункт 3), тема
-    и вид из фильтров «Лексики» урока — `lesson_topic`, `kind` (011)."""
+    и вид из фильтров «Лексики» урока — `lesson_topic`, `kind`, адрес возврата `back` (011)."""
     _cards, sessions = _practice(request, index)
     word_topics = {t for e in vocab_entries.vocab_entries(index) if not e.hidden for t in e.topics}
     params = _session_params(
@@ -100,7 +110,31 @@ def practice_setup(
         lesson=lesson,
         topic=topic if topic in word_topics else "",
         lesson_topic=lesson_topic if lesson_topic in word_topics else "",
+        back=back,
     )
+    lessons = index.lessons()
+    # 011: связанные фильтры «По уроку» — вид и тема каждого нескрытого слова урока
+    lesson_words = {
+        str(lesson_obj.number): [
+            [e.entry_type, list(e.topics)]
+            for e in vocab_entries.filter_entries(index, lesson=lesson_obj.number)
+        ]
+        for lesson_obj in lessons
+    }
+    setup = {
+        "mode": params.mode,
+        "topic": params.topic or "",
+        "lesson": str(params.lesson or (lessons[0].number if lessons else "")),
+        "lessonTopic": (params.topic or "") if params.mode == "lesson" else "",
+        "kind": params.kind,
+        "portion": "" if params.mode in ("lesson", "topic") else portion_size(request),
+        "portionSize": portion_size(request),
+        "lessonWords": lesson_words,
+        "topicNames": {t.id: t.name for t in index.all_topics() if t.id in word_topics},
+        # порядок тем — по названию (словарь в JSON переупорядочивается по ключам)
+        "topicOrder": [[t.id, t.name] for t in index.all_topics() if t.id in word_topics],
+        "kindNames": KIND_FILTERS,
+    }
     context = {
         "index": index,
         "today_count": sessions.count(index, SessionParams()),
@@ -115,23 +149,16 @@ def practice_setup(
             {"value": t.id, "label": t.name} for t in index.all_topics() if t.id in word_topics
         ],
         "lessons": index.lessons(),
-        # 011: темы каждого урока (только темы его нескрытых слов) — для фильтра «Тема» в уроке
-        "lesson_topics": {
-            lesson_obj.number: [
-                {"id": t.id, "name": t.name}
-                for t in index.all_topics()
-                if any(
-                    t.id in e.topics
-                    for e in vocab_entries.filter_entries(index, lesson=lesson_obj.number)
-                )
-            ]
-            for lesson_obj in index.lessons()
-        },
+        "setup": setup,
         "selected": params,
-        "portion_size": request.app.state.progress_db.get_setting("portion_size") or "20",
+        "portion_size": portion_size(request),
         "last_backup": request.app.state.progress_db.get_meta("last_backup_pushed"),
     }
     return templates.TemplateResponse(request, "vocab/practice_setup.html", context)
+
+
+def portion_size(request: Request) -> str:
+    return request.app.state.progress_db.get_setting("portion_size") or "20"
 
 
 @router.get("/practice/count")
@@ -167,6 +194,7 @@ def practice_start(
     lesson: Annotated[str, Form()] = "",
     topic: Annotated[str, Form()] = "",
     lesson_topic: Annotated[str, Form()] = "",
+    back: Annotated[str, Form()] = "",
     portion: Annotated[str, Form()] = "",
     from_setup: Annotated[str, Form()] = "",
 ):
@@ -176,19 +204,23 @@ def practice_start(
     прочие режимы — последнее число «слов за подход».
     """
     _cards, sessions = _practice(request, index)
-    back = f"/practice/setup?{urlencode({'mode': mode, 'lesson': lesson, 'topic': topic})}"
+    setup_query = {"mode": mode, "lesson": lesson, "topic": topic}
+    if _safe_back(back):
+        setup_query["back"] = back
+    setup_url = f"/practice/setup?{urlencode(setup_query)}"
     size = None
     if not from_setup and not portion.strip():
         if mode not in ("lesson", "topic"):
             size = int(request.app.state.progress_db.get_setting("portion_size") or 20)
     elif portion.strip():
         if not portion.strip().isdigit() or not 1 <= int(portion) <= 500:
-            return _redirect(f"{back}&{urlencode({'error': 'слов за подход — число от 1 до 500'})}")
+            error = urlencode({"error": "слов за подход — число от 1 до 500"})
+            return _redirect(f"{setup_url}&{error}")
         size = int(portion)
         request.app.state.progress_db.set_setting("portion_size", str(size))
-    params = _session_params(mode, kind, direction, method, lesson, topic, size, lesson_topic)
+    params = _session_params(mode, kind, direction, method, lesson, topic, size, lesson_topic, back)
     if sessions.count(index, params) == 0:
-        return _redirect(f"{back}&{urlencode({'notice': 'Нет слов для повторения.'})}")
+        return _redirect(f"{setup_url}&{urlencode({'notice': 'Нет слов для повторения.'})}")
     return _redirect(f"/practice/{sessions.start(index, params)}")
 
 
@@ -199,10 +231,13 @@ def lesson_practice(number: int, index: Index, topic: str = "", kind: str = ""):
     if index.lesson(number) is None:
         raise not_found(f"Урок {number} не найден")
     query = {"mode": "lesson", "lesson": number}
+    filters = {}
     if topic:
-        query["lesson_topic"] = topic
+        query["lesson_topic"] = filters["topic"] = topic
     if kind in ("word", "verb", "phrase"):
-        query["kind"] = kind
+        query["kind"] = filters["kind"] = kind
+    # «Закончить» на итоге — назад в лексику урока с теми же фильтрами
+    query["back"] = f"/lessons/{number}/vocab" + (f"?{urlencode(filters)}" if filters else "")
     return _redirect(f"/practice/setup?{urlencode(query)}")
 
 
@@ -230,6 +265,7 @@ def _card_page(request: Request, index: ContentIndex, session_id: str, shown: bo
     if current is None:
         context["summary"] = sessions.summary(session_id)
         context["summary_ratings"] = {**RATING_NAMES, "article": ARTICLE_RATING}
+        context["finish_url"] = params.back or "/practice"
         context["drill_counts"] = {
             which: len(sessions.drill_candidates(session_id, which))
             for which in ("again", "again_hard")

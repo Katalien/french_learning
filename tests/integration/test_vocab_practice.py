@@ -1,6 +1,13 @@
 """US1: повторение в интерфейсе (FR-032, FR-033, FR-037; contracts/ui-routes.md 003)."""
 
+import json
 import re
+from html import unescape
+
+
+def setup_cfg(html: str) -> dict:
+    """Данные связанных фильтров страницы настройки (011): атрибут data-setup."""
+    return json.loads(unescape(html.split('data-setup="', 1)[1].split('"', 1)[0]))
 
 
 def start(client, **form) -> str:
@@ -45,12 +52,15 @@ def test_lesson_practice_opens_setup_with_lesson(client):
     """010 пункт 3: из урока — страница настройки с выбранным уроком."""
     response = client.get("/lessons/2/practice", follow_redirects=False)
     assert response.status_code == 303
-    assert response.headers["location"] == "/practice/setup?mode=lesson&lesson=2"
+    location = response.headers["location"]
+    assert location.startswith("/practice/setup?mode=lesson&lesson=2&")
+    assert "back=%2Flessons%2F2%2Fvocab" in location  # 011: «Закончить» — назад в лексику урока
     assert client.get("/lessons/99/practice", follow_redirects=False).status_code == 404
     html = client.get("/practice/setup?mode=lesson&lesson=2").text
-    assert "mode: 'lesson'" in html
+    cfg = setup_cfg(html)
+    assert cfg["mode"] == "lesson" and cfg["lesson"] == "2"
     assert re.search(r'<option value="2"\s+selected>', html)
-    assert re.search(r'name="portion"[^>]*value=""', html)
+    assert cfg["portion"] == ""  # урок — все слова одним подходом
 
 
 def test_start_portion_empty_means_all(client):
@@ -66,7 +76,8 @@ def test_start_portion_number_is_used_and_remembered(client):
     progress = client.app.state.sessions.progress(path.rsplit("/", 1)[-1])
     assert progress.portion_size == 3
     assert client.app.state.progress_db.get_setting("portion_size") == "3"
-    assert 'value="3"' in client.get("/practice/setup").text
+    cfg = setup_cfg(client.get("/practice/setup").text)
+    assert cfg["portion"] == "3" and cfg["portionSize"] == "3"
 
 
 def test_start_without_portion_field(client):
@@ -325,10 +336,10 @@ def test_setup_lists_only_topics_with_words(client):
 def test_lesson_setup_offers_only_lesson_topics(client):
     html = client.get("/practice/setup?mode=lesson&lesson=1").text
     assert 'name="lesson_topic"' in html
-    data = html.split("data-lesson-topics='", 1)[1].split("'", 1)[0]
-    lesson1 = data.split('"1":', 1)[1].split("]", 1)[0]
-    assert "top-maisonxx" in lesson1 and "top-nourritu" in lesson1
-    assert "top-etreverb" not in data  # темы без слов не предлагаются
+    cfg = setup_cfg(html)
+    lesson1 = {t for _kind, topics in cfg["lessonWords"]["1"] for t in topics}
+    assert {"top-maisonxx", "top-nourritu"} <= lesson1
+    assert "top-etreverb" not in str(cfg["lessonWords"])  # темы без слов не предлагаются
 
 
 def test_lesson_topic_narrows_session(client):
@@ -347,11 +358,11 @@ def test_lesson_vocab_topic_filter_carries_to_setup(client):
     plain = client.get("/lessons/1/vocab").text
     assert 'href="/lessons/1/practice"' in plain
     response = client.get("/lessons/1/practice?topic=top-nourritu", follow_redirects=False)
-    assert response.headers["location"] == (
-        "/practice/setup?mode=lesson&lesson=1&lesson_topic=top-nourritu"
+    assert response.headers["location"].startswith(
+        "/practice/setup?mode=lesson&lesson=1&lesson_topic=top-nourritu&"
     )
     html = client.get(response.headers["location"]).text
-    assert "lessonTopic: 'top-nourritu'" in html
+    assert setup_cfg(html)["lessonTopic"] == "top-nourritu"
     assert "В сеансе: 1" in html  # слова «Еды» из урока 1
 
 
@@ -365,10 +376,57 @@ def test_lesson_vocab_topic_and_kind_carry_to_setup(client):
         "/lessons/1/practice?topic=top-nourritu&kind=word", follow_redirects=False
     )
     location = response.headers["location"]
-    assert location == "/practice/setup?mode=lesson&lesson=1&lesson_topic=top-nourritu&kind=word"
+    assert location.startswith(
+        "/practice/setup?mode=lesson&lesson=1&lesson_topic=top-nourritu&kind=word&"
+    )
     html = client.get(location).text
-    assert re.search(r'<option value="word"\s+selected>', html)
-    assert "lessonTopic: 'top-nourritu'" in html
+    assert setup_cfg(html)["kind"] == "word"
+    assert setup_cfg(html)["lessonTopic"] == "top-nourritu"
     kind_only = client.get("/practice/setup?mode=lesson&lesson=1&kind=verb").text
-    assert re.search(r'<option value="verb"\s+selected>', kind_only)
+    assert setup_cfg(kind_only)["kind"] == "verb"
     assert "Нет слов для повторения" in kind_only  # в образце у урока 1 нет глаголов
+
+
+# --- 011 (приёмка): «Закончить» — назад в лексику урока; связанные фильтры ------------------
+
+
+def test_finish_returns_to_lesson_vocab(client):
+    location = client.get("/lessons/1/practice?topic=top-nourritu", follow_redirects=False).headers[
+        "location"
+    ]
+    html = client.get(location).text
+    assert 'name="back" value="/lessons/1/vocab?topic=top-nourritu"' in html
+    data = {
+        "mode": "lesson",
+        "lesson": "1",
+        "lesson_topic": "top-nourritu",
+        "from_setup": "1",
+        "back": "/lessons/1/vocab?topic=top-nourritu",
+    }
+    session = client.post("/practice/start", data=data).url.path.rsplit("/", 1)[-1]
+    summary = client.post(f"/practice/{session}/rate", data={"rating": "good"}).text
+    assert (
+        'href="/lessons/1/vocab?topic=top-nourritu" role="button" class="outline">Закончить'
+        in summary
+    )
+
+
+def test_finish_from_practice_goes_to_practice(client):
+    session = start(client, mode="topic", topic="top-maisonxx").rsplit("/", 1)[-1]
+    html = ""
+    for _ in range(2):
+        html = client.post(f"/practice/{session}/rate", data={"rating": "good"}).text
+    assert 'href="/practice" role="button" class="outline">Закончить' in html
+
+
+def test_back_must_be_local_lesson_page(client):
+    data = {"mode": "all", "from_setup": "1", "back": "https://example.com/x"}
+    session = client.post("/practice/start", data=data).url.path.rsplit("/", 1)[-1]
+    assert client.app.state.sessions.params(session).back is None
+
+
+def test_setup_has_kinds_and_topics_per_lesson(client):
+    cfg = setup_cfg(client.get("/practice/setup?mode=lesson&lesson=1").text)
+    assert cfg["kindNames"]["phrase"] == "только фразы"
+    assert all(kind in ("word", "verb", "phrase") for kind, _t in cfg["lessonWords"]["1"])
+    assert cfg["topicNames"]["top-nourritu"] == "Еда"
