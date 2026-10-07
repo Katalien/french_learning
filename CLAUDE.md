@@ -57,6 +57,12 @@ SQLite для прогресса, pytest, ruff. Подробнее — конс�
 повторения (`/practice/setup?mode=lesson&lesson=N`), очередь перемешивается; поле с поиском —
 `partials/combobox.html`; классная работа всегда выполнена (`content/index.py: exercise_done`).
 
+Повторение и лексика урока (011) — `specs/011-practice-and-lesson-vocab/`: оценка `article`
+(«Ошибка в роде», FSRS как Good) ставит вопросы слова в начало тренажёра «Артикли» через
+таблицу `trainer_priority` (схема v5); повтор-тренировка — сеанс с `params.drill` (оценки
+только в состоянии сеанса); переводы на карточке — `vocab/partials/tr_lines.html`; фильтры
+лексики урока — `vocab.entries.lesson_words`.
+
 ## Критичные правила
 
 - НИКОГДА не коммить материалы уроков, распознанный контент и личные данные в этот

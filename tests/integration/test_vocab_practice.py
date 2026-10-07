@@ -1,6 +1,13 @@
 """US1: повторение в интерфейсе (FR-032, FR-033, FR-037; contracts/ui-routes.md 003)."""
 
+import json
 import re
+from html import unescape
+
+
+def setup_cfg(html: str) -> dict:
+    """Данные связанных фильтров страницы настройки (011): атрибут data-setup."""
+    return json.loads(unescape(html.split('data-setup="', 1)[1].split('"', 1)[0]))
 
 
 def start(client, **form) -> str:
@@ -45,12 +52,15 @@ def test_lesson_practice_opens_setup_with_lesson(client):
     """010 пункт 3: из урока — страница настройки с выбранным уроком."""
     response = client.get("/lessons/2/practice", follow_redirects=False)
     assert response.status_code == 303
-    assert response.headers["location"] == "/practice/setup?mode=lesson&lesson=2"
+    location = response.headers["location"]
+    assert location.startswith("/practice/setup?mode=lesson&lesson=2&")
+    assert "back=%2Flessons%2F2%2Fvocab" in location  # 011: «Закончить» — назад в лексику урока
     assert client.get("/lessons/99/practice", follow_redirects=False).status_code == 404
     html = client.get("/practice/setup?mode=lesson&lesson=2").text
-    assert "mode: 'lesson'" in html
+    cfg = setup_cfg(html)
+    assert cfg["mode"] == "lesson" and cfg["lesson"] == "2"
     assert re.search(r'<option value="2"\s+selected>', html)
-    assert re.search(r'name="portion"[^>]*value=""', html)
+    assert cfg["portion"] == ""  # урок — все слова одним подходом
 
 
 def test_start_portion_empty_means_all(client):
@@ -66,7 +76,8 @@ def test_start_portion_number_is_used_and_remembered(client):
     progress = client.app.state.sessions.progress(path.rsplit("/", 1)[-1])
     assert progress.portion_size == 3
     assert client.app.state.progress_db.get_setting("portion_size") == "3"
-    assert 'value="3"' in client.get("/practice/setup").text
+    cfg = setup_cfg(client.get("/practice/setup").text)
+    assert cfg["portion"] == "3" and cfg["portionSize"] == "3"
 
 
 def test_start_without_portion_field(client):
@@ -182,3 +193,240 @@ def test_ru_fr_input_card_neutral_before_answer(client):
     assert 'class="flashcard gender-none' in html and "gender-tag" not in html
     result = client.post(f"/practice/{session}/answer", data={"answer": "l'eau"}).text
     assert 'class="flashcard gender-f' in result
+
+
+# --- 011: «Ошибка в роде» ------------------------------------------------------------------
+
+
+def test_article_button_only_for_ru_fr_nouns(client, content_root):
+    session = only_eau_session(client)
+    html = client.get(f"/practice/{session}").text
+    assert 'value="article"' in html and "Ошибка в роде" in html
+    fr_ru = client.get(start(client, mode="all", direction="fr_ru")).text
+    assert 'value="article"' not in fr_ru
+
+
+def test_article_button_absent_without_gender(client, content_root):
+    path = content_root / "vocabulary/voc-eauaaaaa.yaml"
+    path.write_text(path.read_text(encoding="utf-8").replace("gender: f\n", ""), encoding="utf-8")
+    session = only_eau_session(client)
+    assert 'value="article"' not in client.get(f"/practice/{session}").text
+    response = client.post(f"/practice/{session}/rate", data={"rating": "article"})
+    assert response.status_code == 404
+
+
+def test_article_rating_moves_word_to_front_of_articles_trainer(client):
+    session = only_eau_session(client)
+    html = client.post(f"/practice/{session}/rate", data={"rating": "article"}).text
+    assert "Ошибка в роде" in html  # строка итога
+    assert re.search(r"Ошибка в роде</span><strong>1</strong>", html)
+    started = client.post("/trainers/articles/start", data={"scope": "all"})
+    prompt = re.search(r'class="trainer-prompt"[^>]*>\s*([^<]+?)\s*<', started.text)[1]
+    assert "eau" in prompt  # первым — слово с «Ошибкой в роде»
+
+
+# --- 011: переводы помещаются на карточке --------------------------------------------------
+
+
+LONG = [
+    "вода питьевая из-под крана",
+    "жидкость прозрачная без цвета",
+    "водоём, море или река в целом",
+]
+
+
+def long_translations(content_root):
+    path = content_root / "vocabulary/voc-eauaaaaa.yaml"
+    lines = "".join(f"  - {{text: '{t}', lesson: 2, origin: ai}}\n" for t in LONG)
+    text = path.read_text(encoding="utf-8").replace(
+        "  - {text: вода, lesson: 2, origin: ai}\n", lines
+    )
+    path.write_text(text, encoding="utf-8")
+
+
+def test_ru_fr_question_each_translation_on_own_line(client, content_root):
+    long_translations(content_root)
+    html = client.get(f"/practice/{only_eau_session(client)}").text
+    front = html.split('class="flip-face flip-back', 1)[0]
+    assert re.search(r'class="question tr-lines tr-s"', front)
+    assert [t for t in LONG if f'<span class="tr-line">{t}</span>' in front] == LONG
+
+
+def test_fr_ru_answer_each_translation_on_own_line(client, content_root):
+    long_translations(content_root)
+    cards = client.app.state.cards
+    cards.sync(client.app.state.store.get())
+    for card in cards.all():
+        if card.entry_id != "voc-eauaaaaa":
+            cards.set_known(card.entry_id, True)
+    html = client.get(start(client, mode="all", direction="fr_ru")).text
+    back = html.split('class="flip-face flip-back', 1)[1]
+    assert 'class="answer tr-lines tr-s"' in back
+    assert all(f'<span class="tr-line">{t}</span>' in back for t in LONG)
+
+
+def test_short_translation_unchanged(client):
+    html = client.get(f"/practice/{only_eau_session(client)}").text
+    assert '<p class="question" lang="ru">вода</p>' in html
+
+
+# --- 011: повтор-тренировка на итоге --------------------------------------------------------
+
+
+def finish(client, session, ratings):
+    html = ""
+    for rating in ratings:
+        html = client.post(f"/practice/{session}/rate", data={"rating": rating}).text
+    return html
+
+
+def test_summary_offers_drill_buttons_with_counts(client):
+    session = start(client, mode="all").rsplit("/", 1)[-1]
+    html = finish(client, session, ["again", "again", "hard", "good"])
+    assert "Повторить «Не помню» (2)" in html
+    assert "Повторить «Не помню» и «С трудом» (3)" in html
+
+
+def test_summary_without_mistakes_has_no_drill(client):
+    session = start(client, mode="all").rsplit("/", 1)[-1]
+    html = finish(client, session, ["good"] * 4)
+    assert "Повторить «Не помню»" not in html
+
+
+def test_drill_session_without_recording(client):
+    session = start(client, mode="all").rsplit("/", 1)[-1]
+    finish(client, session, ["again", "good", "good", "good"])
+    cards = client.app.state.cards
+    history = {c.entry_id: len(cards.history(c.entry_id)) for c in cards.all()}
+    response = client.post(f"/practice/{session}/drill", data={"which": "again"})
+    assert response.status_code == 200
+    drill = response.url.path.rsplit("/", 1)[-1]
+    assert drill != session
+    assert "Тренировка — без записи" in response.text and "1/1" in response.text
+    summary = client.post(f"/practice/{drill}/rate", data={"rating": "again"}).text
+    assert "Тренировка — без записи" in summary
+    assert "Повторить «Не помню» (1)" in summary  # повтор по ответам тренировки
+    assert {c.entry_id: len(cards.history(c.entry_id)) for c in cards.all()} == history
+
+
+def test_drill_with_no_words_returns_to_summary(client):
+    session = start(client, mode="all").rsplit("/", 1)[-1]
+    finish(client, session, ["good"] * 4)
+    response = client.post(
+        f"/practice/{session}/drill", data={"which": "again"}, follow_redirects=False
+    )
+    assert response.status_code == 303 and response.headers["location"] == f"/practice/{session}"
+
+
+# --- 011: в настройке повторения — только темы со словами ----------------------------------
+
+
+def test_setup_lists_only_topics_with_words(client):
+    html = client.get("/practice/setup").text
+    combobox = html.split("data-combobox", 1)[1].split("</div>", 1)[0]
+    assert "top-maisonxx" in combobox and "top-nourritu" in combobox
+    assert "top-etreverb" not in combobox and "top-articles" not in combobox  # темы без слов
+    empty = client.get("/practice/setup?mode=topic&topic=top-etreverb").text
+    assert "Нет слов для повторения" in empty
+
+
+# --- 011 (приёмка): тема внутри урока в настройке повторения -------------------------------
+
+
+def test_lesson_setup_offers_only_lesson_topics(client):
+    html = client.get("/practice/setup?mode=lesson&lesson=1").text
+    assert 'name="lesson_topic"' in html
+    cfg = setup_cfg(html)
+    lesson1 = {t for _kind, topics in cfg["lessonWords"]["1"] for t in topics}
+    assert {"top-maisonxx", "top-nourritu"} <= lesson1
+    assert "top-etreverb" not in str(cfg["lessonWords"])  # темы без слов не предлагаются
+
+
+def test_lesson_topic_narrows_session(client):
+    base = {"mode": "lesson", "lesson": "1", "direction": "ru_fr"}
+    whole = client.get("/practice/count", params=base).text
+    food = client.get("/practice/count", params={**base, "lesson_topic": "top-nourritu"}).text
+    assert "В сеансе: 2" in whole and "В сеансе: 1" in food
+    path = start(client, **base, lesson_topic="top-nourritu", from_setup="1")
+    assert client.app.state.sessions.progress(path.rsplit("/", 1)[-1]).total == 1
+
+
+def test_lesson_vocab_topic_filter_carries_to_setup(client):
+    """011 (приёмка): тема из фильтра «Лексики» урока проставляется в настройке повторения."""
+    filtered = client.get("/lessons/1/vocab?topic=top-nourritu").text
+    assert 'href="/lessons/1/practice?topic=top-nourritu"' in filtered
+    plain = client.get("/lessons/1/vocab").text
+    assert 'href="/lessons/1/practice"' in plain
+    response = client.get("/lessons/1/practice?topic=top-nourritu", follow_redirects=False)
+    assert response.headers["location"].startswith(
+        "/practice/setup?mode=lesson&lesson=1&lesson_topic=top-nourritu&"
+    )
+    html = client.get(response.headers["location"]).text
+    assert setup_cfg(html)["lessonTopic"] == "top-nourritu"
+    assert "В сеансе: 1" in html  # слова «Еды» из урока 1
+
+
+def test_lesson_vocab_topic_and_kind_carry_to_setup(client):
+    """011 (приёмка): тема и вид из фильтров «Лексики» урока — вместе и по отдельности."""
+    both = client.get("/lessons/1/vocab?topic=top-nourritu&kind=word").text
+    assert 'href="/lessons/1/practice?topic=top-nourritu&amp;kind=word"' in both
+    only_kind = client.get("/lessons/1/vocab?kind=word").text
+    assert 'href="/lessons/1/practice?kind=word"' in only_kind
+    response = client.get(
+        "/lessons/1/practice?topic=top-nourritu&kind=word", follow_redirects=False
+    )
+    location = response.headers["location"]
+    assert location.startswith(
+        "/practice/setup?mode=lesson&lesson=1&lesson_topic=top-nourritu&kind=word&"
+    )
+    html = client.get(location).text
+    assert setup_cfg(html)["kind"] == "word"
+    assert setup_cfg(html)["lessonTopic"] == "top-nourritu"
+    kind_only = client.get("/practice/setup?mode=lesson&lesson=1&kind=verb").text
+    assert setup_cfg(kind_only)["kind"] == "verb"
+    assert "Нет слов для повторения" in kind_only  # в образце у урока 1 нет глаголов
+
+
+# --- 011 (приёмка): «Закончить» — назад в лексику урока; связанные фильтры ------------------
+
+
+def test_finish_returns_to_lesson_vocab(client):
+    location = client.get("/lessons/1/practice?topic=top-nourritu", follow_redirects=False).headers[
+        "location"
+    ]
+    html = client.get(location).text
+    assert 'name="back" value="/lessons/1/vocab?topic=top-nourritu"' in html
+    data = {
+        "mode": "lesson",
+        "lesson": "1",
+        "lesson_topic": "top-nourritu",
+        "from_setup": "1",
+        "back": "/lessons/1/vocab?topic=top-nourritu",
+    }
+    session = client.post("/practice/start", data=data).url.path.rsplit("/", 1)[-1]
+    summary = client.post(f"/practice/{session}/rate", data={"rating": "good"}).text
+    assert (
+        'href="/lessons/1/vocab?topic=top-nourritu" role="button" class="outline">Закончить'
+        in summary
+    )
+
+
+def test_finish_from_practice_goes_to_practice(client):
+    session = start(client, mode="topic", topic="top-maisonxx").rsplit("/", 1)[-1]
+    html = ""
+    for _ in range(2):
+        html = client.post(f"/practice/{session}/rate", data={"rating": "good"}).text
+    assert 'href="/practice" role="button" class="outline">Закончить' in html
+
+
+def test_back_must_be_local_lesson_page(client):
+    data = {"mode": "all", "from_setup": "1", "back": "https://example.com/x"}
+    session = client.post("/practice/start", data=data).url.path.rsplit("/", 1)[-1]
+    assert client.app.state.sessions.params(session).back is None
+
+
+def test_setup_has_kinds_and_topics_per_lesson(client):
+    cfg = setup_cfg(client.get("/practice/setup?mode=lesson&lesson=1").text)
+    assert cfg["kindNames"]["phrase"] == "только фразы"
+    assert all(kind in ("word", "verb", "phrase") for kind, _t in cfg["lessonWords"]["1"])
+    assert cfg["topicNames"]["top-nourritu"] == "Еда"

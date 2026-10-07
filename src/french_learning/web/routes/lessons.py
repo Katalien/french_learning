@@ -136,11 +136,30 @@ def lesson_theory(request: Request, number: int, index: Index):
 
 
 @router.get("/lessons/{number}/vocab")
-def lesson_vocab(request: Request, number: int, index: Index):
-    """Раздел «Лексика» (009, FR-011)."""
-    new_words, repeat_words = index.lesson_vocabulary(number)
+def lesson_vocab(request: Request, number: int, index: Index, topic: str = "", kind: str = ""):
+    """Раздел «Лексика» (009, FR-011); фильтры по теме и виду (011, пункт 4)."""
+    from urllib.parse import urlencode
+
+    from french_learning.vocab.entries import lesson_words
+
+    _lesson_or_404(index, number)
+    all_new, all_repeat = index.lesson_vocabulary(number)
+    used = {t for e in all_new + all_repeat for t in e.topics}
+    topics = [t for t in index.all_topics() if t.id in used]
+    kind = kind if kind in ("word", "verb", "phrase") else ""
+    new_words, repeat_words = lesson_words(index, number, topic, kind)
+    filters = {k: v for k, v in {"topic": topic, "kind": kind}.items() if v}
     context = _context(
-        request, index, number, section="vocab", new_words=new_words, repeat_words=repeat_words
+        request,
+        index,
+        number,
+        section="vocab",
+        new_words=new_words,
+        repeat_words=repeat_words,
+        has_words=bool(all_new or all_repeat),
+        filter_topics=topics,
+        selected={"topic": topic, "kind": kind},
+        word_query="?" + urlencode({"from": "lesson", "lesson": number, **filters}),
     )
     return templates.TemplateResponse(request, "lesson_vocab.html", context)
 

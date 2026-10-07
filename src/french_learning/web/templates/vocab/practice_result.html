@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "vocab/partials/tr_lines.html" import tr_text %}
 {# Результат ввода ответа на карточке (003 FR-041; вид — 009) #}
 {% block title %}Повторение{% endblock %}
 {% block content %}
@@ -9,7 +10,7 @@
   </div>
   <article class="flashcard gender-{{ entry.gender or 'none' }} is-shown">
     <span class="stripe"></span>
-    <p class="question" lang="{{ 'fr' if direction == 'fr_ru' else 'ru' }}">{{ question.text }}</p>
+    {{ tr_text(question.lines, "question", 'fr' if direction == 'fr_ru' else 'ru') }}
     {% if direction == 'fr_ru' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}
     <div class="flash-back">
       {% if ok %}
@@ -17,7 +18,7 @@
       {% else %}
         <p class="verdict verdict-wrong">✗ Неверно <span class="muted">вы ввели: {{ given or "—" }}</span></p>
       {% endif %}
-      <p class="answer" lang="{{ 'ru' if direction == 'fr_ru' else 'fr' }}">{{ answers | join(", ") }}</p>
+      {{ tr_text(answers, "answer", 'ru' if direction == 'fr_ru' else 'fr') }}
       {% if direction == 'ru_fr' %}{% with speak = display_fr(entry) %}{% include "partials/speak.html" %}{% endwith %}{% endif %}
     </div>
   </article>

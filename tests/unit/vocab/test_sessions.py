@@ -153,3 +153,49 @@ def test_summary_counts(setup):
     for rating in ("good", "again", "hard"):
         sessions.rate(session_id, rating, now=NOW)
     assert sessions.summary(session_id) == {"good": 1, "hard": 1, "again": 1}
+
+
+# --- 011: повтор-тренировка без записи ------------------------------------------------------
+
+
+def rate_all(sessions, session_id, ratings):
+    for rating in ratings:
+        sessions.rate(session_id, rating, now=NOW)
+
+
+def test_drill_candidates_by_last_rating(setup):
+    _db, index, _cards, sessions = setup
+    session_id = sessions.start(index, params(mode="all"), now=NOW)
+    queue = [tuple(c) for c in sessions._load(session_id)[1]]
+    rate_all(sessions, session_id, ["again", "hard", "good", "article"])
+    assert sessions.drill_candidates(session_id, "again") == [queue[0]]
+    assert sessions.drill_candidates(session_id, "again_hard") == [queue[0], queue[1]]
+
+
+def test_drill_does_not_write_progress(setup):
+    _db, index, cards, sessions = setup
+    session_id = sessions.start(index, params(mode="all"), now=NOW)
+    rate_all(sessions, session_id, ["again", "again", "good", "good"])
+    before = {c.entry_id: c.due for c in cards.all()}
+    reviews_before = sum(len(cards.history(e)) for e in before)
+    drill = sessions.start_drill(session_id, "again", now=NOW)
+    assert sessions.params(drill).drill is True
+    assert sessions.progress(drill).total == 2
+    rate_all(sessions, drill, ["good", "again"])
+    assert {c.entry_id: c.due for c in cards.all()} == before
+    assert sum(len(cards.history(e)) for e in before) == reviews_before
+    assert sessions.summary(drill) == {"good": 1, "again": 1}
+    assert len(sessions.drill_candidates(drill, "again")) == 1  # повтор по ответам тренировки
+
+
+def test_drill_undo(setup):
+    _db, index, _cards, sessions = setup
+    session_id = sessions.start(index, params(mode="all"), now=NOW)
+    rate_all(sessions, session_id, ["again", "again", "good", "good"])
+    drill = sessions.start_drill(session_id, "again", now=NOW)
+    first = sessions.current(drill)
+    assert not sessions.can_undo(drill)
+    sessions.rate(drill, "good", now=NOW)
+    assert sessions.can_undo(drill)
+    assert sessions.undo(drill) == first
+    assert sessions.current(drill) == first and sessions.summary(drill) == {}

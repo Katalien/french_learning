@@ -1,0 +1,12 @@
+{# Переводы на карточке повторения (011, пункт 3): несколько — каждый своей строкой; при большом
+   объёме текста — меньше шрифт (tr-m > 30 символов, tr-s > 60); длинное слово переносится.
+   Один короткий перевод — как раньше, одной строкой. #}
+{% macro tr_text(items, kind, lang) -%}
+  {%- set total = items | join("") | length -%}
+  {%- set size = "tr-s" if total > 60 else ("tr-m" if total > 30 else "") -%}
+  {%- if items | length > 1 or size -%}
+    <p class="{{ kind }} tr-lines{% if size %} {{ size }}{% endif %}" lang="{{ lang }}">{% for t in items %}<span class="tr-line">{{ t }}</span>{% endfor %}</p>
+  {%- else -%}
+    <p class="{{ kind }}" lang="{{ lang }}">{{ items[0] if items else "" }}</p>
+  {%- endif -%}
+{%- endmacro %}

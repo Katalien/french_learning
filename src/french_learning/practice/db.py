@@ -16,7 +16,7 @@ from pathlib import Path
 
 from french_learning.agent.storage import ensure_progress_ignored
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 DEFAULT_SETTINGS = {
     "portion_size": "20",
@@ -95,6 +95,14 @@ create table if not exists trainer_answers (
     session_id text
 );
 create index if not exists trainer_answers_key on trainer_answers (trainer_id, key, id);
+-- v5 (011): «Ошибка в роде» ставит вопросы слова в начало тренажёра «Артикли»
+create table if not exists trainer_priority (
+    trainer_id text not null,
+    key text not null,
+    review_id integer,
+    created_at text not null,
+    primary key (trainer_id, key)
+);
 create table if not exists notes (
     id integer primary key autoincrement,
     kind text not null check (kind in ('note', 'question')),

@@ -22,6 +22,11 @@ KIND_NAMES = {"word": "слово", "verb": "глагол", "phrase": "фраз�
 class Question:
     text: str
     hint: str = ""
+    lines: tuple[str, ...] = ()  # 011: переводы по отдельности — каждый своей строкой
+
+    def __post_init__(self) -> None:
+        if not self.lines:
+            self.lines = (self.text,)
 
 
 def display_fr(entry: Any) -> str:
@@ -57,7 +62,15 @@ def question(index: ContentIndex, entry: Any, direction: str) -> Question:
     if entry.examples:
         hint_parts.append(f"пример: {entry.examples[0].text}")
     hint = " · ".join(p for p in hint_parts if p)
-    return Question(", ".join(translations(entry)), hint)
+    return Question(", ".join(translations(entry)), hint, tuple(translations(entry)))
+
+
+def article_rating_allowed(entry: Any, direction: str) -> bool:
+    """«Ошибка в роде» (011): только «русский → французский» и существительное с родом —
+    те же слова, что задаёт тренажёр «Артикли»."""
+    from french_learning.trainers.generators.articles import has_gender, is_noun
+
+    return direction == "ru_fr" and is_noun(entry) and has_gender(entry)
 
 
 def accepted_answers(index: ContentIndex, entry: Any, direction: str) -> list[str]:
@@ -70,6 +83,18 @@ def accepted_answers(index: ContentIndex, entry: Any, direction: str) -> list[st
         if not other.hidden and wanted & {t.casefold() for t in translations(other)}
     ]
     return sorted(set(same))
+
+
+def lesson_words(
+    index: ContentIndex, lesson: int, topic: str = "", kind: str = ""
+) -> tuple[list[Any], list[Any]]:
+    """Лексика урока (новые, на повторение) с фильтрами по теме и виду (011, пункт 4)."""
+
+    def keep(entry: Any) -> bool:
+        return (not topic or topic in entry.topics) and (not kind or entry.entry_type == kind)
+
+    new, repeat = index.lesson_vocabulary(lesson)
+    return [e for e in new if keep(e)], [e for e in repeat if keep(e)]
 
 
 def filter_entries(
