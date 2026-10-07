@@ -62,3 +62,21 @@ def test_missing_model_reports_command(tmp_path):
     assert not speaker.available("siwis")
     with pytest.raises(TTSUnavailable, match="tts-download"):
         speaker.audio("chat", "siwis")
+
+
+def test_audio_starts_with_silence(speaker):
+    """012 (US3): 0,35 с тишины в начале — звуковое устройство «просыпается» и больше
+    не съедает начало слова; старые файлы кеша без тишины не используются."""
+    import hashlib
+
+    old_key = hashlib.sha256(f"{VOICES['siwis'][0]}\nmaison".encode()).hexdigest()[:32]
+    old = speaker.cache_dir / "siwis" / f"{old_key}.wav"
+    old.parent.mkdir(parents=True, exist_ok=True)
+    old.write_bytes(b"old")
+    path = speaker.audio("maison", "siwis")
+    assert path != old
+    with wave.open(str(path)) as wav:
+        rate, frames = wav.getframerate(), wav.readframes(wav.getnframes())
+    pad = int(rate * 0.35)
+    assert len(frames) == (pad + 10) * 2
+    assert frames[: pad * 2] == b"\0" * pad * 2

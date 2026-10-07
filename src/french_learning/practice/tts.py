@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import os
 import threading
 import wave
@@ -22,6 +23,11 @@ VOICES = {
 }
 DEFAULT_VOICE = "siwis"
 MAX_TEXT = 1000
+# 012, пункт 4: тишина в начале звука. Наушники (особенно Bluetooth) и звук Windows после паузы
+# «просыпаются» 0,2–0,5 с и съедали начало слова. Версия входит в ключ кеша: старые файлы
+# без тишины больше не используются и пересоздаются при первом нажатии
+LEAD_SILENCE = 0.35
+CACHE_VERSION = "pad1"
 
 
 class TTSUnavailable(Exception):
@@ -80,7 +86,8 @@ class Speaker:
             raise ValueError(f"неизвестный голос: {voice}")
         if not text or len(text) > MAX_TEXT:
             raise ValueError("текст для озвучки пустой или слишком длинный")
-        key = hashlib.sha256(f"{VOICES[voice][0]}\n{text}".encode()).hexdigest()[:32]
+        source = f"{CACHE_VERSION}\n{VOICES[voice][0]}\n{text}"
+        key = hashlib.sha256(source.encode()).hexdigest()[:32]
         path = self.cache_dir / voice / f"{key}.wav"
         if path.exists():
             return path
@@ -89,8 +96,18 @@ class Speaker:
                 return path
             engine = self._engine(voice)
             path.parent.mkdir(parents=True, exist_ok=True)
+            buffer = io.BytesIO()
+            with wave.open(buffer, "wb") as wav_file:
+                engine.synthesize_wav(text, wav_file)
+            buffer.seek(0)
+            with wave.open(buffer, "rb") as spoken:
+                params = spoken.getparams()
+                frames = spoken.readframes(spoken.getnframes())
+            frame_size = params.sampwidth * params.nchannels
+            silence = b"\0" * (int(params.framerate * LEAD_SILENCE) * frame_size)
             temp = path.with_suffix(".tmp")
             with wave.open(str(temp), "wb") as wav_file:
-                engine.synthesize_wav(text, wav_file)
+                wav_file.setparams(params)
+                wav_file.writeframes(silence + frames)
             os.replace(temp, path)
         return path

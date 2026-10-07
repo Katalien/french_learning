@@ -13,11 +13,31 @@ def test_today_is_home(client):
     assert "Мои ошибки" not in html and "Продолжить" not in html
 
 
-def test_cards_due_and_repeat_button(client):
+def test_last_lesson_words_and_repeat_button(client):
+    """012 (US7): число всех слов последнего урока со словами; «Повторить» — сразу сеанс
+    со всеми словами урока, «русский → французский»."""
     html = client.get("/").text
-    # карточки создаются для всех слов словаря образца — все «пора»
-    assert "8 карточек" in html  # 010: 4 слова × 2 направления
-    assert 'action="/practice/start"' in html and 'name="mode" value="today"' in html
+    block = html.split("<h2>Повторение слов</h2>", 1)[1].split("</section>", 1)[0]
+    assert "2 слова" in block and "урока 2" in block  # у урока 4 слов нет — берётся урок 2
+    for field in (
+        'name="mode" value="lesson"',
+        'name="lesson" value="2"',
+        'name="direction" value="ru_fr"',
+    ):
+        assert field in block, field
+    data = {"mode": "lesson", "lesson": "2", "direction": "ru_fr"}
+    session = client.post("/practice/start", data=data).url.path.rsplit("/", 1)[-1]
+    progress = client.app.state.sessions.progress(session)
+    assert progress.total == 2
+    assert {d for _e, d in client.app.state.sessions._load(session)[1]} == {"ru_fr"}
+
+
+def test_last_lesson_skips_hidden_words(client, content_root):
+    for name in ("voc-painaaaa", "voc-eauaaaaa"):
+        path = content_root / "vocabulary" / f"{name}.yaml"
+        path.write_text(path.read_text(encoding="utf-8") + "hidden: true\n", encoding="utf-8")
+    block = client.get("/").text.split("<h2>Повторение слов</h2>", 1)[1].split("</section>", 1)[0]
+    assert "1 слово" in block and "урока 1" in block
 
 
 def test_homework_of_two_latest_lessons(client):
@@ -66,7 +86,13 @@ def test_homework_shows_five_then_more_button():
     from french_learning.web.templating import templates
 
     exercises = [NS(id=f"ex-{n}", description_ru=f"Упражнение {n}", number=n) for n in range(7)]
-    t = NS(empty=False, due=0, homework=[NS(number=3, exercises=exercises)], trainers=[])
+    t = NS(
+        empty=False,
+        last_lesson=None,
+        last_lesson_words=0,
+        homework=[NS(number=3, exercises=exercises)],
+        trainers=[],
+    )
     html = templates.env.get_template("today.html").render(
         t=t,
         today_date=dt.date(2026, 9, 30),

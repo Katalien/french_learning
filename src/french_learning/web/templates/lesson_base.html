@@ -51,7 +51,9 @@
         ("vocab", "Лексика", "/lessons/" ~ n ~ "/vocab", counts.vocab),
         ("tasks", "Задания", "/lessons/" ~ n ~ "/tasks?part=class", counts.tasks),
         ("notes", "Заметки", "/lessons/" ~ n ~ "/notes", counts.notes)) %}
-      <a class="sec" href="{{ href }}" {% if section == key %}aria-current="page"{% endif %}>{{ name }}{% if count is not none %}<span class="c">{{ count }}</span>{% endif %}</a>
+      <a class="sec" href="{{ href }}" {% if section == key %}aria-current="page"{% endif %}>{{ name }}
+        {%- if key == "tasks" %}<span class="c" title="в классе: {{ counts.tasks_class }}, дома: {{ counts.tasks_homework }}">{{ counts.tasks_class }}/{{ counts.tasks_homework }}</span>
+        {%- elif count is not none %}<span class="c">{{ count }}</span>{% endif %}</a>
     {% endfor %}
     </span>
   </nav>

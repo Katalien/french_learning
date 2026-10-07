@@ -1,7 +1,8 @@
 """Данные экрана «Сегодня» (009, FR-003; research R4).
 
-Показываются только три вещи: карточки «пора повторить», невыполненная основная домашка
-двух последних уроков, где она есть, и встроенные тренажёры с вопросами «пора».
+Показываются только три вещи: слова последнего урока (012: число слов и «Повторить» — все
+слова урока), невыполненная основная домашка двух последних уроков, где она есть,
+и встроенные тренажёры с вопросами «пора».
 """
 
 from __future__ import annotations
@@ -35,6 +36,8 @@ class Today:
     due_fr_ru: int = 0
     due_ru_fr: int = 0
     new: int = 0
+    last_lesson: int | None = None  # 012: последний урок со словами
+    last_lesson_words: int = 0
     homework: list[TodayLesson] = field(default_factory=list)
     trainers: list[TodayTrainer] = field(default_factory=list)
 
@@ -44,7 +47,7 @@ class Today:
 
     @property
     def empty(self) -> bool:
-        return not (self.due or self.homework or self.trainers)
+        return not (self.last_lesson_words or self.homework or self.trainers)
 
 
 @lru_cache(maxsize=4)
@@ -69,6 +72,13 @@ def build_today(index: Any, cards: Any, sessions: Any, progress: Any, schedule: 
         today.due_fr_ru, today.due_ru_fr = len(queues["fr_ru"]), len(queues["ru_fr"])
         fresh = {c.entry_id for c in cards.all() if not c.reviewed}
         today.new = sum(1 for entry_id, _d in queues["fr_ru"] if entry_id in fresh)
+
+    for lesson in index.lessons():  # новые сверху; урок без слов — берётся предыдущий
+        new_words, repeat_words = index.lesson_vocabulary(lesson.number)
+        if new_words or repeat_words:
+            today.last_lesson = lesson.number
+            today.last_lesson_words = len(new_words) + len(repeat_words)
+            break
 
     lessons_with_homework = [
         lesson

@@ -74,3 +74,12 @@ def test_overview_counters(client):
 
 def test_empty_section(client):
     assert "Нет материалов" in client.get("/lessons/4/vocab").text
+
+
+def test_tasks_count_class_and_homework(client):
+    """012 (US4): «Задания 4/5» — в классе / дома (резерв не считается)."""
+    panel = client.get("/lessons/1").text.split('class="lnav"', 1)[1].split("</nav>", 1)[0]
+    tasks = re.search(
+        r'<a class="sec" href="/lessons/1/tasks[^"]*"[^>]*>Задания.*?</a>', panel
+    ).group(0)
+    assert '<span class="c" title="в классе: 4, дома: 5">4/5</span>' in tasks
