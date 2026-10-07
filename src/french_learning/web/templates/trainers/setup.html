@@ -68,7 +68,7 @@
       <fieldset>
         <legend>Формат</legend>
         {% for key, label in number_ranges.formats.items() %}
-          <label><input type="radio" name="format" value="{{ key }}"{% if key == number_ranges.default_format %} checked{% endif %}> {{ label }}</label>
+          <label><input type="radio" name="format" value="{{ key }}"{% if key == number_ranges.default_format %} checked{% endif %}> <span lang="fr">{{ label }}</span></label>
         {% endfor %}
       </fieldset>
     {% endif %}

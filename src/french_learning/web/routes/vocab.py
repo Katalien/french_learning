@@ -639,7 +639,7 @@ def _entry_action(request: Request, entry_id: str, action, done: str, target: st
     notice = done + (
         f" {result.warning[0].upper()}{result.warning[1:]}." if result and result.warning else ""
     )
-    return _redirect(f"{url}?" + urlencode({"notice": notice}))
+    return _redirect(f"{url}{'&' if '?' in url else '?'}" + urlencode({"notice": notice}))
 
 
 @router.post("/vocab/{entry_id}/edit")
@@ -680,8 +680,17 @@ def vocab_unhide(request: Request, entry_id: str):
     )
 
 
+def _safe_next(url: str) -> str | None:
+    """012: после удаления — следующая карточка карусели или список, только адреса приложения."""
+    if "//" in url or "\\" in url:
+        return None
+    if url == "/vocab" or url.startswith(("/vocab/", "/vocab?", "/lessons/", "/topics/")):
+        return url
+    return None
+
+
 @router.post("/vocab/{entry_id}/delete")
-def vocab_delete(request: Request, entry_id: str):
+def vocab_delete(request: Request, entry_id: str, next: Annotated[str, Form()] = ""):
     editor = _editor(request)
 
     def action():
@@ -690,7 +699,8 @@ def vocab_delete(request: Request, entry_id: str):
             request.app.state.cards.remove_cards(entry_id)
         return result
 
-    return _entry_action(request, entry_id, action, "Слово удалено.", target="/vocab")
+    target = _safe_next(next) or "/vocab"
+    return _entry_action(request, entry_id, action, "Слово удалено.", target=target)
 
 
 @router.post("/vocab/{entry_id}/known")

@@ -92,3 +92,25 @@ def test_session_survives_deleted_and_hidden_words(client):
     assert sessions.progress(session).total == total
     new = client.post("/practice/start", data=data).url.path.rsplit("/", 1)[-1]
     assert second not in {card[0] for card in sessions._load(new)[1]}
+
+
+def test_delete_from_carousel_opens_next_word(client):
+    """012 (приёмка): удаление из карусели слов урока — следующая карточка, а не весь словарь."""
+    page = client.get("/vocab/voc-eauaaaaa?from=lesson&lesson=2").text
+    assert 'name="next" value="/vocab/voc-painaaaa?from=lesson&amp;lesson=2"' in page
+    response = client.post(
+        "/vocab/voc-eauaaaaa/delete",
+        data={"next": "/vocab/voc-painaaaa?from=lesson&lesson=2"},
+        follow_redirects=False,
+    )
+    location = response.headers["location"]
+    assert location.startswith("/vocab/voc-painaaaa?from=lesson&lesson=2&notice=")
+    assert "Слово удалено" in client.get(location).text
+    # последнее слово урока — к предыдущему; единственное — назад к лексике урока
+    last = client.get("/vocab/voc-painaaaa?from=lesson&lesson=2").text
+    assert 'name="next" value="/lessons/2/vocab"' in last
+    # чужой адрес не принимается
+    evil = client.post(
+        "/vocab/voc-painaaaa/delete", data={"next": "//evil.example"}, follow_redirects=False
+    )
+    assert evil.headers["location"].startswith("/vocab?notice=")

@@ -21,8 +21,8 @@ DEFAULT_RANGE = "0-100"
 
 # 012, пункт 10: форматы вопросов (ключ → (подпись, префикс ключа вопроса))
 FORMATS = {
-    "digits_to_words": ("цифрами → словами", "numbers:"),
-    "words_to_digits": ("словами → цифрами", "numbers-fr:"),
+    "digits_to_words": ("75 → soixante-quinze", "numbers:"),
+    "words_to_digits": ("soixante-quinze → 75", "numbers-fr:"),
 }
 DEFAULT_FORMAT = "digits_to_words"
 

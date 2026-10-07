@@ -78,6 +78,11 @@
 
 <dialog id="delete-dialog" class="note-dialog" aria-labelledby="delete-title">
   <form method="post" action="/vocab/{{ e.id }}/delete">
+    {# 012 (приёмка): после удаления — следующая карточка карусели, иначе предыдущая, иначе список #}
+    {% if nav and nav.next %}{% set after = "/vocab/" ~ nav.next.id ~ q %}
+    {% elif nav and nav.prev %}{% set after = "/vocab/" ~ nav.prev.id ~ q %}
+    {% else %}{% set after = nav.back[0] if nav else "/vocab" %}{% endif %}
+    <input type="hidden" name="next" value="{{ after }}">
     <p id="delete-title"><strong>Удалить «<span lang="fr">{{ display_fr(e) }}</span>» из словаря?</strong></p>
     <p class="small muted">Слово пропадёт из уроков, тем, поиска и повторения. Из приложения это
       не отменить.</p>
