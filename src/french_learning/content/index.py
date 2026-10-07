@@ -60,6 +60,8 @@ class ContentIndex:
         self._topics = {t.id: t for t in content.topics.topics} if content.topics else {}
         self._by_topic: dict[str, list[Any]] = {}
         for element in content.elements.values():
+            if element.kind == "vocab" and element.hidden:
+                continue  # 012: скрытые слова не показываются на страницах тем
             for topic_id in element.topics:
                 self._by_topic.setdefault(topic_id, []).append(element)
 
@@ -173,7 +175,7 @@ class ContentIndex:
             (
                 e
                 for e in self.content.elements.values()
-                if e.kind == "vocab" and lesson in e.lessons
+                if e.kind == "vocab" and lesson in e.lessons and not e.hidden
             ),
             key=lambda e: e.text.casefold(),
         )
@@ -228,10 +230,16 @@ class ContentIndex:
 
     def untopiced_elements(self) -> list[Any]:
         return sorted(
-            (e for e in self.content.elements.values() if not e.topics), key=_topic_sort_key
+            (
+                e
+                for e in self.content.elements.values()
+                if not e.topics and not (e.kind == "vocab" and e.hidden)
+            ),
+            key=_topic_sort_key,
         )
 
-    def topics_by_section(self) -> list[SectionTopics]:
+    def topics_by_section(self, *, only_vocab_with_words: bool = False) -> list[SectionTopics]:
+        """Темы по разделам; only_vocab_with_words — в «Лексике» только темы со словами (012)."""
         sections = self.content.topics.sections if self.content.topics else []
         result = []
         for section in sections:
@@ -239,6 +247,11 @@ class ContentIndex:
                 TopicCount(t, len(self._by_topic.get(t.id, [])))
                 for t in self.all_topics()
                 if t.section == section.id
+                and not (
+                    only_vocab_with_words
+                    and section.id == "vocabulary"
+                    and not any(e.kind == "vocab" for e in self._by_topic.get(t.id, []))
+                )
             ]
             result.append(SectionTopics(section, topics))
         return result

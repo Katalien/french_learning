@@ -145,3 +145,36 @@ def test_lesson_tree(clean_content_root: Path):
         "ex-choicecf",
     ]
     assert [e.id for e in tree["reserve"]] == ["ex-openansw"]
+
+
+def _hide(root: Path, entry_id: str) -> None:
+    path = root / "vocabulary" / f"{entry_id}.yaml"
+    path.write_text(path.read_text(encoding="utf-8") + "hidden: true\n", encoding="utf-8")
+
+
+def test_hidden_words_not_in_lesson_vocabulary(clean_content_root: Path):
+    """012 (US1): скрытое слово не попадает в лексику урока."""
+    _hide(clean_content_root, "voc-painaaaa")
+    index = build(clean_content_root)
+    assert ids(index.lesson_vocabulary(1)[0]) == ["voc-maisonaa"]
+    assert ids(index.lesson_vocabulary(2)[1]) == []
+
+
+def test_hidden_words_not_in_topic_elements(clean_content_root: Path):
+    """012 (US1): на странице темы скрытых слов нет."""
+    _hide(clean_content_root, "voc-painaaaa")
+    elements = build(clean_content_root).topic_elements("top-nourritu")
+    assert "voc-painaaaa" not in ids(elements)
+    assert "voc-eauaaaaa" in ids(elements)
+
+
+def test_vocabulary_section_only_topics_with_words(clean_content_root: Path):
+    """012 (US6): в разделе «Лексика» — только темы с нескрытыми словами."""
+    _hide(clean_content_root, "voc-painaaaa")
+    _hide(clean_content_root, "voc-eauaaaaa")
+    index = build(clean_content_root)
+    names = lambda sections: {  # noqa: E731
+        t.topic.name for s in sections if s.section.id == "vocabulary" for t in s.topics
+    }
+    assert names(index.topics_by_section(only_vocab_with_words=True)) == {"Дом"}
+    assert names(index.topics_by_section()) == {"Дом", "Еда"}

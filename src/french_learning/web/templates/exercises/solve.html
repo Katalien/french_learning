@@ -7,10 +7,13 @@
    обязательная (show_source) открыта сразу, остальные свёрнуты #}
 {% set required_picture = e.show_source is defined and e.show_source %}
 {% set has_picture = source and source.file and source.file.lower().endswith((".jpg", ".jpeg", ".png", ".webp", ".gif")) %}
-<div id="exercise-solve" class="exercise solve" :class="{ 'with-source': picture }"
+{# 012, пункт 3: класс раскладки — на внутренней обёртке без id. HTMX после замены
+   #exercise-solve возвращает ему атрибуты из ответа и стёр бы класс, поставленный Alpine #}
+<div id="exercise-solve" class="exercise solve"
      x-data="{ reference: false,
                picture: (window.picturesOpen ??= {})['{{ e.id }}'] ?? {{ 'true' if has_picture and required_picture else 'false' }} }"
      x-effect="window.picturesOpen['{{ e.id }}'] = picture">
+<div class="exercise-layout" :class="{ 'with-source': picture }">
   {% if has_picture %}
     <figure class="exercise-source" :class="{ collapsed: !picture }">
       <button type="button" class="btn-text small picture-toggle" @click="picture = !picture"
@@ -157,4 +160,5 @@
       </div>
     {% endif %}
   </div>
+</div>
 </div>

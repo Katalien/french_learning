@@ -34,6 +34,9 @@ def _counts(index: ContentIndex, number: int) -> dict[str, int]:
         "texts": len(index.elements(number, kind="text")),
         "vocab": len(new_words) + len(repeat_words),
         "tasks": len(exercises),
+        # 012, пункт 1: «Задания 6/10» — в классе / дома (домашние — все, кроме резерва)
+        "tasks_class": sum(1 for e in exercises if e.part == "class"),
+        "tasks_homework": sum(1 for e in exercises if e.part == "homework"),
     }
 
 

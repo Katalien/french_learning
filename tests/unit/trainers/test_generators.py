@@ -178,9 +178,23 @@ def test_adjective_agreement(vocab, data):
 
 def test_numbers(data):
     found = by_key(numbers.generate(data()))
-    assert len(found) == 1001
+    assert len(found) == 2002  # 012: два формата — цифрами → словами и словами → цифрами
     assert found["numbers:97"].prompt == "97"
     assert found["numbers:97"].answers[0] == "quatre-vingt-dix-sept"
+
+
+def test_numbers_words_to_digits(data):
+    """012 (US8): на карточке число словами (основное написание), ответ — цифрами."""
+    found = by_key(numbers.generate(data()))
+    question = found["numbers-fr:75"]
+    assert question.prompt == "soixante-quinze"
+    assert list(question.answers) == ["75"]
+    assert question.hint == "напишите цифрами"
+    assert numbers.in_range("numbers-fr:75", 70, 99) and numbers.in_range("numbers:75", 70, 99)
+    assert not numbers.in_range("numbers-fr:75", 0, 16)
+    assert numbers.in_format("numbers-fr:75", "words_to_digits")
+    assert numbers.in_format("numbers:75", "digits_to_words")
+    assert not numbers.in_format("numbers:75", "words_to_digits")
 
 
 def test_sentences_from_exercises_and_texts(clean_content_root, data):

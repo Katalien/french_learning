@@ -1,4 +1,5 @@
-"""Тренажёр «Числа»: 0–1000 цифрами → словами (оба написания верны; research R11)."""
+"""Тренажёр «Числа»: 0–1000 цифрами → словами (оба написания верны; research R11) и, с 012,
+словами → цифрами (на карточке основное написание, ответ — цифрами)."""
 
 from __future__ import annotations
 
@@ -18,6 +19,13 @@ RANGES = {
 }
 DEFAULT_RANGE = "0-100"
 
+# 012, пункт 10: форматы вопросов (ключ → (подпись, префикс ключа вопроса))
+FORMATS = {
+    "digits_to_words": ("75 → soixante-quinze", "numbers:"),
+    "words_to_digits": ("soixante-quinze → 75", "numbers-fr:"),
+}
+DEFAULT_FORMAT = "digits_to_words"
+
 
 def parse_range(value: str, start: str = "", end: str = "") -> tuple[int, int]:
     """Диапазон из формы: готовый ключ или свой («custom» + от / до); границы 0–1000."""
@@ -34,17 +42,34 @@ def parse_range(value: str, start: str = "", end: str = "") -> tuple[int, int]:
 
 
 def in_range(key: str, low: int, high: int) -> bool:
-    return key.startswith("numbers:") and low <= int(key.split(":", 1)[1]) <= high
+    prefix, _sep, number = key.partition(":")
+    return prefix in ("numbers", "numbers-fr") and low <= int(number) <= high
+
+
+def in_format(key: str, fmt: str) -> bool:
+    return key.startswith(FORMATS.get(fmt, FORMATS[DEFAULT_FORMAT])[1])
 
 
 def generate(data: TrainerData) -> list[Question]:
-    return [
-        Question(
-            key=f"numbers:{n}",
-            prompt=str(n),
-            answers=(written := spellings(n)),
-            hint="напишите словами",
-            full=written[0],
+    questions = []
+    for n in range(LIMIT + 1):
+        written = spellings(n)
+        questions.append(
+            Question(
+                key=f"numbers:{n}",
+                prompt=str(n),
+                answers=written,
+                hint="напишите словами",
+                full=written[0],
+            )
         )
-        for n in range(LIMIT + 1)
-    ]
+        questions.append(
+            Question(
+                key=f"numbers-fr:{n}",
+                prompt=written[0],
+                answers=[str(n)],
+                hint="напишите цифрами",
+                full=str(n),
+            )
+        )
+    return questions

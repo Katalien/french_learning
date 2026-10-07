@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Annotated
 from urllib.parse import urlencode
 
@@ -241,14 +242,19 @@ def lesson_practice(number: int, index: Index, topic: str = "", kind: str = ""):
     return _redirect(f"/practice/setup?{urlencode(query)}")
 
 
+def _exists(index: ContentIndex) -> Callable[[str], bool]:
+    """Слово ещё есть в словаре (012: удалённые посреди сеанса пропускаются)."""
+    return lambda entry_id: index.element(entry_id) is not None
+
+
 def _card_page(request: Request, index: ContentIndex, session_id: str, shown: bool, **extra):
     _cards, sessions = _practice(request, index)
     try:
+        current = sessions.current(session_id, exists=_exists(index))
         progress = sessions.progress(session_id)
     except KeyError:
         raise not_found("Сеанс не найден") from None
     params = sessions.params(session_id)
-    current = sessions.current(session_id)
     context = {
         "index": index,
         "session_id": session_id,
@@ -296,7 +302,7 @@ def practice_show(request: Request, session_id: str, index: Index):
 @router.post("/practice/{session_id}/rate")
 def practice_rate(request: Request, session_id: str, index: Index, rating: Annotated[str, Form()]):
     _cards, sessions = _practice(request, index)
-    current = sessions.current(session_id)
+    current = sessions.current(session_id, exists=_exists(index))
     if current is not None:
         allowed = _card_ratings(index.element(current[0]), current[1])
         if rating not in allowed:
@@ -384,7 +390,7 @@ def practice_answer(
     request: Request, session_id: str, index: Index, answer: Annotated[str, Form()] = ""
 ):
     _cards, sessions = _practice(request, index)
-    current = sessions.current(session_id)
+    current = sessions.current(session_id, exists=_exists(index))
     if current is None:
         return _redirect(f"/practice/{session_id}")
     entry = index.element(current[0])
@@ -407,7 +413,7 @@ def practice_spelling(
     choice: Annotated[str, Form()] = "",
 ):
     _cards, sessions = _practice(request, index)
-    current = sessions.current(session_id)
+    current = sessions.current(session_id, exists=_exists(index))
     if current is None:
         return _redirect(f"/practice/{session_id}")
     entry = index.element(current[0])
@@ -633,7 +639,7 @@ def _entry_action(request: Request, entry_id: str, action, done: str, target: st
     notice = done + (
         f" {result.warning[0].upper()}{result.warning[1:]}." if result and result.warning else ""
     )
-    return _redirect(f"{url}?" + urlencode({"notice": notice}))
+    return _redirect(f"{url}{'&' if '?' in url else '?'}" + urlencode({"notice": notice}))
 
 
 @router.post("/vocab/{entry_id}/edit")
@@ -674,8 +680,17 @@ def vocab_unhide(request: Request, entry_id: str):
     )
 
 
+def _safe_next(url: str) -> str | None:
+    """012: после удаления — следующая карточка карусели или список, только адреса приложения."""
+    if "//" in url or "\\" in url:
+        return None
+    if url == "/vocab" or url.startswith(("/vocab/", "/vocab?", "/lessons/", "/topics/")):
+        return url
+    return None
+
+
 @router.post("/vocab/{entry_id}/delete")
-def vocab_delete(request: Request, entry_id: str):
+def vocab_delete(request: Request, entry_id: str, next: Annotated[str, Form()] = ""):
     editor = _editor(request)
 
     def action():
@@ -684,7 +699,8 @@ def vocab_delete(request: Request, entry_id: str):
             request.app.state.cards.remove_cards(entry_id)
         return result
 
-    return _entry_action(request, entry_id, action, "Слово удалено.", target="/vocab")
+    target = _safe_next(next) or "/vocab"
+    return _entry_action(request, entry_id, action, "Слово удалено.", target=target)
 
 
 @router.post("/vocab/{entry_id}/known")

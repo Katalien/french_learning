@@ -5,7 +5,7 @@
 {% macro word_row(w, query) -%}
   <li class="word-row"><span class="gbar g-{{ w.gender or 'none' }}"></span>
     <span><a class="fr" lang="fr" href="/vocab/{{ w.id }}{{ query }}">{% if w.article %}{{ w.article }}{% if w.article != "l'" %} {% endif %}{% endif %}{{ w.text }}</a>
-    <span class="muted">— {{ w.translations | map(attribute="text") | join(", ") }}</span>{% if w.hidden %} <mark class="badge">скрыто</mark>{% endif %}</span></li>
+    <span class="muted">— {{ w.translations | map(attribute="text") | join(", ") }}</span></span></li>
 {%- endmacro %}
 {% if new_words %}
   <h3>Новые слова</h3>

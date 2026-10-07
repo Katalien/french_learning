@@ -258,7 +258,6 @@ class VocabEditor:
         )
 
     def delete(self, entry_id: str) -> WriteResult:
-        path, data, entry = self._load(entry_id)
-        if entry.origin != "user" or entry.lessons:
-            raise VocabError("удалять можно только свои слова; слова из уроков можно скрыть")
+        """Удалить запись целиком — любую, в том числе из урока (012, пункт 5)."""
+        path, data, _entry = self._load(entry_id)
         return self.writer.delete_files([path], f"Словарь: удалено «{data['text']}»")

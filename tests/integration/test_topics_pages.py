@@ -98,3 +98,14 @@ def test_topic_default_tab_first_nonempty(client):
     html = client.get("/topics/top-maisonxx").text  # только слова и упражнение «по картинке»
     first = re.search(r"tab: '(\w+)'", html)[1]
     assert first in ("exercises", "words")
+
+
+def test_vocabulary_section_hides_topics_without_words(client, content_root):
+    """012 (US6): в «Темы → Лексика» нет тем без слов; сама тема открывается по адресу."""
+    for name in ("voc-painaaaa", "voc-eauaaaaa"):
+        path = content_root / "vocabulary" / f"{name}.yaml"
+        path.write_text(path.read_text(encoding="utf-8") + "hidden: true\n", encoding="utf-8")
+    html = client.get("/topics").text
+    assert 'href="/topics/top-maisonxx"' in html
+    assert 'href="/topics/top-nourritu"' not in html
+    assert client.get("/topics/top-nourritu").status_code == 200

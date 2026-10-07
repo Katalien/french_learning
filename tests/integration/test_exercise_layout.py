@@ -130,3 +130,17 @@ def test_no_picture_for_non_image_source(client, content_root):
     )
     html = client.get("/elements/ex-gapinput").text
     assert 'class="exercise-source"' not in html
+
+
+def test_picture_layout_class_survives_check(client):
+    """012 (US2): класс раскладки «с картинкой» — на внутренней обёртке без id. HTMX после
+    замены #exercise-solve возвращает его атрибуты из ответа и стирал класс, поставленный
+    Alpine, — картинка уезжала наверх."""
+    for html in (
+        client.get("/elements/ex-gapinput").text,
+        client.post("/exercises/ex-gapinput/check", data={"i1.1": "x"}, headers=HX).text,
+    ):
+        solve = re.search(r'<div id="exercise-solve"[^>]*>', html).group(0)
+        assert ":class" not in solve
+        layout = re.search(r'<div class="exercise-layout"[^>]*>', html).group(0)
+        assert "id=" not in layout and "'with-source': picture" in layout

@@ -35,7 +35,7 @@ def writer(request: Request) -> ContentWriter:
 def topics_page(request: Request, index: Index):
     context = {
         "index": index,
-        "sections": index.topics_by_section(),
+        "sections": index.topics_by_section(only_vocab_with_words=True),
         "untopiced": len(index.untopiced_elements()),
     }
     return templates.TemplateResponse(request, "topics.html", context)

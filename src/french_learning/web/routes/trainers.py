@@ -58,14 +58,28 @@ def _scoped(questions: list[Question], params: dict, hard: set[str]) -> list[Que
         from french_learning.trainers.generators.numbers import in_range
 
         low, high = int(params.get("low", 0)), int(params.get("high", 1000))
-        return [q for q in questions if in_range(q.key, low, high)]
+        questions = [q for q in questions if in_range(q.key, low, high)]
+    if params.get("format"):  # 012: «Числа» — вопросы выбранного формата
+        from french_learning.trainers.generators.numbers import in_format
+
+        questions = [q for q in questions if in_format(q.key, params["format"])]
     return questions
 
 
 def _number_ranges() -> dict:
-    from french_learning.trainers.generators.numbers import DEFAULT_RANGE, RANGES
+    from french_learning.trainers.generators.numbers import (
+        DEFAULT_FORMAT,
+        DEFAULT_RANGE,
+        FORMATS,
+        RANGES,
+    )
 
-    return {"items": RANGES, "default": DEFAULT_RANGE}
+    return {
+        "items": RANGES,
+        "default": DEFAULT_RANGE,
+        "formats": {key: label for key, (label, _prefix) in FORMATS.items()},
+        "default_format": DEFAULT_FORMAT,
+    }
 
 
 def _catalog_rows(request: Request, index: ContentIndex) -> list[dict]:
@@ -149,6 +163,7 @@ def trainer_start(
     range: Annotated[str, Form()] = "",
     range_from: Annotated[str, Form()] = "",
     range_to: Annotated[str, Form()] = "",
+    format: Annotated[str, Form()] = "",
 ):
     trainer = _trainer(index, trainer_id)
     params = {"scope": scope if scope in SCOPES else "all", "lesson": lesson, "topic": topic}
@@ -157,6 +172,10 @@ def trainer_start(
 
         low, high = parse_range(range, range_from, range_to)
         params = {"scope": "range", "low": low, "high": high}
+    if trainer.id == "numbers":
+        from french_learning.trainers.generators.numbers import DEFAULT_FORMAT, FORMATS
+
+        params["format"] = format if format in FORMATS else DEFAULT_FORMAT
     if trainer.source == "agent":
         params = {"scope": "all", "pool": True}
     hard = request.app.state.trainer_schedule.hard_keys(trainer.id)

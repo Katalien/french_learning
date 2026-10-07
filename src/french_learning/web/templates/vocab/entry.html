@@ -69,16 +69,29 @@
   <form method="post" action="/vocab/{{ e.id }}/{{ 'unknown' if known else 'known' }}">
     <button type="submit" class="outline small">{{ "Вернуть в повторение" if known else "Я это знаю" }}</button>
   </form>
-  {% if e.origin == "user" and not e.lessons %}
-    <form method="post" action="/vocab/{{ e.id }}/delete" onsubmit="return confirm('Удалить слово?')">
-      <button type="submit" class="outline secondary small">Удалить</button>
-    </form>
-  {% else %}
-    <form method="post" action="/vocab/{{ e.id }}/{{ 'unhide' if e.hidden else 'hide' }}">
-      <button type="submit" class="outline secondary small">{{ "Вернуть" if e.hidden else "Скрыть" }}</button>
-    </form>
-  {% endif %}
+  <form method="post" action="/vocab/{{ e.id }}/{{ 'unhide' if e.hidden else 'hide' }}">
+    <button type="submit" class="outline secondary small">{{ "Вернуть" if e.hidden else "Скрыть" }}</button>
+  </form>
+  {# 012, пункт 5: удалить можно любое слово — после подтверждения в окне #}
+  <button type="button" class="outline secondary small" onclick="document.getElementById('delete-dialog').showModal()">Удалить слово</button>
 </section>
+
+<dialog id="delete-dialog" class="note-dialog" aria-labelledby="delete-title">
+  <form method="post" action="/vocab/{{ e.id }}/delete">
+    {# 012 (приёмка): после удаления — следующая карточка карусели, иначе предыдущая, иначе список #}
+    {% if nav and nav.next %}{% set after = "/vocab/" ~ nav.next.id ~ q %}
+    {% elif nav and nav.prev %}{% set after = "/vocab/" ~ nav.prev.id ~ q %}
+    {% else %}{% set after = nav.back[0] if nav else "/vocab" %}{% endif %}
+    <input type="hidden" name="next" value="{{ after }}">
+    <p id="delete-title"><strong>Удалить «<span lang="fr">{{ display_fr(e) }}</span>» из словаря?</strong></p>
+    <p class="small muted">Слово пропадёт из уроков, тем, поиска и повторения. Из приложения это
+      не отменить.</p>
+    <div class="row">
+      <button type="button" class="outline secondary small" onclick="this.closest('dialog').close()" autofocus>Отмена</button>
+      <button type="submit" class="small danger">Удалить</button>
+    </div>
+  </form>
+</dialog>
 
 <details class="edit-block">
   <summary>Изменить</summary>
@@ -95,13 +108,28 @@
   </form>
 </details>
 
-{# 0.9.1: на компьютере ← / → листают слова, как стрелки у карточки; не мешают вводу текста #}
+{# 0.9.1: на компьютере ← / → листают слова, как стрелки у карточки; 012: ↓ — раскрыть
+   «Подробнее», ↑ — свернуть, Enter — озвучить слово. Не мешают вводу текста и окнам #}
 <script>
   document.addEventListener("keydown", (event) => {
-    if (!document.querySelector("[data-keyboard-arrows]")) return;
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     const target = event.target;
     if (target.closest && target.closest("input, textarea, select, [contenteditable]")) return;
+    if (document.querySelector("dialog[open]")) return;
+    const extra = document.querySelector("article.word-card details.entry-extra");
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      if (!extra) return;
+      event.preventDefault();  // на странице слова эти клавиши страницу не прокручивают
+      extra.open = event.key === "ArrowDown";
+      return;
+    }
+    if (event.key === "Enter") {
+      if (target.closest && target.closest("button, a, summary")) return;  // Enter — у кнопки свой
+      const speak = document.querySelector("article.word-card [data-speak]");
+      if (speak) { event.preventDefault(); speak.click(); }
+      return;
+    }
+    if (!document.querySelector("[data-keyboard-arrows]")) return;
     const side = { ArrowLeft: "prev", ArrowRight: "next" }[event.key];
     const link = side && document.querySelector(`a.card-arrow.${side}`);
     if (link) { event.preventDefault(); location.href = link.href; }

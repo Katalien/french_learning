@@ -12,6 +12,8 @@ function play(button) {
     players.set(url, audio);
   }
   button.setAttribute("aria-busy", "true");
+  // 012: повторное нажатие во время звучания — слово заново с начала, целиком
+  audio.pause();
   audio.currentTime = 0;
   audio
     .play()

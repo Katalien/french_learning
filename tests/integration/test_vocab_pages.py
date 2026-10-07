@@ -194,3 +194,20 @@ def test_filtered_lesson_links_and_neighbours(client):
     assert "1 из 1" in page
     assert 'class="card-arrow next disabled"' in page
     assert 'href="/lessons/1/vocab?topic=top-nourritu"' in page  # назад — с тем же фильтром
+
+
+def test_neighbours_skip_hidden_words(client):
+    """012 (US1): стрелки урока не ведут на скрытое слово; его собственная страница открывается."""
+    path = client.app.state.store.get().content.element_paths["voc-eauaaaaa"]
+    file = client.app.state.settings.content_dir / path
+    file.write_text(file.read_text(encoding="utf-8") + "hidden: true\n", encoding="utf-8")
+    page = client.get("/vocab/voc-painaaaa?from=lesson&lesson=2").text
+    assert "1 из 1" in page and "voc-eauaaaaa" not in page
+    assert client.get("/vocab/voc-eauaaaaa?from=lesson&lesson=2").status_code == 200
+
+
+def test_entry_page_keys_targets(client):
+    """012 (US5): опора для клавиш ↓ / ↑ / Enter — «Подробнее» и кнопка озвучки в карточке."""
+    html = client.get("/vocab/voc-maisonaa").text
+    assert 'class="entry-extra"' in html and "data-speak=" in html
+    assert "ArrowDown" in html and "ArrowUp" in html and '"Enter"' in html

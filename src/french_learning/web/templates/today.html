@@ -18,22 +18,23 @@
 <div class="today-grid">
   <section class="card">
     <h2>Повторение слов</h2>
-    {% if t.due %}
+    {# 012, пункт 8: слова последнего урока; «Повторить» — сразу все слова урока, RU → FR #}
+    {% if t.last_lesson_words %}
       <div class="stat">
-        {% with done = t.due, total = t.due, label = t.due, size = "" %}{% include "partials/ring.html" %}{% endwith %}
+        {% with done = t.last_lesson_words, total = t.last_lesson_words, label = t.last_lesson_words, size = "" %}{% include "partials/ring.html" %}{% endwith %}
         <div>
-          <p><strong>{{ plural(t.due, "карточка", "карточки", "карточек") }}</strong> пора повторить</p>
-          {% if t.new %}<p class="small muted">из них новых: {{ t.new }}</p>{% endif %}
-          {% if t.due_ru_fr %}<p class="small muted">в обратную сторону (RU → FR): {{ t.due_ru_fr }}</p>{% endif %}
+          <p><strong>{{ plural(t.last_lesson_words, "слово", "слова", "слов") }}</strong> урока {{ t.last_lesson }}</p>
+          <p class="small muted">русский → французский</p>
         </div>
       </div>
       <form method="post" action="/practice/start" class="btn-group">
-        <input type="hidden" name="mode" value="today">
-        <input type="hidden" name="direction" value="{{ 'fr_ru' if t.due_fr_ru else 'ru_fr' }}">
+        <input type="hidden" name="mode" value="lesson">
+        <input type="hidden" name="lesson" value="{{ t.last_lesson }}">
+        <input type="hidden" name="direction" value="ru_fr">
         <button type="submit">Повторить</button>
       </form>
     {% else %}
-      <p class="muted">Все карточки повторены.</p>
+      <p class="muted">В уроках пока нет слов.</p>
     {% endif %}
   </section>
 
